@@ -4,12 +4,12 @@
 
 namespace forward
 {
-	typedef int INT;
+	//typedef int INT;
 	//typedef unsigned int UINT;
-	typedef float f32;
-	typedef bool BOOL;
+	//typedef float f32;
+	//typedef bool BOOL;
 
-	typedef std::wstring string;
+	//typedef std::wstring string;
 	//typedef std::vector vector;
 
 

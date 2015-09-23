@@ -7,6 +7,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     #set(warnings "/W4 /WX")
     set(RenderAPILib "d3d11.lib D3DCompiler.lib dxgi.lib")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
+    add_definitions(-DUNICODE -D_UNICODE)
     MESSAGE( STATUS "MSVC")
 endif()
 
@@ -25,5 +26,6 @@ add_subdirectory(core)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
 endif()
+
 
 #add_executable(forward ${HEADER_FILES} ${SOURCE_FILES})
