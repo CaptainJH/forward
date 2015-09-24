@@ -4,7 +4,7 @@
 class InitDirect3DApp : public forward::Application
 {
 public:
-	InitDirect3DApp(HINSTANCE hInstance);
+	InitDirect3DApp(HINSTANCE hInstance, int width, int height);
 	~InitDirect3DApp();
 
 	bool Init();
@@ -13,15 +13,15 @@ public:
 	void DrawScene();
 };
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
-	PSTR cmdLine, int showCmd)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
+	PSTR /*cmdLine*/, int /*showCmd*/)
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	InitDirect3DApp theApp(hInstance);
+	InitDirect3DApp theApp(hInstance, 1200, 800);
 
 	if (!theApp.Init())
 		return 0;
@@ -29,8 +29,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	return theApp.Run();
 }
 
-InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance)
-	: forward::Application(hInstance)
+InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance, int width, int height)
+	: forward::Application(hInstance, width, height)
 {
 }
 
@@ -51,7 +51,7 @@ void InitDirect3DApp::OnResize()
 	forward::Application::OnResize();
 }
 
-void InitDirect3DApp::UpdateScene(float dt)
+void InitDirect3DApp::UpdateScene(float /*dt*/)
 {
 
 }

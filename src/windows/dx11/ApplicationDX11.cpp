@@ -20,12 +20,12 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return gApplicationDX11->MsgProc(hwnd, msg, wParam, lParam);
 }
 
-ApplicationDX11::ApplicationDX11(HINSTANCE hInstance)
+ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 	: mhAppInst(hInstance),
 	mMainWndCaption(L"D3D11 Application"),
 	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
-	mClientWidth(800),
-	mClientHeight(600),
+	mClientWidth(width),
+	mClientHeight(height),
 	mEnable4xMsaa(false),
 	mhMainWnd(0),
 	mAppPaused(false),
@@ -373,7 +373,7 @@ bool ApplicationDX11::InitDirect3D()
 #endif
 
 	D3D_FEATURE_LEVEL featureLevel;
-	HRESULT hr = D3D11CreateDevice(
+	HR(D3D11CreateDevice(
 		0,                 // default adapter
 		md3dDriverType,
 		0,                 // no software device
@@ -382,13 +382,7 @@ bool ApplicationDX11::InitDirect3D()
 		D3D11_SDK_VERSION,
 		&md3dDevice,
 		&featureLevel,
-		&md3dImmediateContext);
-
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"D3D11CreateDevice Failed.", 0, 0);
-		return false;
-	}
+		&md3dImmediateContext));
 
 	if (featureLevel != D3D_FEATURE_LEVEL_11_0)
 	{

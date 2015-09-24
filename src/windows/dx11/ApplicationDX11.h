@@ -30,7 +30,7 @@ namespace forward
 	class ApplicationDX11
 	{
 	public:
-		ApplicationDX11(HINSTANCE hInstance);
+		ApplicationDX11(HINSTANCE hInstance, int width=800, int height=600);
 		virtual ~ApplicationDX11();
 
 		HINSTANCE AppInst()const;
@@ -49,9 +49,9 @@ namespace forward
 		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 		// Convenience overrides for handling mouse input.
-		virtual void OnMouseDown(WPARAM btnState, int x, int y) { }
-		virtual void OnMouseUp(WPARAM btnState, int x, int y) { }
-		virtual void OnMouseMove(WPARAM btnState, int x, int y) { }
+		virtual void OnMouseDown(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
+		virtual void OnMouseUp(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
+		virtual void OnMouseMove(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
 
 	protected:
 		bool InitMainWindow();

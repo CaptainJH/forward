@@ -12,7 +12,15 @@ source_group(RenderSystem FILES ${HEADER_FILES} ${SOURCE_FILES})
 
 list(APPEND HEADER_FILES ${forward_source_root}/core/types.h)
 
-source_group(core FILES ${forward_source_root}/core/types.h)
+source_group(Core FILES ${forward_source_root}/core/types.h)
+
+file(GLOB HEADER_FILES_MATH "${forward_source_root}/math/*.h" "${forward_source_root}/math/*.inl")
+file(GLOB SOURCE_FILES_MATH "${forward_source_root}/math/*.cpp")
+source_group(Math FILES ${HEADER_FILES_MATH} ${SOURCE_FILES_MATH})
+#list(APPEND HEADRE_FILES ${HEADER_FILES_MATH})
+#list(APPEND SOURCE_FILEs ${SOURCE_FILES_MATH})
+
+#MESSAGE(${HEADRE_FILES})
 
 
-add_executable(forward ${HEADER_FILES} ${SOURCE_FILES})
+add_executable(forward ${HEADER_FILES_MATH} ${SOURCE_FILES_MATH} ${HEADER_FILES} ${SOURCE_FILES})
