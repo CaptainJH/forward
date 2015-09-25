@@ -19,14 +19,11 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${SubSystem}")
 
 add_subdirectory(core)
 add_subdirectory(math)
-#add_subdirectory(geometry)
-#add_subdirectory(render)
+add_subdirectory(geometry)
+add_subdirectory(intersection)
 
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
 endif()
 
-
-
-#add_executable(forward ${HEADER_FILES} ${SOURCE_FILES})
