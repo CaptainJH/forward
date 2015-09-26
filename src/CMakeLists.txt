@@ -5,6 +5,7 @@ set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories("core/")
 include_directories("windows/")
+include_directories("windows/dx11")
 include_directories("math/")
 include_directories("intersection/")
 include_directories("geometry/")

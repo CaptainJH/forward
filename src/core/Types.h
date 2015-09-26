@@ -5,7 +5,7 @@
 namespace forward
 {
 	//typedef int INT;
-	//typedef unsigned int UINT;
+	typedef unsigned int UINT;
 	//typedef float f32;
 	//typedef bool BOOL;
 
