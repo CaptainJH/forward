@@ -37,6 +37,7 @@ list(APPEND HEADER_FILES ${HEADER_FILES})
 file(GLOB HEADER_FILES_MATH "${forward_source_root}/math/*.h" "${forward_source_root}/math/*.inl")
 file(GLOB SOURCE_FILES_MATH "${forward_source_root}/math/*.cpp")
 source_group(Math FILES ${HEADER_FILES_MATH} ${SOURCE_FILES_MATH})
+list(APPEND HEADER_FILES ${HEADER_FILES_MATH})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_MATH})
 
 
@@ -44,6 +45,7 @@ list(APPEND SOURCE_FILES ${SOURCE_FILES_MATH})
 file(GLOB HEADER_FILES_GEOMETRY "${forward_source_root}/geometry/*.h")
 file(GLOB SOURCE_FILES_GEOMETRY "${forward_source_root}/geometry/*.cpp")
 source_group(Geometry FILES ${HEADER_FILES_GEOMETRY} ${SOURCE_FILES_GEOMETRY})
+list(APPEND HEADER_FILES ${HEADER_FILES_GEOMETRY})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_GEOMETRY})
 
 
@@ -51,6 +53,7 @@ list(APPEND SOURCE_FILES ${SOURCE_FILES_GEOMETRY})
 file(GLOB HEADER_FILES_INTERSECTION "${forward_source_root}/intersection/*.h")
 file(GLOB SOURCE_FILES_INTERSECTION "${forward_source_root}/intersection/*.cpp")
 source_group(Intersection FILES ${HEADER_FILES_INTERSECTION} ${SOURCE_FILES_INTERSECTION})
+list(APPEND HEADER_FILES ${HEADER_FILES_INTERSECTION})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_INTERSECTION})
 
 
