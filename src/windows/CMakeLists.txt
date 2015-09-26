@@ -14,6 +14,11 @@ file(GLOB RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceDX11.*")
 source_group(RenderSystem\\ResourceSystem FILES ${RESOURCE_FILES})
 list(APPEND SOURCE_FILES ${RESOURCE_FILES})
 
+file(GLOB BUFFER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*Buffer*.*")
+source_group(RenderSystem\\ResourceSystem\\Buffer FILES ${BUFFER_FILES})
+list(APPEND SOURCE_FILES ${BUFFER_FILES})
+
+
 
 # Core
 list(APPEND HEADER_FILES ${forward_source_root}/core/types.h)

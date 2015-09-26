@@ -13,7 +13,7 @@ namespace
 }
 
 LRESULT CALLBACK
-MainWndProc(HWND hwnd, ::UINT msg, WPARAM wParam, LPARAM lParam)
+MainWndProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
@@ -194,7 +194,7 @@ void ApplicationDX11::OnResize()
 	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
 }
 
-LRESULT ApplicationDX11::MsgProc(HWND hwnd, ::UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
