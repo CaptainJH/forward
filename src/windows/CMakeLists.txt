@@ -18,6 +18,10 @@ file(GLOB BUFFER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*Buffer*.*")
 source_group(RenderSystem\\ResourceSystem\\Buffer FILES ${BUFFER_FILES})
 list(APPEND SOURCE_FILES ${BUFFER_FILES})
 
+file(GLOB TEXTURE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/Texture*.*" "${CMAKE_CURRENT_SOURCE_DIR}/dx11/SwapChain*.*")
+source_group(RenderSystem\\ResourceSystem\\Texture FILES ${TEXTURE_FILES})
+list(APPEND SOURCE_FILES ${TEXTURE_FILES})
+
 
 
 # Core
