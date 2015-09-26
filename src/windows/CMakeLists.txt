@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
 
-include_directories("${forward_source_root}/core/")
-include_directories("${forward_source_root}/windows/")
-include_directories("${forward_source_root}/math/")
-include_directories("${forward_source_root}/intersection/")
-include_directories("${forward_source_root}/geometry/")
-
 
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*.h")
 file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*.cpp")
@@ -34,4 +28,8 @@ source_group(Intersection FILES ${HEADER_FILES_INTERSECTION} ${SOURCE_FILES_INTE
 #MESSAGE(${HEADRE_FILES})
 
 
-add_executable(forward ${HEADER_FILES_MATH} ${SOURCE_FILES_MATH} ${HEADER_FILES_INTERSECTION} ${SOURCE_FILES_INTERSECTION} ${HEADER_FILES_GEOMETRY} ${SOURCE_FILES_GEOMETRY} ${HEADER_FILES} ${SOURCE_FILES})
+add_executable(forward 
+	${HEADER_FILES_MATH} ${SOURCE_FILES_MATH} 
+	${HEADER_FILES_INTERSECTION} ${SOURCE_FILES_INTERSECTION} 
+	${HEADER_FILES_GEOMETRY} ${SOURCE_FILES_GEOMETRY} 
+	${HEADER_FILES} ${SOURCE_FILES})

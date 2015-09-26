@@ -3,6 +3,12 @@ project("forward")
 
 set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
+include_directories("core/")
+include_directories("windows/")
+include_directories("math/")
+include_directories("intersection/")
+include_directories("geometry/")
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX")
     set(RenderAPILib "d3d11.lib D3DCompiler.lib dxgi.lib")
