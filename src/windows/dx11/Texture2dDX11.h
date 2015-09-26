@@ -20,8 +20,6 @@ namespace forward
 		D3D11_TEXTURE2D_DESC		GetDesiredDescription();
 		void						SetDesiredDescription( D3D11_TEXTURE2D_DESC description );
 
-		void						CreateTexture( void* pData );
-
 		virtual ResourceType				GetType();
 		virtual ID3D11Resource*				GetResource();
 

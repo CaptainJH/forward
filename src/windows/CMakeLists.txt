@@ -22,6 +22,9 @@ file(GLOB TEXTURE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/Texture*.*" "${CMAKE_C
 source_group(RenderSystem\\ResourceSystem\\Texture FILES ${TEXTURE_FILES})
 list(APPEND SOURCE_FILES ${TEXTURE_FILES})
 
+file(GLOB RESOURCE_VIEW_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*View*.*")
+source_group(RenderSystem\\ResourceSystem\\ResourceView FILES ${RESOURCE_VIEW_FILES})
+list(APPEND SOURCE_FILES ${RESOURCE_VIEW_FILES})
 
 
 # Core
