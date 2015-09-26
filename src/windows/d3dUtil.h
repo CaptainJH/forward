@@ -63,7 +63,7 @@
 // Convenience macro for deleting objects.
 //---------------------------------------------------------------------------------------
 
-#define SafeDelete(x) { delete x; x = 0; }
+#define SafeDelete(x) { if(x){ delete x; x = 0; } }
 
 
 // #define XMGLOBALCONST extern CONST __declspec(selectany)

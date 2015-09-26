@@ -10,7 +10,7 @@ source_group(RenderSystem FILES ${HEADER_FILES} ${SOURCE_FILES})
 
 
 # Resource System
-file(GLOB RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceDX11.*")
+file(GLOB RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceDX11.*" "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceProxyDX11.*")
 source_group(RenderSystem\\ResourceSystem FILES ${RESOURCE_FILES})
 list(APPEND SOURCE_FILES ${RESOURCE_FILES})
 
