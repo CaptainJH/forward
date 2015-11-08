@@ -24,7 +24,7 @@ namespace forward
 		int							m_iIndexSize;
 		int							m_iIndexCount;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

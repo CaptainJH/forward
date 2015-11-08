@@ -7,24 +7,23 @@
 //--------------------------------------------------------------------------------
 #include <wrl.h>
 #include <d3d11_2.h>
+#include "ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
 	class SwapChainDX11
 	{
 	public:
-		//TODO: ResourcePtr
-		//explicit SwapChainDX11( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource );
+		explicit SwapChainDX11( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource );
 		virtual ~SwapChainDX11();
 
 		IDXGISwapChain* GetSwapChain();
 
 	protected:
 		Microsoft::WRL::ComPtr<IDXGISwapChain>	m_pSwapChain;
-		//TODO: ResourcePtr
-		//ResourcePtr								m_Resource;
+		ResourcePtr								m_Resource;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

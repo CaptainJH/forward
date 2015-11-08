@@ -36,7 +36,7 @@ namespace forward
 	protected:
 		D3D11_TEXTURE2D_DESC 		m_State;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

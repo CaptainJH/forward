@@ -20,7 +20,6 @@
 namespace forward
 {
 	class PipelineManagerDX11;
-	class IParameterManager;
 
 	// This simple structure provides the mapping between a vertex shader program
 	// and the corresponding input layout.
@@ -37,7 +36,7 @@ namespace forward
 		PipelineExecutorDX11();
 		virtual ~PipelineExecutorDX11();
 
-		virtual void Execute( PipelineManagerDX11* pPipeline, IParameterManager* pParamManager ) = 0;
+		virtual void Execute( PipelineManagerDX11* pPipeline ) = 0;
 		
 		virtual void SetLayoutElements( unsigned int count, D3D11_INPUT_ELEMENT_DESC* pElements );
 		virtual void GenerateInputLayout( int ShaderID );

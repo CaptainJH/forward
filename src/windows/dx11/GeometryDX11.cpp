@@ -36,7 +36,7 @@ GeometryDX11::~GeometryDX11()
 	}
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::Execute( PipelineManagerDX11* /*pPipeline*/, IParameterManager* /*pParamManager*/ )
+void GeometryDX11::Execute( PipelineManagerDX11* /*pPipeline*/ )
 {
 	//pPipeline->InputAssemblerStage.ClearDesiredState();
 

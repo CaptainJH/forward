@@ -24,7 +24,7 @@ namespace forward
 		int							m_iVertexSize;
 		int							m_iVertexCount;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

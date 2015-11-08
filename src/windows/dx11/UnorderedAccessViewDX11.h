@@ -22,9 +22,9 @@ namespace forward
 	protected:
 		UnorderedAccessViewComPtr			m_pUnorderedAccessView;
 		
-		//friend OutputMergerStageDX11;
-		//friend PipelineManagerDX11;
-		//friend RendererDX11;
+		friend class OutputMergerStageDX11;
+		friend class PipelineManagerDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

@@ -9,34 +9,37 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// ShaderFactoryDX11
+// Log
 //
+// The log class is a singleton that allows the application to write messages to 
+// a file.
 //--------------------------------------------------------------------------------
-#ifndef ShaderFactoryDX11_h
-#define ShaderFactoryDX11_h
+#ifndef Log_h
+#define Log_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ShaderDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class ShaderFactoryDX11
+	class Log 
 	{
+	protected:
+		Log();
+
+		std::wofstream	AppLog;
+
 	public:
-		~ShaderFactoryDX11();
 
-		static ID3DBlob* GenerateShader( ShaderType type, std::wstring& filename, std::wstring& function,
-            std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
+		static Log& Get( );
 
-		static ID3DBlob* GeneratePrecompiledShader( std::wstring& filename, std::wstring& function,
-            std::wstring& model );
+		bool Open( );
+		bool Close( );
 
-	private:
-		ShaderFactoryDX11();
+		bool Write( const wchar_t *TextString );
+		bool Write( std::wstring& TextString );
+		bool WriteSeparater( );
 	};
-
 };
 //--------------------------------------------------------------------------------
-#endif // ShaderFactoryDX11_h
+#endif // Log_h
 //--------------------------------------------------------------------------------
-

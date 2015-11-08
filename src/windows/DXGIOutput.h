@@ -9,34 +9,29 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// ShaderFactoryDX11
+// DXGIOutput
 //
 //--------------------------------------------------------------------------------
-#ifndef ShaderFactoryDX11_h
-#define ShaderFactoryDX11_h
-//--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ShaderDX11.h"
+//--------------------------------------------------------------------------------
+#ifndef DXGIOutput_h
+#define DXGIOutput_h
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class ShaderFactoryDX11
+	class DXGIOutput
 	{
 	public:
-		~ShaderFactoryDX11();
+		DXGIOutput( Microsoft::WRL::ComPtr<IDXGIOutput> pOutput );
+		virtual ~DXGIOutput();
 
-		static ID3DBlob* GenerateShader( ShaderType type, std::wstring& filename, std::wstring& function,
-            std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
+	protected:
+		Microsoft::WRL::ComPtr<IDXGIOutput>	m_pOutput;
 
-		static ID3DBlob* GeneratePrecompiledShader( std::wstring& filename, std::wstring& function,
-            std::wstring& model );
-
-	private:
-		ShaderFactoryDX11();
+		friend class RendererDX11;
 	};
-
 };
 //--------------------------------------------------------------------------------
-#endif // ShaderFactoryDX11_h
+#endif // DXGIOutput_h
 //--------------------------------------------------------------------------------
 

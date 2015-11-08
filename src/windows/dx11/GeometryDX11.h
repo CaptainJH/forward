@@ -36,7 +36,7 @@ namespace forward
 		GeometryDX11( );
 		virtual ~GeometryDX11( );
 	
-		virtual void Execute( PipelineManagerDX11* pPipeline, IParameterManager* pParamManager );
+		virtual void Execute( PipelineManagerDX11* pPipeline );
 
 		void AddElement( VertexElementDX11* element );
 		void AddFace( TriangleIndices& face );

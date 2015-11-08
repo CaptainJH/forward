@@ -41,7 +41,7 @@ namespace forward
 	protected:
 		DXGI_SWAP_CHAIN_DESC 		m_State;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

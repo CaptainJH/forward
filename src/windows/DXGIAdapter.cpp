@@ -9,28 +9,25 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// ByteAddressBufferDX11 
-//
+#include "PCH.h"
+#include "DXGIAdapter.h"
+#include "DXGIOutput.h"
 //--------------------------------------------------------------------------------
-#ifndef ByteAddressBufferDX11_h
-#define ByteAddressBufferDX11_h
+using namespace forward;
 //--------------------------------------------------------------------------------
-#include "BufferDX11.h"
-//--------------------------------------------------------------------------------
-namespace forward
+DXGIAdapter::DXGIAdapter( Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter )
 {
-	class ByteAddressBufferDX11 : public BufferDX11
+	m_pAdapter = pAdapter;
+
+	Microsoft::WRL::ComPtr<IDXGIOutput> pOutput;
+
+	while ( pAdapter->EnumOutputs( m_vOutputs.size(), pOutput.ReleaseAndGetAddressOf() ) != DXGI_ERROR_NOT_FOUND )
 	{
-	public:
-		ByteAddressBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer );
-		virtual ~ByteAddressBufferDX11();
-
-		virtual ResourceType				GetType();
-
-	protected:
-
-		friend class RendererDX11;
-	};
-};
+		m_vOutputs.push_back( pOutput );
+	}
+}
 //--------------------------------------------------------------------------------
-#endif // ByteAddressBufferDX11_h
+DXGIAdapter::~DXGIAdapter()
+{
+}
+//--------------------------------------------------------------------------------

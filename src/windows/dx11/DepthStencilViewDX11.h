@@ -21,9 +21,9 @@ namespace forward
 	protected:
 		DepthStencilViewComPtr			m_pDepthStencilView;
 		
-		//friend PipelineManagerDX11;
-		//friend OutputMergerStageDX11;
-		//friend RendererDX11;
+		friend PipelineManagerDX11;
+		friend OutputMergerStageDX11;
+		friend RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

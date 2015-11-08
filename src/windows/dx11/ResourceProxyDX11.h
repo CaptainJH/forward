@@ -20,7 +20,7 @@ namespace forward
 	class ShaderResourceViewConfigDX11;
 	class UnorderedAccessViewConfigDX11;
 	class RenderTargetViewConfigDX11;
-	//class RendererDX11;
+	class RendererDX11;
 
 	class ResourceProxyDX11
 	{

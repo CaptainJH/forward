@@ -19,7 +19,7 @@ namespace forward
 
 	protected:
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

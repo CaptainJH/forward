@@ -23,8 +23,8 @@ namespace forward
 	protected:
 		ShaderResourceViewComPtr		m_pShaderResourceView;
 		
-		//friend PipelineManagerDX11;
-		//friend RendererDX11;
+		friend class PipelineManagerDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

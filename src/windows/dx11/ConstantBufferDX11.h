@@ -53,7 +53,7 @@ namespace forward
 		bool									m_bAutoUpdate;
 		std::vector< ConstantBufferMapping >	m_Mappings;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

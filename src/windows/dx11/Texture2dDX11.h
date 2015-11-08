@@ -31,7 +31,7 @@ namespace forward
 		D3D11_TEXTURE2D_DESC							m_DesiredDesc;
 		D3D11_TEXTURE2D_DESC							m_ActualDesc;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

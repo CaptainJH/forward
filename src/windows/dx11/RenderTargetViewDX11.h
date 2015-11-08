@@ -23,9 +23,9 @@ namespace forward
 	protected:
 		RenderTargetViewComPtr			m_pRenderTargetView;
 		
-		//friend PipelineManagerDX11;
-		//friend OutputMergerStageDX11;
-		//friend RendererDX11;
+		friend class PipelineManagerDX11;
+		friend class OutputMergerStageDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

@@ -12,12 +12,9 @@
 #include "PCH.h"
 #include "ShaderFactoryDX11.h"
 #include "Log.h"
-#include "FileSystem.h"
-#include "EventManager.h"
-#include "EvtErrorMessage.h"
-#include "FileLoader.h"
+#include "d3dUtil.h"
 //--------------------------------------------------------------------------------
-using namespace Glyph3;
+using namespace forward;
 //--------------------------------------------------------------------------------
 ShaderFactoryDX11::ShaderFactoryDX11( )
 {
@@ -53,22 +50,19 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& file
 
 	// Get the current path to the shader folders, and add the filename to it.
 
-	FileSystem fs;
-	std::wstring filepath = fs.GetShaderFolder() + filename;
+	std::wstring filepath = filename;
 
 	// Load the file into memory
 
-	FileLoader SourceFile;
-	if ( !SourceFile.Open( filepath ) ) {
-		message << "Unable to load shader from file: " << filepath;
-		EventManager::Get()->ProcessEvent( EvtErrorMessagePtr( new EvtErrorMessage( message.str() ) ) );
-		return( nullptr );
-	}
+	std::ifstream shaderFile(filename);
+	std::string hlslCode((std::istreambuf_iterator<char>(shaderFile)),
+		std::istreambuf_iterator<char>());
+
 
 
 	if ( FAILED( hr = D3DCompile( 
-		SourceFile.GetDataPtr(),
-		SourceFile.GetDataSize(),
+		hlslCode.c_str(),
+		hlslCode.size(),
 		nullptr,
 		pDefines,
 		nullptr,
@@ -79,19 +73,6 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& file
 		&pCompiledShader,
 		&pErrorMessages ) ) )
 
-	//if ( FAILED( hr = D3DX11CompileFromFile(
-	//	filename.c_str(),
-	//	pDefines,
-	//	0,
-	//	AsciiFunction,
-	//	AsciiModel,
-	//	flags,
-	//	0,//UINT Flags2,
-	//	0,
-	//	&pCompiledShader,
-	//	&pErrorMessages,
-	//	&hr
-	//	) ) )
 	{
 		message << L"Error compiling shader program: " << filepath << std::endl << std::endl;
 		message << L"The following error was reported:" << std::endl;
@@ -100,11 +81,9 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& file
 		{
 			LPVOID pCompileErrors = pErrorMessages->GetBufferPointer();
 			const char* pMessage = (const char*)pCompileErrors;
-			message << GlyphString::ToUnicode( std::string( pMessage ) );
+			message << TextHelper::ToUnicode( std::string( pMessage ) );
 			Log::Get().Write( message.str() );
 		}
-
-		EventManager::Get()->ProcessEvent( EvtErrorMessagePtr( new EvtErrorMessage( message.str() ) ) );
 
 		SAFE_RELEASE( pCompiledShader );
 		SAFE_RELEASE( pErrorMessages );
@@ -120,36 +99,10 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& file
 ID3DBlob* ShaderFactoryDX11::GeneratePrecompiledShader( std::wstring& filename, std::wstring& function,
             std::wstring& model )
 {
-	std::wstringstream message;
-
-	// Determine where to look for the shader file
-
-	FileSystem fs;
-	std::wstring filepath = fs.GetShaderFolder() + filename + L"_" + function + L"_" + model + L".cso";
-
-	// Load the file into memory
-
-	FileLoader CompiledObjectFile;
-	if ( !CompiledObjectFile.Open( filepath ) ) {
-		message << "Unable to load shader from file: " << filepath;
-		EventManager::Get()->ProcessEvent( EvtErrorMessagePtr( new EvtErrorMessage( message.str() ) ) );
-		return( nullptr );
-	}
-
 	// Create a blob to store the object code in
 	
 	ID3DBlob* pBlob = nullptr;
-	HRESULT hr = D3DCreateBlob( CompiledObjectFile.GetDataSize(), &pBlob );
 
-	if ( FAILED( hr ) ) {
-		message << "Unable to create a D3DBlob of size: " << CompiledObjectFile.GetDataSize() << L" while compiling shader: " << filepath;
-		EventManager::Get()->ProcessEvent( EvtErrorMessagePtr( new EvtErrorMessage( message.str() ) ) );
-		return( nullptr );
-	}
-
-
-	// Copy the file data into the blob
-	memcpy( pBlob->GetBufferPointer(), CompiledObjectFile.GetDataPtr(), pBlob->GetBufferSize() );
 
 	// The file object will automatically be released when it goes out of scope,
 	// and hence will free its loaded contents automatically also.

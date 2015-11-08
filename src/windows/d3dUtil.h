@@ -20,6 +20,8 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <locale>
+#include <codecvt>
 //#include "MathHelper.h"
 //#include "LightHelper.h"
 
@@ -64,6 +66,45 @@
 //---------------------------------------------------------------------------------------
 
 #define SafeDelete(x) { if(x){ delete x; x = 0; } }
+
+
+//---------------------------------------------------------------------------------------
+// Utility classes.
+//---------------------------------------------------------------------------------------
+
+class TextHelper
+{
+public:
+
+	template<typename T>
+	static std::wstring ToString(const T& s)
+	{
+		std::wostringstream oss;
+		oss << s;
+
+		return oss.str();
+	}
+
+	template<typename T>
+	static T FromString(const std::wstring& s)
+	{
+		T x;
+		std::wistringstream iss(s);
+		iss >> x;
+
+		return x;
+	}
+
+	static std::string ToAscii(const std::wstring& input)
+	{
+		return std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes(s);
+	}
+
+	static std::wstring ToUnicode(const std::string& input)
+	{
+		return std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(s);
+	}
+};
 
 
 // #define XMGLOBALCONST extern CONST __declspec(selectany)

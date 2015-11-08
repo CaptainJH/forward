@@ -48,7 +48,7 @@ namespace forward
 	protected:
 		D3D11_BUFFER_DESC 		m_State;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

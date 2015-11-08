@@ -25,8 +25,8 @@ namespace forward
 	protected:
 		D3D11_VIEWPORT			m_ViewPort;
 
-		//friend RasterizerStageDX11;
-		//friend RendererDX11;
+		friend class RasterizerStageDX11;
+		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------
