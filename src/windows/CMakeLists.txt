@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
 
-
 # DX11
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ApplicationDX11.h")
 file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ApplicationDX11.cpp")
@@ -8,6 +7,47 @@ list(APPEND HEADER_FILES d3dUtil.h)
 list(APPEND SOURCE_FILES d3dUtil.cpp main.cpp)
 source_group(RenderSystem FILES ${HEADER_FILES} ${SOURCE_FILES})
 
+# include
+file(GLOB HEADER_FILES_INCLUDE "${forward_source_root}/include/*.h" "${forward_source_root}/include/*.inl")
+list(APPEND HEADER_FILES ${HEADER_FILES_INCLUDE})
+source_group(RenderSystem\\Pipeline\\Stages\\Common FILES ${HEADER_FILES_INCLUDE})
+
+# PipeLine System
+file(GLOB PIPELINE_IA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/InputAssembler*DX11.*")
+source_group(RenderSystem\\Pipeline\\Stages\\FixedStages\\InputAssembler FILES ${PIPELINE_IA_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_IA_FILES})
+
+file(GLOB PIPELINE_RASTERIZER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/RasterizerStage*.*")
+source_group(RenderSystem\\Pipeline\\Stages\\FixedStages\\Rasterizer FILES ${PIPELINE_RASTERIZER_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_RASTERIZER_FILES})
+
+file(GLOB PIPELINE_SO_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/StreamOutputStage*.*")
+source_group(RenderSystem\\Pipeline\\Stages\\FixedStages\\StreamOutput FILES ${PIPELINE_SO_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_SO_FILES})
+
+file(GLOB PIPELINE_OM_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/OutputMergerStage*.*")
+source_group(RenderSystem\\Pipeline\\Stages\\FixedStages\\OutputMerger FILES ${PIPELINE_OM_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_OM_FILES})
+
+file(GLOB PIPELINE_SHADERSTAGESTATE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ShaderStageStateDX11.*")
+source_group(RenderSystem\\Pipeline\\Stages\\ProgrammableStages\\States FILES ${PIPELINE_SHADERSTAGESTATE_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_SHADERSTAGESTATE_FILES})
+
+
+file(GLOB PIPELINE_SHADERPROGRAM_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*ShaderDX11.*")
+source_group(RenderSystem\\Pipeline\\Stages\\ProgrammableStages\\ShaderProgram FILES ${PIPELINE_SHADERPROGRAM_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_SHADERPROGRAM_FILES})
+
+file(GLOB PIPELINE_SHADERSTAGE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/*ShaderStageDX11.*")
+source_group(RenderSystem\\Pipeline\\Stages\\ProgrammableStages\\ShaderStage FILES ${PIPELINE_SHADERSTAGE_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_SHADERSTAGE_FILES})
+
+file(GLOB PIPELINE_EXECUTORS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/GeometryDX11.*" )
+file(GLOB PIPELINE_EXECUTORS_FILES2 "${CMAKE_CURRENT_SOURCE_DIR}/dx11/PipelineExecutorDX11.*")
+file(GLOB PIPELINE_EXECUTORS_FILES_VERTEX "${CMAKE_CURRENT_SOURCE_DIR}/dx11/VertexElementDX11.*")
+list(APPEND PIPELINE_EXECUTORS_FILES ${PIPELINE_EXECUTORS_FILES2} ${PIPELINE_EXECUTORS_FILES_VERTEX})
+source_group(RenderSystem\\Pipeline\\Executors FILES ${PIPELINE_EXECUTORS_FILES})
+list(APPEND SOURCE_FILES ${PIPELINE_EXECUTORS_FILES})
 
 # Resource System
 file(GLOB RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceDX11.*" "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ResourceProxyDX11.*")
@@ -34,10 +74,9 @@ list(APPEND SOURCE_FILES ${STATE_OBJECT_FILES})
 
 
 # Core
-list(APPEND HEADER_FILES ${forward_source_root}/core/types.h)
-source_group(Core FILES ${forward_source_root}/core/types.h)
-list(APPEND HEADER_FILES ${HEADER_FILES})
-
+file(GLOB HEADER_FILES_CORE "${forward_source_root}/core/*.h")
+source_group(Core FILES ${HEADER_FILES_CORE})
+list(APPEND HEADER_FILES ${HEADER_FILES_CORE})
 
 # math
 file(GLOB HEADER_FILES_MATH "${forward_source_root}/math/*.h" "${forward_source_root}/math/*.inl")
