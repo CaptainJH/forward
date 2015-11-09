@@ -11,6 +11,7 @@
 //--------------------------------------------------------------------------------
 #include "StreamOutputStageDX11.h"
 #include "VertexBufferDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -40,46 +41,45 @@ void StreamOutputStageDX11::ClearCurrentState( )
 	CurrentState.ClearState();
 }
 //--------------------------------------------------------------------------------
-void StreamOutputStageDX11::ApplyDesiredState( ID3D11DeviceContext* /*pContext*/ )
+void StreamOutputStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 {
-	/// TODO
-	//RendererDX11* pRenderer = RendererDX11::Get();
+	RendererDX11* pRenderer = RendererDX11::Get();
 
-	//// Bind the vertex buffers
-	//if ( DesiredState.StreamBuffers.IsUpdateNeeded()
-	//	|| DesiredState.StreamOffsets.IsUpdateNeeded() )
-	//{
-	//	ID3D11Buffer* Buffers[4] = { NULL };
+	// Bind the vertex buffers
+	if ( DesiredState.StreamBuffers.IsUpdateNeeded()
+		|| DesiredState.StreamOffsets.IsUpdateNeeded() )
+	{
+		ID3D11Buffer* Buffers[4] = { NULL };
 
-	//	for ( unsigned int i = 0; i < sizeof( Buffers ) / sizeof( ID3D11Buffer* ); i++ )
-	//	{
-	//		int index = DesiredState.StreamBuffers.GetState( i );
+		for ( unsigned int i = 0; i < sizeof( Buffers ) / sizeof( ID3D11Buffer* ); i++ )
+		{
+			int index = DesiredState.StreamBuffers.GetState( i );
 
-	//		VertexBufferDX11* pBuffer = pRenderer->GetVertexBufferByIndex( index );
+			VertexBufferDX11* pBuffer = pRenderer->GetVertexBufferByIndex( index );
 
-	//		if ( pBuffer ) {
-	//			Buffers[i] = static_cast<ID3D11Buffer*>( pBuffer->GetResource() );
-	//		} else {
-	//			Buffers[i] = 0;
-	//		}
-	//	}
+			if ( pBuffer ) {
+				Buffers[i] = static_cast<ID3D11Buffer*>( pBuffer->GetResource() );
+			} else {
+				Buffers[i] = 0;
+			}
+		}
 
-	//	// Start slot is always zero since there is no way to specify buffers
-	//	// starting from a different index.
+		// Start slot is always zero since there is no way to specify buffers
+		// starting from a different index.
 
-	//	UINT startSlot = 0;
+		UINT startSlot = 0;
 
-	//	UINT endSlot = max( DesiredState.StreamBuffers.GetEndSlot(),
-	//		DesiredState.StreamOffsets.GetEndSlot() );
+		UINT endSlot = max( DesiredState.StreamBuffers.GetEndSlot(),
+			DesiredState.StreamOffsets.GetEndSlot() );
 
-	//	pContext->SOSetTargets( 
-	//		endSlot-startSlot+1, 
-	//		Buffers,
-	//		DesiredState.StreamOffsets.GetSlotLocation( 0 ) );
-	//}
+		pContext->SOSetTargets( 
+			endSlot-startSlot+1, 
+			Buffers,
+			DesiredState.StreamOffsets.GetSlotLocation( 0 ) );
+	}
 
-	//DesiredState.ResetUpdateFlags();
-	//CurrentState = DesiredState;
+	DesiredState.ResetUpdateFlags();
+	CurrentState = DesiredState;
 }
 //--------------------------------------------------------------------------------
 const StreamOutputStageStateDX11& StreamOutputStageDX11::GetCurrentState() const

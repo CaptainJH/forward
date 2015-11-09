@@ -12,7 +12,7 @@
 #include "PCH.h"
 #include "HullShaderStageDX11.h"
 #include "HullShaderDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ ShaderType HullStageDX11::GetType()
 	return( HULL_SHADER );
 }
 //--------------------------------------------------------------------------------
-void HullStageDX11::BindShaderProgram( ID3D11DeviceContext* /*pContext*/ )
+void HullStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	RendererDX11* pRenderer = RendererDX11::Get();
+	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	//ID3D11HullShader* pShader = 0;
+	ID3D11HullShader* pShader = 0;
 
-	//if ( pShaderDX11 ) {
-	//	pShader = reinterpret_cast<HullShaderDX11*>( pShaderDX11 )->m_pHullShader;
-	//}
+	if ( pShaderDX11 ) {
+		pShader = reinterpret_cast<HullShaderDX11*>( pShaderDX11 )->m_pHullShader;
+	}
 
-	//pContext->HSSetShader( pShader, 0, 0 );
+	pContext->HSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void HullStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )

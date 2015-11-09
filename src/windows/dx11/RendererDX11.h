@@ -50,19 +50,6 @@ namespace forward
 
 	class PipelineManagerDX11;
 
-	enum ResourceType
-	{
-		RT_VERTEXBUFFER = 0x010000,
-		RT_INDEXBUFFER = 0x020000,
-		RT_CONSTANTBUFFER = 0x030000,
-		RT_STRUCTUREDBUFFER = 0x040000,
-		RT_BYTEADDRESSBUFFER = 0x050000,
-		RT_INDIRECTARGSBUFFER = 0x060000,
-		RT_TEXTURE1D = 0x070000,
-		RT_TEXTURE2D = 0x080000,
-		RT_TEXTURE3D = 0x090000
-	};
-
 
 
 	class RendererDX11
@@ -175,7 +162,6 @@ namespace forward
 		Vector2f GetDesktopResolution();
 
 		ResourcePtr LoadTexture( std::wstring filename, bool sRGB = false );
-		ResourcePtr LoadTexture( void* pData, SIZE_T sizeInBytes );
 		
 		// NOTE: This method is likely to be removed in the near future, since there should not
 		//       be any situations where there is a raw texture pointer being given to the renderer!

@@ -12,7 +12,7 @@
 #include "PCH.h"
 #include "DomainShaderStageDX11.h"
 #include "DomainShaderDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ ShaderType DomainStageDX11::GetType()
 	return( DOMAIN_SHADER );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindShaderProgram( ID3D11DeviceContext* /*pContext*/ )
+void DomainStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	RendererDX11* pRenderer = RendererDX11::Get();
+	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	//ID3D11DomainShader* pShader = 0;
-	//
-	//if ( pShaderDX11 ) {
-	//	pShader = reinterpret_cast<DomainShaderDX11*>( pShaderDX11 )->m_pDomainShader;
-	//}
+	ID3D11DomainShader* pShader = 0;
+	
+	if ( pShaderDX11 ) {
+		pShader = reinterpret_cast<DomainShaderDX11*>( pShaderDX11 )->m_pDomainShader;
+	}
 
-	//pContext->DSSetShader( pShader, 0, 0 );
+	pContext->DSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )

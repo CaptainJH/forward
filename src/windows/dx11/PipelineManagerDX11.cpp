@@ -27,11 +27,13 @@
 
 #include "IndirectArgsBufferDX11.h"
 
+#include "RendererDX11.h"
 
 #include <wincodec.h>
 
 #include <sstream>
 
+#pragma warning( disable : 4189 )
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -64,7 +66,6 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 
 	m_pAnnotation = nullptr;
 	HRESULT hr = m_pContext.CopyTo( m_pAnnotation.GetAddressOf() );
-	
 
 	// For each pipeline stage object, set its feature level here so they know
 	// what they can do and what they can't do.
@@ -82,137 +83,137 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 	OutputMergerStage.SetFeautureLevel( level );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, 
-                                                      IParameterManager* pParamManager )
-{
-	RendererDX11* pRenderer = RendererDX11::Get();
-
-	unsigned int tID = pParamManager->GetID();
-
-	if ( pParam != 0 ) {
-
-		// Check the type of the parameter
-		if ( pParam->GetParameterType() == CBUFFER ) {
-			ConstantBufferParameterDX11* pBuffer = reinterpret_cast<ConstantBufferParameterDX11*>( pParam );
-			int ID = pBuffer->GetIndex( tID ); 
-
-			ResourceDX11* pResource = pRenderer->GetResourceByIndex( ID );
-
-			// Allow a range including -1 up to the number of resources
-			if ( pResource || ( ID == -1 ) ) {
-				// Get the resource to be set, and pass it in to the desired shader type
-				
-				ID3D11Buffer* pBuffer = 0;
-				
-				if ( ID >= 0 ) {
-					pBuffer = (ID3D11Buffer*)pResource->GetResource();
-				}
-
-				ShaderStages[type]->DesiredState.ConstantBuffers.SetState( slot, pBuffer );
-			} else {
-				Log::Get().Write( L"Tried to set an invalid constant buffer ID!" );
-			}
-		} else {
-			Log::Get().Write( L"Tried to set a non-constant buffer ID as a constant buffer!" );
-		}
-	} else {
-		Log::Get().Write( L"Tried to set a non-existing parameter as a constant buffer!" );
-	}
-}
-//--------------------------------------------------------------------------------
-void PipelineManagerDX11::BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, 
-                                                      IParameterManager* pParamManager )
-{
-	RendererDX11* pRenderer = RendererDX11::Get();
-
-	unsigned int tID = pParamManager->GetID();
-
-	if ( pParam != 0 ) {
-
-		// Check the type of the parameter
-		if ( pParam->GetParameterType() == SHADER_RESOURCE ) {
-			ShaderResourceParameterDX11* pResource = 
-				reinterpret_cast<ShaderResourceParameterDX11*>( pParam );
-
-			int ID = pResource->GetIndex( tID ); 
-
-			ShaderResourceViewDX11& view = pRenderer->GetShaderResourceViewByIndex( ID );
-			ShaderStages[type]->DesiredState.ShaderResourceViews.SetState( slot, view.m_pShaderResourceView.Get() );
-
-		} else {
-			Log::Get().Write( L"Tried to set a non-shader resource ID as a shader resource!" );
-		}
-	} else {
-		Log::Get().Write( L"Tried to set a non-existing parameter as a shader resource!" );
-	}
-}
-//--------------------------------------------------------------------------------
-void PipelineManagerDX11::BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, 
-                                                       IParameterManager* pParamManager )
-{
-	RendererDX11* pRenderer = RendererDX11::Get();
-
-	unsigned int tID = pParamManager->GetID();
-
-	if ( pParam != 0 ) {
-
-		// Check the type of the parameter
-		if ( pParam->GetParameterType() == UNORDERED_ACCESS ) {
-
-			UnorderedAccessParameterDX11* pResource = 
-				reinterpret_cast<UnorderedAccessParameterDX11*>( pParam );
-
-			int ID = pResource->GetIndex( tID ); 
-			unsigned int initial = pResource->GetInitialCount( tID );
-
-			UnorderedAccessViewDX11& view = pRenderer->GetUnorderedAccessViewByIndex( ID );
-
-			ShaderStages[type]->DesiredState.UnorderedAccessViews.SetState( slot, view.m_pUnorderedAccessView.Get() );
-			ShaderStages[type]->DesiredState.UAVInitialCounts.SetState( slot, initial );
-
-		} else {
-			Log::Get().Write( L"Tried to set a non-unordered access view ID as a unordered access view!" );
-		}
-	} else {
-		Log::Get().Write( L"Tried to set a non-existing parameter as a unordered access view!" );
-	}
-}
-//--------------------------------------------------------------------------------
-void PipelineManagerDX11::BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, 
-                                                    IParameterManager* pParamManager )
-{
-	RendererDX11* pRenderer = RendererDX11::Get();
-
-	unsigned int tID = pParamManager->GetID();
-
-	if ( pParam != 0 ) {
-
-		// Check the type of the parameter
-		if ( pParam->GetParameterType() == SAMPLER ) {
-
-			SamplerParameterDX11* pResource = 
-				reinterpret_cast<SamplerParameterDX11*>( pParam );
-
-			int ID = pResource->GetIndex( tID ); 
-
-			// Get the resource to be set, and pass it in to the desired shader type
-
-			ID3D11SamplerState* pSampler = nullptr;
-
-			if ( ID >= 0 ) {
-				SamplerStateComPtr pState = pRenderer->GetSamplerState( ID );
-				pSampler = pState.Get();
-			}
-
-			ShaderStages[type]->DesiredState.SamplerStates.SetState( slot, pSampler );
-
-		} else {
-			Log::Get().Write( L"Tried to set a non-sampler state ID as a sampler state!" );
-		}
-	} else {
-		Log::Get().Write( L"Tried to set a non-existing parameter as a sampler state!" );
-	}
-}
+//void PipelineManagerDX11::BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//                                                      IParameterManager* pParamManager )
+//{
+//	RendererDX11* pRenderer = RendererDX11::Get();
+//
+//	unsigned int tID = pParamManager->GetID();
+//
+//	if ( pParam != 0 ) {
+//
+//		// Check the type of the parameter
+//		if ( pParam->GetParameterType() == CBUFFER ) {
+//			ConstantBufferParameterDX11* pBuffer = reinterpret_cast<ConstantBufferParameterDX11*>( pParam );
+//			int ID = pBuffer->GetIndex( tID ); 
+//
+//			ResourceDX11* pResource = pRenderer->GetResourceByIndex( ID );
+//
+//			// Allow a range including -1 up to the number of resources
+//			if ( pResource || ( ID == -1 ) ) {
+//				// Get the resource to be set, and pass it in to the desired shader type
+//				
+//				ID3D11Buffer* pBuffer = 0;
+//				
+//				if ( ID >= 0 ) {
+//					pBuffer = (ID3D11Buffer*)pResource->GetResource();
+//				}
+//
+//				ShaderStages[type]->DesiredState.ConstantBuffers.SetState( slot, pBuffer );
+//			} else {
+//				Log::Get().Write( L"Tried to set an invalid constant buffer ID!" );
+//			}
+//		} else {
+//			Log::Get().Write( L"Tried to set a non-constant buffer ID as a constant buffer!" );
+//		}
+//	} else {
+//		Log::Get().Write( L"Tried to set a non-existing parameter as a constant buffer!" );
+//	}
+//}
+////--------------------------------------------------------------------------------
+//void PipelineManagerDX11::BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//                                                      IParameterManager* pParamManager )
+//{
+//	RendererDX11* pRenderer = RendererDX11::Get();
+//
+//	unsigned int tID = pParamManager->GetID();
+//
+//	if ( pParam != 0 ) {
+//
+//		// Check the type of the parameter
+//		if ( pParam->GetParameterType() == SHADER_RESOURCE ) {
+//			ShaderResourceParameterDX11* pResource = 
+//				reinterpret_cast<ShaderResourceParameterDX11*>( pParam );
+//
+//			int ID = pResource->GetIndex( tID ); 
+//
+//			ShaderResourceViewDX11& view = pRenderer->GetShaderResourceViewByIndex( ID );
+//			ShaderStages[type]->DesiredState.ShaderResourceViews.SetState( slot, view.m_pShaderResourceView.Get() );
+//
+//		} else {
+//			Log::Get().Write( L"Tried to set a non-shader resource ID as a shader resource!" );
+//		}
+//	} else {
+//		Log::Get().Write( L"Tried to set a non-existing parameter as a shader resource!" );
+//	}
+//}
+////--------------------------------------------------------------------------------
+//void PipelineManagerDX11::BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//                                                       IParameterManager* pParamManager )
+//{
+//	RendererDX11* pRenderer = RendererDX11::Get();
+//
+//	unsigned int tID = pParamManager->GetID();
+//
+//	if ( pParam != 0 ) {
+//
+//		// Check the type of the parameter
+//		if ( pParam->GetParameterType() == UNORDERED_ACCESS ) {
+//
+//			UnorderedAccessParameterDX11* pResource = 
+//				reinterpret_cast<UnorderedAccessParameterDX11*>( pParam );
+//
+//			int ID = pResource->GetIndex( tID ); 
+//			unsigned int initial = pResource->GetInitialCount( tID );
+//
+//			UnorderedAccessViewDX11& view = pRenderer->GetUnorderedAccessViewByIndex( ID );
+//
+//			ShaderStages[type]->DesiredState.UnorderedAccessViews.SetState( slot, view.m_pUnorderedAccessView.Get() );
+//			ShaderStages[type]->DesiredState.UAVInitialCounts.SetState( slot, initial );
+//
+//		} else {
+//			Log::Get().Write( L"Tried to set a non-unordered access view ID as a unordered access view!" );
+//		}
+//	} else {
+//		Log::Get().Write( L"Tried to set a non-existing parameter as a unordered access view!" );
+//	}
+//}
+////--------------------------------------------------------------------------------
+//void PipelineManagerDX11::BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//                                                    IParameterManager* pParamManager )
+//{
+//	RendererDX11* pRenderer = RendererDX11::Get();
+//
+//	unsigned int tID = pParamManager->GetID();
+//
+//	if ( pParam != 0 ) {
+//
+//		// Check the type of the parameter
+//		if ( pParam->GetParameterType() == SAMPLER ) {
+//
+//			SamplerParameterDX11* pResource = 
+//				reinterpret_cast<SamplerParameterDX11*>( pParam );
+//
+//			int ID = pResource->GetIndex( tID ); 
+//
+//			// Get the resource to be set, and pass it in to the desired shader type
+//
+//			ID3D11SamplerState* pSampler = nullptr;
+//
+//			if ( ID >= 0 ) {
+//				SamplerStateComPtr pState = pRenderer->GetSamplerState( ID );
+//				pSampler = pState.Get();
+//			}
+//
+//			ShaderStages[type]->DesiredState.SamplerStates.SetState( slot, pSampler );
+//
+//		} else {
+//			Log::Get().Write( L"Tried to set a non-sampler state ID as a sampler state!" );
+//		}
+//	} else {
+//		Log::Get().Write( L"Tried to set a non-existing parameter as a sampler state!" );
+//	}
+//}
 //--------------------------------------------------------------------------------
 void PipelineManagerDX11::ClearRenderTargets( )
 {
@@ -322,22 +323,22 @@ void PipelineManagerDX11::ClearPipelineSRVs()
 	ComputeShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawIndexed( UINT IndexCount, UINT StartIndex, int VertexOffset )
+void PipelineManagerDX11::DrawIndexed( forward::UINT IndexCount, forward::UINT StartIndex, int VertexOffset )
 {
 	m_pContext->DrawIndexed( IndexCount, StartIndex, VertexOffset );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::Draw( UINT VertexCount, UINT StartVertex )
+void PipelineManagerDX11::Draw( forward::UINT VertexCount, forward::UINT StartVertex )
 {
 	m_pContext->Draw( VertexCount, StartVertex );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawIndexedInstanced( UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation )
+void PipelineManagerDX11::DrawIndexedInstanced( forward::UINT IndexCountPerInstance, forward::UINT InstanceCount, forward::UINT StartIndexLocation, INT BaseVertexLocation, forward::UINT StartInstanceLocation )
 {
 	m_pContext->DrawIndexedInstanced( IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT offset )
+void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forward::UINT offset )
 {
 	m_pContext->DrawInstancedIndirect( argsBuffer, offset );
 }
@@ -352,7 +353,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::Draw( RenderEffectDX11& effect, ResourcePtr vb, ResourcePtr ib,
 //						int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
-//						UINT vertexStride, UINT numIndices, IParameterManager* pParamManager )
+//						forward::UINT vertexStride, forward::UINT numIndices, IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
 //
@@ -391,7 +392,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawNonIndexed( RenderEffectDX11& effect, ResourcePtr vb, 
 //                                           int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
-//                                           UINT vertexStride, UINT vertexCount, UINT startVertexLocation,
+//                                           forward::UINT vertexStride, forward::UINT vertexCount, forward::UINT startVertexLocation,
 //                                           IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
@@ -419,8 +420,8 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 //}
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawInstanced( RenderEffectDX11& effect, GeometryPtr geometry,
-//								 ResourcePtr instanceData, UINT instanceDataStride,
-//								 UINT numInstances, IParameterManager* pParamManager )
+//								 ResourcePtr instanceData, forward::UINT instanceDataStride,
+//								 forward::UINT numInstances, IParameterManager* pParamManager )
 //{
 //	DrawInstanced( effect, geometry->m_VB, geometry->m_ePrimType, geometry->m_IB,
 //		geometry->GetInputLayout( effect.GetVertexShader() ),
@@ -430,9 +431,9 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawInstanced( RenderEffectDX11& effect, ResourcePtr vb,
 //								 D3D11_PRIMITIVE_TOPOLOGY primType, ResourcePtr ib,
-//								 int inputLayout, UINT vertexStride, UINT numIndices,
-//								 ResourcePtr instanceData, UINT instanceDataStride,
-//								 UINT numInstances, IParameterManager* pParamManager )
+//								 int inputLayout, forward::UINT vertexStride, forward::UINT numIndices,
+//								 ResourcePtr instanceData, forward::UINT instanceDataStride,
+//								 forward::UINT numInstances, IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
 //
@@ -469,7 +470,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DispatchIndirect( RenderEffectDX11& effect,
 //										    ResourcePtr args,
-//											UINT offset,
+//											forward::UINT offset,
 //											IParameterManager* pParamManager )
 //{
 //	// Use the effect to load all of the pipeline stages here.
@@ -495,10 +496,10 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawIndirect( RenderEffectDX11& effect,
 //									    ResourcePtr args,
-//										UINT offset,
+//										forward::UINT offset,
 //										int inputLayout,
 //										D3D11_PRIMITIVE_TOPOLOGY primType,
-//										UINT vertexStride,
+//										forward::UINT vertexStride,
 //										IParameterManager* pParamManager )
 //{
 //	IndirectArgsBufferDX11* pBuffer = RendererDX11::Get()->GetIndirectArgsBufferByIndex( args->m_iResource );
@@ -530,7 +531,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 //
 //}
 ////--------------------------------------------------------------------------------
-//void PipelineManagerDX11::Dispatch( RenderEffectDX11& effect, UINT x, UINT y, UINT z, IParameterManager* pParamManager )
+//void PipelineManagerDX11::Dispatch( RenderEffectDX11& effect, forward::UINT x, forward::UINT y, forward::UINT z, IParameterManager* pParamManager )
 //{
 //	// Use the effect to load all of the pipeline stages here.
 //
@@ -541,7 +542,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT 
 //	m_pContext->Dispatch( x, y, z );
 //}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, UINT offset, ResourcePtr uav )
+void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, forward::UINT offset, ResourcePtr uav )
 {
 	int id = dest->m_iResource;
 
@@ -562,7 +563,7 @@ void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, UINT offset, Res
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, UINT stencil )
+void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, forward::UINT stencil )
 {
 	// Get the current render target view and depth stencil view from the OM stage.
     ID3D11RenderTargetView* pRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { NULL };
@@ -574,9 +575,9 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, UINT stenci
 	// For each view that the application thinks is bound, we clear it as requested.  Since
 	// the view count is the number of non-null views, we don't need to check here.
 
-	UINT viewCount = OutputMergerStage.GetCurrentState().GetRenderTargetCount();
+	forward::UINT viewCount = OutputMergerStage.GetCurrentState().GetRenderTargetCount();
 
-	for( UINT i = 0; i < viewCount; ++i )
+	for( forward::UINT i = 0; i < viewCount; ++i )
 	{
 	    float clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 		int rtv = OutputMergerStage.GetCurrentState().RenderTargetViews.GetState( i );
@@ -595,40 +596,40 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, UINT stenci
 		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( dsv );
 		pDepthStencilView = DSV.m_pDepthStencilView.Get();
 		if ( pDepthStencilView != nullptr ) {
-			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, stencil );
+			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, static_cast<UINT8>(stencil) );
 		}
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::BindShader( ShaderType type, int ID, IParameterManager* pParamManager )
-{
-	RendererDX11* pRenderer = RendererDX11::Get();
-	ShaderDX11* pShaderDX11 = pRenderer->GetShader( ID );
-
-	// Record the shader ID for use later on
-	ShaderStages[type]->DesiredState.ShaderProgram.SetState( ID );
-
-	// Check if the shader has a valid identifier
-	if ( pShaderDX11 )
-	{
-		// Perform the actual binding to the pipeline, and then bind all needed
-		// parameters.
-
-		if ( pShaderDX11->GetType() == type )
-		{
-			// Before binding the shader, have it update its required parameters.  These
-			// parameters will then be bound to the pipeline after the shader is bound.
-
-			pShaderDX11->GetReflection()->BindParameters( type, this, pParamManager );
-		}
-		else
-		{
-			Log::Get().Write( L"Tried to set the wrong type of shader ID!" );
-		}
-	}
-}
+//void PipelineManagerDX11::BindShader( ShaderType type, int ID, IParameterManager* pParamManager )
+//{
+//	RendererDX11* pRenderer = RendererDX11::Get();
+//	ShaderDX11* pShaderDX11 = pRenderer->GetShader( ID );
+//
+//	// Record the shader ID for use later on
+//	ShaderStages[type]->DesiredState.ShaderProgram.SetState( ID );
+//
+//	// Check if the shader has a valid identifier
+//	if ( pShaderDX11 )
+//	{
+//		// Perform the actual binding to the pipeline, and then bind all needed
+//		// parameters.
+//
+//		if ( pShaderDX11->GetType() == type )
+//		{
+//			// Before binding the shader, have it update its required parameters.  These
+//			// parameters will then be bound to the pipeline after the shader is bound.
+//
+//			pShaderDX11->GetReflection()->BindParameters( type, this, pParamManager );
+//		}
+//		else
+//		{
+//			Log::Get().Write( L"Tried to set the wrong type of shader ID!" );
+//		}
+//	}
+//}
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, UINT subresource, D3D11_MAP actions, UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -637,7 +638,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, UINT subreso
 	return( MapResource( pGlyphResource, subresource, actions, flags ) );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( int rid, UINT subresource )
+void PipelineManagerDX11::UnMapResource( int rid, forward::UINT subresource )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -646,7 +647,7 @@ void PipelineManagerDX11::UnMapResource( int rid, UINT subresource )
 	UnMapResource( pGlyphResource, subresource );
 }
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource, UINT subresource, D3D11_MAP actions, UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -655,7 +656,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource
 	return( MapResource( pGlyphResource, subresource, actions, flags ) );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, UINT subresource )
+void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, forward::UINT subresource )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -664,7 +665,7 @@ void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, UINT subresource
 	UnMapResource( pGlyphResource, subresource );
 }
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphResource, UINT subresource, D3D11_MAP actions, UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphResource, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
 {
 	D3D11_MAPPED_SUBRESOURCE Data;
 	Data.pData = NULL;
@@ -694,7 +695,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphR
 	return( Data );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, UINT subresource )
+void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, forward::UINT subresource )
 {
 	if ( NULL == pGlyphResource ) {
 		Log::Get().Write( L"Trying to unmap a subresource that doesn't exist!!!" );
@@ -714,7 +715,7 @@ void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, UINT subr
 	m_pContext->Unmap( pResource, subresource );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UpdateSubresource( int rid, UINT DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData, UINT SrcRowPitch, UINT SrcDepthPitch )
+void PipelineManagerDX11::UpdateSubresource( int rid, forward::UINT DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData, forward::UINT SrcRowPitch, forward::UINT SrcDepthPitch )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -797,11 +798,11 @@ void PipelineManagerDX11::SaveTextureScreenShot( int index, std::wstring filenam
 		std::wstringstream out;
 		out << filename << iScreenNum << L".bmp";
 
-		HRESULT hr = DirectX::SaveWICTextureToFile( 
+		HRESULT hr = S_OK;/*DirectX::SaveWICTextureToFile(
 			m_pContext.Get(), 
 			pResource,
 			GUID_ContainerFormatBmp,
-			out.str().c_str() );
+			out.str().c_str() );*/
 
 		// Note: Use this version for WP8!
 		//HRESULT hr = DirectX::SaveDDSTextureToFile( 
@@ -814,8 +815,8 @@ void PipelineManagerDX11::SaveTextureScreenShot( int index, std::wstring filenam
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, UINT DstSubresource, 
-	UINT DstX, UINT DstY, UINT DstZ, ResourcePtr SrcResource, UINT SrcSubresource, D3D11_BOX* pSrcBox )
+void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, forward::UINT DstSubresource, 
+	forward::UINT DstX, forward::UINT DstY, forward::UINT DstZ, ResourcePtr SrcResource, forward::UINT SrcSubresource, D3D11_BOX* pSrcBox )
 {
 	ID3D11Resource* pDestResource = RendererDX11::Get()->GetResourceByIndex(DestResource->m_iResource)->GetResource();
 	ID3D11Resource* pSrcResource = RendererDX11::Get()->GetResourceByIndex(SrcResource->m_iResource)->GetResource();
@@ -832,86 +833,86 @@ void PipelineManagerDX11::CopyResource( ResourcePtr DestResource, ResourcePtr Sr
 	m_pContext->CopyResource( pDestResource, pSrcResource );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::GenerateCommandList( CommandListDX11* pList )
-{
-	if ( m_pContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED )
-	{
-		m_pContext->FinishCommandList( false, &pList->m_pList );
-
-		// Reset the cached context state to default, since we do that for all
-		// command lists.
-
-		InputAssemblerStage.ClearCurrentState();
-		InputAssemblerStage.ClearDesiredState();
-
-		VertexShaderStage.ClearCurrentState();
-		VertexShaderStage.ClearDesiredState();
-
-		HullShaderStage.ClearCurrentState();
-		HullShaderStage.ClearDesiredState();
-
-		DomainShaderStage.ClearCurrentState();
-		DomainShaderStage.ClearDesiredState();
-
-		GeometryShaderStage.ClearCurrentState();
-		GeometryShaderStage.ClearDesiredState();
-
-		StreamOutputStage.ClearCurrentState();
-		StreamOutputStage.ClearDesiredState();
-
-		RasterizerStage.ClearCurrentState( );
-		RasterizerStage.ClearDesiredState( );
-
-		PixelShaderStage.ClearCurrentState();
-		PixelShaderStage.ClearDesiredState();
-
-		OutputMergerStage.ClearCurrentState();
-		OutputMergerStage.ClearDesiredState();
-
-		ComputeShaderStage.ClearCurrentState();
-		ComputeShaderStage.ClearDesiredState();
-
-	}
-}
+//void PipelineManagerDX11::GenerateCommandList( CommandListDX11* pList )
+//{
+//	if ( m_pContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED )
+//	{
+//		m_pContext->FinishCommandList( false, &pList->m_pList );
+//
+//		// Reset the cached context state to default, since we do that for all
+//		// command lists.
+//
+//		InputAssemblerStage.ClearCurrentState();
+//		InputAssemblerStage.ClearDesiredState();
+//
+//		VertexShaderStage.ClearCurrentState();
+//		VertexShaderStage.ClearDesiredState();
+//
+//		HullShaderStage.ClearCurrentState();
+//		HullShaderStage.ClearDesiredState();
+//
+//		DomainShaderStage.ClearCurrentState();
+//		DomainShaderStage.ClearDesiredState();
+//
+//		GeometryShaderStage.ClearCurrentState();
+//		GeometryShaderStage.ClearDesiredState();
+//
+//		StreamOutputStage.ClearCurrentState();
+//		StreamOutputStage.ClearDesiredState();
+//
+//		RasterizerStage.ClearCurrentState( );
+//		RasterizerStage.ClearDesiredState( );
+//
+//		PixelShaderStage.ClearCurrentState();
+//		PixelShaderStage.ClearDesiredState();
+//
+//		OutputMergerStage.ClearCurrentState();
+//		OutputMergerStage.ClearDesiredState();
+//
+//		ComputeShaderStage.ClearCurrentState();
+//		ComputeShaderStage.ClearDesiredState();
+//
+//	}
+//}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ExecuteCommandList( CommandListDX11* pList )
-{
-	if ( pList->ListAvailable() )
-		m_pContext->ExecuteCommandList( pList->m_pList, false );
-
-	InputAssemblerStage.ClearCurrentState();
-	InputAssemblerStage.ClearDesiredState();
-
-	VertexShaderStage.ClearCurrentState();
-	VertexShaderStage.ClearDesiredState();
-
-	HullShaderStage.ClearCurrentState();
-	HullShaderStage.ClearDesiredState();
-
-	DomainShaderStage.ClearCurrentState();
-	DomainShaderStage.ClearDesiredState();
-
-	GeometryShaderStage.ClearCurrentState();
-	GeometryShaderStage.ClearDesiredState();
-
-	StreamOutputStage.ClearCurrentState();
-	StreamOutputStage.ClearDesiredState();
-
-	RasterizerStage.ClearCurrentState( );
-	RasterizerStage.ClearDesiredState( );
-
-	PixelShaderStage.ClearCurrentState();
-	PixelShaderStage.ClearDesiredState();
-
-	OutputMergerStage.ClearCurrentState();
-	OutputMergerStage.ClearDesiredState();
-
-	ComputeShaderStage.ClearCurrentState();
-	ComputeShaderStage.ClearDesiredState();
-}
+//void PipelineManagerDX11::ExecuteCommandList( CommandListDX11* pList )
+//{
+//	if ( pList->ListAvailable() )
+//		m_pContext->ExecuteCommandList( pList->m_pList, false );
+//
+//	InputAssemblerStage.ClearCurrentState();
+//	InputAssemblerStage.ClearDesiredState();
+//
+//	VertexShaderStage.ClearCurrentState();
+//	VertexShaderStage.ClearDesiredState();
+//
+//	HullShaderStage.ClearCurrentState();
+//	HullShaderStage.ClearDesiredState();
+//
+//	DomainShaderStage.ClearCurrentState();
+//	DomainShaderStage.ClearDesiredState();
+//
+//	GeometryShaderStage.ClearCurrentState();
+//	GeometryShaderStage.ClearDesiredState();
+//
+//	StreamOutputStage.ClearCurrentState();
+//	StreamOutputStage.ClearDesiredState();
+//
+//	RasterizerStage.ClearCurrentState( );
+//	RasterizerStage.ClearDesiredState( );
+//
+//	PixelShaderStage.ClearCurrentState();
+//	PixelShaderStage.ClearDesiredState();
+//
+//	OutputMergerStage.ClearCurrentState();
+//	OutputMergerStage.ClearDesiredState();
+//
+//	ComputeShaderStage.ClearCurrentState();
+//	ComputeShaderStage.ClearDesiredState();
+//}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, UINT DstSubresource, 
-                                              ResourcePtr SrcResource, UINT SrcSubresource, 
+void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, forward::UINT DstSubresource, 
+                                              ResourcePtr SrcResource, forward::UINT SrcSubresource, 
                                               DXGI_FORMAT format )
 {
     int DestID = DestResource->m_iResource;

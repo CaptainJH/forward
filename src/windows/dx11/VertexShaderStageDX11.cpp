@@ -12,7 +12,7 @@
 #include "PCH.h"
 #include "VertexShaderStageDX11.h"
 #include "VertexShaderDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ ShaderType VertexStageDX11::GetType()
 	return( VERTEX_SHADER );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindShaderProgram( ID3D11DeviceContext* /*pContext*/ )
+void VertexStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	RendererDX11* pRenderer = RendererDX11::Get();
+	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	//ID3D11VertexShader* pShader = 0;
-	//	
-	//if ( pShaderDX11 ) {
-	//	pShader = reinterpret_cast<VertexShaderDX11*>( pShaderDX11 )->m_pVertexShader;
-	//}
+	ID3D11VertexShader* pShader = 0;
+		
+	if ( pShaderDX11 ) {
+		pShader = reinterpret_cast<VertexShaderDX11*>( pShaderDX11 )->m_pVertexShader;
+	}
 
-	//pContext->VSSetShader( pShader, 0, 0 );
+	pContext->VSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )

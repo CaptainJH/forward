@@ -8,6 +8,7 @@
 // Copyright (c) Jason Zink 
 //--------------------------------------------------------------------------------
 #pragma warning( disable : 4244 )
+#pragma warning( disable : 4239 )
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "ShaderFactoryDX11.h"
@@ -24,7 +25,7 @@ ShaderFactoryDX11::~ShaderFactoryDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& filename, std::wstring& function,
+ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, std::wstring& filename, std::wstring& function,
             std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 	HRESULT hr = S_OK;
@@ -94,19 +95,5 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType type, std::wstring& file
 	SAFE_RELEASE( pErrorMessages );
 
 	return( pCompiledShader );
-}
-//--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX11::GeneratePrecompiledShader( std::wstring& filename, std::wstring& function,
-            std::wstring& model )
-{
-	// Create a blob to store the object code in
-	
-	ID3DBlob* pBlob = nullptr;
-
-
-	// The file object will automatically be released when it goes out of scope,
-	// and hence will free its loaded contents automatically also.
-
-	return( pBlob );
 }
 //--------------------------------------------------------------------------------

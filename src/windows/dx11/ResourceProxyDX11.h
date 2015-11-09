@@ -8,7 +8,7 @@
 #ifndef ResourceProxyDX11_h
 #define ResourceProxyDX11_h
 //--------------------------------------------------------------------------------
-#include <memory>
+#include "PCH.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -26,24 +26,24 @@ namespace forward
 	{
 	public:
 		ResourceProxyDX11();
-		// TODO: RendererDX11
-		//ResourceProxyDX11( int ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer, 
-  //                          ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-  //                          RenderTargetViewConfigDX11* pRTVConfig = NULL,
-  //                          UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		//ResourceProxyDX11( int ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer, 
-  //                          ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-  //                          RenderTargetViewConfigDX11* pRTVConfig = NULL,
-  //                          UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		//ResourceProxyDX11( int ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer, 
-  //                          ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-  //                          RenderTargetViewConfigDX11* pRTVConfig = NULL,
-  //                          UnorderedAccessViewConfigDX11* pUAVConfig = NULL,
-  //                          DepthStencilViewConfigDX11* pDSVConfig = NULL );
-		//ResourceProxyDX11( int ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer, 
-  //                          ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-  //                          RenderTargetViewConfigDX11* pRTVConfig = NULL,
-  //                          UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
+
+		ResourceProxyDX11( int ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer, 
+                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
+                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
+                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
+		ResourceProxyDX11( int ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer, 
+                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
+                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
+                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
+		ResourceProxyDX11( int ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer, 
+                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
+                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
+                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL,
+                            DepthStencilViewConfigDX11* pDSVConfig = NULL );
+		ResourceProxyDX11( int ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer, 
+                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
+                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
+                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
 
 		virtual ~ResourceProxyDX11();
 
@@ -64,16 +64,15 @@ namespace forward
         RenderTargetViewConfigDX11*     m_pRTVConfig;
         UnorderedAccessViewConfigDX11*  m_pUAVConfig;
 
-		//friend RendererDX11;
+		friend class RendererDX11;
 
     protected: 
         
-		// TODO: RenderDX11
-        //void CommonConstructor( UINT BindFlags, int ResourceID, RendererDX11* pRenderer, 
-        //                        ShaderResourceViewConfigDX11* pSRVConfig,
-        //                        RenderTargetViewConfigDX11* pRTVConfig,
-        //                        UnorderedAccessViewConfigDX11* pUAVConfig,
-        //                        DepthStencilViewConfigDX11* pDSVConfig = NULL );
+        void CommonConstructor( UINT BindFlags, int ResourceID, RendererDX11* pRenderer, 
+                                ShaderResourceViewConfigDX11* pSRVConfig,
+                                RenderTargetViewConfigDX11* pRTVConfig,
+                                UnorderedAccessViewConfigDX11* pUAVConfig,
+                                DepthStencilViewConfigDX11* pDSVConfig = NULL );
 	};
 
 	typedef std::shared_ptr<ResourceProxyDX11> ResourcePtr;

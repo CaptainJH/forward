@@ -52,6 +52,10 @@
 
 //#include "D3DEnumConversion.h"
 
+#pragma warning( disable : 4267 )
+#pragma warning( disable : 4239 )
+#pragma warning( disable : 4189 )
+
 using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------
@@ -400,7 +404,7 @@ void RendererDX11::Shutdown()
 	//SAFE_RELEASE( m_pDebugger );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::Present(HWND hWnd, int SwapChain, UINT SyncInterval, UINT PresentFlags )
+void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, forward::UINT SyncInterval, forward::UINT PresentFlags )
 {
 	// Present to the window
 
@@ -784,7 +788,7 @@ int RendererDX11::CreateUnorderedAccessView( int ResourceID, D3D11_UNORDERED_ACC
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTexture( ResourcePtr texture, UINT width, UINT height )
+void RendererDX11::ResizeTexture( ResourcePtr texture, forward::UINT width, forward::UINT height )
 {
 	// For the texture, and then for each associated resource view create the new
 	// sized versions.  Afterwards, release the old versions and replace them with
@@ -814,7 +818,7 @@ void RendererDX11::ResizeTexture( ResourcePtr texture, UINT width, UINT height )
 	ResizeTextureUAV( rid, texture->m_iResourceUAV, width, height );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureSRV( int RID, int SRVID, UINT width, UINT height )
+void RendererDX11::ResizeTextureSRV( int RID, int SRVID, forward::UINT /*width*/, forward::UINT /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( SRVID == 0 ) {
@@ -848,7 +852,7 @@ void RendererDX11::ResizeTextureSRV( int RID, int SRVID, UINT width, UINT height
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureRTV( int RID, int RTVID, UINT width, UINT height )
+void RendererDX11::ResizeTextureRTV( int RID, int RTVID, forward::UINT /*width*/, forward::UINT /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( RTVID == 0 ) {
@@ -882,7 +886,7 @@ void RendererDX11::ResizeTextureRTV( int RID, int RTVID, UINT width, UINT height
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureDSV( int RID, int DSVID, UINT width, UINT height )
+void RendererDX11::ResizeTextureDSV( int RID, int DSVID, forward::UINT /*width*/, forward::UINT /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( DSVID == 0 ) {
@@ -916,7 +920,7 @@ void RendererDX11::ResizeTextureDSV( int RID, int DSVID, UINT width, UINT height
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureUAV( int RID, int UAVID, UINT width, UINT height )
+void RendererDX11::ResizeTextureUAV( int RID, int UAVID, forward::UINT /*width*/, forward::UINT /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( UAVID == 0 ) {
@@ -950,7 +954,7 @@ void RendererDX11::ResizeTextureUAV( int RID, int UAVID, UINT width, UINT height
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeSwapChain( int SID, UINT width, UINT height )
+void RendererDX11::ResizeSwapChain( int SID, forward::UINT width, forward::UINT height )
 {
 	unsigned int index = static_cast<unsigned int>( SID );
 
@@ -994,7 +998,7 @@ void RendererDX11::ResizeSwapChain( int SID, UINT width, UINT height )
 	hr = m_pDevice->CreateRenderTargetView( pBackBuffer->m_pTexture.Get(), &RTVDesc, RTV.m_pRenderTargetView.GetAddressOf() );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeViewport( int ID, UINT width, UINT height )
+void RendererDX11::ResizeViewport( int ID, forward::UINT width, forward::UINT height )
 {
 	unsigned int index = static_cast<unsigned int>( ID );
 
@@ -1205,7 +1209,7 @@ int RendererDX11::CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elem
 	return( m_vInputLayouts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool sRGB )
+ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 {
 	ComPtr<ID3D11Resource> pResource;
 
@@ -1218,70 +1222,41 @@ ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool sRGB )
 
 	HRESULT hr = S_OK;
 
-	if ( extension == L"dds" ) 
-	{
-		hr = DirectX::CreateDDSTextureFromFile(
-			m_pDevice.Get(),
-			filename.c_str(),
-			//0,
-			//D3D11_USAGE_DEFAULT,
-			//D3D11_BIND_SHADER_RESOURCE,
-			//0,
-			//0,
-			//sRGB,
-			pResource.GetAddressOf(),
-			nullptr );
-	}
-	else
-	{
-		hr = DirectX::CreateWICTextureFromFileEx(
-			m_pDevice.Get(),
-			pImmPipeline->m_pContext.Get(),
-			filename.c_str(),
-			0,
-			D3D11_USAGE_DEFAULT,
-			D3D11_BIND_SHADER_RESOURCE,
-			0,
-			0,
-			sRGB,
-			pResource.GetAddressOf(),
-			0 );
-	}
+	//if ( extension == L"dds" ) 
+	//{
+	//	hr = DirectX::CreateDDSTextureFromFile(
+	//		m_pDevice.Get(),
+	//		filename.c_str(),
+	//		//0,
+	//		//D3D11_USAGE_DEFAULT,
+	//		//D3D11_BIND_SHADER_RESOURCE,
+	//		//0,
+	//		//0,
+	//		//sRGB,
+	//		pResource.GetAddressOf(),
+	//		nullptr );
+	//}
+	//else
+	//{
+	//	hr = DirectX::CreateWICTextureFromFileEx(
+	//		m_pDevice.Get(),
+	//		pImmPipeline->m_pContext.Get(),
+	//		filename.c_str(),
+	//		0,
+	//		D3D11_USAGE_DEFAULT,
+	//		D3D11_BIND_SHADER_RESOURCE,
+	//		0,
+	//		0,
+	//		sRGB,
+	//		pResource.GetAddressOf(),
+	//		0 );
+	//}
 
 
 
 	if ( FAILED( hr ) )
 	{
 		Log::Get().Write( L"Failed to load texture from file!" );
-		return( ResourcePtr( new ResourceProxyDX11() ) );
-	}
-
-	ComPtr<ID3D11Texture2D> pTexture;
-	pResource.CopyTo( pTexture.GetAddressOf() );
-
-	int ResourceID = StoreNewResource( new Texture2dDX11( pTexture ) );
-
-	Texture2dConfigDX11 TextureConfig;
-	pTexture->GetDesc( &TextureConfig.m_State );
-
-	return( ResourcePtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
-}
-//--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::LoadTexture( void* pData, SIZE_T sizeInBytes/*, D3DX11_IMAGE_LOAD_INFO* pLoadInfo*/ )
-{
-	ComPtr<ID3D11Resource> pResource;
-
-	HRESULT hr = DirectX::CreateWICTextureFromMemory(
-		m_pDevice.Get(),
-		pImmPipeline->m_pContext.Get(),
-		static_cast<uint8_t*>(pData),
-		sizeInBytes,
-		pResource.GetAddressOf(),
-		0 );
-
-	if ( FAILED( hr ) )
-	{
-		Log::Get().Write( L"Failed to load texture from memory!" );
 		return( ResourcePtr( new ResourceProxyDX11() ) );
 	}
 
@@ -1472,7 +1447,7 @@ ResourceDX11* RendererDX11::GetResourceByIndex( int ID )
 	ResourceDX11* pResource = 0;
 
 	unsigned int index = ID & 0xffff;
-	int innerID = ( ID & 0xffff0000 ) >> 16;
+	forward::UINT innerID = ( ID & 0xffff0000 ) >> 16;
 
 	if ( index < m_vResources.size() ) {
 		pResource = m_vResources[index];

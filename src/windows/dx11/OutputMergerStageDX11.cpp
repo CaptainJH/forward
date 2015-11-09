@@ -13,6 +13,7 @@
 #include "RenderTargetViewDX11.h"
 #include "DepthStencilViewDX11.h"
 #include "UnorderedAccessViewDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -48,113 +49,111 @@ void OutputMergerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	ApplyDesiredBlendAndDepthStencilStates( pContext );
 }
 //--------------------------------------------------------------------------------
-void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext* /*pContext*/ )
+void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext* pContext )
 {
-	/// TODO
-	//int rtvCount = 0;
-	//int uavCount = 0;
+	int rtvCount = 0;
+	int uavCount = 0;
 
-	//if ( DesiredState.RenderTargetViews.IsUpdateNeeded() 
-	//	|| DesiredState.UnorderedAccessViews.IsUpdateNeeded()
-	//	|| DesiredState.DepthTargetViews.IsUpdateNeeded() ) {
+	if ( DesiredState.RenderTargetViews.IsUpdateNeeded() 
+		|| DesiredState.UnorderedAccessViews.IsUpdateNeeded()
+		|| DesiredState.DepthTargetViews.IsUpdateNeeded() ) {
 
-	//	RendererDX11* pRenderer = RendererDX11::Get();
+		RendererDX11* pRenderer = RendererDX11::Get();
 
-	//	ID3D11RenderTargetView*	rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-	//	ID3D11UnorderedAccessView* uavs[D3D11_PS_CS_UAV_REGISTER_COUNT];
-	//	ID3D11DepthStencilView* dsv = 0;
+		ID3D11RenderTargetView*	rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+		ID3D11UnorderedAccessView* uavs[D3D11_PS_CS_UAV_REGISTER_COUNT];
+		ID3D11DepthStencilView* dsv = 0;
 
-	//	for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
+		for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
 
-	//		RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( DesiredState.RenderTargetViews.GetState( i ) );
-	//		rtvs[i] = rtv.m_pRenderTargetView.Get();
+			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( DesiredState.RenderTargetViews.GetState( i ) );
+			rtvs[i] = rtv.m_pRenderTargetView.Get();
 
-	//		if ( rtvs[i] != nullptr ) {
-	//			rtvCount = i+1; // Record the number of non-null rtvs...
-	//		}
-	//	}
+			if ( rtvs[i] != nullptr ) {
+				rtvCount = i+1; // Record the number of non-null rtvs...
+			}
+		}
 
-	//	for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
+		for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
 
-	//		UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( DesiredState.UnorderedAccessViews.GetState( i ) );
-	//		uavs[i] = uav.m_pUnorderedAccessView.Get();
+			UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( DesiredState.UnorderedAccessViews.GetState( i ) );
+			uavs[i] = uav.m_pUnorderedAccessView.Get();
 
-	//		if ( uavs[i] != nullptr ) {
-	//			uavCount = i+1; // Record the number of non-null uavs...
-	//		}
-	//	}
+			if ( uavs[i] != nullptr ) {
+				uavCount = i+1; // Record the number of non-null uavs...
+			}
+		}
 
-	//	
-	//	DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex( DesiredState.DepthTargetViews.GetState() );
-	//	dsv = DSV.m_pDepthStencilView.Get();
+		
+		DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex( DesiredState.DepthTargetViews.GetState() );
+		dsv = DSV.m_pDepthStencilView.Get();
 
-	//	// TODO: convert this to bind the UAVs too...
-	//	pContext->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv );
-	//	//pContext->OMSetRenderTargetsAndUnorderedAccessViews( rtvCount, rtvs, dsv, 
-	//	//	rtvCount, uavCount, uavs, (UINT*)&DesiredState.UAVInitialCounts );
+		// TODO: convert this to bind the UAVs too...
+		pContext->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv );
+		//pContext->OMSetRenderTargetsAndUnorderedAccessViews( rtvCount, rtvs, dsv, 
+		//	rtvCount, uavCount, uavs, (UINT*)&DesiredState.UAVInitialCounts );
 
-	//	// TODO: Find a better way to copy the state from desired to current...
+		// TODO: Find a better way to copy the state from desired to current...
 
-	//	for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
-	//		CurrentState.RenderTargetViews.SetState( i, DesiredState.RenderTargetViews.GetState( i ) );
-	//	}
+		for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
+			CurrentState.RenderTargetViews.SetState( i, DesiredState.RenderTargetViews.GetState( i ) );
+		}
 
-	//	for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
-	//		CurrentState.UnorderedAccessViews.SetState( i, DesiredState.UnorderedAccessViews.GetState( i ) );
-	//		CurrentState.UAVInitialCounts.SetState( i, DesiredState.UAVInitialCounts.GetState( i ) );
-	//	}
+		for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
+			CurrentState.UnorderedAccessViews.SetState( i, DesiredState.UnorderedAccessViews.GetState( i ) );
+			CurrentState.UAVInitialCounts.SetState( i, DesiredState.UAVInitialCounts.GetState( i ) );
+		}
 
-	//	CurrentState.DepthTargetViews.SetState( DesiredState.DepthTargetViews.GetState() );
+		CurrentState.DepthTargetViews.SetState( DesiredState.DepthTargetViews.GetState() );
 
-	//	DesiredState.RenderTargetViews.ResetTracking();
-	//	DesiredState.UnorderedAccessViews.ResetTracking();
-	//	DesiredState.UAVInitialCounts.ResetTracking();
-	//	DesiredState.DepthTargetViews.ResetTracking();
-	//}
+		DesiredState.RenderTargetViews.ResetTracking();
+		DesiredState.UnorderedAccessViews.ResetTracking();
+		DesiredState.UAVInitialCounts.ResetTracking();
+		DesiredState.DepthTargetViews.ResetTracking();
+	}
 }
 //--------------------------------------------------------------------------------
-void OutputMergerStageDX11::ApplyDesiredBlendAndDepthStencilStates( ID3D11DeviceContext* /*pContext*/ )
+void OutputMergerStageDX11::ApplyDesiredBlendAndDepthStencilStates( ID3D11DeviceContext* pContext )
 {
-	/// TODO
-	//RendererDX11* pRenderer = RendererDX11::Get();
+	RendererDX11* pRenderer = RendererDX11::Get();
 
-	//if ( DesiredState.BlendState.IsUpdateNeeded() ) {
+	if ( DesiredState.BlendState.IsUpdateNeeded() ) {
 
-	//	BlendStateComPtr pGlyphBlendState = pRenderer->GetBlendState( DesiredState.BlendState.GetState() );
+		BlendStateComPtr pGlyphBlendState = pRenderer->GetBlendState( DesiredState.BlendState.GetState() );
 
-	//	if ( nullptr != pGlyphBlendState ) {
-	//		
-	//		ID3D11BlendState* pBlendState = pGlyphBlendState.Get();
+		if ( nullptr != pGlyphBlendState ) {
+			
+			ID3D11BlendState* pBlendState = pGlyphBlendState.Get();
 
-	//		// TODO: Add in the blend factors as states to the OutputMergerStageStateDX11 class!
-	//		if ( pBlendState ) {
-	//			float afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//			pContext->OMSetBlendState( pBlendState, afBlendFactors, 0xFFFFFFFF );
-	//		}
+			// TODO: Add in the blend factors as states to the OutputMergerStageStateDX11 class!
+			if ( pBlendState ) {
+				float afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+				pContext->OMSetBlendState( pBlendState, afBlendFactors, 0xFFFFFFFF );
+			}
 
-	//		CurrentState.BlendState.SetState( DesiredState.BlendState.GetState() );
-	//		DesiredState.BlendState.ResetTracking();
-	//	}
-	//}
+			CurrentState.BlendState.SetState( DesiredState.BlendState.GetState() );
+			DesiredState.BlendState.ResetTracking();
+		}
+	}
 
-	//if ( DesiredState.DepthStencilState.IsUpdateNeeded() || DesiredState.StencilRef.IsUpdateNeeded() ) {
+	if ( DesiredState.DepthStencilState.IsUpdateNeeded() || DesiredState.StencilRef.IsUpdateNeeded() ) {
 
-	//	DepthStencilStateComPtr pGlyphDepthStencilState = pRenderer->GetDepthState( DesiredState.DepthStencilState.GetState() );
-	//	
-	//	if ( nullptr != pGlyphDepthStencilState ) {
+		DepthStencilStateComPtr pGlyphDepthStencilState = pRenderer->GetDepthState( DesiredState.DepthStencilState.GetState() );
+		
+		if ( nullptr != pGlyphDepthStencilState ) {
 
-	//		ID3D11DepthStencilState* pDepthState = pGlyphDepthStencilState.Get();
+			ID3D11DepthStencilState* pDepthState = pGlyphDepthStencilState.Get();
 
-	//		if ( pDepthState ) {
-	//			pContext->OMSetDepthStencilState( pDepthState, DesiredState.StencilRef.GetState() );
-	//		}
+			if ( pDepthState ) {
+				pContext->OMSetDepthStencilState( pDepthState, DesiredState.StencilRef.GetState() );
+			}
 
-	//		CurrentState.DepthStencilState.SetState( DesiredState.DepthStencilState.GetState() );
-	//		CurrentState.StencilRef.SetState( DesiredState.StencilRef.GetState() );
-	//		DesiredState.DepthStencilState.ResetTracking();
-	//		DesiredState.StencilRef.ResetTracking();
-	//	}
-	//}
+			CurrentState.DepthStencilState.SetState( DesiredState.DepthStencilState.GetState() );
+			CurrentState.StencilRef.SetState( DesiredState.StencilRef.GetState() );
+			DesiredState.DepthStencilState.ResetTracking();
+			DesiredState.StencilRef.ResetTracking();
+		}
+	}
 }
 //--------------------------------------------------------------------------------
 const OutputMergerStageStateDX11& OutputMergerStageDX11::GetCurrentState() const

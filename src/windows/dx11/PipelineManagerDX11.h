@@ -43,12 +43,12 @@ namespace forward
 		// provided to apply the resource changes as an optimization, which allows for the
 		// renderer to cache resource changes between rendering calls if appropriate.
 
-		void BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		void BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		void BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		void BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
+		//void BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
+		//void BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
+		//void BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
+		//void BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
 
-		void BindShader( ShaderType type, int ID, IParameterManager* pParamManager );
+		//void BindShader( ShaderType type, int ID, IParameterManager* pParamManager );
 
 
 		// The pipeline state is managed through the following methods.  The user must 
@@ -119,8 +119,8 @@ namespace forward
 		// the renderer to generate a command list on a deferred context, and
 		// then utilize the list to perform rendering on an immediate context.
 
-		void GenerateCommandList( CommandListDX11* pList );
-		void ExecuteCommandList( CommandListDX11* pList );
+		//void GenerateCommandList( CommandListDX11* pList );
+		//void ExecuteCommandList( CommandListDX11* pList );
 
 
 		//--------------------------------------------------------------------------------------

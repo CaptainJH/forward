@@ -12,7 +12,7 @@
 #include "PCH.h"
 #include "ComputeShaderStageDX11.h"
 #include "ComputeShaderDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ ShaderType ComputeStageDX11::GetType()
 	return( COMPUTE_SHADER );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* /*pContext*/ )
+void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	RendererDX11* pRenderer = RendererDX11::Get();
+	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	//ID3D11ComputeShader* pShader = 0;
-	//
-	//if ( pShaderDX11 ) {
-	//	pShader = reinterpret_cast<ComputeShaderDX11*>( pShaderDX11 )->m_pComputeShader;
-	//}
+	ID3D11ComputeShader* pShader = 0;
+	
+	if ( pShaderDX11 ) {
+		pShader = reinterpret_cast<ComputeShaderDX11*>( pShaderDX11 )->m_pComputeShader;
+	}
 
-	//pContext->CSSetShader( pShader, 0, 0 );
+	pContext->CSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )

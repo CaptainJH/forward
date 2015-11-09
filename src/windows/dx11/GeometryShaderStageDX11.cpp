@@ -12,7 +12,7 @@
 #include "PCH.h"
 #include "GeometryShaderStageDX11.h"
 #include "GeometryShaderDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ ShaderType GeometryStageDX11::GetType()
 	return( GEOMETRY_SHADER );
 }
 //--------------------------------------------------------------------------------
-void GeometryStageDX11::BindShaderProgram( ID3D11DeviceContext* /*pContext*/ )
+void GeometryStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	RendererDX11* pRenderer = RendererDX11::Get();
+	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	//ID3D11GeometryShader* pShader = 0;
-	//
-	//if ( pShaderDX11 ) {
-	//	pShader = reinterpret_cast<GeometryShaderDX11*>( pShaderDX11 )->m_pGeometryShader;
-	//}
+	ID3D11GeometryShader* pShader = 0;
+	
+	if ( pShaderDX11 ) {
+		pShader = reinterpret_cast<GeometryShaderDX11*>( pShaderDX11 )->m_pGeometryShader;
+	}
 
-	//pContext->GSSetShader( pShader, 0, 0 );
+	pContext->GSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void GeometryStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
