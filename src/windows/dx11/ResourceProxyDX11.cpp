@@ -93,14 +93,14 @@ ResourceProxyDX11::ResourceProxyDX11()
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::~ResourceProxyDX11()
 {
-	SafeDelete( m_pBufferConfig );
-	SafeDelete( m_pTexture1dConfig );
-	SafeDelete( m_pTexture2dConfig );
-	SafeDelete( m_pTexture3dConfig );
-	SafeDelete( m_pSRVConfig );
-	SafeDelete( m_pRTVConfig );
-	SafeDelete( m_pUAVConfig );
-	SafeDelete( m_pDSVConfig );
+	SAFE_DELETE( m_pBufferConfig );
+	SAFE_DELETE( m_pTexture1dConfig );
+	SAFE_DELETE( m_pTexture2dConfig );
+	SAFE_DELETE( m_pTexture3dConfig );
+	SAFE_DELETE( m_pSRVConfig );
+	SAFE_DELETE( m_pRTVConfig );
+	SAFE_DELETE( m_pUAVConfig );
+	SAFE_DELETE( m_pDSVConfig );
 }
 //--------------------------------------------------------------------------------
 void ResourceProxyDX11::CommonConstructor( forward::UINT BindFlags, int ResourceID, RendererDX11* pRenderer, 

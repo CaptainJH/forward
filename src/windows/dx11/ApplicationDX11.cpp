@@ -51,17 +51,17 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 
 ApplicationDX11::~ApplicationDX11()
 {
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mDepthStencilView);
-	ReleaseCOM(mSwapChain);
-	ReleaseCOM(mDepthStencilBuffer);
+	SAFE_RELEASE(mRenderTargetView);
+	SAFE_RELEASE(mDepthStencilView);
+	SAFE_RELEASE(mSwapChain);
+	SAFE_RELEASE(mDepthStencilBuffer);
 
 	// Restore all default settings.
 	if (md3dImmediateContext)
 		md3dImmediateContext->ClearState();
 
-	ReleaseCOM(md3dImmediateContext);
-	ReleaseCOM(md3dDevice);
+	SAFE_RELEASE(md3dImmediateContext);
+	SAFE_RELEASE(md3dDevice);
 }
 
 HINSTANCE ApplicationDX11::AppInst()const
@@ -132,9 +132,9 @@ void ApplicationDX11::OnResize()
 	// Release the old views, as they hold references to the buffers we
 	// will be destroying.  Also release the old depth/stencil buffer.
 
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mDepthStencilView);
-	ReleaseCOM(mDepthStencilBuffer);
+	SAFE_RELEASE(mRenderTargetView);
+	SAFE_RELEASE(mDepthStencilView);
+	SAFE_RELEASE(mDepthStencilBuffer);
 
 
 	// Resize the swap chain and recreate the render target view.
@@ -143,7 +143,7 @@ void ApplicationDX11::OnResize()
 	ID3D11Texture2D* backBuffer;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
 	HR(md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
-	ReleaseCOM(backBuffer);
+	SAFE_RELEASE(backBuffer);
 
 	// Create the depth/stencil buffer and view.
 
@@ -445,9 +445,9 @@ bool ApplicationDX11::InitDirect3D()
 
 	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
 
-	ReleaseCOM(dxgiDevice);
-	ReleaseCOM(dxgiAdapter);
-	ReleaseCOM(dxgiFactory);
+	SAFE_RELEASE(dxgiDevice);
+	SAFE_RELEASE(dxgiAdapter);
+	SAFE_RELEASE(dxgiFactory);
 
 	// The remaining steps that need to be carried out for d3d creation
 	// also need to be executed every time the window is resized.  So

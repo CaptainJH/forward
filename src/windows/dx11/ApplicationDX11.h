@@ -19,8 +19,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
-#include <d3d11_2.h>
-#include "Types.h"
+#include "PCH.h"
 #include "d3dUtil.h"
 //--------------------------------------------------------------------------------
 
