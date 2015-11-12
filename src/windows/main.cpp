@@ -1,18 +1,16 @@
 #include "ApplicationDX11.h"
 
+using namespace forward;
 
-class InitDirect3DApp : public forward::Application
+class InitDirect3DApp : public Application
 {
 public:
 	InitDirect3DApp(HINSTANCE hInstance, int width, int height);
 	~InitDirect3DApp();
 
-	bool Init();
-	void OnResize();
-
 protected:
-	void UpdateScene(float dt);
-	void DrawScene();
+	virtual void UpdateScene(float dt);
+	virtual void DrawScene();
 	virtual void OnEsc();
 };
 
@@ -33,25 +31,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 }
 
 InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance, int width, int height)
-	: forward::Application(hInstance, width, height)
+	: Application(hInstance, width, height)
 {
 }
 
 InitDirect3DApp::~InitDirect3DApp()
 {
-}
-
-bool InitDirect3DApp::Init()
-{
-	if (!forward::Application::Init())
-		return false;
-
-	return true;
-}
-
-void InitDirect3DApp::OnResize()
-{
-	forward::Application::OnResize();
 }
 
 void InitDirect3DApp::UpdateScene(float /*dt*/)
@@ -61,13 +46,8 @@ void InitDirect3DApp::UpdateScene(float /*dt*/)
 
 void InitDirect3DApp::DrawScene()
 {
-	//assert(md3dImmediateContext);
-	//assert(mSwapChain);
-
-	//md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Blue));
-	//md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	//HR(mSwapChain->Present(0, 0));
+	m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
+	m_pRender->Present(MainWnd(), 0);
 }
 
 void InitDirect3DApp::OnEsc()

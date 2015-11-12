@@ -10,7 +10,6 @@
 // and profiling.  These are all available to the user when building an 
 // application.
 //
-// 06.02.2012: BeforeRegisterWindowClass method added by Francois Piette.
 //--------------------------------------------------------------------------------
 #ifndef ApplicationDX11_h
 #define ApplicationDX11_h
@@ -21,14 +20,12 @@
 #include <Windows.h>
 #include "PCH.h"
 #include "d3dUtil.h"
-#include "ResourceProxyDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class RendererDX11;
-
 	class ApplicationDX11
 	{
 	public:
@@ -46,6 +43,7 @@ namespace forward
 
 		virtual bool Init();
 		virtual void OnResize();
+		void OnResize2();
 
 		// Request an exit from windows
 		void RequestTermination();
@@ -66,7 +64,6 @@ namespace forward
 
 	protected:
 		bool InitMainWindow();
-		bool InitDirect3D();
 
 		virtual bool ConfigureRendererComponents();
 		virtual void ShutdownRendererComponents();
@@ -89,7 +86,7 @@ namespace forward
 		ResourcePtr		m_RenderTarget;
 		ResourcePtr		m_DepthTarget;
 
-		ID3D11Device* md3dDevice;
+		//ID3D11Device* md3dDevice;
 		ID3D11DeviceContext* md3dImmediateContext;
 		IDXGISwapChain* mSwapChain;
 		ID3D11Texture2D* mDepthStencilBuffer;

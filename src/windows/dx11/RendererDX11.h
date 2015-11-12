@@ -13,6 +13,7 @@
 #include "Matrix4f.h"
 
 #include "ResourceProxyDX11.h"
+#include "PipelineManagerDX11.h"
 #include "ShaderDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
@@ -47,9 +48,6 @@ namespace forward
 	class BlendStateConfigDX11;
 	class DepthStencilStateConfigDX11;
 	class RasterizerStateConfigDX11;
-
-	class PipelineManagerDX11;
-
 
 
 	class RendererDX11

@@ -45,6 +45,6 @@ typedef Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayoutComPtr;
 
 const int NUM_THREADS = 1;
 
-#include "Types.h"
-
 #endif
+
+#include "Types.h"

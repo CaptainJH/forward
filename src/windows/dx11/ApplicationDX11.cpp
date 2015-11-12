@@ -1,7 +1,6 @@
 #include <windowsx.h>
 
 #include "ApplicationDX11.h"
-#include "RendererDX11.h"
 #include "PipelineManagerDX11.h"
 #include "Log.h"
 
@@ -41,8 +40,6 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 	mMaximized(false),
 	mResizing(false),
 	m4xMsaaQuality(0),
-
-	md3dDevice(0),
 	md3dImmediateContext(0),
 	mSwapChain(0),
 	mDepthStencilBuffer(0),
@@ -71,7 +68,6 @@ ApplicationDX11::~ApplicationDX11()
 		md3dImmediateContext->ClearState();
 
 	SAFE_RELEASE(md3dImmediateContext);
-	SAFE_RELEASE(md3dDevice);
 }
 
 HINSTANCE ApplicationDX11::AppInst()const
@@ -127,13 +123,16 @@ bool ApplicationDX11::Init()
 	if (!InitMainWindow())
 		return false;
 
-	//if (!InitDirect3D())
-	//	return false;
-
 	if (!ConfigureRendererComponents())
 		return false;
 
 	return true;
+}
+
+void ApplicationDX11::OnResize2()
+{
+	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
+	//m_pRender->ResizeTexture()
 }
 
 void ApplicationDX11::OnResize()
@@ -232,7 +231,7 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LP
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (md3dDevice)
+		if (m_pRender->GetDevice())
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -302,7 +301,7 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LP
 
 		// WM_DESTROY is sent when the window is being destroyed.
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		RequestTermination();
 		return 0;
 
 		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
@@ -392,101 +391,6 @@ bool ApplicationDX11::InitMainWindow()
 	return true;
 }
 
-bool ApplicationDX11::InitDirect3D()
-{
-	// Create the device and device context.
-
-	UINT createDeviceFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)  
-	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-	D3D_FEATURE_LEVEL featureLevel;
-	HR(D3D11CreateDevice(
-		0,                 // default adapter
-		md3dDriverType,
-		0,                 // no software device
-		createDeviceFlags,
-		0, 0,              // default feature level array
-		D3D11_SDK_VERSION,
-		&md3dDevice,
-		&featureLevel,
-		&md3dImmediateContext));
-
-	if (featureLevel != D3D_FEATURE_LEVEL_11_0)
-	{
-		MessageBox(0, L"Direct3D Feature Level 11 unsupported.", 0, 0);
-		return false;
-	}
-
-	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render 
-	// target formats, so we only need to check quality support.
-
-	HR(md3dDevice->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
-	assert(m4xMsaaQuality > 0);
-
-	// Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
-
-	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = mClientWidth;
-	sd.BufferDesc.Height = mClientHeight;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-	// Use 4X MSAA? 
-	if (mEnable4xMsaa)
-	{
-		sd.SampleDesc.Count = 4;
-		sd.SampleDesc.Quality = m4xMsaaQuality - 1;
-	}
-	// No MSAA
-	else
-	{
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-	}
-
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 1;
-	sd.OutputWindow = mhMainWnd;
-	sd.Windowed = true;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags = 0;
-
-	// To correctly create the swap chain, we must use the IDXGIFactory that was
-	// used to create the device.  If we tried to use a different IDXGIFactory instance
-	// (by calling CreateDXGIFactory), we get an error: "IDXGIFactory::CreateSwapChain: 
-	// This function is being called with a device from a different IDXGIFactory."
-
-	IDXGIDevice* dxgiDevice = 0;
-	HR(md3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice));
-
-	IDXGIAdapter* dxgiAdapter = 0;
-	HR(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter));
-
-	IDXGIFactory* dxgiFactory = 0;
-	HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory));
-
-	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
-
-	SAFE_RELEASE(dxgiDevice);
-	SAFE_RELEASE(dxgiAdapter);
-	SAFE_RELEASE(dxgiFactory);
-
-	// The remaining steps that need to be carried out for d3d creation
-	// also need to be executed every time the window is resized.  So
-	// just call the OnResize method here to avoid code duplication.
-
-	OnResize();
-
-	return true;
-}
-
 void ApplicationDX11::CalculateFrameStats()
 {
 	// Code computes the average frames per second, and also the 
@@ -521,14 +425,15 @@ bool ApplicationDX11::ConfigureRendererComponents()
 {
 	m_pRender = new RendererDX11;
 
-	if (!m_pRender->Initialize(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_1))
+	if (!m_pRender->Initialize(md3dDriverType, D3D_FEATURE_LEVEL_11_0))
 	{
 		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
 
 		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_1))
 		{
 			ShowWindow(MainWnd(), SW_HIDE);
-			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!", L"forward", MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!", 
+				mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
 			RequestTermination();
 			return false;
 		}
