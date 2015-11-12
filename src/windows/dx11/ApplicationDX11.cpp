@@ -40,16 +40,8 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 	mMaximized(false),
 	mResizing(false),
 	m4xMsaaQuality(0),
-	md3dImmediateContext(0),
-	mSwapChain(0),
-	mDepthStencilBuffer(0),
-	mRenderTargetView(0),
-	mDepthStencilView(0),
-
 	m_pRender(0)
 {
-	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
-
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
 	// the global window procedure.
@@ -58,16 +50,7 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 
 ApplicationDX11::~ApplicationDX11()
 {
-	SAFE_RELEASE(mRenderTargetView);
-	SAFE_RELEASE(mDepthStencilView);
-	SAFE_RELEASE(mSwapChain);
-	SAFE_RELEASE(mDepthStencilBuffer);
-
-	// Restore all default settings.
-	if (md3dImmediateContext)
-		md3dImmediateContext->ClearState();
-
-	SAFE_RELEASE(md3dImmediateContext);
+	ShutdownRendererComponents();
 }
 
 HINSTANCE ApplicationDX11::AppInst()const
@@ -129,81 +112,19 @@ bool ApplicationDX11::Init()
 	return true;
 }
 
-void ApplicationDX11::OnResize2()
-{
-	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
-	//m_pRender->ResizeTexture()
-}
-
 void ApplicationDX11::OnResize()
 {
-	assert(md3dImmediateContext);
-	assert(md3dDevice);
-	assert(mSwapChain);
+	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
+	m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
 
-	// Release the old views, as they hold references to the buffers we
-	// will be destroying.  Also release the old depth/stencil buffer.
+	m_pRender->pImmPipeline->ClearRenderTargets();
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+	m_pRender->pImmPipeline->ApplyRenderTargets();
 
-	SAFE_RELEASE(mRenderTargetView);
-	SAFE_RELEASE(mDepthStencilView);
-	SAFE_RELEASE(mDepthStencilBuffer);
-
-
-	// Resize the swap chain and recreate the render target view.
-
-	HR(mSwapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-	ID3D11Texture2D* backBuffer;
-	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
-	HR(md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
-	SAFE_RELEASE(backBuffer);
-
-	// Create the depth/stencil buffer and view.
-
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-
-	depthStencilDesc.Width = mClientWidth;
-	depthStencilDesc.Height = mClientHeight;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-	// Use 4X MSAA? --must match swap chain MSAA values.
-	if (mEnable4xMsaa)
-	{
-		depthStencilDesc.SampleDesc.Count = 4;
-		depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
-	}
-	// No MSAA
-	else
-	{
-		depthStencilDesc.SampleDesc.Count = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-	}
-
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
-
-	HR(md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
-	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
-
-
-	// Bind the render target view and depth/stencil view to the pipeline.
-
-	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-
-
-	// Set the viewport transform.
-
-	mScreenViewport.TopLeftX = 0;
-	mScreenViewport.TopLeftY = 0;
-	mScreenViewport.Width = static_cast<float>(mClientWidth);
-	mScreenViewport.Height = static_cast<float>(mClientHeight);
-	mScreenViewport.MinDepth = 0.0f;
-	mScreenViewport.MaxDepth = 1.0f;
-
-	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
+	m_pRender->ResizeViewport(0, mClientWidth, mClientHeight);
+	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
 }
 
 LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LPARAM lParam)
@@ -231,7 +152,7 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LP
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (m_pRender->GetDevice())
+		if (m_pRender && m_pRender->GetDevice())
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -429,7 +350,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	{
 		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
 
-		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_1))
+		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
 		{
 			ShowWindow(MainWnd(), SW_HIDE);
 			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!", 

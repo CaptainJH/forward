@@ -43,7 +43,6 @@ namespace forward
 
 		virtual bool Init();
 		virtual void OnResize();
-		void OnResize2();
 
 		// Request an exit from windows
 		void RequestTermination();
@@ -85,14 +84,6 @@ namespace forward
 		RendererDX11*	m_pRender;
 		ResourcePtr		m_RenderTarget;
 		ResourcePtr		m_DepthTarget;
-
-		//ID3D11Device* md3dDevice;
-		ID3D11DeviceContext* md3dImmediateContext;
-		IDXGISwapChain* mSwapChain;
-		ID3D11Texture2D* mDepthStencilBuffer;
-		ID3D11RenderTargetView* mRenderTargetView;
-		ID3D11DepthStencilView* mDepthStencilView;
-		D3D11_VIEWPORT mScreenViewport;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;

@@ -202,8 +202,8 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
         for ( auto pAdapter : vAdapters )
         {
             hr = D3D11CreateDevice(
-				0,//pAdapter.m_pAdapter.Get(),
-                DriverType,
+				pAdapter.m_pAdapter.Get(),
+				D3D_DRIVER_TYPE_UNKNOWN,
                 nullptr,
                 CreateDeviceFlags,
                 level,
