@@ -1,8 +1,16 @@
-#include "ApplicationDX11.h"
 #include <windowsx.h>
+
+#include "ApplicationDX11.h"
+#include "RendererDX11.h"
+#include "PipelineManagerDX11.h"
+#include "Log.h"
+
+#include "SwapChainConfigDX11.h"
+#include "Texture2dConfigDX11.h"
 
 //--------------------------------------------------------------------------------
 using namespace forward;
+using namespace std::chrono;
 //--------------------------------------------------------------------------------
 namespace
 {
@@ -39,7 +47,9 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
 	mSwapChain(0),
 	mDepthStencilBuffer(0),
 	mRenderTargetView(0),
-	mDepthStencilView(0)
+	mDepthStencilView(0),
+
+	m_pRender(0)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 
@@ -104,7 +114,7 @@ int ApplicationDX11::Run()
 			}
 			else
 			{
-				Sleep(100);
+				std::this_thread::sleep_for(100ms);
 			}
 		}
 	}
@@ -117,7 +127,10 @@ bool ApplicationDX11::Init()
 	if (!InitMainWindow())
 		return false;
 
-	if (!InitDirect3D())
+	//if (!InitDirect3D())
+	//	return false;
+
+	if (!ConfigureRendererComponents())
 		return false;
 
 	return true;
@@ -317,6 +330,22 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LP
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			OnSpace();
+			break;
+
+		case VK_ESCAPE:
+			OnEsc();
+			break;
+
+		case VK_RETURN:
+			OnEnter();
+			break;
+		};
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -486,4 +515,84 @@ void ApplicationDX11::CalculateFrameStats()
 	//	frameCnt = 0;
 	//	timeElapsed += 1.0f;
 	//}
+}
+
+bool ApplicationDX11::ConfigureRendererComponents()
+{
+	m_pRender = new RendererDX11;
+
+	if (!m_pRender->Initialize(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_1))
+	{
+		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
+
+		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_1))
+		{
+			ShowWindow(MainWnd(), SW_HIDE);
+			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!", L"forward", MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+			RequestTermination();
+			return false;
+		}
+
+	}
+
+	// Create a swap chain for the window that we started out with.  This
+	// demonstrates using a configuration object for fast and concise object
+	// creation.
+
+	SwapChainConfigDX11 Config;
+	Config.SetWidth(mClientWidth);
+	Config.SetHeight(mClientHeight);
+	Config.SetOutputWindow(MainWnd());
+	auto swapChainId = m_pRender->CreateSwapChain(&Config);
+
+	// We'll keep a copy of the render target index to use in later examples.
+
+	m_RenderTarget = m_pRender->GetSwapChainResource(swapChainId);
+
+	// Next we create a depth buffer for use in the traditional rendering
+	// pipeline.
+
+	Texture2dConfigDX11 DepthConfig;
+	DepthConfig.SetDepthBuffer(mClientWidth, mClientHeight);
+	m_DepthTarget = m_pRender->CreateTexture2D(&DepthConfig, 0);
+
+	// Bind the swap chain render target and the depth buffer for use in 
+	// rendering.  
+
+	m_pRender->pImmPipeline->ClearRenderTargets();
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+	m_pRender->pImmPipeline->ApplyRenderTargets();
+
+
+	// Create a view port to use on the scene.  This basically selects the 
+	// entire floating point area of the render target.
+
+	D3D11_VIEWPORT viewport;
+	viewport.Width = static_cast< float >(mClientWidth);
+	viewport.Height = static_cast< float >(mClientHeight);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+
+	int ViewPort = m_pRender->CreateViewPort(viewport);
+	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, ViewPort);
+
+	return true;
+}
+void ApplicationDX11::ShutdownRendererComponents()
+{
+	if (m_pRender)
+	{
+		m_pRender->Shutdown();
+		SAFE_DELETE(m_pRender);
+	}
+}
+
+void ApplicationDX11::RequestTermination()
+{
+	// This triggers the termination of the application
+	PostQuitMessage(0);
 }

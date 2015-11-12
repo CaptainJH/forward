@@ -21,11 +21,14 @@
 #include <Windows.h>
 #include "PCH.h"
 #include "d3dUtil.h"
+#include "ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
 namespace forward
 {
+	class RendererDX11;
+
 	class ApplicationDX11
 	{
 	public:
@@ -43,18 +46,30 @@ namespace forward
 
 		virtual bool Init();
 		virtual void OnResize();
+
+		// Request an exit from windows
+		void RequestTermination();
+		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
+	protected:
 		virtual void UpdateScene(float dt) = 0;
 		virtual void DrawScene() = 0;
-		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 		// Convenience overrides for handling mouse input.
 		virtual void OnMouseDown(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
 		virtual void OnMouseUp(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
 		virtual void OnMouseMove(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
+		virtual void OnEsc() {}
+		virtual void OnEnter() {}
+		virtual void OnSpace() {}
 
 	protected:
 		bool InitMainWindow();
 		bool InitDirect3D();
+
+		virtual bool ConfigureRendererComponents();
+		virtual void ShutdownRendererComponents();
 
 		void CalculateFrameStats();
 
@@ -69,6 +84,10 @@ namespace forward
 		UINT      m4xMsaaQuality;
 
 		//GameTimer mTimer;
+
+		RendererDX11*	m_pRender;
+		ResourcePtr		m_RenderTarget;
+		ResourcePtr		m_DepthTarget;
 
 		ID3D11Device* md3dDevice;
 		ID3D11DeviceContext* md3dImmediateContext;

@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <memory>
 
+#include <thread>
+#include <chrono>
+
 // DirectX includes
 #include <d3d11_2.h>
 #include <d3dCompiler.h>
