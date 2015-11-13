@@ -5,13 +5,17 @@ using namespace forward;
 using namespace std;
 
 Timer::Timer()
-	: m_iFramesPerSecond(0)
+	: m_iFramesPerSecond(1)
 	, m_iMaxFramesPerSecond(0)
 	, m_iFrameCount(0)
+	, m_iOneSeconedFrameCount(0)
 	, m_bUseFixedStep(false)
-	, m_bPaused(false)
+	, m_deltaTime(chrono::milliseconds::zero())
 {
-
+	m_startTimePoint = m_clock.now();
+	m_lastTimePoint = m_startTimePoint;
+	m_currentTimePoint = m_startTimePoint;
+	m_oneSecondTimePoint = m_startTimePoint;
 }
 
 Timer::~Timer()
@@ -19,29 +23,60 @@ Timer::~Timer()
 
 }
 
-void Timer::Update()
+void Timer::Tick()
 {
+	m_currentTimePoint = m_clock.now();
+	m_deltaTime = m_currentTimePoint - m_lastTimePoint;
+ 	++m_iFrameCount;
 
+	auto duration = 
+		chrono::duration_cast<chrono::milliseconds>(m_currentTimePoint - m_oneSecondTimePoint).count();
+	if (duration < 1000)
+	{
+		++m_iOneSeconedFrameCount;
+	}
+	else
+	{
+		m_iFramesPerSecond = m_iOneSeconedFrameCount;
+		if (m_iFramesPerSecond > m_iMaxFramesPerSecond)
+			m_iMaxFramesPerSecond = m_iFramesPerSecond;
+
+		m_iOneSeconedFrameCount = 0;
+		m_oneSecondTimePoint = m_currentTimePoint;
+	}
+
+	m_lastTimePoint = m_currentTimePoint;
 }
 
 void Timer::Reset()
 {
+	m_iFramesPerSecond = 1;
+	m_iMaxFramesPerSecond = 0;
+	m_iFrameCount = 0;
+	m_iOneSeconedFrameCount = 0;
+	m_deltaTime = chrono::milliseconds::zero();
 
+	m_startTimePoint = m_clock.now();
+	m_lastTimePoint = m_startTimePoint;
+	m_currentTimePoint = m_startTimePoint;
+	m_oneSecondTimePoint = m_startTimePoint;
 }
 
-float Timer::Runtime()
+long long Timer::Runtime()
 {
-	return 0.0f;
+	auto length = m_currentTimePoint - m_startTimePoint;
+	return chrono::duration_cast<chrono::seconds>(length).count();
 }
 
 float Timer::Elapsed()
 {
-	return 0.0f;
+	auto frameTime = chrono::duration_cast<chrono::microseconds>(m_deltaTime).count();
+	return frameTime / 1000.0f;
 }
 
 int Timer::Framerate()
 {
-	return 0;
+	return m_iFramesPerSecond;
 }
 
 int Timer::MaxFramerate()
@@ -56,20 +91,6 @@ int Timer::FrameCount()
 
 float Timer::Frametime()
 {
-	return 0.0f;
+	return (1.0f / m_iFramesPerSecond);
 }
 
-void Timer::PauseTimer(bool pause)
-{
-	m_bPaused = pause;
-}
-
-bool Timer::IsTimerPaused() const
-{
-	return m_bPaused;
-}
-
-void Timer::SetFixedTimeStep(float step)
-{
-
-}

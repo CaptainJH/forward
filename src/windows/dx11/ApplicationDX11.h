@@ -21,6 +21,7 @@
 #include "PCH.h"
 #include "d3dUtil.h"
 #include "RendererDX11.h"
+#include "Timer.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ namespace forward
 		bool      mResizing;
 		UINT      m4xMsaaQuality;
 
-		//GameTimer mTimer;
+		Timer mTimer;
 
 		RendererDX11*	m_pRender;
 		ResourcePtr		m_RenderTarget;
