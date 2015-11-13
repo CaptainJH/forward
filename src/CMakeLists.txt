@@ -10,6 +10,7 @@ include_directories("windows/dx11")
 include_directories("math/")
 include_directories("intersection/")
 include_directories("geometry/")
+include_directories("utilities/")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX")
@@ -30,6 +31,7 @@ add_subdirectory(core)
 add_subdirectory(math)
 add_subdirectory(geometry)
 add_subdirectory(intersection)
+add_subdirectory(utilities)
 
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
