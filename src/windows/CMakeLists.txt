@@ -15,7 +15,7 @@ source_group(RenderSystem\\DXGI FILES ${DXGI_FILES})
 # include
 file(GLOB HEADER_FILES_INCLUDE "${forward_source_root}/include/*.h" "${forward_source_root}/include/*.inl")
 list(APPEND HEADER_FILES ${HEADER_FILES_INCLUDE})
-source_group(RenderSystem\\Pipeline\\Stages\\Common FILES ${HEADER_FILES_INCLUDE})
+source_group(Common FILES ${HEADER_FILES_INCLUDE})
 
 # PipeLine System
 file(GLOB PIPELINE_IA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/InputAssembler*DX11.*")
@@ -118,3 +118,6 @@ source_group(Utilities FILES ${SOURCE_FILES_UTILITIES})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_UTILITIES})
 
 add_executable(forward ${HEADER_FILES} ${SOURCE_FILES})
+if(Boost_FOUND)
+	target_link_libraries(forward ${Boost_LIBRARIES})
+endif()

@@ -3,6 +3,23 @@ project("forward")
 
 set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
+#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/Users/jhq/Downloads/boost_1_59_0")
+#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/Users/jhq/Downloads/boost_1_59_0/stage/lib")
+
+#set(BOOST_ROOT "C:/")
+#set(Boost_INCLUDE_DIR ${BOOST_ROOT})
+#set(Boost_LIBRARY_DIR ${BOOST_ROOT})
+#set(Boost_LIBRARY_DIR C:/Users/jhq/Downloads/boost_1_59_0/stage/lib)
+find_package(Boost)
+if(Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS}) 
+	link_directories(${Boost_LIBRARY_DIRS})
+	MESSAGE( STATUS "${Boost_INCLUDE_DIRS}")
+	MESSAGE( STATUS "${Boost_LIBRARY_DIRS}")
+	#target_link_libraries(progname ${Boost_LIBRARIES})
+endif()
+
+include_directories("../libs")
 include_directories("include/")
 include_directories("core/")
 include_directories("windows/")

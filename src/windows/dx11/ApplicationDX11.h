@@ -22,6 +22,7 @@
 #include "d3dUtil.h"
 #include "RendererDX11.h"
 #include "Timer.h"
+#include "FileSystem.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -81,6 +82,7 @@ namespace forward
 		UINT      m4xMsaaQuality;
 
 		Timer mTimer;
+		FileSystem mFileSystem;
 
 		RendererDX11*	m_pRender;
 		ResourcePtr		m_RenderTarget;
