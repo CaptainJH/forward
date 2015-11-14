@@ -48,3 +48,4 @@ const int NUM_THREADS = 1;
 #endif
 
 #include "Types.h"
+#include "d3dUtil.h"

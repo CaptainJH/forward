@@ -14,6 +14,8 @@
 #include "ShaderFactoryDX11.h"
 #include "Log.h"
 #include "d3dUtil.h"
+#include "FileSystem.h"
+#include "FileLoader.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -25,8 +27,8 @@ ShaderFactoryDX11::~ShaderFactoryDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, std::wstring& filename, std::wstring& function,
-            std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
+ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, const std::wstring& filename, const std::wstring& function,
+            const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 	HRESULT hr = S_OK;
 
@@ -35,10 +37,8 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, std::wstring& 
 	ID3DBlob* pCompiledShader = nullptr;
 	ID3DBlob* pErrorMessages = nullptr;
 
-	char AsciiFunction[1024];
-	char AsciiModel[1024];
-	WideCharToMultiByte(CP_ACP, 0, function.c_str(), -1, AsciiFunction, 1024, NULL, NULL);
-	WideCharToMultiByte(CP_ACP, 0, model.c_str(), -1, AsciiModel, 1024, NULL, NULL);
+	auto AsciiFunction = TextHelper::ToAscii(function);
+	auto AsciiModel = TextHelper::ToAscii(model);
 
 	// TODO: The compilation of shaders has to skip the warnings as errors 
 	//       for the moment, since the new FXC.exe compiler in VS2012 is
@@ -50,25 +50,26 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, std::wstring& 
 #endif
 
 	// Get the current path to the shader folders, and add the filename to it.
-
-	std::wstring filepath = filename;
+	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + filename;
 
 	// Load the file into memory
 
-	std::ifstream shaderFile(filename);
-	std::string hlslCode((std::istreambuf_iterator<char>(shaderFile)),
-		std::istreambuf_iterator<char>());
-
-
+	FileLoader SourceFile;
+	if (!SourceFile.Open(filepath)) 
+	{
+		message << "Unable to load shader from file: " << filepath;
+		Log::Get().Write(message.str());
+		return(nullptr);
+	}
 
 	if ( FAILED( hr = D3DCompile( 
-		hlslCode.c_str(),
-		hlslCode.size(),
+		SourceFile.GetDataPtr(),
+		SourceFile.GetDataSize(),
 		nullptr,
 		pDefines,
 		nullptr,
-		AsciiFunction,
-		AsciiModel,
+		AsciiFunction.c_str(),
+		AsciiModel.c_str(),
 		flags,
 		0,
 		&pCompiledShader,

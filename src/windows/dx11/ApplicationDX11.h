@@ -23,6 +23,7 @@
 #include "RendererDX11.h"
 #include "Timer.h"
 #include "FileSystem.h"
+#include "Log.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ namespace forward
 		virtual void OnMouseDown(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
 		virtual void OnMouseUp(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
 		virtual void OnMouseMove(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
-		virtual void OnEsc() {}
+		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
 

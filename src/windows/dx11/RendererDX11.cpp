@@ -1009,14 +1009,14 @@ void RendererDX11::ResizeViewport( int ID, forward::UINT width, forward::UINT he
 	pViewport.m_ViewPort.Height = static_cast<float>( height );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::LoadShader( ShaderType type, std::wstring& filename, std::wstring& function, 
-                             std::wstring& model, bool enablelogging )
+int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
+                             const std::wstring& model, bool enablelogging )
 {
     return LoadShader( type, filename, function, model, NULL, enablelogging );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::LoadShader( ShaderType type, std::wstring& filename, std::wstring& function, 
-                                std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
+int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
+                                const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 
 	// Check the existing list of shader files to see if there are any matches

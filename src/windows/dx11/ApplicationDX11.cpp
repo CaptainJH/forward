@@ -2,7 +2,6 @@
 
 #include "ApplicationDX11.h"
 #include "PipelineManagerDX11.h"
-#include "Log.h"
 
 #include "SwapChainConfigDX11.h"
 #include "Texture2dConfigDX11.h"

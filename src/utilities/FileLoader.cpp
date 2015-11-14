@@ -27,10 +27,10 @@ bool FileLoader::Open( const std::wstring& filename )
 	std::string hlslCode((std::istreambuf_iterator<char>(shaderFile)),
 		std::istreambuf_iterator<char>());
 
-	auto Size = hlslCode.size();
-	m_pData = new char[Size];
-	memset(m_pData, 0, Size);
-	memcpy(m_pData, hlslCode.c_str(), Size);
+	m_uiSize = static_cast<UINT>(hlslCode.length());
+	m_pData = new char[m_uiSize];
+	memset(m_pData, 0, m_uiSize);
+	memcpy(m_pData, hlslCode.c_str(), m_uiSize);
 	
 	return( true );
 }

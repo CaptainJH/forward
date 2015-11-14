@@ -25,8 +25,8 @@ namespace forward
 	public:
 		~ShaderFactoryDX11();
 
-		static ID3DBlob* GenerateShader( ShaderType type, std::wstring& filename, std::wstring& function,
-            std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
+		static ID3DBlob* GenerateShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
+            const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 
 	private:
 		ShaderFactoryDX11();

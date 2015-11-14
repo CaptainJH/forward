@@ -146,11 +146,11 @@ namespace forward
 		// later use.  Either an application can directly set these values or a render effect
 		// can encapsulate the entire pipeline configuration.
 
-		int LoadShader( ShaderType type, std::wstring& filename, std::wstring& function,
-			std::wstring& model, bool enablelogging = true );
+		int LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
+			const std::wstring& model, bool enablelogging = true );
 
-        int LoadShader( ShaderType type, std::wstring& filename, std::wstring& function,
-            std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
+        int LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
+            const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 		
 		ResourcePtr GetSwapChainResource( int ID );
 

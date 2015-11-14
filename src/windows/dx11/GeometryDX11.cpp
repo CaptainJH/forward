@@ -14,7 +14,8 @@
 #include "VertexBufferDX11.h"
 #include "IndexBufferDX11.h"
 #include "BufferConfigDX11.h"
-//#include "PipelineManagerDX11.h"
+#include "Log.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -36,25 +37,25 @@ GeometryDX11::~GeometryDX11()
 	}
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::Execute( PipelineManagerDX11* /*pPipeline*/ )
+void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 {
-	//pPipeline->InputAssemblerStage.ClearDesiredState();
+	pPipeline->InputAssemblerStage.ClearDesiredState();
 
-	//// Set the Input Assembler state, then perform the draw call.
-	//int layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
-	//pPipeline->InputAssemblerStage.DesiredState.InputLayout.SetState( layout );
-	//pPipeline->InputAssemblerStage.DesiredState.PrimitiveTopology.SetState( m_ePrimType );
+	// Set the Input Assembler state, then perform the draw call.
+	int layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
+	pPipeline->InputAssemblerStage.DesiredState.InputLayout.SetState( layout );
+	pPipeline->InputAssemblerStage.DesiredState.PrimitiveTopology.SetState( m_ePrimType );
 
-	//pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, m_VB->m_iResource );
-	//pPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState( 0, m_iVertexSize );
-	//pPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState( 0, 0 );
+	pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, m_VB->m_iResource );
+	pPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState( 0, m_iVertexSize );
+	pPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState( 0, 0 );
 
-	//pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( m_IB->m_iResource );
-	//pPipeline->InputAssemblerStage.DesiredState.IndexBufferFormat.SetState( DXGI_FORMAT_R32_UINT );
-	//
-	//pPipeline->ApplyInputResources();
+	pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( m_IB->m_iResource );
+	pPipeline->InputAssemblerStage.DesiredState.IndexBufferFormat.SetState( DXGI_FORMAT_R32_UINT );
+	
+	pPipeline->ApplyInputResources();
 
-	//pPipeline->DrawIndexed( GetIndexCount(), 0, 0 );
+	pPipeline->DrawIndexed( GetIndexCount(), 0, 0 );
 }
 //--------------------------------------------------------------------------------
 void GeometryDX11::AddElement( VertexElementDX11* element )
@@ -114,8 +115,7 @@ VertexElementDX11* GeometryDX11::GetElement( std::string name )
 //--------------------------------------------------------------------------------
 VertexElementDX11* GeometryDX11::GetElement( std::wstring name )
 {
-	std::string asciiName;
-		//= GlyphString::ToAscii( name );
+	std::string asciiName = TextHelper::ToAscii(name);
     return GetElement( asciiName );
 }
 //--------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ forward::UINT GeometryDX11::GetIndex( forward::UINT index )
 	if ( index < m_vIndices.size() )
 		return( m_vIndices[index] );
 	
-	//Log::Get().Write( L"Tried to get an out of bounds index!" );
+	Log::Get().Write( L"Tried to get an out of bounds index!" );
 
 	return( 0 );
 }
@@ -280,114 +280,114 @@ int GeometryDX11::CalculateVertexCount()
 	return( m_iVertexCount );
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::GenerateInputLayout( int /*ShaderID*/ )
+void GeometryDX11::GenerateInputLayout( int ShaderID )
 {
-	//int iElems = m_vElements.size();
+	auto iElems = m_vElements.size();
 
-	//if ( iElems == 0 )
-	//{
-	//	// If no vertex elements exist in the geometry, then we can assume the 
-	//	// vertex data will be generated in the shader itself.  In this case, the
-	//	// number of vertices will be determined by the number of primitives.
+	if ( iElems == 0 )
+	{
+		// If no vertex elements exist in the geometry, then we can assume the 
+		// vertex data will be generated in the shader itself.  In this case, the
+		// number of vertices will be determined by the number of primitives.
 
-	//	m_iVertexCount = GetPrimitiveCount();
-	//	
-	//	// Allocate the necessary number of element descriptions
-	//	std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
+		m_iVertexCount = GetPrimitiveCount();
+		
+		// Allocate the necessary number of element descriptions
+		std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
 
-	//	// Create the input layout for the given shader index
-	//	RendererDX11* pRenderer = RendererDX11::Get();
-	//	if ( m_InputLayouts[ShaderID] == 0 )
-	//	{
-	//		InputLayoutKey* pKey = new InputLayoutKey();
-	//		pKey->shader = ShaderID;
-	//		pKey->layout = pRenderer->CreateInputLayout( elements, ShaderID );
-	//		m_InputLayouts[ShaderID] = pKey;
-	//	}
-	//}
-	//else
-	//{
-	//	// Check the number of vertices to be created
-	//	CalculateVertexCount();
+		// Create the input layout for the given shader index
+		RendererDX11* pRenderer = RendererDX11::Get();
+		if ( m_InputLayouts[ShaderID] == 0 )
+		{
+			InputLayoutKey* pKey = new InputLayoutKey();
+			pKey->shader = ShaderID;
+			pKey->layout = pRenderer->CreateInputLayout( elements, ShaderID );
+			m_InputLayouts[ShaderID] = pKey;
+		}
+	}
+	else
+	{
+		// Check the number of vertices to be created
+		CalculateVertexCount();
 
-	//	// Allocate the necessary number of element descriptions
-	//	std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
+		// Allocate the necessary number of element descriptions
+		std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
 
-	//	// Fill in the vertex element descriptions based on each element
-	//	for ( unsigned int i = 0; i < m_vElements.size(); i++ )
-	//	{
-	//		D3D11_INPUT_ELEMENT_DESC e;
-	//		e.SemanticName = m_vElements[i]->m_SemanticName.c_str();
-	//		e.SemanticIndex = m_vElements[i]->m_uiSemanticIndex;
-	//		e.Format = m_vElements[i]->m_Format;
-	//		e.InputSlot = m_vElements[i]->m_uiInputSlot;
-	//		e.AlignedByteOffset = m_vElements[i]->m_uiAlignedByteOffset;
-	//		e.InputSlotClass = m_vElements[i]->m_InputSlotClass;
-	//		e.InstanceDataStepRate = m_vElements[i]->m_uiInstanceDataStepRate;
-	//		
-	//		elements.push_back( e );
-	//	}
+		// Fill in the vertex element descriptions based on each element
+		for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+		{
+			D3D11_INPUT_ELEMENT_DESC e;
+			e.SemanticName = m_vElements[i]->m_SemanticName.c_str();
+			e.SemanticIndex = m_vElements[i]->m_uiSemanticIndex;
+			e.Format = m_vElements[i]->m_Format;
+			e.InputSlot = m_vElements[i]->m_uiInputSlot;
+			e.AlignedByteOffset = m_vElements[i]->m_uiAlignedByteOffset;
+			e.InputSlotClass = m_vElements[i]->m_InputSlotClass;
+			e.InstanceDataStepRate = m_vElements[i]->m_uiInstanceDataStepRate;
+			
+			elements.push_back( e );
+		}
 
-	//	// Create the input layout for the given shader index
+		// Create the input layout for the given shader index
 
-	//	RendererDX11* pRenderer = RendererDX11::Get();
-	//	if ( m_InputLayouts[ShaderID] == 0 )
-	//	{
-	//		InputLayoutKey* pKey = new InputLayoutKey();
-	//		pKey->shader = ShaderID;
-	//		pKey->layout = pRenderer->CreateInputLayout( elements, ShaderID );
-	//		m_InputLayouts[ShaderID] = pKey;
-	//	}
-	//}
+		RendererDX11* pRenderer = RendererDX11::Get();
+		if ( m_InputLayouts[ShaderID] == 0 )
+		{
+			InputLayoutKey* pKey = new InputLayoutKey();
+			pKey->shader = ShaderID;
+			pKey->layout = pRenderer->CreateInputLayout( elements, ShaderID );
+			m_InputLayouts[ShaderID] = pKey;
+		}
+	}
 }
 //--------------------------------------------------------------------------------
 void GeometryDX11::LoadToBuffers()
 {
-	//// Check the number of vertices to be created
-	//CalculateVertexCount();
+	// Check the number of vertices to be created
+	CalculateVertexCount();
 
-	//// Check the size of the assembled vertices
-	//CalculateVertexSize();
+	// Check the size of the assembled vertices
+	CalculateVertexSize();
 
-	//if ( GetVertexSize() > 0 )
-	//{
-	//	// Load the vertex buffer first by calculating the required size
-	//	unsigned int vertices_length = GetVertexSize() * GetVertexCount();
+	if ( GetVertexSize() > 0 )
+	{
+		// Load the vertex buffer first by calculating the required size
+		unsigned int vertices_length = GetVertexSize() * GetVertexCount();
 
-	//	char* pBytes = new char[vertices_length];
+		char* pBytes = new char[vertices_length];
 
-	//	for ( int j = 0; j < m_iVertexCount; j++ )
-	//	{
-	//		int iElemOffset = 0;
-	//		for ( unsigned int i = 0; i < m_vElements.size(); i++ )
-	//		{
-	//			memcpy( pBytes + j * m_iVertexSize + iElemOffset, m_vElements[i]->GetPtr(j), m_vElements[i]->SizeInBytes() );
-	//			iElemOffset += m_vElements[i]->SizeInBytes();
-	//		}
-	//	}
+		for ( int j = 0; j < m_iVertexCount; j++ )
+		{
+			int iElemOffset = 0;
+			for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+			{
+				memcpy( pBytes + j * m_iVertexSize + iElemOffset, m_vElements[i]->GetPtr(j), m_vElements[i]->SizeInBytes() );
+				iElemOffset += m_vElements[i]->SizeInBytes();
+			}
+		}
 
-	//	D3D11_SUBRESOURCE_DATA data;
-	//	data.pSysMem = reinterpret_cast<void*>( pBytes );
-	//	data.SysMemPitch = 0;
-	//	data.SysMemSlicePitch = 0;
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = reinterpret_cast<void*>( pBytes );
+		data.SysMemPitch = 0;
+		data.SysMemSlicePitch = 0;
 
-	//	BufferConfigDX11 vbuffer;
-	//	vbuffer.SetDefaultVertexBuffer( vertices_length, false );
-	//	m_VB = RendererDX11::Get()->CreateVertexBuffer( &vbuffer, &data );
+		BufferConfigDX11 vbuffer;
+		vbuffer.SetDefaultVertexBuffer( vertices_length, false );
+		m_VB = RendererDX11::Get()->CreateVertexBuffer( &vbuffer, &data );
 
-	//	delete [] pBytes; 
-	//}
-	//
-	//// Load the index buffer by calculating the required size
-	//// based on the number of indices.
-	//D3D11_SUBRESOURCE_DATA data;
-	//data.pSysMem = reinterpret_cast<void*>( &m_vIndices[0] );
-	//data.SysMemPitch = 0;
-	//data.SysMemSlicePitch = 0;
-	//
-	//BufferConfigDX11 ibuffer;
-	//ibuffer.SetDefaultIndexBuffer( sizeof( UINT ) * GetIndexCount(), false );
-	//m_IB = RendererDX11::Get()->CreateIndexBuffer( &ibuffer, &data );
+		delete [] pBytes; 
+	}
+	
+	// Load the index buffer by calculating the required size
+	// based on the number of indices.
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = reinterpret_cast<void*>( &m_vIndices[0] );
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
+	
+	BufferConfigDX11 ibuffer;
+	ibuffer.SetDefaultIndexBuffer( sizeof( UINT ) * GetIndexCount(), false );
+	m_IB = RendererDX11::Get()->CreateIndexBuffer( &ibuffer, &data );
 }
 //--------------------------------------------------------------------------------
 forward::UINT GeometryDX11::GetIndexCount()
@@ -403,14 +403,14 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
     // Only works for triangle lists    
     if ( m_ePrimType != D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST )
     {
-        //Log::Get().Write( L"Tangent frame computation failed, geometry wasn't a triangle list" );
+        Log::Get().Write( L"Tangent frame computation failed, geometry wasn't a triangle list" );
         return false;
     }
 
     // Needs to be indexed
     if ( m_vIndices.size() == 0 )
     {
-        //Log::Get().Write( L"Tangent frame computation failed, geometry wasn't indexed" );
+        Log::Get().Write( L"Tangent frame computation failed, geometry wasn't indexed" );
         return false;
     }
 
@@ -418,21 +418,21 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
     VertexElementDX11* pPositionElement = GetElement( positionSemantic );
     if ( pPositionElement == NULL )
     {
-        //Log::Get().Write( L"Tangent frame computation failed, unable to find position vertex element" );
+        Log::Get().Write( L"Tangent frame computation failed, unable to find position vertex element" );
         return false;
     }
 
     VertexElementDX11* pNormalElement = GetElement( normalSemantic );
     if ( pNormalElement == NULL )
     {
-        //Log::Get().Write( L"Tangent frame computation failed, unable to find normal vertex element" );
+        Log::Get().Write( L"Tangent frame computation failed, unable to find normal vertex element" );
         return false;
     }
 
     VertexElementDX11* pTexCoordElement = GetElement( texCoordSemantic );
     if ( pTexCoordElement == NULL )
     {
-        //Log::Get().Write( L"Tangent frame computation failed, unable to find texture coordinate vertex element" );
+        Log::Get().Write( L"Tangent frame computation failed, unable to find texture coordinate vertex element" );
         return false;
     }
 
