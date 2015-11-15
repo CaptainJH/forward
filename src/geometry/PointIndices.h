@@ -15,6 +15,7 @@
 //--------------------------------------------------------------------------------
 #ifndef PointIndices_h
 #define PointIndices_h
+#include "Types.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -22,17 +23,17 @@ namespace forward
 	{
 	public:
 		PointIndices();
-		PointIndices( unsigned int P1 );
+		PointIndices( u32 P1 );
 		~PointIndices();
 
 		PointIndices& operator= ( const PointIndices& Point );
 
 		// member access
-		unsigned int P1( ) const;
-		unsigned int& P1( );
+		u32 P1( ) const;
+		u32& P1( );
 
 	protected:
-		unsigned int m_uiIndices[1];
+		u32 m_uiIndices[1];
 	};
 };
 //--------------------------------------------------------------------------------

@@ -23,11 +23,11 @@ namespace forward
 	{
 		//TODO:
 		//RenderParameterDX11*		pParameter;
-		unsigned int				offset;
-		unsigned int				size;
+		u32				offset;
+		u32				size;
 		D3D_SHADER_VARIABLE_CLASS	varclass;
-		unsigned int				elements;
-		unsigned int				valueID;
+		u32				elements;
+		u32				valueID;
 	};
 
 

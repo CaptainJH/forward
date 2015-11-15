@@ -48,7 +48,7 @@ char* FileLoader::GetDataPtr()
 	return( m_pData );
 }
 //--------------------------------------------------------------------------------
-unsigned int FileLoader::GetDataSize()
+u32 FileLoader::GetDataSize()
 {
 	return( m_uiSize );
 }

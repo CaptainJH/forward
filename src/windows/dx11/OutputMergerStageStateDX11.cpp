@@ -39,9 +39,9 @@ void OutputMergerStageStateDX11::SetFeautureLevel( D3D_FEATURE_LEVEL level )
 //--------------------------------------------------------------------------------
 int OutputMergerStageStateDX11::GetRenderTargetCount() const
 {
-	unsigned int count = 0;
+	u32 count = 0;
 
-	for ( unsigned int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ )
+	for ( u32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ )
 	{
 		if ( RenderTargetViews.GetState( i ) != -1 )
 			count++;

@@ -284,7 +284,7 @@ namespace forward
 	};
 };
 
-//unsigned int WINAPI _TaskThreadProc( void* lpParameter );
+//u32 WINAPI _TaskThreadProc( void* lpParameter );
 
 // Multithreading support objects
 //extern HANDLE						g_aThreadHandles[NUM_THREADS];

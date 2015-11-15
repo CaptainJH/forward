@@ -59,7 +59,7 @@ void InputAssemblerStateDX11::SetSisterState( InputAssemblerStateDX11* pState )
 	PrimitiveTopology.SetSister( &m_pSisterState->PrimitiveTopology );
 }
 //--------------------------------------------------------------------------------
-unsigned int InputAssemblerStateDX11::GetAvailableSlotCount()
+u32 InputAssemblerStateDX11::GetAvailableSlotCount()
 {
 	return( AvailableSlotCount );
 }

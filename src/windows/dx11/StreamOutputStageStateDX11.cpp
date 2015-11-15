@@ -34,9 +34,9 @@ void StreamOutputStageStateDX11::SetFeautureLevel( D3D_FEATURE_LEVEL level )
 //--------------------------------------------------------------------------------
 int StreamOutputStageStateDX11::GetBufferCount() const
 {
-	unsigned int count = 0;
+	u32 count = 0;
 
-	for ( unsigned int i = 0; i < 4; i++ )
+	for ( u32 i = 0; i < 4; i++ )
 	{
 		if ( StreamBuffers.GetState( i ) != -1 )
 			count++;

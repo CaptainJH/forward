@@ -16,10 +16,11 @@
 #define TStateArrayMonitor_h
 //--------------------------------------------------------------------------------
 #include <assert.h>
+#include <Types.h>
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	template <class T, unsigned int N>
+	template <class T, u32 N>
 	class TStateArrayMonitor
 	{
 	public:
@@ -27,18 +28,18 @@ namespace forward
 		~TStateArrayMonitor();
 
 		void SetSister( TStateArrayMonitor<T,N>* pSister );
-		bool SameAsSister( unsigned int slot );
+		bool SameAsSister( u32 slot );
 		
-		void SetState( unsigned int slot, T state );
+		void SetState( u32 slot, T state );
 	
 		bool IsUpdateNeeded();
-		unsigned int GetStartSlot();
-		unsigned int GetEndSlot();
-		unsigned int GetRange();
+		u32 GetStartSlot();
+		u32 GetEndSlot();
+		u32 GetRange();
 
-		T GetState( unsigned int slot ) const;
+		T GetState( u32 slot ) const;
 		T* GetFirstSlotLocation();
-		T* GetSlotLocation( unsigned int slot );
+		T* GetSlotLocation( u32 slot );
 
 		void InitializeStates();
 		void ResetTracking();
@@ -49,8 +50,8 @@ namespace forward
 		void SearchFromAbove();
 
 		// The monitoring varaibles
-		unsigned int m_uiStartSlot;
-		unsigned int m_uiEndSlot;
+		u32 m_uiStartSlot;
+		u32 m_uiEndSlot;
 		bool m_bUploadNeeded;
 
 		// The state data

@@ -406,7 +406,7 @@ void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, u32 SyncInterval, u32 P
 {
 	// Present to the window
 
-	unsigned int index = static_cast<unsigned int>( SwapChain );
+	u32 index = static_cast<u32>( SwapChain );
 
 	if ( index < m_vSwapChains.size() ) {
 		SwapChainDX11* pSwapChain = m_vSwapChains[SwapChain];
@@ -826,7 +826,7 @@ void RendererDX11::ResizeTextureSRV( int RID, int SRVID, u32 /*width*/, u32 /*he
 	ResourceDX11* pResource = GetResourceByIndex( RID );
 
 	// Check that the input resources / views are legit.
-	unsigned int index = static_cast<unsigned int>( SRVID );
+	u32 index = static_cast<u32>( SRVID );
 
 	if ( !pResource || !( index < m_vShaderResourceViews.size() ) || (pResource->GetType() != RT_TEXTURE2D ) ) {
 		Log::Get().Write( L"Error trying to resize a SRV!!!!" );
@@ -860,7 +860,7 @@ void RendererDX11::ResizeTextureRTV( int RID, int RTVID, u32 /*width*/, u32 /*he
 	ResourceDX11* pResource = GetResourceByIndex( RID );
 
 	// Check that the input resources / views are legit.
-	unsigned int index = static_cast<unsigned int>( RTVID );
+	u32 index = static_cast<u32>( RTVID );
 
 	if ( !pResource || !( index < m_vRenderTargetViews.size() ) || (pResource->GetType() != RT_TEXTURE2D ) ) {
 		Log::Get().Write( L"Error trying to resize a RTV!!!!" );
@@ -894,7 +894,7 @@ void RendererDX11::ResizeTextureDSV( int RID, int DSVID, u32 /*width*/, u32 /*he
 	ResourceDX11* pResource = GetResourceByIndex( RID );
 
 	// Check that the input resources / views are legit.
-	unsigned int index = static_cast<unsigned int>( DSVID );
+	u32 index = static_cast<u32>( DSVID );
 
 	if ( !pResource || !( index < m_vDepthStencilViews.size() ) || (pResource->GetType() != RT_TEXTURE2D ) ) {
 		Log::Get().Write( L"Error trying to resize a DSV!!!!" );
@@ -928,7 +928,7 @@ void RendererDX11::ResizeTextureUAV( int RID, int UAVID, u32 /*width*/, u32 /*he
 	ResourceDX11* pResource = GetResourceByIndex( RID );
 
 	// Check that the input resources / views are legit.
-	unsigned int index = static_cast<unsigned int>( UAVID );
+	u32 index = static_cast<u32>( UAVID );
 
 	if ( !pResource || !( index < m_vUnorderedAccessViews.size() ) || (pResource->GetType() != RT_TEXTURE2D ) ) {
 		Log::Get().Write( L"Error trying to resize a UAV!!!!" );
@@ -954,7 +954,7 @@ void RendererDX11::ResizeTextureUAV( int RID, int UAVID, u32 /*width*/, u32 /*he
 //--------------------------------------------------------------------------------
 void RendererDX11::ResizeSwapChain( int SID, u32 width, u32 height )
 {
-	unsigned int index = static_cast<unsigned int>( SID );
+	u32 index = static_cast<u32>( SID );
 
 	if ( !( index < m_vSwapChains.size() ) ) {
 		Log::Get().Write( L"Error trying to resize swap chain!" );
@@ -998,7 +998,7 @@ void RendererDX11::ResizeSwapChain( int SID, u32 width, u32 height )
 //--------------------------------------------------------------------------------
 void RendererDX11::ResizeViewport( int ID, u32 width, u32 height )
 {
-	unsigned int index = static_cast<unsigned int>( ID );
+	u32 index = static_cast<u32>( ID );
 
 	if ( !( index < m_vViewPorts.size() ) ) {
 		Log::Get().Write( L"Error trying to resize viewport!" );
@@ -1028,7 +1028,7 @@ int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, con
 	// cached shader - we assume that something is different about the shader due
 	// to the defines, so we can't just reuse a previously loaded one.
 	
-	for ( unsigned int i = 0; i < m_vShaders.size(); i++ )
+	for ( u32 i = 0; i < m_vShaders.size(); i++ )
 	{
 		ShaderDX11* pShader = m_vShaders[i];
 
@@ -1181,7 +1181,7 @@ int RendererDX11::CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elem
 {
 	// Create array of elements here for the API call.
 	D3D11_INPUT_ELEMENT_DESC* pElements = new D3D11_INPUT_ELEMENT_DESC[elements.size()];
-	for ( unsigned int i = 0; i < elements.size(); i++ )
+	for ( u32 i = 0; i < elements.size(); i++ )
 		pElements[i] = elements[i];
 	
 	// Attempt to create the input layout from the input information.
@@ -1364,7 +1364,7 @@ int RendererDX11::CreateViewPort( D3D11_VIEWPORT viewport )
 //--------------------------------------------------------------------------------
 ResourcePtr RendererDX11::GetSwapChainResource( int ID )
 {
-	unsigned int index = static_cast<unsigned int>( ID );
+	u32 index = static_cast<u32>( ID );
 
 	if ( index < m_vSwapChains.size() )
 		return( m_vSwapChains[index]->m_Resource );
@@ -1433,7 +1433,7 @@ RasterizerStateComPtr RendererDX11::GetRasterizerState( int index )
 //--------------------------------------------------------------------------------
 const ViewPortDX11& RendererDX11::GetViewPort( int ID )
 {
-	unsigned int index = static_cast<unsigned int>( ID );
+	u32 index = static_cast<u32>( ID );
 	
 	assert( index < m_vViewPorts.size() );
 
@@ -1444,7 +1444,7 @@ ResourceDX11* RendererDX11::GetResourceByIndex( int ID )
 {
 	ResourceDX11* pResource = 0;
 
-	unsigned int index = ID & 0xffff;
+	u32 index = ID & 0xffff;
 	u32 innerID = ( ID & 0xffff0000 ) >> 16;
 
 	if ( index < m_vResources.size() ) {
@@ -1470,7 +1470,7 @@ SamplerStateComPtr RendererDX11::GetSamplerState( int index )
 //--------------------------------------------------------------------------------
 ShaderDX11* RendererDX11::GetShader( int ID )
 {
-	unsigned int index = static_cast<unsigned int>( ID );
+	u32 index = static_cast<u32>( ID );
 
 	if ( index < m_vShaders.size() )
 		return( m_vShaders[index] );
@@ -1771,7 +1771,7 @@ int	RendererDX11::GetUnusedResourceIndex()
 	int index = -1;
 	
 	// Search for a NULL index location.
-	for ( unsigned int i = 0; i < m_vResources.size(); i++ ) {
+	for ( u32 i = 0; i < m_vResources.size(); i++ ) {
 		if ( m_vResources[i] == NULL ) {
 			index = i;
 			break;

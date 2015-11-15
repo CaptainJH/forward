@@ -73,11 +73,11 @@ void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, 
 	// UAV initial counts, and take the superset of those to ensure that all of the
 	// UAV states are accounted for.
 
-	unsigned int minStartSlot = 
+	u32 minStartSlot = 
 		min( DesiredState.UnorderedAccessViews.GetStartSlot(),
 		DesiredState.UAVInitialCounts.GetStartSlot() );
 
-	unsigned int maxEndSlot =
+	u32 maxEndSlot =
 		max( DesiredState.UnorderedAccessViews.GetEndSlot(),
 		DesiredState.UAVInitialCounts.GetEndSlot() );
 

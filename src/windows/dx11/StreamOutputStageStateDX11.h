@@ -35,7 +35,7 @@ namespace forward
 		int GetBufferCount() const;
 
 		TStateArrayMonitor< int, 4 >  StreamBuffers;
-		TStateArrayMonitor< unsigned int, 4 > StreamOffsets;
+		TStateArrayMonitor< u32, 4 > StreamOffsets;
 
 	protected:
 

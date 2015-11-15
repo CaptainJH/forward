@@ -36,11 +36,11 @@ namespace forward
 
 		TStateMonitor< int > BlendState;
 		TStateMonitor< int > DepthStencilState;
-		TStateMonitor< unsigned int > StencilRef;
+		TStateMonitor< u32 > StencilRef;
 		TStateArrayMonitor< int, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetViews;
 		TStateMonitor< int > DepthTargetViews;
 		TStateArrayMonitor< int, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessViews;
-		TStateArrayMonitor< unsigned int, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
+		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
 
 	protected:
 

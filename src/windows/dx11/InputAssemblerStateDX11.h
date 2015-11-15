@@ -32,13 +32,13 @@ namespace forward
 		void SetSisterState( InputAssemblerStateDX11* pState );
 		void ResetUpdateFlags( );
 
-		unsigned int GetAvailableSlotCount();
+		u32 GetAvailableSlotCount();
 
 		TStateMonitor< int > IndexBuffer;
 		TStateMonitor< DXGI_FORMAT > IndexBufferFormat;
 		TStateArrayMonitor< int, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
-		TStateArrayMonitor< unsigned int, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
-		TStateArrayMonitor< unsigned int, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
+		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
+		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
 		TStateMonitor< int > InputLayout;
 		TStateMonitor< D3D11_PRIMITIVE_TOPOLOGY > PrimitiveTopology;
 
@@ -48,7 +48,7 @@ namespace forward
 
 		InputAssemblerStateDX11*		m_pSisterState;
 
-		unsigned int					AvailableSlotCount;
+		u32					AvailableSlotCount;
 	};
 };
 //--------------------------------------------------------------------------------

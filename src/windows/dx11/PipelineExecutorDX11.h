@@ -38,7 +38,7 @@ namespace forward
 
 		virtual void Execute( PipelineManagerDX11* pPipeline ) = 0;
 		
-		virtual void SetLayoutElements( unsigned int count, D3D11_INPUT_ELEMENT_DESC* pElements );
+		virtual void SetLayoutElements( u32 count, D3D11_INPUT_ELEMENT_DESC* pElements );
 		virtual void GenerateInputLayout( int ShaderID );
 		virtual int GetInputLayout( int ShaderID );
 

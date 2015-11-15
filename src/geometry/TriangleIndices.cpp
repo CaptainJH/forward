@@ -20,7 +20,7 @@ TriangleIndices::TriangleIndices()
 	m_uiIndices[2] = 0;
 }
 //--------------------------------------------------------------------------------
-TriangleIndices::TriangleIndices(unsigned int P1, unsigned int P2, unsigned int P3)
+TriangleIndices::TriangleIndices(u32 P1, u32 P2, u32 P3)
 {
 	m_uiIndices[0] = P1;
 	m_uiIndices[1] = P2;
@@ -40,53 +40,53 @@ TriangleIndices& TriangleIndices::operator= (const TriangleIndices& Triangle)
 	return *this;
 }
 //--------------------------------------------------------------------------------
-unsigned int TriangleIndices::P1() const
+u32 TriangleIndices::P1() const
 {
 	return(m_uiIndices[0]);
 }
 //--------------------------------------------------------------------------------
-unsigned int& TriangleIndices::P1()
+u32& TriangleIndices::P1()
 {
 	return(m_uiIndices[0]);
 }
 //--------------------------------------------------------------------------------
-unsigned int TriangleIndices::P2() const
+u32 TriangleIndices::P2() const
 {
 	return(m_uiIndices[1]);
 }
 //--------------------------------------------------------------------------------
-unsigned int& TriangleIndices::P2()
+u32& TriangleIndices::P2()
 {
 	return(m_uiIndices[1]);
 }
 //--------------------------------------------------------------------------------
-unsigned int TriangleIndices::P3() const
+u32 TriangleIndices::P3() const
 {
 	return(m_uiIndices[2]);
 }
 //--------------------------------------------------------------------------------
-unsigned int& TriangleIndices::P3()
+u32& TriangleIndices::P3()
 {
 	return(m_uiIndices[2]);
 }
 //--------------------------------------------------------------------------------
 void TriangleIndices::swapP1P2( )
 {
-	unsigned int swap = m_uiIndices[0];
+	u32 swap = m_uiIndices[0];
 	m_uiIndices[0] = m_uiIndices[1];
 	m_uiIndices[1] = swap;
 }
 //--------------------------------------------------------------------------------
 void TriangleIndices::swapP2P3( )
 {
-	unsigned int swap = m_uiIndices[1];
+	u32 swap = m_uiIndices[1];
 	m_uiIndices[1] = m_uiIndices[2];
 	m_uiIndices[2] = swap;
 }
 //--------------------------------------------------------------------------------
 void TriangleIndices::swapP3P1( )
 {
-	unsigned int swap = m_uiIndices[2];
+	u32 swap = m_uiIndices[2];
 	m_uiIndices[2] = m_uiIndices[0];
 	m_uiIndices[0] = swap;
 }

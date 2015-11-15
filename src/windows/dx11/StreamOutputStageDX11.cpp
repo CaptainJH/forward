@@ -51,7 +51,7 @@ void StreamOutputStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	{
 		ID3D11Buffer* Buffers[4] = { NULL };
 
-		for ( unsigned int i = 0; i < sizeof( Buffers ) / sizeof( ID3D11Buffer* ); i++ )
+		for ( u32 i = 0; i < sizeof( Buffers ) / sizeof( ID3D11Buffer* ); i++ )
 		{
 			int index = DesiredState.StreamBuffers.GetState( i );
 

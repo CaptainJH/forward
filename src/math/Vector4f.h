@@ -5,7 +5,7 @@
 #ifndef Vector4f_h
 #define Vector4f_h
 //----------------------------------------------------------------------------------------------------
-
+#include "Types.h"
 //----------------------------------------------------------------------------------------------------
 namespace forward
 {
@@ -55,9 +55,9 @@ namespace forward
 		Vector4f& operator/= ( float fScalar );
         Vector4f& operator/= ( const Vector4f& Vector );
 
-		unsigned int toARGB( );
-		unsigned int toRGBA( );
-		void fromARGB( unsigned int color );
+		u32 toARGB( );
+		u32 toRGBA( );
+		void fromARGB( u32 color );
 
 		Vector3f xyz() const;
 		Vector2f xy() const;

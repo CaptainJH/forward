@@ -61,7 +61,7 @@ void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 void GeometryDX11::AddElement( VertexElementDX11* element )
 {
 	int index = -1;
-	for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+	for ( u32 i = 0; i < m_vElements.size(); i++ )
 	{
 		if ( m_vElements[i]->m_SemanticName == element->m_SemanticName )
 			index = i;
@@ -104,7 +104,7 @@ void GeometryDX11::AddIndex( u32 index )
 VertexElementDX11* GeometryDX11::GetElement( std::string name )
 {
     VertexElementDX11* pElement = NULL;
-    for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+    for ( u32 i = 0; i < m_vElements.size(); i++ )
     {
         if ( m_vElements[i]->m_SemanticName == name )
             pElement = m_vElements[i];
@@ -314,7 +314,7 @@ void GeometryDX11::GenerateInputLayout( int ShaderID )
 		std::vector<D3D11_INPUT_ELEMENT_DESC> elements;
 
 		// Fill in the vertex element descriptions based on each element
-		for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+		for ( u32 i = 0; i < m_vElements.size(); i++ )
 		{
 			D3D11_INPUT_ELEMENT_DESC e;
 			e.SemanticName = m_vElements[i]->m_SemanticName.c_str();
@@ -352,14 +352,14 @@ void GeometryDX11::LoadToBuffers()
 	if ( GetVertexSize() > 0 )
 	{
 		// Load the vertex buffer first by calculating the required size
-		unsigned int vertices_length = GetVertexSize() * GetVertexCount();
+		u32 vertices_length = GetVertexSize() * GetVertexCount();
 
 		char* pBytes = new char[vertices_length];
 
 		for ( int j = 0; j < m_iVertexCount; j++ )
 		{
 			int iElemOffset = 0;
-			for ( unsigned int i = 0; i < m_vElements.size(); i++ )
+			for ( u32 i = 0; i < m_vElements.size(); i++ )
 			{
 				memcpy( pBytes + j * m_iVertexSize + iElemOffset, m_vElements[i]->GetPtr(j), m_vElements[i]->SizeInBytes() );
 				iElemOffset += m_vElements[i]->SizeInBytes();

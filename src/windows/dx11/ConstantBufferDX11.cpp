@@ -50,7 +50,7 @@ void ConstantBufferDX11::EmptyMappings( )
 //
 //			bool doUpdate = false;
 //
-//			for ( unsigned int j = 0; j < m_Mappings.size(); j++ ) {
+//			for ( u32 j = 0; j < m_Mappings.size(); j++ ) {
 //				if ( m_Mappings[j].pParameter->GetValueID( pParamManager->GetID() ) 
 //					!= m_Mappings[j].valueID ) {
 //					doUpdate = true;
@@ -71,14 +71,14 @@ void ConstantBufferDX11::EmptyMappings( )
 //				// by their type, and are currently allowed to be Vector4f, Matrix4f, or Matrix4f
 //				// arrays.  Additional types will be added as they are needed...
 //
-//				for ( unsigned int j = 0; j < m_Mappings.size(); j++ )
+//				for ( u32 j = 0; j < m_Mappings.size(); j++ )
 //				{
 //					RenderParameterDX11* pParam		= m_Mappings[j].pParameter;
-//					unsigned int offset				= m_Mappings[j].offset;
-//					unsigned int size				= m_Mappings[j].size;
-//					unsigned int elements			= m_Mappings[j].elements;
-//					unsigned int valueID			= m_Mappings[j].valueID;
-//					unsigned int threadID			= pParamManager->GetID();
+//					u32 offset				= m_Mappings[j].offset;
+//					u32 size				= m_Mappings[j].size;
+//					u32 elements			= m_Mappings[j].elements;
+//					u32 valueID			= m_Mappings[j].valueID;
+//					u32 threadID			= pParamManager->GetID();
 //
 //
 //					m_Mappings[j].valueID = pParam->GetValueID( threadID );
@@ -128,7 +128,7 @@ bool ConstantBufferDX11::ContainsMapping( int ID, const ConstantBufferMapping& m
 
 	// First retrieve the internal mapping
 
-	unsigned int index = static_cast<unsigned int>( ID );
+	u32 index = static_cast<u32>( ID );
 
 	if ( index < m_Mappings.size() ) {
 		ConstantBufferMapping internalMapping = m_Mappings[index];

@@ -15,6 +15,7 @@
 //--------------------------------------------------------------------------------
 #ifndef TriangleIndices_h
 #define TriangleIndices_h
+#include "Types.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -22,25 +23,25 @@ namespace forward
 	{
 	public:
 		TriangleIndices();
-		TriangleIndices( unsigned int P1, unsigned int P2, unsigned int P3 );
+		TriangleIndices( u32 P1, u32 P2, u32 P3 );
 		~TriangleIndices();
 
 		TriangleIndices& operator= ( const TriangleIndices& Triangle );
 
 		// member access
-		unsigned int P1( ) const;
-		unsigned int& P1( );
-		unsigned int P2( ) const;
-		unsigned int& P2( );
-		unsigned int P3( ) const;
-		unsigned int& P3( );
+		u32 P1( ) const;
+		u32& P1( );
+		u32 P2( ) const;
+		u32& P2( );
+		u32 P3( ) const;
+		u32& P3( );
 
 		void swapP1P2( );
 		void swapP2P3( );
 		void swapP3P1( );
 
 	protected:
-		unsigned int m_uiIndices[3];
+		u32 m_uiIndices[3];
 	};
 };
 //--------------------------------------------------------------------------------

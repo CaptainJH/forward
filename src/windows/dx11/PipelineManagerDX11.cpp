@@ -88,7 +88,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
 //
-//	unsigned int tID = pParamManager->GetID();
+//	u32 tID = pParamManager->GetID();
 //
 //	if ( pParam != 0 ) {
 //
@@ -126,7 +126,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
 //
-//	unsigned int tID = pParamManager->GetID();
+//	u32 tID = pParamManager->GetID();
 //
 //	if ( pParam != 0 ) {
 //
@@ -153,7 +153,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
 //
-//	unsigned int tID = pParamManager->GetID();
+//	u32 tID = pParamManager->GetID();
 //
 //	if ( pParam != 0 ) {
 //
@@ -164,7 +164,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //				reinterpret_cast<UnorderedAccessParameterDX11*>( pParam );
 //
 //			int ID = pResource->GetIndex( tID ); 
-//			unsigned int initial = pResource->GetInitialCount( tID );
+//			u32 initial = pResource->GetInitialCount( tID );
 //
 //			UnorderedAccessViewDX11& view = pRenderer->GetUnorderedAccessViewByIndex( ID );
 //
@@ -184,7 +184,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
 //
-//	unsigned int tID = pParamManager->GetID();
+//	u32 tID = pParamManager->GetID();
 //
 //	if ( pParam != 0 ) {
 //

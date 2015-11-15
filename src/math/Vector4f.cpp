@@ -298,35 +298,35 @@ void Vector4f::Clamp()
 	if ( w < 0.0f ) w = 0.0f;
 }
 //----------------------------------------------------------------------------------------------------
-unsigned int Vector4f::toARGB( )
+u32 Vector4f::toARGB( )
 {
-	unsigned int result = 0;
+	u32 result = 0;
 
 	Clamp();
 
-	result += (unsigned int)(255 * z);
-	result += ((unsigned int)(255 * y) << 8);
-	result += ((unsigned int)(255 * x) << 16);
-	result += ((unsigned int)(255 * w) << 24);
+	result += (u32)(255 * z);
+	result += ((u32)(255 * y) << 8);
+	result += ((u32)(255 * x) << 16);
+	result += ((u32)(255 * w) << 24);
 
 	return( result );
 }
 //----------------------------------------------------------------------------------------------------
-unsigned int Vector4f::toRGBA( )
+u32 Vector4f::toRGBA( )
 {
-	unsigned int result = 0;
+	u32 result = 0;
 
 	Clamp();
 
-	result += (unsigned int)(255 * w);
-	result += ((unsigned int)(255 * z) << 8);
-	result += ((unsigned int)(255 * y) << 16);
-	result += ((unsigned int)(255 * x) << 24);
+	result += (u32)(255 * w);
+	result += ((u32)(255 * z) << 8);
+	result += ((u32)(255 * y) << 16);
+	result += ((u32)(255 * x) << 24);
 	
 	return( result );
 }
 //----------------------------------------------------------------------------------------------------
-void Vector4f::fromARGB( unsigned int color )
+void Vector4f::fromARGB( u32 color )
 {
 	x = (float)((color & 0x00ff0000) >> 16)/(255.0f);	// red channel
 	y = (float)((color & 0x0000ff00) >> 8)/(255.0f);	// green channel

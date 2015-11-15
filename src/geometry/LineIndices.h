@@ -15,6 +15,7 @@
 //--------------------------------------------------------------------------------
 #ifndef LineIndices_h
 #define LineIndices_h
+#include "Types.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -22,21 +23,21 @@ namespace forward
 	{
 	public:
 		LineIndices();
-		LineIndices( unsigned int P1, unsigned int P2 );
+		LineIndices( u32 P1, u32 P2 );
 		~LineIndices();
 
 		LineIndices& operator= ( const LineIndices& Line );
 
 		// member access
-		unsigned int P1( ) const;
-		unsigned int& P1( );
-		unsigned int P2( ) const;
-		unsigned int& P2( );
+		u32 P1( ) const;
+		u32& P1( );
+		u32 P2( ) const;
+		u32& P2( );
 
 		void swapP1P2( );
 
 	protected:
-		unsigned int m_uiIndices[2];
+		u32 m_uiIndices[2];
 	};
 };
 //--------------------------------------------------------------------------------

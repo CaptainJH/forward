@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 TStateArrayMonitor<T,N>::TStateArrayMonitor( T initialState ) : 
 	m_uiStartSlot( 0 ),
 	m_uiEndSlot( 0 ),
@@ -21,19 +21,19 @@ TStateArrayMonitor<T,N>::TStateArrayMonitor( T initialState ) :
 	ResetTracking();
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 TStateArrayMonitor<T,N>::~TStateArrayMonitor()
 {
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 void TStateArrayMonitor<T,N>::SetSister( TStateArrayMonitor<T,N>* pSister )
 {
 	m_pSister = pSister;
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-void TStateArrayMonitor<T,N>::SetState( unsigned int slot, T state )
+template <class T, u32 N>
+void TStateArrayMonitor<T,N>::SetState( u32 slot, T state )
 {
 	assert( slot < N );
 
@@ -124,7 +124,7 @@ void TStateArrayMonitor<T,N>::SetState( unsigned int slot, T state )
 	}
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 void TStateArrayMonitor<T,N>::SearchFromBelow()
 {
 	// Here we start from the current start slot location, and iterate upward
@@ -151,7 +151,7 @@ void TStateArrayMonitor<T,N>::SearchFromBelow()
 	}
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 void TStateArrayMonitor<T,N>::SearchFromAbove()
 {
 	// Here we start from the current end slot location, and iterate downward
@@ -178,46 +178,46 @@ void TStateArrayMonitor<T,N>::SearchFromAbove()
 	}
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-bool TStateArrayMonitor<T,N>::SameAsSister( unsigned int slot )
+template <class T, u32 N>
+bool TStateArrayMonitor<T,N>::SameAsSister( u32 slot )
 {
 	assert( slot < N );
 
 	return( m_States[slot] == m_pSister->m_States[slot] );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 bool TStateArrayMonitor<T,N>::IsUpdateNeeded()
 {
 	return( m_bUploadNeeded );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-unsigned int TStateArrayMonitor<T,N>::GetStartSlot()
+template <class T, u32 N>
+u32 TStateArrayMonitor<T,N>::GetStartSlot()
 {
 	return( m_uiStartSlot );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-unsigned int TStateArrayMonitor<T,N>::GetEndSlot()
+template <class T, u32 N>
+u32 TStateArrayMonitor<T,N>::GetEndSlot()
 {
 	return( m_uiEndSlot );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-unsigned int TStateArrayMonitor<T,N>::GetRange()
+template <class T, u32 N>
+u32 TStateArrayMonitor<T,N>::GetRange()
 {
 	return( m_uiEndSlot - m_uiStartSlot + 1 );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 void TStateArrayMonitor<T,N>::InitializeStates()
 {
-	for ( unsigned int i = 0; i < N; i++ )
+	for ( u32 i = 0; i < N; i++ )
 		SetState( i, m_InitialState );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 void TStateArrayMonitor<T,N>::ResetTracking()
 {
 	m_uiStartSlot = 0;
@@ -225,22 +225,22 @@ void TStateArrayMonitor<T,N>::ResetTracking()
 	m_bUploadNeeded = false;
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-T TStateArrayMonitor<T,N>::GetState( unsigned int slot ) const
+template <class T, u32 N>
+T TStateArrayMonitor<T,N>::GetState( u32 slot ) const
 {
 	assert( slot < N );
 
 	return( m_States[slot] );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
+template <class T, u32 N>
 T* TStateArrayMonitor<T,N>::GetFirstSlotLocation()
 {
 	return( &m_States[m_uiStartSlot] );
 }
 //--------------------------------------------------------------------------------
-template <class T, unsigned int N>
-T* TStateArrayMonitor<T,N>::GetSlotLocation( unsigned int slot )
+template <class T, u32 N>
+T* TStateArrayMonitor<T,N>::GetSlotLocation( u32 slot )
 {
 	assert( slot < N );
 
