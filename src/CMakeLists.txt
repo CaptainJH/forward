@@ -49,6 +49,7 @@ add_subdirectory(math)
 add_subdirectory(geometry)
 add_subdirectory(intersection)
 add_subdirectory(utilities)
+add_subdirectory(applications)
 
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")

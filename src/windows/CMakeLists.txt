@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.3)
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ApplicationDX11.h" "${CMAKE_CURRENT_SOURCE_DIR}/dx11/RendererDX11.h")
 file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/dx11/ApplicationDX11.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/dx11/RendererDX11.cpp")
 list(APPEND HEADER_FILES d3dUtil.h Log.h)
-list(APPEND SOURCE_FILES d3dUtil.cpp main.cpp Log.cpp)
+list(APPEND SOURCE_FILES d3dUtil.cpp Log.cpp)
 source_group(RenderSystem FILES ${HEADER_FILES} ${SOURCE_FILES})
 
 # DXGI
@@ -117,7 +117,7 @@ file(GLOB SOURCE_FILES_UTILITIES "${forward_source_root}/utilities/*.*")
 source_group(Utilities FILES ${SOURCE_FILES_UTILITIES})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_UTILITIES})
 
-add_executable(forward ${HEADER_FILES} ${SOURCE_FILES})
+add_library(forward STATIC ${HEADER_FILES} ${SOURCE_FILES})
 if(Boost_FOUND)
 	target_link_libraries(forward ${Boost_LIBRARIES})
 endif()

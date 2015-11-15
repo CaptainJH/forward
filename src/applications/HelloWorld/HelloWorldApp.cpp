@@ -11,15 +11,15 @@ struct Vertex
 	Vector4f Color;
 };
 
-class SimpleApp : public Application
+class HelloWorld : public Application
 {
 public:
-	SimpleApp(HINSTANCE hInstance, i32 width, i32 height)
+	HelloWorld(HINSTANCE hInstance, i32 width, i32 height)
 		: Application(hInstance, width, height)
 		, m_vsID(-1)
 		, m_psID(-1)
 	{}
-	~SimpleApp()
+	~HelloWorld()
 	{
 		Log::Get().Close();
 	}
@@ -52,7 +52,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	SimpleApp theApp(hInstance, 1200, 800);
+	HelloWorld theApp(hInstance, 1200, 800);
 
 	if (!theApp.Init())
 		return 0;
@@ -60,14 +60,14 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	return theApp.Run();
 }
 
-void SimpleApp::UpdateScene(f32 /*dt*/)
+void HelloWorld::UpdateScene(f32 /*dt*/)
 {
 }
 
-void SimpleApp::DrawScene()
+void HelloWorld::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::LightSteelBlue);
-	
+
 	m_pRender->pImmPipeline->ApplyInputResources();
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 	m_pRender->pImmPipeline->Draw(4, 0);
@@ -75,7 +75,7 @@ void SimpleApp::DrawScene()
 	m_pRender->Present(MainWnd(), 0);
 }
 
-bool SimpleApp::Init()
+bool HelloWorld::Init()
 {
 	Log::Get().Open();
 	if (!Application::Init())
@@ -87,7 +87,7 @@ bool SimpleApp::Init()
 	return true;
 }
 
-void SimpleApp::BuildShaders()
+void HelloWorld::BuildShaders()
 {
 	const std::wstring shaderfile = L"shader.hlsl";
 	const std::wstring VSMain = L"VSMainQuad";
@@ -96,13 +96,13 @@ void SimpleApp::BuildShaders()
 	m_psID = m_pRender->LoadShader(ShaderType::PIXEL_SHADER, shaderfile, PSMain, std::wstring(L"ps_5_0"));
 }
 
-void SimpleApp::OnResize()
+void HelloWorld::OnResize()
 {
 	Application::OnResize();
 	SetupPipeline();
 }
 
-void SimpleApp::BuildGeometry()
+void HelloWorld::BuildGeometry()
 {
 	// create the vertex buffer resource (this is usually done by GeometryDX11)
 	{
@@ -125,7 +125,7 @@ void SimpleApp::BuildGeometry()
 		BufferConfigDX11 vbConfig;
 		vbConfig.SetDefaultVertexBuffer(4 * sizeof(Vertex), false);
 		m_pVertexBuffer = m_pRender->CreateVertexBuffer(&vbConfig, &data);
-		if (m_pVertexBuffer->m_iResource == -1) 
+		if (m_pVertexBuffer->m_iResource == -1)
 		{
 			Log::Get().Write(L"Failed to create vertex buffer");
 			assert(false);
@@ -142,7 +142,7 @@ void SimpleApp::BuildGeometry()
 		layout.push_back(desc[0]);
 		layout.push_back(desc[1]);
 		m_VertexLayout = m_pRender->CreateInputLayout(layout, m_vsID);
-		if (m_VertexLayout == -1) 
+		if (m_VertexLayout == -1)
 		{
 			Log::Get().Write(L"Failed to create vertex layout");
 			assert(false);
@@ -152,7 +152,7 @@ void SimpleApp::BuildGeometry()
 	SetupPipeline();
 }
 
-void SimpleApp::SetupPipeline()
+void HelloWorld::SetupPipeline()
 {
 	InputAssemblerStateDX11 iaState;
 	iaState.PrimitiveTopology.SetState(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
