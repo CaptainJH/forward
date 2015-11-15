@@ -14,6 +14,7 @@ namespace forward
 	typedef unsigned long long u64;
 
 	typedef float f32;
+	typedef double f64;
 
 	//typedef std::wstring string;
 	//typedef std::vector vector;

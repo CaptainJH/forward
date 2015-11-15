@@ -7,6 +7,7 @@ namespace
 		using namespace forward;
 
 		static_assert(sizeof(f32) == 4, "f32 size is incorrect");
+		static_assert(sizeof(f64) == 8, "f64 size is incorrect");
 
 		static_assert(sizeof(i64) == 8, "i64 size is incorrect");
 		static_assert(sizeof(i32) == 4, "i32 size is incorrect");

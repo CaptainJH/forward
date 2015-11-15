@@ -78,7 +78,7 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 
 		for ( u32 i = 0; i < DesiredState.GetAvailableSlotCount(); i++ )
 		{
-			int index = DesiredState.VertexBuffers.GetState( i );
+			i32 index = DesiredState.VertexBuffers.GetState( i );
 
 			VertexBufferDX11* pBuffer = pRenderer->GetVertexBufferByIndex( index );
 
@@ -106,7 +106,7 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 
 	if ( DesiredState.IndexBuffer.IsUpdateNeeded() ) {
 	
-		int index = DesiredState.IndexBuffer.GetState();
+		i32 index = DesiredState.IndexBuffer.GetState();
 
 		IndexBufferDX11* pBuffer = pRenderer->GetIndexBufferByIndex( index );
 

@@ -31,8 +31,8 @@ namespace forward
 		Vector4f& operator= ( const Vector4f& Vector );
 
 		// member access
-		float operator[] ( int iPos ) const;
-		float& operator[] ( int iPos );
+		float operator[] ( i32 iPos ) const;
+		float& operator[] ( i32 iPos );
 
 		// comparison
 		bool operator== ( const Vector4f& Vector ) const;

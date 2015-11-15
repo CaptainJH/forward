@@ -65,13 +65,13 @@ void Vector2f::Clamp()
 	if ( y < 0.0f ) y = 0.0f;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector2f::operator[] ( int iPos ) const
+float Vector2f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	return( y );
 }
 //----------------------------------------------------------------------------
-float& Vector2f::operator[] ( int iPos )
+float& Vector2f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	return( y );

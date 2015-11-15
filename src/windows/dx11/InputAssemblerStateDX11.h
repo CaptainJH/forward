@@ -34,12 +34,12 @@ namespace forward
 
 		u32 GetAvailableSlotCount();
 
-		TStateMonitor< int > IndexBuffer;
+		TStateMonitor< i32 > IndexBuffer;
 		TStateMonitor< DXGI_FORMAT > IndexBufferFormat;
-		TStateArrayMonitor< int, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
+		TStateArrayMonitor< i32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
 		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
 		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
-		TStateMonitor< int > InputLayout;
+		TStateMonitor< i32 > InputLayout;
 		TStateMonitor< D3D11_PRIMITIVE_TOPOLOGY > PrimitiveTopology;
 
 	protected:

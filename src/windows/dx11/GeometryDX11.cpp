@@ -42,7 +42,7 @@ void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 	pPipeline->InputAssemblerStage.ClearDesiredState();
 
 	// Set the Input Assembler state, then perform the draw call.
-	int layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
+	i32 layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
 	pPipeline->InputAssemblerStage.DesiredState.InputLayout.SetState( layout );
 	pPipeline->InputAssemblerStage.DesiredState.PrimitiveTopology.SetState( m_ePrimType );
 
@@ -60,7 +60,7 @@ void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 //--------------------------------------------------------------------------------
 void GeometryDX11::AddElement( VertexElementDX11* element )
 {
-	int index = -1;
+	i32 index = -1;
 	for ( u32 i = 0; i < m_vElements.size(); i++ )
 	{
 		if ( m_vElements[i]->m_SemanticName == element->m_SemanticName )
@@ -119,7 +119,7 @@ VertexElementDX11* GeometryDX11::GetElement( std::wstring name )
     return GetElement( asciiName );
 }
 //--------------------------------------------------------------------------------
-VertexElementDX11* GeometryDX11::GetElement( int index )
+VertexElementDX11* GeometryDX11::GetElement( i32 index )
 {
 	return( m_vElements[index] );
 }
@@ -139,7 +139,7 @@ D3D11_PRIMITIVE_TOPOLOGY GeometryDX11::GetPrimitiveType()
 	return( m_ePrimType );
 }
 //--------------------------------------------------------------------------------
-int GeometryDX11::GetPrimitiveCount()
+i32 GeometryDX11::GetPrimitiveCount()
 {
 	u32 count = 0;
 	u32 indices = static_cast<u32>(m_vIndices.size());
@@ -240,7 +240,7 @@ void GeometryDX11::SetPrimitiveType( D3D11_PRIMITIVE_TOPOLOGY type )
 	m_ePrimType = type;
 }
 //--------------------------------------------------------------------------------
-int GeometryDX11::GetVertexCount()
+i32 GeometryDX11::GetVertexCount()
 {
 	return( m_iVertexCount );
 }
@@ -250,12 +250,12 @@ u32 GeometryDX11::GetElementCount()
 	return( static_cast<u32>(m_vElements.size()) );
 }
 //--------------------------------------------------------------------------------
-int GeometryDX11::GetVertexSize()
+i32 GeometryDX11::GetVertexSize()
 {
 	return( m_iVertexSize );
 }
 //--------------------------------------------------------------------------------
-int GeometryDX11::CalculateVertexSize()
+i32 GeometryDX11::CalculateVertexSize()
 {
 	// Reset the current vertex size 
 	m_iVertexSize = 0;
@@ -267,7 +267,7 @@ int GeometryDX11::CalculateVertexSize()
 	return( m_iVertexSize );
 }
 //--------------------------------------------------------------------------------
-int GeometryDX11::CalculateVertexCount()
+i32 GeometryDX11::CalculateVertexCount()
 {
 	// Record the number of vertices as the number of vertices in the 
 	// first element.  This could select the minimum number from all 
@@ -280,7 +280,7 @@ int GeometryDX11::CalculateVertexCount()
 	return( m_iVertexCount );
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::GenerateInputLayout( int ShaderID )
+void GeometryDX11::GenerateInputLayout( i32 ShaderID )
 {
 	auto iElems = m_vElements.size();
 
@@ -356,9 +356,9 @@ void GeometryDX11::LoadToBuffers()
 
 		char* pBytes = new char[vertices_length];
 
-		for ( int j = 0; j < m_iVertexCount; j++ )
+		for ( i32 j = 0; j < m_iVertexCount; j++ )
 		{
-			int iElemOffset = 0;
+			i32 iElemOffset = 0;
 			for ( u32 i = 0; i < m_vElements.size(); i++ )
 			{
 				memcpy( pBytes + j * m_iVertexSize + iElemOffset, m_vElements[i]->GetPtr(j), m_vElements[i]->SizeInBytes() );
@@ -498,7 +498,7 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
         bitangents[i3] += tDir;        
     }
 
-    for ( int i = 0; i < m_iVertexCount; ++i )
+    for ( i32 i = 0; i < m_iVertexCount; ++i )
     {
         Vector3f& n = *pNormalElement->Get3f( i );
         Vector3f& t = tangents[i];

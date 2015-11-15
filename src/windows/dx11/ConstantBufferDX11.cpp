@@ -122,7 +122,7 @@ void ConstantBufferDX11::EmptyMappings( )
 //	}
 //}
 //--------------------------------------------------------------------------------
-bool ConstantBufferDX11::ContainsMapping( int ID, const ConstantBufferMapping& mapping )
+bool ConstantBufferDX11::ContainsMapping( i32 ID, const ConstantBufferMapping& mapping )
 {
 	bool result = false;
 

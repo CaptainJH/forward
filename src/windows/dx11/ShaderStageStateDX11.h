@@ -36,7 +36,7 @@ namespace forward
 		void SetSisterState( ShaderStageStateDX11* pState );
 		void ResetUpdateFlags( );
 
-		TStateMonitor< int > ShaderProgram;
+		TStateMonitor< i32 > ShaderProgram;
 		TStateArrayMonitor< ID3D11Buffer*, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT >  ConstantBuffers;
 		TStateArrayMonitor< ID3D11SamplerState*, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT > SamplerStates;
 		TStateArrayMonitor< ID3D11ShaderResourceView*, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT > ShaderResourceViews;

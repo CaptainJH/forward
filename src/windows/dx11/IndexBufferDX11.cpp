@@ -18,12 +18,12 @@ ResourceType IndexBufferDX11::GetType()
 	return( RT_INDEXBUFFER );
 }
 //--------------------------------------------------------------------------------
-void IndexBufferDX11::SetIndexSize( int size )
+void IndexBufferDX11::SetIndexSize( i32 size )
 {
 	m_iIndexSize = size;
 }
 //--------------------------------------------------------------------------------
-void IndexBufferDX11::SetIndexCount( int count )
+void IndexBufferDX11::SetIndexCount( i32 count )
 {
 	m_iIndexCount = count;
 }

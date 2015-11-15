@@ -44,26 +44,26 @@ namespace forward
         static std::string TangentSemantic;
 
 	public:
-		VertexElementDX11( int tuple, int elementCount );
+		VertexElementDX11( i32 tuple, i32 elementCount );
 		~VertexElementDX11( );
 		
-		int				SizeInBytes();
-		int				Count();
-		int				Tuple();
+		i32				SizeInBytes();
+		i32				Count();
+		i32				Tuple();
 
-		void*			GetPtr( int i );
+		void*			GetPtr( i32 i );
 
-		float*			Get1f( int i );
-		Vector2f*		Get2f( int i );
-		Vector3f*		Get3f( int i );
-		Vector4f*		Get4f( int i );
+		float*			Get1f( i32 i );
+		Vector2f*		Get2f( i32 i );
+		Vector3f*		Get3f( i32 i );
+		Vector4f*		Get4f( i32 i );
 
-		int*			Get1i( int i );
+		i32*			Get1i( i32 i );
 
-		u32*	Get1ui( int i );
+		u32*	Get1ui( i32 i );
 
-		float*					operator[]( int i );
-		const float*			operator[]( int i ) const;
+		float*					operator[]( i32 i );
+		const float*			operator[]( i32 i ) const;
 
 		std::string						m_SemanticName;
 		u32							m_uiSemanticIndex;
@@ -77,8 +77,8 @@ namespace forward
 		VertexElementDX11();
 
 		float*							m_pfData;
-		int								m_iTuple;
-		int								m_iCount;
+		i32								m_iTuple;
+		i32								m_iCount;
 	};
 };
 #endif // VertexElementDX11_h

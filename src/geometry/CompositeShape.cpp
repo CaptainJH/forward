@@ -128,7 +128,7 @@ bool CompositeShape::RayIntersection( const Ray3f& ray, float* fDist )
 					bHit = true;
 
 					Intr.Find();
-					for ( int j = 0; j < Intr.m_iQuantity; j++ )
+					for ( i32 j = 0; j < Intr.m_iQuantity; j++ )
 					{
 						if ( Intr.m_afRayT[j] < *fDist )
 							*fDist = Intr.m_afRayT[j];
@@ -147,7 +147,7 @@ bool CompositeShape::RayIntersection( const Ray3f& ray, float* fDist )
 					bHit = true;
 
 					Intr.Find();
-					for ( int j = 0; j < Intr.m_iQuantity; j++ )
+					for ( i32 j = 0; j < Intr.m_iQuantity; j++ )
 					{
 						if ( Intr.m_afRayT[j] < *fDist )
 							*fDist = Intr.m_afRayT[j];
@@ -187,8 +187,8 @@ bool CompositeShape::RayIntersection( const Ray3f& ray, float* fDist )
 
 }
 //--------------------------------------------------------------------------------
-int CompositeShape::GetNumberOfShapes() const
+i32 CompositeShape::GetNumberOfShapes() const
 {
-	return static_cast<int>( m_Shapes.size() );
+	return static_cast<i32>( m_Shapes.size() );
 }
 //--------------------------------------------------------------------------------

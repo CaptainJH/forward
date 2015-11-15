@@ -89,7 +89,7 @@ float Vector4f::Dot( Vector4f& Vector )
 	return ret;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector4f::operator[] ( int iPos ) const
+float Vector4f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
@@ -97,7 +97,7 @@ float Vector4f::operator[] ( int iPos ) const
 	return( w );
 }
 //----------------------------------------------------------------------------
-float& Vector4f::operator[] ( int iPos )
+float& Vector4f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );

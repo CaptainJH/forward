@@ -32,7 +32,7 @@ namespace forward
 		void AddShape( Shape3D* pShape );
 		bool RayIntersection( const Ray3f& ray, float* fDist );
 
-		int GetNumberOfShapes() const;
+		i32 GetNumberOfShapes() const;
 
 		std::vector< Shape3D* > m_Shapes;
 	};

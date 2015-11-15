@@ -43,7 +43,7 @@ void GeometryStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->GSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void GeometryStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void GeometryStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->GSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void GeometryStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int 
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void GeometryStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void GeometryStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->GSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void GeometryStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void GeometryStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void GeometryStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->GSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void GeometryStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, 
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void GeometryStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, int /*count*/ )
+void GeometryStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
 	// Do nothing - the geometry shader doesn't support UAV's!
 }

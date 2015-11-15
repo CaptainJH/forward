@@ -16,7 +16,7 @@ using namespace forward;
 //--------------------------------------------------------------------------------
 Frustum3f::Frustum3f()
 {
-	for (int i = 0; i < 6; i++)
+	for (i32 i = 0; i < 6; i++)
 	{
 		m_Planes[i].a() = 0.0f;
 		m_Planes[i].b() = 0.0f;
@@ -76,7 +76,7 @@ void Frustum3f::Update( const Matrix4f& ViewProj, bool bNormalize )
 	// Normalize all planes
 	if ( bNormalize )
 	{
-		for (int i = 0; i < 6; i++)
+		for (i32 i = 0; i < 6; i++)
 		{
 			m_Planes[i].Normalize();
 		}
@@ -114,7 +114,7 @@ bool Frustum3f::Test( const Sphere3f& TestSphere ) const
 	
 	float fTemp = 0.0f;
 	
-	for (int i = 0; i < 6; i++)
+	for (i32 i = 0; i < 6; i++)
 	{
 		fTemp = m_Planes[i].DistanceToPoint( TestSphere.Center );
 		if ( fTemp < -TestSphere.Radius )
@@ -132,7 +132,7 @@ bool Frustum3f::Intersects( const Sphere3f& bounds ) const
 {
 	// distance to point plus the radius must be greater than zero to be intersecting!!!
 
-	for ( int i = 0; i < 6; i++ )
+	for ( i32 i = 0; i < 6; i++ )
 	{
 		if ( m_Planes[i].DistanceToPoint( bounds.Center ) + bounds.Radius < 0 )
 			return( false );
@@ -152,7 +152,7 @@ bool Frustum3f::Envelops( const Sphere3f& bounds ) const
 {
 	// distance to point minus the radius must be greater than zero to be enveloped!!!
 
-	for ( int i = 0; i < 6; i++ )
+	for ( i32 i = 0; i < 6; i++ )
 	{
 		if (m_Planes[i].DistanceToPoint( bounds.Center ) - bounds.Radius < 0)
 			return( false );

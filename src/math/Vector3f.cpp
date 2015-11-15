@@ -107,9 +107,9 @@ void Vector3f::Clamp()
 //----------------------------------------------------------------------------------------------------
 Vector3f Vector3f::Random( )
 {
-	float x = static_cast<float>( (double)rand() / RAND_MAX ) * 2.0f - 1.0f;
-	float y = static_cast<float>( (double)rand() / RAND_MAX ) * 2.0f - 1.0f;
-	float z = static_cast<float>( (double)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	float x = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	float y = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	float z = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
 	
 	Vector3f random = Vector3f( x, y, z );
 	random.Normalize();
@@ -126,14 +126,14 @@ Vector3f& Vector3f::operator= ( const Vector3f& Vector )
     return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::operator[] ( int iPos ) const
+float Vector3f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
 	return( z );
 }
 //----------------------------------------------------------------------------
-float& Vector3f::operator[] ( int iPos )
+float& Vector3f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );

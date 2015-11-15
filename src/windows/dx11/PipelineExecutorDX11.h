@@ -26,8 +26,8 @@ namespace forward
 
 	struct InputLayoutKey
 	{
-		int shader;
-		int layout;
+		i32 shader;
+		i32 layout;
 	};
 
 	class PipelineExecutorDX11
@@ -39,14 +39,14 @@ namespace forward
 		virtual void Execute( PipelineManagerDX11* pPipeline ) = 0;
 		
 		virtual void SetLayoutElements( u32 count, D3D11_INPUT_ELEMENT_DESC* pElements );
-		virtual void GenerateInputLayout( int ShaderID );
-		virtual int GetInputLayout( int ShaderID );
+		virtual void GenerateInputLayout( i32 ShaderID );
+		virtual i32 GetInputLayout( i32 ShaderID );
 
 	protected:
 
 		// A description of our vertex elements
 		std::vector<D3D11_INPUT_ELEMENT_DESC>	m_elements;
-		std::map<int,InputLayoutKey*>			m_InputLayouts;
+		std::map<i32,InputLayoutKey*>			m_InputLayouts;
 
 	};
 

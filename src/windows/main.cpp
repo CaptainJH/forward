@@ -14,7 +14,7 @@ struct Vertex
 class SimpleApp : public Application
 {
 public:
-	SimpleApp(HINSTANCE hInstance, int width, int height)
+	SimpleApp(HINSTANCE hInstance, i32 width, i32 height)
 		: Application(hInstance, width, height)
 		, m_vsID(-1)
 		, m_psID(-1)
@@ -36,16 +36,16 @@ private:
 	void BuildGeometry();
 	void SetupPipeline();
 
-	int m_vsID;
-	int m_psID;
+	i32 m_vsID;
+	i32 m_psID;
 
 	ResourcePtr m_pVertexBuffer;
 	ResourcePtr m_pIndexBuffer;
-	int m_VertexLayout;
+	i32 m_VertexLayout;
 };
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
-	PSTR /*cmdLine*/, int /*showCmd*/)
+i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
+	PSTR /*cmdLine*/, i32 /*showCmd*/)
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
@@ -63,18 +63,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 #pragma warning(disable: 4245)
 void SimpleApp::UpdateScene(float /*dt*/)
 {
-
-	char ch = -9;
-	unsigned char uch = -9;
-
-	short sh = -9;
-	unsigned short ush = -9;
-
-	__int64 i64 = -9;
-	unsigned long long ll = -9;
-
-	if (ch && uch && sh && ush && i64 && ll)
-		return;
 }
 
 void SimpleApp::DrawScene()

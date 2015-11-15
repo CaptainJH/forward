@@ -32,14 +32,14 @@ namespace forward
 		void SetSisterState( OutputMergerStageStateDX11* pState );
 		void ResetUpdateFlags( );
 
-		int GetRenderTargetCount() const;
+		i32 GetRenderTargetCount() const;
 
-		TStateMonitor< int > BlendState;
-		TStateMonitor< int > DepthStencilState;
+		TStateMonitor< i32 > BlendState;
+		TStateMonitor< i32 > DepthStencilState;
 		TStateMonitor< u32 > StencilRef;
-		TStateArrayMonitor< int, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetViews;
-		TStateMonitor< int > DepthTargetViews;
-		TStateArrayMonitor< int, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessViews;
+		TStateArrayMonitor< i32, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetViews;
+		TStateMonitor< i32 > DepthTargetViews;
+		TStateArrayMonitor< i32, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessViews;
 		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
 
 	protected:

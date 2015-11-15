@@ -67,16 +67,16 @@ namespace forward
 		Matrix4f& operator= ( const Matrix4f& Matrix );
 
 		// member access
-		float operator() ( int iRow, int iCol ) const;
-		float& operator() ( int iRow, int iCol );
-		float operator[] ( int iPos ) const;
-		float& operator[] ( int iPos );
+		float operator() ( i32 iRow, i32 iCol ) const;
+		float& operator() ( i32 iRow, i32 iCol );
+		float operator[] ( i32 iPos ) const;
+		float& operator[] ( i32 iPos );
 
-		void SetRow( int iRow, const Vector4f& Vector );
-        void SetRow( int iRow, const Vector3f& Vector );		
-        Vector4f GetRow( int iRow ) const;        
-		void SetColumn( int iCol, const Vector4f& Vector );
-		Vector4f GetColumn( int iCol ) const;
+		void SetRow( i32 iRow, const Vector4f& Vector );
+        void SetRow( i32 iRow, const Vector3f& Vector );		
+        Vector4f GetRow( i32 iRow ) const;        
+		void SetColumn( i32 iCol, const Vector4f& Vector );
+		Vector4f GetColumn( i32 iCol ) const;
 
 		// comparison
 		bool operator== ( const Matrix4f& Matrix ) const;
@@ -100,31 +100,31 @@ namespace forward
 		// matrix - vector operations
 		Vector4f operator* ( const Vector4f& V ) const;  // M * v
 
-		static const int m11 = 0;
-		static const int m12 = 1;
-		static const int m13 = 2;
-		static const int m14 = 3;
+		static const i32 m11 = 0;
+		static const i32 m12 = 1;
+		static const i32 m13 = 2;
+		static const i32 m14 = 3;
 
-		static const int m21 = 4;
-		static const int m22 = 5;
-		static const int m23 = 6;
-		static const int m24 = 7;
+		static const i32 m21 = 4;
+		static const i32 m22 = 5;
+		static const i32 m23 = 6;
+		static const i32 m24 = 7;
 		
-		static const int m31 = 8;
-		static const int m32 = 9;
-		static const int m33 = 10;
-		static const int m34 = 11;
+		static const i32 m31 = 8;
+		static const i32 m32 = 9;
+		static const i32 m33 = 10;
+		static const i32 m34 = 11;
 
-		static const int m41 = 12;
-		static const int m42 = 13;
-		static const int m43 = 14;
-		static const int m44 = 15;
+		static const i32 m41 = 12;
+		static const i32 m42 = 13;
+		static const i32 m43 = 14;
+		static const i32 m44 = 15;
 
 
 	protected:
 		float m_afEntry[4*4];
 
-		static int I(int iRow, int iCol); // iRow*N + iCol
+		static i32 I(i32 iRow, i32 iCol); // iRow*N + iCol
 	};
 };
 //----------------------------------------------------------------------------------------------------

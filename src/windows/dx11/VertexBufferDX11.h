@@ -17,12 +17,12 @@ namespace forward
 
 		virtual ResourceType				GetType();
 
-		void						SetVertexSize( int size );
-		void						SetVertexCount( int count );
+		void						SetVertexSize( i32 size );
+		void						SetVertexCount( i32 count );
 
 	protected:
-		int							m_iVertexSize;
-		int							m_iVertexCount;
+		i32							m_iVertexSize;
+		i32							m_iVertexCount;
 
 		friend class RendererDX11;
 	};

@@ -65,7 +65,7 @@ void RasterizerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	}
 
 	// Compare the viewport state and set it if necesary.
-	//int viewports = 0;
+	//i32 viewports = 0;
 	
 	// TODO: The viewport state should be directly holding D3D11_VIEWPORT structs instead of
 	//       integer references to them.  This would simplify the handling, and reduce the 
@@ -78,7 +78,7 @@ void RasterizerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 		
 		D3D11_VIEWPORT aViewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 		
-		for ( int i = 0; i < DesiredState.ViewportCount.GetState(); i++ ) {
+		for ( i32 i = 0; i < DesiredState.ViewportCount.GetState(); i++ ) {
 
 			const ViewPortDX11& Viewport = pRenderer->GetViewPort( DesiredState.Viewports.GetState( i ) );
 			
@@ -98,7 +98,7 @@ void RasterizerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 		
 		D3D11_RECT aRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 		
-		for ( int i = 0; i < DesiredState.ScissorRectCount.GetState(); i++ ) {
+		for ( i32 i = 0; i < DesiredState.ScissorRectCount.GetState(); i++ ) {
 			aRects[i] = DesiredState.ScissorRects.GetState( i );
 		}
 

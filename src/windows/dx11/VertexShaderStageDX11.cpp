@@ -43,7 +43,7 @@ void VertexStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->VSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->VSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void VertexStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->VSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void VertexStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*co
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void VertexStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->VSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void VertexStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, in
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, int /*count*/ )
+void VertexStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
 	// Do nothing - the vertex shader doesn't support UAV's!
 }

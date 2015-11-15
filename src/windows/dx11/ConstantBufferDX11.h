@@ -44,7 +44,7 @@ namespace forward
 		void						EmptyMappings( );
 		//TODO:
 		//void						EvaluateMappings( PipelineManagerDX11* pPipeline, IParameterManager* pParamManager );
-		bool						ContainsMapping( int index, const ConstantBufferMapping& mapping );
+		bool						ContainsMapping( i32 index, const ConstantBufferMapping& mapping );
 
 		void						SetAutoUpdate( bool enable );
 		bool						GetAutoUpdate( );

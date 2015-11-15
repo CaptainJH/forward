@@ -287,7 +287,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	queryDesc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
 	queryDesc.MiscFlags = 0;
 
-    for( int i = 0; i < PipelineManagerDX11::NumQueries; ++i)
+    for( i32 i = 0; i < PipelineManagerDX11::NumQueries; ++i)
     {
 	    hr = m_pDevice->CreateQuery( &queryDesc, &pImmPipeline->m_Queries[i] );
 
@@ -318,7 +318,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	// Initialize the multithreading portion of the renderer.  This includes
 	// creating the threads themselves, initializing the thread payloads as well.
 
-	//for ( int i = 0; i < NUM_THREADS; i++ )
+	//for ( i32 i = 0; i < NUM_THREADS; i++ )
 	//{
 	//	// Mark each payload so that the thread knows which synchronization primitives to use.
 	//	g_aPayload[i].id = i;
@@ -402,7 +402,7 @@ void RendererDX11::Shutdown()
 	//SAFE_RELEASE( m_pDebugger );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, u32 SyncInterval, u32 PresentFlags )
+void RendererDX11::Present(HWND /*hWnd*/, i32 SwapChain, u32 SyncInterval, u32 PresentFlags )
 {
 	// Present to the window
 
@@ -417,7 +417,7 @@ void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, u32 SyncInterval, u32 P
 	}
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
+i32 RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
 {
 	// Attempt to create the DXGI Factory.
 
@@ -461,7 +461,7 @@ int RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
 	// Add the swap chain's back buffer texture and render target views to the internal data
 	// structures to allow setting them later on.
 
-	int ResourceID = StoreNewResource( new Texture2dDX11( pSwapChainBuffer ) );
+	i32 ResourceID = StoreNewResource( new Texture2dDX11( pSwapChainBuffer ) );
 	
 
 	// If we get here, then we succeeded in creating our swap chain and it's constituent parts.
@@ -494,7 +494,7 @@ ResourcePtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig,  D3D11_
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 
-		int ResourceID = StoreNewResource( pVertexBuffer );
+		i32 ResourceID = StoreNewResource( pVertexBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -518,7 +518,7 @@ ResourcePtr RendererDX11::CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_S
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 
-		int ResourceID = StoreNewResource( pIndexBuffer );
+		i32 ResourceID = StoreNewResource( pIndexBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -542,7 +542,7 @@ ResourcePtr RendererDX11::CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 
-		int ResourceID = StoreNewResource( pStructuredBuffer );
+		i32 ResourceID = StoreNewResource( pStructuredBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -566,7 +566,7 @@ ResourcePtr RendererDX11::CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 
-		int ResourceID = StoreNewResource( pByteAddressBuffer );
+		i32 ResourceID = StoreNewResource( pByteAddressBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -590,7 +590,7 @@ ResourcePtr RendererDX11::CreateIndirectArgsBuffer( BufferConfigDX11* pConfig,  
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 
-		int ResourceID = StoreNewResource( pIndirectArgsBuffer );
+		i32 ResourceID = StoreNewResource( pIndirectArgsBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -615,7 +615,7 @@ ResourcePtr RendererDX11::CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D1
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
-		int ResourceID = StoreNewResource( pConstantBuffer );
+		i32 ResourceID = StoreNewResource( pConstantBuffer );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
@@ -639,7 +639,7 @@ ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, D3D11_S
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
-		int ResourceID = StoreNewResource( pTex );
+		i32 ResourceID = StoreNewResource( pTex );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig ) );
 
 		return( Proxy );
@@ -664,7 +664,7 @@ ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, D3D11_S
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
-		int ResourceID = StoreNewResource( pTex );
+		i32 ResourceID = StoreNewResource( pTex );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig, pDSVConfig ) );
 
 		return( Proxy );
@@ -688,7 +688,7 @@ ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, D3D11_S
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
-		int ResourceID = StoreNewResource( pTex );
+		i32 ResourceID = StoreNewResource( pTex );
 		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig ) );
 
 		return( Proxy );
@@ -697,7 +697,7 @@ ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, D3D11_S
 	return( ResourcePtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateShaderResourceView( int ResourceID, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc )
+i32 RendererDX11::CreateShaderResourceView( i32 ResourceID, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc )
 {
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
@@ -719,7 +719,7 @@ int RendererDX11::CreateShaderResourceView( int ResourceID, D3D11_SHADER_RESOURC
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateRenderTargetView( int ResourceID, D3D11_RENDER_TARGET_VIEW_DESC* pDesc )
+i32 RendererDX11::CreateRenderTargetView( i32 ResourceID, D3D11_RENDER_TARGET_VIEW_DESC* pDesc )
 {
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
@@ -741,7 +741,7 @@ int RendererDX11::CreateRenderTargetView( int ResourceID, D3D11_RENDER_TARGET_VI
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateDepthStencilView( int ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc )
+i32 RendererDX11::CreateDepthStencilView( i32 ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc )
 {
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
@@ -764,7 +764,7 @@ int RendererDX11::CreateDepthStencilView( int ResourceID, D3D11_DEPTH_STENCIL_VI
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateUnorderedAccessView( int ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc )
+i32 RendererDX11::CreateUnorderedAccessView( i32 ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc )
 {
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
@@ -791,7 +791,7 @@ void RendererDX11::ResizeTexture( ResourcePtr texture, u32 width, u32 height )
 	// For the texture, and then for each associated resource view create the new
 	// sized versions.  Afterwards, release the old versions and replace them with
 	// the new ones.
-	int rid = texture->m_iResource;
+	i32 rid = texture->m_iResource;
 
 	// Grab the old texture description and update it for the new size.
 	Texture2dDX11* pTexture = GetTexture2DByIndex( rid );
@@ -816,7 +816,7 @@ void RendererDX11::ResizeTexture( ResourcePtr texture, u32 width, u32 height )
 	ResizeTextureUAV( rid, texture->m_iResourceUAV, width, height );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureSRV( int RID, int SRVID, u32 /*width*/, u32 /*height*/ )
+void RendererDX11::ResizeTextureSRV( i32 RID, i32 SRVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( SRVID == 0 ) {
@@ -850,7 +850,7 @@ void RendererDX11::ResizeTextureSRV( int RID, int SRVID, u32 /*width*/, u32 /*he
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureRTV( int RID, int RTVID, u32 /*width*/, u32 /*height*/ )
+void RendererDX11::ResizeTextureRTV( i32 RID, i32 RTVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( RTVID == 0 ) {
@@ -884,7 +884,7 @@ void RendererDX11::ResizeTextureRTV( int RID, int RTVID, u32 /*width*/, u32 /*he
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureDSV( int RID, int DSVID, u32 /*width*/, u32 /*height*/ )
+void RendererDX11::ResizeTextureDSV( i32 RID, i32 DSVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( DSVID == 0 ) {
@@ -918,7 +918,7 @@ void RendererDX11::ResizeTextureDSV( int RID, int DSVID, u32 /*width*/, u32 /*he
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureUAV( int RID, int UAVID, u32 /*width*/, u32 /*height*/ )
+void RendererDX11::ResizeTextureUAV( i32 RID, i32 UAVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( UAVID == 0 ) {
@@ -952,7 +952,7 @@ void RendererDX11::ResizeTextureUAV( int RID, int UAVID, u32 /*width*/, u32 /*he
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeSwapChain( int SID, u32 width, u32 height )
+void RendererDX11::ResizeSwapChain( i32 SID, u32 width, u32 height )
 {
 	u32 index = static_cast<u32>( SID );
 
@@ -996,7 +996,7 @@ void RendererDX11::ResizeSwapChain( int SID, u32 width, u32 height )
 	hr = m_pDevice->CreateRenderTargetView( pBackBuffer->m_pTexture.Get(), &RTVDesc, RTV.m_pRenderTargetView.GetAddressOf() );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeViewport( int ID, u32 width, u32 height )
+void RendererDX11::ResizeViewport( i32 ID, u32 width, u32 height )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1009,13 +1009,13 @@ void RendererDX11::ResizeViewport( int ID, u32 width, u32 height )
 	pViewport.m_ViewPort.Height = static_cast<float>( height );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
+i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
                              const std::wstring& model, bool enablelogging )
 {
     return LoadShader( type, filename, function, model, NULL, enablelogging );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
+i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
                                 const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 
@@ -1177,7 +1177,7 @@ int RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, con
 
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elements, int ShaderID  )
+i32 RendererDX11::CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elements, i32 ShaderID  )
 {
 	// Create array of elements here for the API call.
 	D3D11_INPUT_ELEMENT_DESC* pElements = new D3D11_INPUT_ELEMENT_DESC[elements.size()];
@@ -1261,7 +1261,7 @@ ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 	ComPtr<ID3D11Texture2D> pTexture;
 	pResource.CopyTo( pTexture.GetAddressOf() );
 
-	int ResourceID = StoreNewResource( new Texture2dDX11( pTexture ) );
+	i32 ResourceID = StoreNewResource( new Texture2dDX11( pTexture ) );
 
 	Texture2dConfigDX11 TextureConfig;
 	pTexture->GetDesc( &TextureConfig.m_State );
@@ -1279,7 +1279,7 @@ ResourcePtr RendererDX11::LoadTexture( ID3D11Texture2D* pTexture )
 
 	ComPtr<ID3D11Texture2D> pTexturePtr( pTexture );
 
-    int ResourceID = StoreNewResource( new Texture2dDX11( pTexture ) );
+    i32 ResourceID = StoreNewResource( new Texture2dDX11( pTexture ) );
 
     Texture2dConfigDX11 TextureConfig;
     pTexture->GetDesc( &TextureConfig.m_State );
@@ -1287,7 +1287,7 @@ ResourcePtr RendererDX11::LoadTexture( ID3D11Texture2D* pTexture )
     return( ResourcePtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateBlendState( BlendStateConfigDX11* pConfig )
+i32 RendererDX11::CreateBlendState( BlendStateConfigDX11* pConfig )
 {
 	BlendStateComPtr pState;
 
@@ -1304,7 +1304,7 @@ int RendererDX11::CreateBlendState( BlendStateConfigDX11* pConfig )
 	return( m_vBlendStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig )
+i32 RendererDX11::CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig )
 {
 	DepthStencilStateComPtr pState;
 
@@ -1321,7 +1321,7 @@ int RendererDX11::CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig 
 	return( m_vDepthStencilStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateRasterizerState( RasterizerStateConfigDX11* pConfig )
+i32 RendererDX11::CreateRasterizerState( RasterizerStateConfigDX11* pConfig )
 {
 	RasterizerStateComPtr pState;
 
@@ -1338,7 +1338,7 @@ int RendererDX11::CreateRasterizerState( RasterizerStateConfigDX11* pConfig )
 	return( m_vRasterizerStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateSamplerState( D3D11_SAMPLER_DESC* pDesc )
+i32 RendererDX11::CreateSamplerState( D3D11_SAMPLER_DESC* pDesc )
 {
 	SamplerStateComPtr pState;
 
@@ -1355,14 +1355,14 @@ int RendererDX11::CreateSamplerState( D3D11_SAMPLER_DESC* pDesc )
 	return( m_vSamplerStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-int RendererDX11::CreateViewPort( D3D11_VIEWPORT viewport )
+i32 RendererDX11::CreateViewPort( D3D11_VIEWPORT viewport )
 {
 	m_vViewPorts.emplace_back( viewport );
 
 	return( m_vViewPorts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::GetSwapChainResource( int ID )
+ResourcePtr RendererDX11::GetSwapChainResource( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1398,7 +1398,7 @@ Vector2f RendererDX11::GetDesktopResolution()
 						static_cast<float>( desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top ) ) );
 }
 //--------------------------------------------------------------------------------
-BlendStateComPtr RendererDX11::GetBlendState( int index )
+BlendStateComPtr RendererDX11::GetBlendState( i32 index )
 {
 	// TODO: There should be a default blend state that can be returned which will
 	//       put the blend state into the default D3D11 state...
@@ -1409,7 +1409,7 @@ BlendStateComPtr RendererDX11::GetBlendState( int index )
 		return( m_vBlendStates[0] );
 }
 //--------------------------------------------------------------------------------
-DepthStencilStateComPtr RendererDX11::GetDepthState( int index )
+DepthStencilStateComPtr RendererDX11::GetDepthState( i32 index )
 {
 	// TODO: There should be a default blend state that can be returned which will
 	//       put the blend state into the default D3D11 state...
@@ -1420,7 +1420,7 @@ DepthStencilStateComPtr RendererDX11::GetDepthState( int index )
 		return( m_vDepthStencilStates[0] );
 }
 //--------------------------------------------------------------------------------
-RasterizerStateComPtr RendererDX11::GetRasterizerState( int index )
+RasterizerStateComPtr RendererDX11::GetRasterizerState( i32 index )
 {
 	// TODO: There should be a default blend state that can be returned which will
 	//       put the blend state into the default D3D11 state...
@@ -1431,7 +1431,7 @@ RasterizerStateComPtr RendererDX11::GetRasterizerState( int index )
 		return( m_vRasterizerStates[0] );
 }
 //--------------------------------------------------------------------------------
-const ViewPortDX11& RendererDX11::GetViewPort( int ID )
+const ViewPortDX11& RendererDX11::GetViewPort( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 	
@@ -1440,7 +1440,7 @@ const ViewPortDX11& RendererDX11::GetViewPort( int ID )
 	return( m_vViewPorts[index] );
 }
 //--------------------------------------------------------------------------------
-ResourceDX11* RendererDX11::GetResourceByIndex( int ID )
+ResourceDX11* RendererDX11::GetResourceByIndex( i32 ID )
 {
 	ResourceDX11* pResource = 0;
 
@@ -1458,17 +1458,17 @@ ResourceDX11* RendererDX11::GetResourceByIndex( int ID )
 	return( pResource );
 }
 //--------------------------------------------------------------------------------
-InputLayoutComPtr RendererDX11::GetInputLayout( int index )
+InputLayoutComPtr RendererDX11::GetInputLayout( i32 index )
 {
 	return( m_vInputLayouts[index] );
 }
 //--------------------------------------------------------------------------------
-SamplerStateComPtr RendererDX11::GetSamplerState( int index )
+SamplerStateComPtr RendererDX11::GetSamplerState( i32 index )
 {
 	return( m_vSamplerStates[index] );
 }
 //--------------------------------------------------------------------------------
-ShaderDX11* RendererDX11::GetShader( int ID )
+ShaderDX11* RendererDX11::GetShader( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1489,9 +1489,9 @@ ShaderDX11* RendererDX11::GetShader( int ID )
 //	{
 //		// Single-threaded processing of the render view queue
 //
-//		for ( int i = m_vQueuedTasks.size()-1; i >= 0; i-=NUM_THREADS )
+//		for ( i32 i = m_vQueuedTasks.size()-1; i >= 0; i-=NUM_THREADS )
 //        {
-//			for ( int j = 0; j < NUM_THREADS; j++ )
+//			for ( i32 j = 0; j < NUM_THREADS; j++ )
 //			{
 //				if ( (i-j) >= 0 )
 //				{
@@ -1510,11 +1510,11 @@ ShaderDX11* RendererDX11::GetShader( int ID )
 //	//{
 //	//	// Multi-threaded processing of the render view queue
 //
-//	//	for ( int i = m_vQueuedTasks.size()-1; i >= 0; i-=NUM_THREADS )
+//	//	for ( i32 i = m_vQueuedTasks.size()-1; i >= 0; i-=NUM_THREADS )
 //	//	{
 //	//		DWORD count = 0;
 //
-//	//		for ( int j = 0; j < NUM_THREADS; j++ )
+//	//		for ( i32 j = 0; j < NUM_THREADS; j++ )
 //	//		{
 //	//			if ( (i-j) >= 0 )
 //	//			{
@@ -1526,7 +1526,7 @@ ShaderDX11* RendererDX11::GetShader( int ID )
 //
 //	//		WaitForMultipleObjects( count, g_aEndEventHandle, true, INFINITE );
 //
-//	//		for ( int j = 0; count > 0; count-- )
+//	//		for ( i32 j = 0; count > 0; count-- )
 //	//		{
 //	//			pImmPipeline->ExecuteCommandList( g_aPayload[j].pList );
 //	//			g_aPayload[j].pList->ReleaseList();
@@ -1553,7 +1553,7 @@ HANDLE						g_aBeginEventHandle[NUM_THREADS];
 HANDLE						g_aEndEventHandle[NUM_THREADS];
 
 //--------------------------------------------------------------------------------
-Texture1dDX11* RendererDX11::GetTexture1DByIndex( int rid )
+Texture1dDX11* RendererDX11::GetTexture1DByIndex( i32 rid )
 {
 	Texture1dDX11* pResult = 0;
 
@@ -1570,7 +1570,7 @@ Texture1dDX11* RendererDX11::GetTexture1DByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-Texture2dDX11* RendererDX11::GetTexture2DByIndex( int rid )
+Texture2dDX11* RendererDX11::GetTexture2DByIndex( i32 rid )
 {
 	Texture2dDX11* pResult = 0;
 
@@ -1587,7 +1587,7 @@ Texture2dDX11* RendererDX11::GetTexture2DByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-Texture3dDX11* RendererDX11::GetTexture3DByIndex( int rid )
+Texture3dDX11* RendererDX11::GetTexture3DByIndex( i32 rid )
 {
 	Texture3dDX11* pResult = 0;
 
@@ -1604,12 +1604,12 @@ Texture3dDX11* RendererDX11::GetTexture3DByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-SwapChainDX11* RendererDX11::GetSwapChainByIndex( int sid )
+SwapChainDX11* RendererDX11::GetSwapChainByIndex( i32 sid )
 {
 	return( m_vSwapChains[sid] );
 }
 //--------------------------------------------------------------------------------
-BufferDX11* RendererDX11::GetGenericBufferByIndex( int rid )
+BufferDX11* RendererDX11::GetGenericBufferByIndex( i32 rid )
 {
 	// This method returns a BufferDX11 pointer, which is useful for methods that
 	// can operate on more than one type of buffer.  As long as the underlying
@@ -1631,7 +1631,7 @@ BufferDX11* RendererDX11::GetGenericBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-ConstantBufferDX11* RendererDX11::GetConstantBufferByIndex( int rid )
+ConstantBufferDX11* RendererDX11::GetConstantBufferByIndex( i32 rid )
 {
 	ConstantBufferDX11* pResult = 0;
 
@@ -1648,7 +1648,7 @@ ConstantBufferDX11* RendererDX11::GetConstantBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-VertexBufferDX11* RendererDX11::GetVertexBufferByIndex( int rid )
+VertexBufferDX11* RendererDX11::GetVertexBufferByIndex( i32 rid )
 {
 	VertexBufferDX11* pResult = 0;
 
@@ -1665,7 +1665,7 @@ VertexBufferDX11* RendererDX11::GetVertexBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-IndexBufferDX11* RendererDX11::GetIndexBufferByIndex( int rid )
+IndexBufferDX11* RendererDX11::GetIndexBufferByIndex( i32 rid )
 {
 	IndexBufferDX11* pResult = 0;
 
@@ -1682,7 +1682,7 @@ IndexBufferDX11* RendererDX11::GetIndexBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-ByteAddressBufferDX11* RendererDX11::GetByteAddressBufferByIndex( int rid )
+ByteAddressBufferDX11* RendererDX11::GetByteAddressBufferByIndex( i32 rid )
 {
 	ByteAddressBufferDX11* pResult = 0;
 
@@ -1699,7 +1699,7 @@ ByteAddressBufferDX11* RendererDX11::GetByteAddressBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-IndirectArgsBufferDX11*	RendererDX11::GetIndirectArgsBufferByIndex( int rid )
+IndirectArgsBufferDX11*	RendererDX11::GetIndirectArgsBufferByIndex( i32 rid )
 {
 	IndirectArgsBufferDX11* pResult = 0;
 
@@ -1716,7 +1716,7 @@ IndirectArgsBufferDX11*	RendererDX11::GetIndirectArgsBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-StructuredBufferDX11* RendererDX11::GetStructuredBufferByIndex( int rid )
+StructuredBufferDX11* RendererDX11::GetStructuredBufferByIndex( i32 rid )
 {
 	StructuredBufferDX11* pResult = 0;
 
@@ -1733,7 +1733,7 @@ StructuredBufferDX11* RendererDX11::GetStructuredBufferByIndex( int rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-RenderTargetViewDX11& RendererDX11::GetRenderTargetViewByIndex( int rid )
+RenderTargetViewDX11& RendererDX11::GetRenderTargetViewByIndex( i32 rid )
 {
 	assert( rid >= 0 );
 	assert( rid < m_vRenderTargetViews.size() );
@@ -1741,7 +1741,7 @@ RenderTargetViewDX11& RendererDX11::GetRenderTargetViewByIndex( int rid )
 	return( m_vRenderTargetViews[rid] );
 }
 //--------------------------------------------------------------------------------
-DepthStencilViewDX11& RendererDX11::GetDepthStencilViewByIndex( int rid )
+DepthStencilViewDX11& RendererDX11::GetDepthStencilViewByIndex( i32 rid )
 {
 	assert( rid >= 0 );
 	assert( rid < m_vDepthStencilViews.size() );
@@ -1749,7 +1749,7 @@ DepthStencilViewDX11& RendererDX11::GetDepthStencilViewByIndex( int rid )
 	return( m_vDepthStencilViews[rid] );
 }
 //--------------------------------------------------------------------------------
-ShaderResourceViewDX11& RendererDX11::GetShaderResourceViewByIndex( int rid )
+ShaderResourceViewDX11& RendererDX11::GetShaderResourceViewByIndex( i32 rid )
 {
 	assert( rid >= 0 );
 	assert( rid < m_vShaderResourceViews.size() );
@@ -1757,7 +1757,7 @@ ShaderResourceViewDX11& RendererDX11::GetShaderResourceViewByIndex( int rid )
 	return( m_vShaderResourceViews[rid] );
 }
 //--------------------------------------------------------------------------------
-UnorderedAccessViewDX11& RendererDX11::GetUnorderedAccessViewByIndex( int rid )
+UnorderedAccessViewDX11& RendererDX11::GetUnorderedAccessViewByIndex( i32 rid )
 {
 	assert( rid >= 0 );
 	assert( rid < m_vUnorderedAccessViews.size() );
@@ -1765,10 +1765,10 @@ UnorderedAccessViewDX11& RendererDX11::GetUnorderedAccessViewByIndex( int rid )
 	return( m_vUnorderedAccessViews[rid] );
 }
 //--------------------------------------------------------------------------------
-int	RendererDX11::GetUnusedResourceIndex()
+i32	RendererDX11::GetUnusedResourceIndex()
 {
 	// Initialize return index to -1.
-	int index = -1;
+	i32 index = -1;
 	
 	// Search for a NULL index location.
 	for ( u32 i = 0; i < m_vResources.size(); i++ ) {
@@ -1782,12 +1782,12 @@ int	RendererDX11::GetUnusedResourceIndex()
 	return( index );
 }
 //--------------------------------------------------------------------------------
-int	RendererDX11::StoreNewResource( ResourceDX11* pResource )
+i32	RendererDX11::StoreNewResource( ResourceDX11* pResource )
 {
 	// This method either finds an empty spot in the list, or just appends the
 	// resource to the end of it if none are available.
 
-	int index = GetUnusedResourceIndex();
+	i32 index = GetUnusedResourceIndex();
 
 	if ( index == -1 ) {
 		m_vResources.push_back( pResource );
@@ -1797,7 +1797,7 @@ int	RendererDX11::StoreNewResource( ResourceDX11* pResource )
 	}
 
 	// Shift the inner ID to the upper 16 bits.
-	int innerID = (int)pResource->GetInnerID() << 16;
+	i32 innerID = (i32)pResource->GetInnerID() << 16;
 	index = index + innerID;
 
 	return( index );
@@ -1811,7 +1811,7 @@ void RendererDX11::DeleteResource( ResourcePtr ptr )
 	DeleteResource( ptr->m_iResource );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::DeleteResource( int index )
+void RendererDX11::DeleteResource( i32 index )
 {
 	// Here the resource is looked up, then deleted if it was found.  After 
 	// being deleted, it is 

@@ -81,11 +81,11 @@ namespace forward
 		// These methods provide rendering frame control.  They are closely
 		// related to the API for sequencing rendering batches.
 
-		void Present( HWND hWnd = 0, int SwapChain = -1, u32 SyncInterval = 0, u32 PresentFlags = 0 );
+		void Present( HWND hWnd = 0, i32 SwapChain = -1, u32 SyncInterval = 0, u32 PresentFlags = 0 );
 
 		// Allow the application to create swap chains
 
-		int CreateSwapChain( SwapChainConfigDX11* pConfig );// ResourceManagerDX11
+		i32 CreateSwapChain( SwapChainConfigDX11* pConfig );// ResourceManagerDX11
 
 		// The create buffer method provides a way to create any of the buffer
 		// structures - vertex, index, and constant buffers.  These all utilize the
@@ -113,46 +113,46 @@ namespace forward
                                         UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
 
 		void DeleteResource( ResourcePtr ptr );
-		void DeleteResource( int index );
+		void DeleteResource( i32 index );
 
 		// The resources created in the above function calls can only be accessed by
 		// the rendering pipeline when they are bound with resource views.  The following
 		// functions provide the interface for creating the views, and returns an index
 		// for the application to use during rendering setup.
 
-		int CreateShaderResourceView( int ResourceID, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc );
-		int CreateRenderTargetView( int ResourceID, D3D11_RENDER_TARGET_VIEW_DESC* pDesc );
-		int CreateDepthStencilView( int ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc );
-		int CreateUnorderedAccessView( int ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc );
+		i32 CreateShaderResourceView( i32 ResourceID, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc );
+		i32 CreateRenderTargetView( i32 ResourceID, D3D11_RENDER_TARGET_VIEW_DESC* pDesc );
+		i32 CreateDepthStencilView( i32 ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc );
+		i32 CreateUnorderedAccessView( i32 ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc );
 
 		// The input layout is required to exactly match the input signature of the first
 		// programmable stage that will receive the input assembler output.  This method is
 		// provided for creating an input layout and later indexing the value when setting
 		// the appropriate vertex shader.
 
-		int CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elements, int ShaderID  );
+		i32 CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elements, i32 ShaderID  );
 
 		// The individual states available in the D3D11 pipeline can be created here.  They
 		// are referred to by index after being created.
 
-		int CreateBlendState( BlendStateConfigDX11* pConfig );
-		int CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig );
-		int CreateRasterizerState( RasterizerStateConfigDX11* pConfig );
-		int CreateSamplerState( D3D11_SAMPLER_DESC* pDesc );
-		int CreateViewPort( D3D11_VIEWPORT viewport );
+		i32 CreateBlendState( BlendStateConfigDX11* pConfig );
+		i32 CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig );
+		i32 CreateRasterizerState( RasterizerStateConfigDX11* pConfig );
+		i32 CreateSamplerState( D3D11_SAMPLER_DESC* pDesc );
+		i32 CreateViewPort( D3D11_VIEWPORT viewport );
 
 
 		// Each programmable shader stage can be loaded from file, and stored in a list for
 		// later use.  Either an application can directly set these values or a render effect
 		// can encapsulate the entire pipeline configuration.
 
-		int LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
+		i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
 			const std::wstring& model, bool enablelogging = true );
 
-        int LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
+        i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
             const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 		
-		ResourcePtr GetSwapChainResource( int ID );
+		ResourcePtr GetSwapChainResource( i32 ID );
 
 		// This is an interim solution to get the resolution of the current
 		// adapter output resolution.
@@ -170,23 +170,23 @@ namespace forward
 		// except that the size will be updated.
 
 		void ResizeTexture( ResourcePtr texture, u32 width, u32 height );
-		void ResizeTextureSRV( int RID, int SRVID, u32 width, u32 height );
-		void ResizeTextureRTV( int RID, int RTVID, u32 width, u32 height );
-		void ResizeTextureDSV( int RID, int DSVID, u32 width, u32 height );
-		void ResizeTextureUAV( int RID, int UAVID, u32 width, u32 height );
-		void ResizeSwapChain( int ID, u32 width, u32 height );
-		void ResizeViewport( int ID, u32 width, u32 height );
+		void ResizeTextureSRV( i32 RID, i32 SRVID, u32 width, u32 height );
+		void ResizeTextureRTV( i32 RID, i32 RTVID, u32 width, u32 height );
+		void ResizeTextureDSV( i32 RID, i32 DSVID, u32 width, u32 height );
+		void ResizeTextureUAV( i32 RID, i32 UAVID, u32 width, u32 height );
+		void ResizeSwapChain( i32 ID, u32 width, u32 height );
+		void ResizeViewport( i32 ID, u32 width, u32 height );
 
 		// Provide access to the pipeline states.
-		BlendStateComPtr								GetBlendState( int index );
-		DepthStencilStateComPtr							GetDepthState( int index );
-		RasterizerStateComPtr							GetRasterizerState( int index );
-		const ViewPortDX11&								GetViewPort( int index );
+		BlendStateComPtr								GetBlendState( i32 index );
+		DepthStencilStateComPtr							GetDepthState( i32 index );
+		RasterizerStateComPtr							GetRasterizerState( i32 index );
+		const ViewPortDX11&								GetViewPort( i32 index );
 
-		InputLayoutComPtr								GetInputLayout( int index );
-		SamplerStateComPtr								GetSamplerState( int index );
+		InputLayoutComPtr								GetInputLayout( i32 index );
+		SamplerStateComPtr								GetSamplerState( i32 index );
 
-		ShaderDX11*										GetShader( int index );
+		ShaderDX11*										GetShader( i32 index );
 
 		// This method is here for allowing easy integration with other libraries
 		// which require access to the device.  Do not use this interface to create 
@@ -247,36 +247,36 @@ namespace forward
 	public:
 		PipelineManagerDX11*					pImmPipeline;
 
-		ResourceDX11*				GetResourceByIndex( int index );
+		ResourceDX11*				GetResourceByIndex( i32 index );
 
 		// Texture resource accessors
 		
-		Texture1dDX11*				GetTexture1DByIndex( int rid );
-		Texture2dDX11*				GetTexture2DByIndex( int rid );
-		Texture3dDX11*				GetTexture3DByIndex( int rid );
-		SwapChainDX11*				GetSwapChainByIndex( int sid );
+		Texture1dDX11*				GetTexture1DByIndex( i32 rid );
+		Texture2dDX11*				GetTexture2DByIndex( i32 rid );
+		Texture3dDX11*				GetTexture3DByIndex( i32 rid );
+		SwapChainDX11*				GetSwapChainByIndex( i32 sid );
 
 		// Buffer resource accessors
 
-		BufferDX11*					GetGenericBufferByIndex( int rid );
-		ConstantBufferDX11*			GetConstantBufferByIndex( int rid );
-		VertexBufferDX11*			GetVertexBufferByIndex( int rid );
-		IndexBufferDX11*			GetIndexBufferByIndex( int rid );
-		ByteAddressBufferDX11*		GetByteAddressBufferByIndex( int rid );
-		IndirectArgsBufferDX11*		GetIndirectArgsBufferByIndex( int rid );
-		StructuredBufferDX11*		GetStructuredBufferByIndex( int rid );
+		BufferDX11*					GetGenericBufferByIndex( i32 rid );
+		ConstantBufferDX11*			GetConstantBufferByIndex( i32 rid );
+		VertexBufferDX11*			GetVertexBufferByIndex( i32 rid );
+		IndexBufferDX11*			GetIndexBufferByIndex( i32 rid );
+		ByteAddressBufferDX11*		GetByteAddressBufferByIndex( i32 rid );
+		IndirectArgsBufferDX11*		GetIndirectArgsBufferByIndex( i32 rid );
+		StructuredBufferDX11*		GetStructuredBufferByIndex( i32 rid );
 
 		// Resource view accessors
 
-		RenderTargetViewDX11&		GetRenderTargetViewByIndex( int rid );
-		DepthStencilViewDX11&		GetDepthStencilViewByIndex( int rid );
-		ShaderResourceViewDX11&		GetShaderResourceViewByIndex( int rid );
-		UnorderedAccessViewDX11&	GetUnorderedAccessViewByIndex( int rid );
+		RenderTargetViewDX11&		GetRenderTargetViewByIndex( i32 rid );
+		DepthStencilViewDX11&		GetDepthStencilViewByIndex( i32 rid );
+		ShaderResourceViewDX11&		GetShaderResourceViewByIndex( i32 rid );
+		UnorderedAccessViewDX11&	GetUnorderedAccessViewByIndex( i32 rid );
 
 	protected:
 
-		int							GetUnusedResourceIndex();
-		int							StoreNewResource( ResourceDX11* pResource );
+		i32							GetUnusedResourceIndex();
+		i32							StoreNewResource( ResourceDX11* pResource );
 
 		D3D_FEATURE_LEVEL			m_FeatureLevel;
 

@@ -38,7 +38,7 @@ namespace forward
 
 		Vector3f		m_aPoints[2];
 		float			m_afRayT[2];
-		int				m_iQuantity;
+		i32				m_iQuantity;
 	};
 };
 //--------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ void Plane3f::Normalize()
 {
 	float fMagnitude = static_cast<float>(sqrt(a()*a() + b()*b() + c()*c()));
 
-	for (int i = 0; i < 4; i++)
+	for (i32 i = 0; i < 4; i++)
 	{
         m_fComponents[i] /= fMagnitude;
 	}

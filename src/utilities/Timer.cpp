@@ -62,7 +62,7 @@ void Timer::Reset()
 	m_oneSecondTimePoint = m_startTimePoint;
 }
 
-long long Timer::Runtime()
+i64 Timer::Runtime()
 {
 	auto length = m_currentTimePoint - m_startTimePoint;
 	return chrono::duration_cast<chrono::seconds>(length).count();
@@ -74,17 +74,17 @@ float Timer::Elapsed()
 	return frameTime / 1000.0f;
 }
 
-int Timer::Framerate()
+i32 Timer::Framerate()
 {
 	return m_iFramesPerSecond;
 }
 
-int Timer::MaxFramerate()
+i32 Timer::MaxFramerate()
 {
 	return m_iMaxFramesPerSecond;
 }
 
-int Timer::FrameCount()
+i32 Timer::FrameCount()
 {
 	return m_iFrameCount;
 }

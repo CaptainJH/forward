@@ -32,9 +32,9 @@ namespace forward
 		void SetSisterState( StreamOutputStageStateDX11* pState );
 		void ResetUpdateFlags( );
 
-		int GetBufferCount() const;
+		i32 GetBufferCount() const;
 
-		TStateArrayMonitor< int, 4 >  StreamBuffers;
+		TStateArrayMonitor< i32, 4 >  StreamBuffers;
 		TStateArrayMonitor< u32, 4 > StreamOffsets;
 
 	protected:

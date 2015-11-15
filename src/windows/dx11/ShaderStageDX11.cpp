@@ -14,9 +14,9 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-static void SetToNull( void* pArray, int num )
+static void SetToNull( void* pArray, i32 num )
 {
-    const int ptrSize = sizeof( void* );
+    const i32 ptrSize = sizeof( void* );
     memset( pArray, 0, num * ptrSize );
 }
 //--------------------------------------------------------------------------------

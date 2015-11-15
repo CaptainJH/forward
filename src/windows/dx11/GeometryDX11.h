@@ -46,24 +46,24 @@ namespace forward
 
         VertexElementDX11* GetElement( std::string name );
 		VertexElementDX11* GetElement( std::wstring name );
-		VertexElementDX11* GetElement( int index );
+		VertexElementDX11* GetElement( i32 index );
 
 		u32 GetIndex( u32 index );
 
 		D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveType();
 		void SetPrimitiveType( D3D11_PRIMITIVE_TOPOLOGY type );
 
-		int GetPrimitiveCount();
+		i32 GetPrimitiveCount();
 		u32 GetIndexCount();
 		
-		int GetVertexCount();
+		i32 GetVertexCount();
 		u32 GetElementCount();
-		int GetVertexSize();
+		i32 GetVertexSize();
 
-		int CalculateVertexSize();
-		int CalculateVertexCount();
+		i32 CalculateVertexSize();
+		i32 CalculateVertexCount();
 
-		void GenerateInputLayout( int ShaderID );
+		void GenerateInputLayout( i32 ShaderID );
 
 		void LoadToBuffers( );
 
@@ -79,8 +79,8 @@ namespace forward
 		ResourcePtr m_IB;
 
 		// The size 
-		int m_iVertexSize;
-		int m_iVertexCount;
+		i32 m_iVertexSize;
+		i32 m_iVertexCount;
 
 		// The type of primitives listed in the index buffer
 		D3D11_PRIMITIVE_TOPOLOGY m_ePrimType;

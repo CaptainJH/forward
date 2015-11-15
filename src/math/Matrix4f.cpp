@@ -219,9 +219,9 @@ Matrix4f Matrix4f::Inverse() const
     kInv(3,3) = + m_afEntry[ 8]*fA3 - m_afEntry[ 9]*fA1 + m_afEntry[10]*fA0;
 
     float fInvDet = ((float)1.0)/fDet;
-    for (int iRow = 0; iRow < 4; iRow++)
+    for (i32 iRow = 0; iRow < 4; iRow++)
     {
-        for (int iCol = 0; iCol < 4; iCol++)
+        for (i32 iCol = 0; iCol < 4; iCol++)
             kInv(iRow,iCol) *= fInvDet;
     }
 
@@ -232,7 +232,7 @@ Vector3f Matrix4f::GetBasisX() const
 {
 	Vector3f Basis;
 
-	for (int i = 0; i < 3; i++)
+	for (i32 i = 0; i < 3; i++)
         Basis[i] = m_afEntry[I(0,i)];
 	
 	return( Basis );
@@ -242,7 +242,7 @@ Vector3f Matrix4f::GetBasisY() const
 {
 	Vector3f Basis;
 
-	for (int i = 0; i < 3; i++)
+	for (i32 i = 0; i < 3; i++)
         Basis[i] = m_afEntry[I(1,i)];
 	
 	return( Basis );
@@ -252,7 +252,7 @@ Vector3f Matrix4f::GetBasisZ() const
 {
 	Vector3f Basis;
 
-	for (int i = 0; i < 3; i++)
+	for (i32 i = 0; i < 3; i++)
         Basis[i] = m_afEntry[I(2,i)];
 	
 	return( Basis );
@@ -262,7 +262,7 @@ Vector3f Matrix4f::GetTranslation() const
 {
 	Vector3f Pos;
 
-	for (int i = 0; i < 3; i++)
+	for (i32 i = 0; i < 3; i++)
 		Pos[i] = m_afEntry[I(3,i)];
 
 	return( Pos );
@@ -270,7 +270,7 @@ Vector3f Matrix4f::GetTranslation() const
 //----------------------------------------------------------------------------------------------------
 void Matrix4f::SetTranslation( const Vector3f& Trans )
 {
-	for (int i = 0; i < 3; i++)
+	for (i32 i = 0; i < 3; i++)
 		m_afEntry[I(3,i)] = Trans[i];
 }
 //----------------------------------------------------------------------------------------------------
@@ -287,8 +287,8 @@ Matrix3f Matrix4f::GetRotation() const
 //----------------------------------------------------------------------------------------------------
 void Matrix4f::SetRotation( const Matrix3f& Rot )
 {
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
+	for (i32 i = 0; i < 3; i++)
+		for (i32 j = 0; j < 3; j++)
             m_afEntry[I(i,j)] = Rot[(3*i+j)];
 }
 //----------------------------------------------------------------------------------------------------
@@ -503,22 +503,22 @@ Matrix4f Matrix4f::OrthographicLHMatrix( float zn, float zf, float width, float 
 	return( ret );
 }
 //----------------------------------------------------------------------------------------------------
-float Matrix4f::operator[] ( int iPos ) const
+float Matrix4f::operator[] ( i32 iPos ) const
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------------------------------
-float& Matrix4f::operator[] ( int iPos )
+float& Matrix4f::operator[] ( i32 iPos )
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------------------------------
-float Matrix4f::operator() ( int iRow, int iCol ) const
+float Matrix4f::operator() ( i32 iRow, i32 iCol ) const
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
 //----------------------------------------------------------------------------------------------------
-float& Matrix4f::operator() ( int iRow, int iCol )
+float& Matrix4f::operator() ( i32 iRow, i32 iCol )
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
@@ -537,13 +537,13 @@ Matrix4f Matrix4f::operator* ( const Matrix4f& Matrix ) const
 {
 	Matrix4f mProd;
 
-	for (int iRow = 0; iRow < 4; iRow++)
+	for (i32 iRow = 0; iRow < 4; iRow++)
 	{
-		for (int iCol = 0; iCol < 4; iCol++)
+		for (i32 iCol = 0; iCol < 4; iCol++)
 		{
-			int i = I(iRow, iCol);
+			i32 i = I(iRow, iCol);
 			mProd.m_afEntry[i] = 0.0f;
-			for (int iMid = 0; iMid < 4; iMid++)
+			for (i32 iMid = 0; iMid < 4; iMid++)
 			{
 				mProd.m_afEntry[i] += 
 					m_afEntry[I(iRow, iMid)] * Matrix.m_afEntry[I(iMid, iCol)];
@@ -557,7 +557,7 @@ Matrix4f Matrix4f::operator+ ( const Matrix4f& Matrix ) const
 {
 	Matrix4f mSum;
 
-	for (int i = 0; i < 4*4; i++)
+	for (i32 i = 0; i < 4*4; i++)
 		mSum.m_afEntry[i] = m_afEntry[i] + Matrix.m_afEntry[i];
 
 	return( mSum );
@@ -567,7 +567,7 @@ Matrix4f Matrix4f::operator- ( const Matrix4f& Matrix ) const
 {
 	Matrix4f mDiff;
 
-	for (int i = 0; i < 4*4; i++)
+	for (i32 i = 0; i < 4*4; i++)
 		mDiff.m_afEntry[i] = m_afEntry[i] - Matrix.m_afEntry[i];
 
 	return( mDiff );
@@ -577,7 +577,7 @@ Matrix4f Matrix4f::operator* ( float fScalar ) const
 {
 	Matrix4f mProd;
 
-	for (int i = 0; i < 4*4; i++)
+	for (i32 i = 0; i < 4*4; i++)
 		mProd.m_afEntry[i] = m_afEntry[i] * fScalar;
 
 	return( mProd );
@@ -589,12 +589,12 @@ Matrix4f Matrix4f::operator/ ( float fScalar ) const
 	if (fScalar != 0.0f)
 	{
 		float fInvScalar = 1.0f / fScalar;
-		for (int i = 0; i < 4*4; i++)
+		for (i32 i = 0; i < 4*4; i++)
 			mQuot.m_afEntry[i] = m_afEntry[i] * fInvScalar;
 	}
 	else
 	{
-		for (int i = 0; i < 4*4; i++)
+		for (i32 i = 0; i < 4*4; i++)
 			mQuot.m_afEntry[i] = 0;
 	}
 
@@ -605,7 +605,7 @@ Matrix4f Matrix4f::operator- () const
 {
 	Matrix4f mNeg;
 
-	for ( int i = 0; i < 4*4; i++ )
+	for ( i32 i = 0; i < 4*4; i++ )
 		mNeg.m_afEntry[i] = -m_afEntry[i];
 
 	return( mNeg );
@@ -613,7 +613,7 @@ Matrix4f Matrix4f::operator- () const
 //----------------------------------------------------------------------------------------------------
 Matrix4f& Matrix4f::operator+= (const Matrix4f& Matrix)
 {
-	for ( int i = 0; i < 4*4; i++ )
+	for ( i32 i = 0; i < 4*4; i++ )
 		m_afEntry[i] += Matrix.m_afEntry[i];
 
 	return( *this );
@@ -621,7 +621,7 @@ Matrix4f& Matrix4f::operator+= (const Matrix4f& Matrix)
 //----------------------------------------------------------------------------------------------------
 Matrix4f& Matrix4f::operator-= ( const Matrix4f& Matrix )
 {
-	for ( int i = 0; i < 4*4; i++ )
+	for ( i32 i = 0; i < 4*4; i++ )
 		m_afEntry[i] -= Matrix.m_afEntry[i];
 
 	return( *this );
@@ -629,7 +629,7 @@ Matrix4f& Matrix4f::operator-= ( const Matrix4f& Matrix )
 //----------------------------------------------------------------------------------------------------
 Matrix4f& Matrix4f::operator*= ( float fScalar )
 {
-	for ( int i = 0; i < 4*4; i++ )
+	for ( i32 i = 0; i < 4*4; i++ )
 		m_afEntry[i] *= fScalar;
 
 	return( *this );
@@ -639,13 +639,13 @@ Matrix4f& Matrix4f::operator*= ( const Matrix4f& Matrix )
 {
 	Matrix4f mProd = *this; 
 	
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 4; iCol++ )
+		for ( i32 iCol = 0; iCol < 4; iCol++ )
 		{
-			int i = I(iRow, iCol);
+			i32 i = I(iRow, iCol);
 			m_afEntry[i] = 0.0f;
-			for ( int iMid = 0; iMid < 4; iMid++ )
+			for ( i32 iMid = 0; iMid < 4; iMid++ )
 			{
 				m_afEntry[i] += 
 					mProd.m_afEntry[I(iRow, iMid)] * Matrix.m_afEntry[I(iMid, iCol)];
@@ -660,12 +660,12 @@ Matrix4f& Matrix4f::operator/= ( float fScalar )
 	if ( fScalar != 0.0f )
 	{
 		float fInvScalar = 1.0f / fScalar;	
-		for (int i = 0; i < 4*4; i++)
+		for (i32 i = 0; i < 4*4; i++)
 			m_afEntry[i] *= fInvScalar;
 	}
 	else
 	{
-		for ( int i = 0; i < 4*4; i++ )
+		for ( i32 i = 0; i < 4*4; i++ )
 			m_afEntry[i] = 0;
 	}
 
@@ -679,9 +679,9 @@ void Matrix4f::MakeZero()
 //----------------------------------------------------------------------------------------------------
 void Matrix4f::MakeIdentity()
 {
-	for ( int iRow = 0; iRow < 4; iRow++ ) 
+	for ( i32 iRow = 0; iRow < 4; iRow++ ) 
 	{
-		for ( int iCol = 0; iCol < 4; iCol++ )
+		for ( i32 iCol = 0; iCol < 4; iCol++ )
 		{
 			if ( iRow == iCol )
                 m_afEntry[I(iRow,iCol)] = 1.0f;
@@ -695,9 +695,9 @@ void Matrix4f::MakeTranspose()
 {
 	Matrix4f mTranspose;
 
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 4; iCol++ )
+		for ( i32 iCol = 0; iCol < 4; iCol++ )
 			mTranspose.m_afEntry[I(iRow,iCol)] = m_afEntry[I(iCol,iRow)];
 	}
     
@@ -715,9 +715,9 @@ Matrix4f Matrix4f::Identity()
 {
 	Matrix4f mIdent;
 
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 4; iCol++ )
+		for ( i32 iCol = 0; iCol < 4; iCol++ )
 		{
 			if (iRow == iCol)
                 mIdent.m_afEntry[I(iRow,iCol)] = 1.0f;
@@ -733,9 +733,9 @@ Matrix4f Matrix4f::Transpose()
 {
 	Matrix4f mTranspose;
 
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 4; iCol++ )
+		for ( i32 iCol = 0; iCol < 4; iCol++ )
 			mTranspose.m_afEntry[I(iRow,iCol)] = m_afEntry[I(iCol,iRow)];
 	}
 
@@ -743,7 +743,7 @@ Matrix4f Matrix4f::Transpose()
 
 }
 //----------------------------------------------------------------------------------------------------
-int Matrix4f::I( int iRow, int iCol )
+i32 Matrix4f::I( i32 iRow, i32 iCol )
 {
     return( 4*iRow + iCol );
 }
@@ -751,46 +751,46 @@ int Matrix4f::I( int iRow, int iCol )
 Vector4f Matrix4f::operator* ( const Vector4f& Vector ) const
 {
     Vector4f vProd;
-    for ( int iCol = 0; iCol < 4; iCol++ )
+    for ( i32 iCol = 0; iCol < 4; iCol++ )
     {
         vProd[iCol] = 0.0f;
-        for ( int iRow = 0; iRow < 4; iRow++ )
+        for ( i32 iRow = 0; iRow < 4; iRow++ )
             vProd[iCol] += m_afEntry[I(iRow,iCol)] * Vector[iRow];
     }
     return( vProd );
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix4f::SetRow( int iRow, const Vector4f& Vector )
+void Matrix4f::SetRow( i32 iRow, const Vector4f& Vector )
 {
-	for ( int iCol = 0; iCol < 4; iCol++ )
+	for ( i32 iCol = 0; iCol < 4; iCol++ )
         m_afEntry[I(iRow,iCol)] = Vector[iCol];
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix4f::SetRow( int iRow, const Vector3f& Vector )
+void Matrix4f::SetRow( i32 iRow, const Vector3f& Vector )
 {
-    for ( int iCol = 0; iCol < 3; iCol++ )
+    for ( i32 iCol = 0; iCol < 3; iCol++ )
         m_afEntry[I(iRow,iCol)] = Vector[iCol];
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f Matrix4f::GetRow( int iRow ) const
+Vector4f Matrix4f::GetRow( i32 iRow ) const
 {
 	Vector4f vRow;
-	for ( int iCol = 0; iCol < 4; iCol++ )
+	for ( i32 iCol = 0; iCol < 4; iCol++ )
         vRow[iCol] = m_afEntry[I(iRow,iCol)];
 
 	return( vRow );
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix4f::SetColumn( int iCol, const Vector4f& Vector )
+void Matrix4f::SetColumn( i32 iCol, const Vector4f& Vector )
 {
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
         m_afEntry[I(iRow,iCol)] = Vector[iRow];
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f Matrix4f::GetColumn( int iCol ) const
+Vector4f Matrix4f::GetColumn( i32 iCol ) const
 {
 	Vector4f vCol;
-	for ( int iRow = 0; iRow < 4; iRow++ )
+	for ( i32 iRow = 0; iRow < 4; iRow++ )
 		vCol[iRow] = m_afEntry[I(iRow,iCol)];
 
 	return( vCol );

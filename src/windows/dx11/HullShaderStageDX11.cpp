@@ -43,7 +43,7 @@ void HullStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->HSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void HullStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void HullStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->HSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void HullStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*co
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void HullStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void HullStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->HSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void HullStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*coun
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void HullStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void HullStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->HSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void HullStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int 
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void HullStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, int /*count*/ )
+void HullStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
 	// Do nothing - the hull shader doesn't support UAV's!
 }

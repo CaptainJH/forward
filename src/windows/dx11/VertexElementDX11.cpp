@@ -22,7 +22,7 @@ std::string VertexElementDX11::BoneWeightSemantic = "BONEWEIGHTS";
 std::string VertexElementDX11::TangentSemantic = "TANGENT";
 
 //--------------------------------------------------------------------------------
-VertexElementDX11::VertexElementDX11( int float_tuple, int elementCount )
+VertexElementDX11::VertexElementDX11( i32 float_tuple, i32 elementCount )
 {
 	m_iTuple = float_tuple;
 	m_iCount = elementCount;
@@ -34,62 +34,62 @@ VertexElementDX11::~VertexElementDX11()
 	delete[] m_pfData;
 }
 //--------------------------------------------------------------------------------
-int	VertexElementDX11::SizeInBytes()
+i32	VertexElementDX11::SizeInBytes()
 {
 	return( m_iTuple * sizeof(float) );
 }
 //--------------------------------------------------------------------------------
-int	VertexElementDX11::Tuple()
+i32	VertexElementDX11::Tuple()
 {
 	return( m_iTuple );
 }
 //--------------------------------------------------------------------------------
-int VertexElementDX11::Count()
+i32 VertexElementDX11::Count()
 {
 	return( m_iCount );
 }
 //--------------------------------------------------------------------------------
-float* VertexElementDX11::Get1f( int i )
+float* VertexElementDX11::Get1f( i32 i )
 {
 	return( &m_pfData[ i ] );
 }
 //--------------------------------------------------------------------------------
-Vector2f* VertexElementDX11::Get2f( int i )
+Vector2f* VertexElementDX11::Get2f( i32 i )
 {
 	return( (Vector2f*)&m_pfData[ 2*i ] );
 }
 //--------------------------------------------------------------------------------
-Vector3f* VertexElementDX11::Get3f( int i )
+Vector3f* VertexElementDX11::Get3f( i32 i )
 {
 	return( (Vector3f*)&m_pfData[ 3*i ] );
 }
 //--------------------------------------------------------------------------------
-Vector4f* VertexElementDX11::Get4f( int i )
+Vector4f* VertexElementDX11::Get4f( i32 i )
 {
 	return( (Vector4f*)&m_pfData[ 4*i ] );
 }
 //--------------------------------------------------------------------------------
-int* VertexElementDX11::Get1i( int i )
+i32* VertexElementDX11::Get1i( i32 i )
 {
-	return( (int*)&m_pfData[ i ] );
+	return( (i32*)&m_pfData[ i ] );
 }
 //--------------------------------------------------------------------------------
-u32* VertexElementDX11::Get1ui( int i )
+u32* VertexElementDX11::Get1ui( i32 i )
 {
 	return( (u32*)&m_pfData[ i ] );
 }
 //--------------------------------------------------------------------------------
-float* VertexElementDX11::operator[]( int i )
+float* VertexElementDX11::operator[]( i32 i )
 {
 	return( &m_pfData[ m_iTuple * i ] );
 }
 //--------------------------------------------------------------------------------
-const float* VertexElementDX11::operator[]( int i ) const
+const float* VertexElementDX11::operator[]( i32 i ) const
 {
 	return( &m_pfData[ m_iTuple * i ] );
 }
 //--------------------------------------------------------------------------------
-void* VertexElementDX11::GetPtr( int i )
+void* VertexElementDX11::GetPtr( i32 i )
 {
 	return( &m_pfData[ m_iTuple * i ] );
 }

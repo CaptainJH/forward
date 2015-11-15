@@ -43,7 +43,7 @@ void DomainStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->DSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->DSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void DomainStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->DSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void DomainStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*co
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void DomainStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->DSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void DomainStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, in
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, int /*count*/ )
+void DomainStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
 	// Do nothing - the geometry shader doesn't support UAV's!
 }

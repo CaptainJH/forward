@@ -21,14 +21,14 @@ PipelineExecutorDX11::PipelineExecutorDX11( )
 //--------------------------------------------------------------------------------
 PipelineExecutorDX11::~PipelineExecutorDX11()
 {
-	std::map<int, InputLayoutKey*>::iterator it = m_InputLayouts.begin();
+	std::map<i32, InputLayoutKey*>::iterator it = m_InputLayouts.begin();
 	for( ; it != m_InputLayouts.end(); it++ )
         SAFE_DELETE( (*it).second );
 }
 //--------------------------------------------------------------------------------
-int PipelineExecutorDX11::GetInputLayout( int ShaderID )
+i32 PipelineExecutorDX11::GetInputLayout( i32 ShaderID )
 {
-	int layout = -1;
+	i32 layout = -1;
 
 	// Automatically generate the layout if it doesn't already exist.
 
@@ -41,7 +41,7 @@ int PipelineExecutorDX11::GetInputLayout( int ShaderID )
 	return( layout );
 }
 //--------------------------------------------------------------------------------
-void PipelineExecutorDX11::GenerateInputLayout( int /*ShaderID*/ )
+void PipelineExecutorDX11::GenerateInputLayout( i32 /*ShaderID*/ )
 {
 	// Create the input layout for the given shader index
 

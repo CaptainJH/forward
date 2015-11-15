@@ -20,7 +20,7 @@ void BlendStateConfigDX11::SetDefaults()
 	AlphaToCoverageEnable = false;
 	IndependentBlendEnable = false;
 
-	for ( int i = 0; i < 8; i++ )
+	for ( auto i = 0; i < 8; i++ )
 	{
 		RenderTarget[i].BlendEnable = false;
 		RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;

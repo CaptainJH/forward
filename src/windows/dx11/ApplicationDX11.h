@@ -32,14 +32,14 @@ namespace forward
 	class ApplicationDX11
 	{
 	public:
-		ApplicationDX11(HINSTANCE hInstance, int width=800, int height=600);
+		ApplicationDX11(HINSTANCE hInstance, i32 width=800, i32 height=600);
 		virtual ~ApplicationDX11();
 
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
 		float     AspectRatio()const;
 
-		int Run();
+		i32 Run();
 
 		// Framework methods.  Derived client class overrides these methods to 
 		// implement specific application requirements.
@@ -57,9 +57,9 @@ namespace forward
 		virtual void DrawScene() = 0;
 
 		// Convenience overrides for handling mouse input.
-		virtual void OnMouseDown(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
-		virtual void OnMouseUp(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
-		virtual void OnMouseMove(WPARAM /*btnState*/, int /*x*/, int /*y*/) { }
+		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnMouseMove(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
@@ -92,8 +92,8 @@ namespace forward
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
 		D3D_DRIVER_TYPE md3dDriverType;
-		int mClientWidth;
-		int mClientHeight;
+		i32 mClientWidth;
+		i32 mClientHeight;
 		bool mEnable4xMsaa;
 	};
 

@@ -162,10 +162,10 @@ void Matrix3f::Orthonormalize()
     // where |V| indicates length of vector V and A*B indicates dot
     // product of vectors A and B.
 
-	//(1.0/sqrt((double)fValue))
+	//(1.0/sqrt((f64)fValue))
 
     // compute q0
-    float fInvLength = static_cast<float>(1.0/sqrt((double)(m_afEntry[0]*m_afEntry[0] +
+    float fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[0]*m_afEntry[0] +
         m_afEntry[3]*m_afEntry[3] + m_afEntry[6]*m_afEntry[6])));
 
     m_afEntry[0] *= fInvLength;
@@ -180,7 +180,7 @@ void Matrix3f::Orthonormalize()
     m_afEntry[4] -= fDot0*m_afEntry[3];
     m_afEntry[7] -= fDot0*m_afEntry[6];
 
-    fInvLength = static_cast<float>(1.0/sqrt((double)(m_afEntry[1]*m_afEntry[1] +
+    fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[1]*m_afEntry[1] +
         m_afEntry[4]*m_afEntry[4] + m_afEntry[7]*m_afEntry[7])));
 
     m_afEntry[1] *= fInvLength;
@@ -198,7 +198,7 @@ void Matrix3f::Orthonormalize()
     m_afEntry[5] -= fDot0*m_afEntry[3] + fDot1*m_afEntry[4];
     m_afEntry[8] -= fDot0*m_afEntry[6] + fDot1*m_afEntry[7];
 
-    fInvLength = static_cast<float>(1.0/sqrt((double)(m_afEntry[2]*m_afEntry[2] +
+    fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[2]*m_afEntry[2] +
         m_afEntry[5]*m_afEntry[5] + m_afEntry[8]*m_afEntry[8])));
 
     m_afEntry[2] *= fInvLength;
@@ -206,22 +206,22 @@ void Matrix3f::Orthonormalize()
     m_afEntry[8] *= fInvLength;
 }
 //----------------------------------------------------------------------------
-float Matrix3f::operator[] ( int iPos ) const
+float Matrix3f::operator[] ( i32 iPos ) const
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------
-float& Matrix3f::operator[] ( int iPos )
+float& Matrix3f::operator[] ( i32 iPos )
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------
-float Matrix3f::operator() ( int iRow, int iCol ) const
+float Matrix3f::operator() ( i32 iRow, i32 iCol ) const
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
 //----------------------------------------------------------------------------
-float& Matrix3f::operator() ( int iRow, int iCol )
+float& Matrix3f::operator() ( i32 iRow, i32 iCol )
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
@@ -240,13 +240,13 @@ Matrix3f Matrix3f::operator* ( const Matrix3f& Matrix ) const
 {
 	Matrix3f mProd;
 
-	for ( int iRow = 0; iRow < 3; iRow++ ) 
+	for ( i32 iRow = 0; iRow < 3; iRow++ ) 
 	{
-		for ( int iCol = 0; iCol < 3; iCol++ )
+		for ( i32 iCol = 0; iCol < 3; iCol++ )
 		{
-			int i = I( iRow, iCol );
+			i32 i = I( iRow, iCol );
 			mProd.m_afEntry[i] = 0.0f;
-			for ( int iMid = 0; iMid < 3; iMid++ )
+			for ( i32 iMid = 0; iMid < 3; iMid++ )
 			{
 				mProd.m_afEntry[i] += 
 					m_afEntry[I(iRow, iMid)] * Matrix.m_afEntry[I(iMid, iCol)];
@@ -260,7 +260,7 @@ Matrix3f Matrix3f::operator+ ( const Matrix3f& Matrix ) const
 {
 	Matrix3f mSum;
 
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		mSum.m_afEntry[i] = m_afEntry[i] + Matrix.m_afEntry[i];
 
 	return( mSum );
@@ -270,7 +270,7 @@ Matrix3f Matrix3f::operator- ( const Matrix3f& Matrix ) const
 {
 	Matrix3f mDiff;
 
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		mDiff.m_afEntry[i] = m_afEntry[i] - Matrix.m_afEntry[i];
 
 	return( mDiff );
@@ -280,7 +280,7 @@ Matrix3f Matrix3f::operator* ( float fScalar ) const
 {
 	Matrix3f mProd;
 
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		mProd.m_afEntry[i] = m_afEntry[i] * fScalar;
 
 	return( mProd );
@@ -292,12 +292,12 @@ Matrix3f Matrix3f::operator/ ( float fScalar ) const
 	if ( fScalar != 0.0f )
 	{
 		float fInvScalar = 1.0f / fScalar;
-		for ( int i = 0; i < 3*3; i++ )
+		for ( i32 i = 0; i < 3*3; i++ )
 			mQuot.m_afEntry[i] = m_afEntry[i] * fInvScalar;
 	}
 	else
 	{
-		for ( int i = 0; i < 3*3; i++ )
+		for ( i32 i = 0; i < 3*3; i++ )
 			mQuot.m_afEntry[i] = 0;
 	}
 
@@ -308,7 +308,7 @@ Matrix3f Matrix3f::operator- () const
 {
 	Matrix3f mNeg;
 
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		mNeg.m_afEntry[i] = -m_afEntry[i];
 
 	return( mNeg );
@@ -316,7 +316,7 @@ Matrix3f Matrix3f::operator- () const
 //----------------------------------------------------------------------------------------------------
 Matrix3f& Matrix3f::operator+= ( const Matrix3f& Matrix )
 {
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		m_afEntry[i] += Matrix.m_afEntry[i];
 
 	return( *this );
@@ -324,7 +324,7 @@ Matrix3f& Matrix3f::operator+= ( const Matrix3f& Matrix )
 //----------------------------------------------------------------------------------------------------
 Matrix3f& Matrix3f::operator-= ( const Matrix3f& Matrix )
 {
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		m_afEntry[i] -= Matrix.m_afEntry[i];
 
 	return( *this );
@@ -332,7 +332,7 @@ Matrix3f& Matrix3f::operator-= ( const Matrix3f& Matrix )
 //----------------------------------------------------------------------------------------------------
 Matrix3f& Matrix3f::operator*= ( float fScalar )
 {
-	for ( int i = 0; i < 3*3; i++ )
+	for ( i32 i = 0; i < 3*3; i++ )
 		m_afEntry[i] *= fScalar;
 
 	return( *this );
@@ -342,13 +342,13 @@ Matrix3f& Matrix3f::operator*= ( const Matrix3f& Matrix )
 {
 	Matrix3f mProd = *this; 
 	
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 3; iCol++ )
+		for ( i32 iCol = 0; iCol < 3; iCol++ )
 		{
-			int i = I( iRow, iCol );
+			i32 i = I( iRow, iCol );
 			m_afEntry[i] = 0.0f;
-			for ( int iMid = 0; iMid < 3; iMid++ )
+			for ( i32 iMid = 0; iMid < 3; iMid++ )
 			{
 				m_afEntry[i] += 
 					mProd.m_afEntry[I(iRow, iMid)] * Matrix.m_afEntry[I(iMid, iCol)];
@@ -363,12 +363,12 @@ Matrix3f& Matrix3f::operator/= ( float fScalar )
 	if ( fScalar != 0.0f )
 	{
 		float fInvScalar = 1.0f / fScalar;	
-		for ( int i = 0; i < 3*3; i++ )
+		for ( i32 i = 0; i < 3*3; i++ )
 			m_afEntry[i] *= fInvScalar;
 	}
 	else
 	{
-		for ( int i = 0; i < 3*3; i++ )
+		for ( i32 i = 0; i < 3*3; i++ )
 			m_afEntry[i] = 0;
 	}
 
@@ -382,9 +382,9 @@ void Matrix3f::MakeZero()
 //----------------------------------------------------------------------------------------------------
 void Matrix3f::MakeIdentity()
 {
-	for (int iRow = 0; iRow < 3; iRow++)
+	for (i32 iRow = 0; iRow < 3; iRow++)
 	{
-		for (int iCol = 0; iCol < 3; iCol++)
+		for (i32 iCol = 0; iCol < 3; iCol++)
 		{
 			if (iRow == iCol)
                 m_afEntry[I(iRow,iCol)] = 1.0f;
@@ -398,9 +398,9 @@ void Matrix3f::MakeTranspose()
 {
 	Matrix3f mTranspose;
 
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 3; iCol++ )
+		for ( i32 iCol = 0; iCol < 3; iCol++ )
 			mTranspose.m_afEntry[I(iRow,iCol)] = m_afEntry[I(iCol,iRow)];
 	}
     
@@ -418,9 +418,9 @@ Matrix3f Matrix3f::Identity()
 {
 	Matrix3f mIdent;
 
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 3; iCol++ )
+		for ( i32 iCol = 0; iCol < 3; iCol++ )
 		{
 			if ( iRow == iCol )
                 mIdent.m_afEntry[I(iRow,iCol)] = 1.0f;
@@ -435,15 +435,15 @@ Matrix3f Matrix3f::Transpose()
 {
 	Matrix3f mTranspose;
 
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
 	{
-		for ( int iCol = 0; iCol < 3; iCol++ )
+		for ( i32 iCol = 0; iCol < 3; iCol++ )
 			mTranspose.m_afEntry[I(iRow,iCol)] = m_afEntry[I(iCol,iRow)];
 	}
 	return( mTranspose );
 }
 //----------------------------------------------------------------------------------------------------
-int Matrix3f::I( int iRow, int iCol )
+i32 Matrix3f::I( i32 iRow, i32 iCol )
 {
     return( 3*iRow + iCol );
 }
@@ -451,40 +451,40 @@ int Matrix3f::I( int iRow, int iCol )
 Vector3f Matrix3f::operator* ( const Vector3f& Vector ) const
 {
     Vector3f vProd;
-    for (int iCol = 0; iCol < 3; iCol++)
+    for (i32 iCol = 0; iCol < 3; iCol++)
     {
         vProd[iCol] = 0.0f;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (i32 iRow = 0; iRow < 3; iRow++)
             vProd[iCol] += m_afEntry[I(iRow,iCol)] * Vector[iRow];
     }
     return( vProd );
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::SetRow( int iRow, const Vector3f& Vector )
+void Matrix3f::SetRow( i32 iRow, const Vector3f& Vector )
 {
-	for ( int iCol = 0; iCol < 3; iCol++ )
+	for ( i32 iCol = 0; iCol < 3; iCol++ )
         m_afEntry[I(iRow,iCol)] = Vector[iCol];
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f Matrix3f::GetRow( int iRow ) const
+Vector3f Matrix3f::GetRow( i32 iRow ) const
 {
 	Vector3f vRow;
-	for ( int iCol = 0; iCol < 3; iCol++ )
+	for ( i32 iCol = 0; iCol < 3; iCol++ )
         vRow[iCol] = m_afEntry[I(iRow,iCol)];
 
 	return( vRow );
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::SetColumn( int iCol, const Vector3f& Vector )
+void Matrix3f::SetColumn( i32 iCol, const Vector3f& Vector )
 {
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
         m_afEntry[I(iRow,iCol)] = Vector[iRow];
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f Matrix3f::GetColumn( int iCol ) const
+Vector3f Matrix3f::GetColumn( i32 iCol ) const
 {
 	Vector3f vCol;
-	for ( int iRow = 0; iRow < 3; iRow++ )
+	for ( i32 iRow = 0; iRow < 3; iRow++ )
 		vCol[iRow] = m_afEntry[I(iRow,iCol)];
 
 	return( vCol );

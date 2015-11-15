@@ -5,6 +5,7 @@
 #pragma once
 
 #include <chrono>
+#include "Types.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -16,19 +17,19 @@ namespace forward
 
 		void Tick();
 		void Reset();
-		long long Runtime();  // in second
+		i64 Runtime();  // in second
 		float Elapsed(); // in ms
-		int Framerate();
-		int MaxFramerate();
-		int FrameCount();
+		i32 Framerate();
+		i32 MaxFramerate();
+		i32 FrameCount();
 		float Frametime();	// in second
 
 	private:
 		typedef std::chrono::high_resolution_clock ClockType;
-		int m_iFramesPerSecond;
-		int m_iMaxFramesPerSecond;
-		int m_iFrameCount;
-		int m_iOneSeconedFrameCount;
+		i32 m_iFramesPerSecond;
+		i32 m_iMaxFramesPerSecond;
+		i32 m_iFrameCount;
+		i32 m_iOneSeconedFrameCount;
 		
 		ClockType m_clock;
 		ClockType::duration m_fixedDuration;

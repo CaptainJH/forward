@@ -43,7 +43,7 @@ void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->CSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->CSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->CSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*c
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->CSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	// Here we need to get the start and end slots from both the UAV states and the 
 	// UAV initial counts, and take the superset of those to ensure that all of the

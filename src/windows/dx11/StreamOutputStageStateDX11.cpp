@@ -32,7 +32,7 @@ void StreamOutputStageStateDX11::SetFeautureLevel( D3D_FEATURE_LEVEL level )
 	m_FeatureLevel = level;
 }
 //--------------------------------------------------------------------------------
-int StreamOutputStageStateDX11::GetBufferCount() const
+i32 StreamOutputStageStateDX11::GetBufferCount() const
 {
 	u32 count = 0;
 

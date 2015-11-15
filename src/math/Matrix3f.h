@@ -42,15 +42,15 @@ namespace forward
 		Matrix3f& operator= ( const Matrix3f& Matrix );
 
 		// member access
-		float operator() ( int iRow, int iCol ) const;
-		float& operator() ( int iRow, int iCol );
-		float operator[] ( int iPos ) const;
-		float& operator[] ( int iPos );
+		float operator() ( i32 iRow, i32 iCol ) const;
+		float& operator() ( i32 iRow, i32 iCol );
+		float operator[] ( i32 iPos ) const;
+		float& operator[] ( i32 iPos );
 
-		void SetRow( int iRow, const Vector3f& Vector );
-		Vector3f GetRow( int iRow ) const;
-		void SetColumn( int iCol, const Vector3f& Vector );
-		Vector3f GetColumn( int iCol ) const;
+		void SetRow( i32 iRow, const Vector3f& Vector );
+		Vector3f GetRow( i32 iRow ) const;
+		void SetColumn( i32 iCol, const Vector3f& Vector );
+		Vector3f GetColumn( i32 iCol ) const;
 
 		// comparison
 		bool operator== ( const Matrix3f& Matrix ) const;
@@ -77,7 +77,7 @@ namespace forward
 	protected:
 		float m_afEntry[3*3];
 
-		static int I(int iRow, int iCol); // iRow*N + iCol
+		static i32 I(i32 iRow, i32 iCol); // iRow*N + iCol
 	};
 };
 //----------------------------------------------------------------------------------------------------

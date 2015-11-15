@@ -13,6 +13,9 @@
 #include <thread>
 #include <chrono>
 
+#include "Types.h"
+#include "d3dUtil.h"
+
 // DirectX includes
 #include <d3d11_2.h>
 #include <d3dCompiler.h>
@@ -43,9 +46,6 @@ typedef Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayoutComPtr;
 #define SAFE_DELETE( x ) {if(x){delete (x);(x)=NULL;}}
 #define SAFE_DELETE_ARRAY( x ) {if(x){delete[] (x);(x)=NULL;}}
 
-const int NUM_THREADS = 1;
+const forward::i32 NUM_THREADS = 1;
 
 #endif
-
-#include "Types.h"
-#include "d3dUtil.h"

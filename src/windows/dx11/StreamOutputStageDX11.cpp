@@ -53,7 +53,7 @@ void StreamOutputStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 
 		for ( u32 i = 0; i < sizeof( Buffers ) / sizeof( ID3D11Buffer* ); i++ )
 		{
-			int index = DesiredState.StreamBuffers.GetState( i );
+			i32 index = DesiredState.StreamBuffers.GetState( i );
 
 			VertexBufferDX11* pBuffer = pRenderer->GetVertexBufferByIndex( index );
 

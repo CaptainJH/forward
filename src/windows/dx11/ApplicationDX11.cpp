@@ -26,7 +26,7 @@ MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 	return gApplicationDX11->MsgProc(hwnd, msg, wParam, lParam);
 }
 
-ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, int width, int height)
+ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, i32 width, i32 height)
 	: mhAppInst(hInstance),
 	mMainWndCaption(L"D3D11 Application"),
 	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
@@ -67,7 +67,7 @@ float ApplicationDX11::AspectRatio()const
 	return static_cast<float>(mClientWidth) / mClientHeight;
 }
 
-int ApplicationDX11::Run()
+i32 ApplicationDX11::Run()
 {
 	MSG msg = { 0 };
 
@@ -97,7 +97,7 @@ int ApplicationDX11::Run()
 		}
 	}
 
-	return (int)msg.wParam;
+	return (i32)msg.wParam;
 }
 
 bool ApplicationDX11::Init()
@@ -294,8 +294,8 @@ bool ApplicationDX11::InitMainWindow()
 	// Compute window rectangle dimensions based on requested client area dimensions.
 	RECT R = { 0, 0, mClientWidth, mClientHeight };
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-	int width = R.right - R.left;
-	int height = R.bottom - R.top;
+	i32 width = R.right - R.left;
+	i32 height = R.bottom - R.top;
 
 	mhMainWnd = CreateWindow(L"D3DWndClassName", mMainWndCaption.c_str(),
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mhAppInst, 0);
@@ -384,7 +384,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 
-	int ViewPort = m_pRender->CreateViewPort(viewport);
+	i32 ViewPort = m_pRender->CreateViewPort(viewport);
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, ViewPort);
 

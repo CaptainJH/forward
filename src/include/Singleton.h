@@ -25,8 +25,8 @@ namespace forward
         {
             assert( !msSingleton );
 #if defined( _MSC_VER ) && _MSC_VER < 1200   
-            int offset = (int)(T*)1 - (int)(Singleton <T>*)(T*)1;
-            msSingleton = (T*)((int)this + offset);
+            i32 offset = (i32)(T*)1 - (i32)(Singleton <T>*)(T*)1;
+            msSingleton = (T*)((i32)this + offset);
 #else
             msSingleton = static_cast< T* >( this );
 #endif

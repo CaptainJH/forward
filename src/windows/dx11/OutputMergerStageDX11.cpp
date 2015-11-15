@@ -51,8 +51,8 @@ void OutputMergerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 //--------------------------------------------------------------------------------
 void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext* pContext )
 {
-	int rtvCount = 0;
-	int uavCount = 0;
+	i32 rtvCount = 0;
+	i32 uavCount = 0;
 
 	if ( DesiredState.RenderTargetViews.IsUpdateNeeded() 
 		|| DesiredState.UnorderedAccessViews.IsUpdateNeeded()
@@ -64,7 +64,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 		ID3D11UnorderedAccessView* uavs[D3D11_PS_CS_UAV_REGISTER_COUNT];
 		ID3D11DepthStencilView* dsv = 0;
 
-		for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
+		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
 
 			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( DesiredState.RenderTargetViews.GetState( i ) );
 			rtvs[i] = rtv.m_pRenderTargetView.Get();
@@ -74,7 +74,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			}
 		}
 
-		for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
+		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
 
 			UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( DesiredState.UnorderedAccessViews.GetState( i ) );
 			uavs[i] = uav.m_pUnorderedAccessView.Get();
@@ -95,11 +95,11 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 
 		// TODO: Find a better way to copy the state from desired to current...
 
-		for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
+		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
 			CurrentState.RenderTargetViews.SetState( i, DesiredState.RenderTargetViews.GetState( i ) );
 		}
 
-		for ( int i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
+		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
 			CurrentState.UnorderedAccessViews.SetState( i, DesiredState.UnorderedAccessViews.GetState( i ) );
 			CurrentState.UAVInitialCounts.SetState( i, DesiredState.UAVInitialCounts.GetState( i ) );
 		}

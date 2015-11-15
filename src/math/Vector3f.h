@@ -5,7 +5,7 @@
 #ifndef Vector3f_h
 #define Vector3f_h
 //----------------------------------------------------------------------------------------------------
-
+#include "Types.h"
 //----------------------------------------------------------------------------------------------------
 namespace forward
 {
@@ -39,8 +39,8 @@ namespace forward
 		Vector3f& operator= (const Vector3f& Vector);
 
 		// member access
-		float operator[] (int iPos) const;
-		float& operator[] (int iPos);
+		float operator[] (i32 iPos) const;
+		float& operator[] (i32 iPos);
 
 		// comparison
 		bool operator== ( const Vector3f& Vector ) const;

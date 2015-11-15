@@ -48,7 +48,7 @@ namespace forward
 		//void BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
 		//void BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
 
-		//void BindShader( ShaderType type, int ID, IParameterManager* pParamManager );
+		//void BindShader( ShaderType type, i32 ID, IParameterManager* pParamManager );
 
 
 		// The pipeline state is managed through the following methods.  The user must 
@@ -84,9 +84,9 @@ namespace forward
 		
 		//void Draw( RenderEffectDX11& effect, GeometryPtr chunk, IParameterManager* pParamManager );
 		//void Draw( RenderEffectDX11& effect, ResourcePtr vb, ResourcePtr ib,
-		//			int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
+		//			i32 inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
 		//			u32 vertexStride, u32 numIndices, IParameterManager* pParamManager);
-  //      void DrawNonIndexed( RenderEffectDX11& effect, ResourcePtr vb, int inputLayout, 
+  //      void DrawNonIndexed( RenderEffectDX11& effect, ResourcePtr vb, i32 inputLayout, 
   //                  D3D11_PRIMITIVE_TOPOLOGY primType, u32 vertexStride, u32 vertexCount, 
   //                  u32 startVertexLocation, IParameterManager* pParamManager);
 		//void DrawInstanced( RenderEffectDX11& effect, GeometryPtr chunk,
@@ -94,14 +94,14 @@ namespace forward
 		//					u32 numInstances, IParameterManager* pParamManager );
 		//void DrawInstanced( RenderEffectDX11& effect, ResourcePtr vb,
 		//					D3D11_PRIMITIVE_TOPOLOGY primType, ResourcePtr ib,
-		//					int inputLayout, u32 vertexStride, u32 numIndices,
+		//					i32 inputLayout, u32 vertexStride, u32 numIndices,
 		//					ResourcePtr instanceData, u32 instanceDataStride,
 		//					u32 numInstances, IParameterManager* pParamManager );
 
 		//void Dispatch( RenderEffectDX11& effect, u32 x, u32 y, u32 z, IParameterManager* pParamManager );
 
 		//void DispatchIndirect( RenderEffectDX11& effect, ResourcePtr args, u32 offset, IParameterManager* pParamManager );
-		//void DrawIndirect( RenderEffectDX11& effect, ResourcePtr args, u32 offset, int inputLayout,
+		//void DrawIndirect( RenderEffectDX11& effect, ResourcePtr args, u32 offset, i32 inputLayout,
 		//	D3D11_PRIMITIVE_TOPOLOGY primType, u32 vertexStride, IParameterManager* pParamManager);
 
 
@@ -109,7 +109,7 @@ namespace forward
 		// to be used by the PipelineExecutorDX11 subclasses to invoke the pipeline.
 
 		void Draw( u32 VertexCount, u32 StartVertex );
-		void DrawIndexed( u32 IndexCount, u32 StartIndex, int VertexOffset ); 
+		void DrawIndexed( u32 IndexCount, u32 StartIndex, i32 VertexOffset ); 
 		void DrawIndexedInstanced( u32 IndexCountPerInstance, u32 InstanceCount, u32 StartIndexLocation, INT BaseVertexLocation, u32 StartInstanceLocation );
 		void DrawInstancedIndirect( ID3D11Buffer* argsBuffer, u32 offset );
 
@@ -141,8 +141,8 @@ namespace forward
 		// returned structure provides information about the resource including the pitch and
 		// width to be used in accessing it.
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource( int index, u32 subresource, D3D11_MAP actions, u32 flags );
-		void						UnMapResource( int index, u32 subresource );
+		D3D11_MAPPED_SUBRESOURCE	MapResource( i32 index, u32 subresource, D3D11_MAP actions, u32 flags );
+		void						UnMapResource( i32 index, u32 subresource );
 
 		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourcePtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags );
 		void						UnMapResource( ResourcePtr pGlyphResource, u32 subresource );
@@ -155,7 +155,7 @@ namespace forward
 		// situations one method may or may not be more efficient than the other, so it is
 		// worth trying both to see which is more performant in a given situation.
 
-		void UpdateSubresource( int rid, u32 DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData,
+		void UpdateSubresource( i32 rid, u32 DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData,
 			u32 SrcRowPitch, u32 SrcDepthPitch );
 
 		// Copy from one resource to another resource.  Check the documentation for restrictions
@@ -197,7 +197,7 @@ namespace forward
 		void SetMarker( std::wstring& name );
 
 
-		void SaveTextureScreenShot( int ID, std::wstring filename );
+		void SaveTextureScreenShot( i32 ID, std::wstring filename );
 
 		ID3D11DeviceContext* GetDeviceContext();
 
@@ -207,8 +207,8 @@ namespace forward
 		DeviceContextComPtr			            m_pContext;
 		UserDefinedAnnotationComPtr				m_pAnnotation;
 		
-        static const int                        NumQueries = 3;
-        int                                     m_iCurrentQuery;
+        static const i32                        NumQueries = 3;
+        i32                                     m_iCurrentQuery;
         QueryComPtr					            m_Queries[NumQueries];
 		D3D11_QUERY_DATA_PIPELINE_STATISTICS	m_PipelineStatsData;
 

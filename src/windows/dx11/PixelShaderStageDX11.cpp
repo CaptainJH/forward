@@ -43,7 +43,7 @@ void PixelStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 	pContext->PSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void PixelStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*count*/ )
+void PixelStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->PSSetConstantBuffers(
 		DesiredState.ConstantBuffers.GetStartSlot(),
@@ -51,7 +51,7 @@ void PixelStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, int /*c
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void PixelStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*count*/ )
+void PixelStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->PSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
@@ -59,7 +59,7 @@ void PixelStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, int /*cou
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void PixelStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int /*count*/ )
+void PixelStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
 	pContext->PSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
@@ -67,7 +67,7 @@ void PixelStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, int
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void PixelStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, int /*count*/ )
+void PixelStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
 	// Do nothing - the pixel shader supports UAV's, but the API isn't clear on how to!
 }

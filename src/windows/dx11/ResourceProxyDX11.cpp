@@ -13,7 +13,7 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ResourceProxyDX11::ResourceProxyDX11( int ResourceID, BufferConfigDX11* pConfig, 
+ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, 
                                         RendererDX11* pRenderer, 
                                         ShaderResourceViewConfigDX11* pSRVConfig,
                                         RenderTargetViewConfigDX11* pRTVConfig,
@@ -28,7 +28,7 @@ ResourceProxyDX11::ResourceProxyDX11( int ResourceID, BufferConfigDX11* pConfig,
     *m_pBufferConfig = *pConfig;	
 }
 //--------------------------------------------------------------------------------
-ResourceProxyDX11::ResourceProxyDX11( int ResourceID, Texture1dConfigDX11* pConfig, 
+ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, 
                                      RendererDX11* pRenderer, 
                                      ShaderResourceViewConfigDX11* pSRVConfig,
                                      RenderTargetViewConfigDX11* pRTVConfig,
@@ -43,7 +43,7 @@ ResourceProxyDX11::ResourceProxyDX11( int ResourceID, Texture1dConfigDX11* pConf
     *m_pTexture1dConfig = *pConfig;	
 }
 //--------------------------------------------------------------------------------
-ResourceProxyDX11::ResourceProxyDX11( int ResourceID, Texture2dConfigDX11* pConfig, 
+ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, 
                                      RendererDX11* pRenderer, 
                                      ShaderResourceViewConfigDX11* pSRVConfig,
                                      RenderTargetViewConfigDX11* pRTVConfig,
@@ -59,7 +59,7 @@ ResourceProxyDX11::ResourceProxyDX11( int ResourceID, Texture2dConfigDX11* pConf
     *m_pTexture2dConfig = *pConfig;
 }
 //--------------------------------------------------------------------------------
-ResourceProxyDX11::ResourceProxyDX11( int ResourceID, Texture3dConfigDX11* pConfig,
+ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig,
                                      RendererDX11* pRenderer, 
                                      ShaderResourceViewConfigDX11* pSRVConfig,
                                      RenderTargetViewConfigDX11* pRTVConfig,
@@ -103,7 +103,7 @@ ResourceProxyDX11::~ResourceProxyDX11()
 	SAFE_DELETE( m_pDSVConfig );
 }
 //--------------------------------------------------------------------------------
-void ResourceProxyDX11::CommonConstructor( u32 BindFlags, int ResourceID, RendererDX11* pRenderer, 
+void ResourceProxyDX11::CommonConstructor( u32 BindFlags, i32 ResourceID, RendererDX11* pRenderer, 
                                         ShaderResourceViewConfigDX11* pSRVConfig, 
                                         RenderTargetViewConfigDX11* pRTVConfig, 
                                         UnorderedAccessViewConfigDX11* pUAVConfig, 

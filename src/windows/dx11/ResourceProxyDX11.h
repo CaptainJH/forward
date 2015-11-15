@@ -27,20 +27,20 @@ namespace forward
 	public:
 		ResourceProxyDX11();
 
-		ResourceProxyDX11( int ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer, 
+		ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer, 
                             ShaderResourceViewConfigDX11* pSRVConfig = NULL,
                             RenderTargetViewConfigDX11* pRTVConfig = NULL,
                             UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		ResourceProxyDX11( int ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer, 
+		ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer, 
                             ShaderResourceViewConfigDX11* pSRVConfig = NULL,
                             RenderTargetViewConfigDX11* pRTVConfig = NULL,
                             UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		ResourceProxyDX11( int ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer, 
+		ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer, 
                             ShaderResourceViewConfigDX11* pSRVConfig = NULL,
                             RenderTargetViewConfigDX11* pRTVConfig = NULL,
                             UnorderedAccessViewConfigDX11* pUAVConfig = NULL,
                             DepthStencilViewConfigDX11* pDSVConfig = NULL );
-		ResourceProxyDX11( int ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer, 
+		ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer, 
                             ShaderResourceViewConfigDX11* pSRVConfig = NULL,
                             RenderTargetViewConfigDX11* pRTVConfig = NULL,
                             UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
@@ -49,11 +49,11 @@ namespace forward
 
 	public:
 
-		int						m_iResource;
-		int						m_iResourceSRV;
-		int						m_iResourceRTV;
-		int						m_iResourceDSV;
-		int						m_iResourceUAV;
+		i32						m_iResource;
+		i32						m_iResourceSRV;
+		i32						m_iResourceRTV;
+		i32						m_iResourceDSV;
+		i32						m_iResourceUAV;
 
 		BufferConfigDX11*		        m_pBufferConfig;
 		Texture1dConfigDX11*	        m_pTexture1dConfig;
@@ -68,7 +68,7 @@ namespace forward
 
     protected: 
         
-        void CommonConstructor( u32 BindFlags, int ResourceID, RendererDX11* pRenderer, 
+        void CommonConstructor( u32 BindFlags, i32 ResourceID, RendererDX11* pRenderer, 
                                 ShaderResourceViewConfigDX11* pSRVConfig,
                                 RenderTargetViewConfigDX11* pRTVConfig,
                                 UnorderedAccessViewConfigDX11* pUAVConfig,

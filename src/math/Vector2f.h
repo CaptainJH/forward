@@ -5,7 +5,7 @@
 #ifndef Vector2f_h
 #define Vector2f_h
 //----------------------------------------------------------------------------------------------------
-
+#include "Types.h"
 //----------------------------------------------------------------------------------------------------
 namespace forward
 {
@@ -26,8 +26,8 @@ namespace forward
 		Vector2f& operator= ( const Vector2f& Vector );
 
 		// accessors
-		float operator[] ( int iPos ) const;
-		float& operator[] ( int iPos );
+		float operator[] ( i32 iPos ) const;
+		float& operator[] ( i32 iPos );
 
 		// boolean comparison
 		bool operator== ( const Vector2f& Vector ) const;
