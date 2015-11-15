@@ -30,14 +30,14 @@ namespace forward
 		virtual bool Test();
 		virtual bool Find();
 
-		bool Clip ( float fDenom, float fNumer, float& rfT0, float& rfT1 );
+		bool Clip ( f32 fDenom, f32 fNumer, f32& rfT0, f32& rfT1 );
 
 	public:
 		Ray3f			m_Ray;
 		Box3f			m_Box;
 
 		Vector3f		m_aPoints[2];
-		float			m_afRayT[2];
+		f32			m_afRayT[2];
 		i32				m_iQuantity;
 	};
 };

@@ -31,14 +31,14 @@ bool IntrRay3fSphere3f::Test()
 	Vector3f delta = m_Ray.Origin - m_Sphere.Center;
 
 	// Compare the length of the new vector agains the radius of the sphere
-	float fA0 = delta.Dot( delta ) - m_Sphere.Radius * m_Sphere.Radius;
+	f32 fA0 = delta.Dot( delta ) - m_Sphere.Radius * m_Sphere.Radius;
 
 	// If the radius is larger, then the ray origin is inside the sphere
 	if ( fA0 <= 0.0f )
 		return( true );
 
 	// Test if the ray is pointing in the correct direction
-	float fA1 = m_Ray.Direction.Dot( delta );
+	f32 fA1 = m_Ray.Direction.Dot( delta );
 
 	// If the result is positive, then there is no way for the ray to intersect
 	// the sphere because it is moving away from the sphere center
@@ -54,11 +54,11 @@ bool IntrRay3fSphere3f::Find()
 	Vector3f delta = m_Ray.Origin - m_Sphere.Center;
 
 	// Compare the length of the new vector agains the radius of the sphere
-	float fA0 = delta.Dot( delta ) - m_Sphere.Radius * m_Sphere.Radius;
-	float fA1 = m_Ray.Direction.Dot( delta );
+	f32 fA0 = delta.Dot( delta ) - m_Sphere.Radius * m_Sphere.Radius;
+	f32 fA1 = m_Ray.Direction.Dot( delta );
 
-	float fDiscr;
-	float fRoot;
+	f32 fDiscr;
+	f32 fRoot;
 
 	// If the radius of the sphere is larger than the distance from the ray 
 	// origin to the center of the sphere, then the ray origin is inside the
@@ -69,7 +69,7 @@ bool IntrRay3fSphere3f::Find()
 		m_iQuantity = 1;
 		fDiscr = fA1*fA1 - fA0;
 		
-		fRoot = (float)sqrt( fDiscr );
+		fRoot = (f32)sqrt( fDiscr );
 
 		m_afRayT[0] = -fA1 + fRoot;
 		m_aPoints[0] = m_Ray.Origin + m_Ray.Direction * m_afRayT[0];
@@ -104,7 +104,7 @@ bool IntrRay3fSphere3f::Find()
 	// points.  Find them and store the values.
     else if ( fDiscr >= 0.00000001f )
     {
-        fRoot = (float)sqrt( fDiscr );
+        fRoot = (f32)sqrt( fDiscr );
         m_afRayT[0] = -fA1 - fRoot;
         m_afRayT[1] = -fA1 + fRoot;
         m_aPoints[0] = m_Ray.Origin + m_Ray.Direction * m_afRayT[0];

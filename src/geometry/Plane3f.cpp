@@ -22,7 +22,7 @@ Plane3f::Plane3f()
 	m_fComponents[3] = 0.0f;
 }
 //--------------------------------------------------------------------------------
-Plane3f::Plane3f(float a, float b, float c, float d)
+Plane3f::Plane3f(f32 a, f32 b, f32 c, f32 d)
 {
 	m_fComponents[0] = a;
 	m_fComponents[1] = b;
@@ -36,7 +36,7 @@ Plane3f::~Plane3f()
 //--------------------------------------------------------------------------------
 void Plane3f::Normalize()
 {
-	float fMagnitude = static_cast<float>(sqrt(a()*a() + b()*b() + c()*c()));
+	f32 fMagnitude = static_cast<f32>(sqrt(a()*a() + b()*b() + c()*c()));
 
 	for (i32 i = 0; i < 4; i++)
 	{
@@ -44,7 +44,7 @@ void Plane3f::Normalize()
 	}
 }
 //--------------------------------------------------------------------------------
-float Plane3f::DistanceToPoint( const Vector3f& pt ) const
+f32 Plane3f::DistanceToPoint( const Vector3f& pt ) const
 {
 	return (a() * pt.x +
 			b() * pt.y +
@@ -52,42 +52,42 @@ float Plane3f::DistanceToPoint( const Vector3f& pt ) const
 			d());
 }
 //--------------------------------------------------------------------------------
-float Plane3f::a() const
+f32 Plane3f::a() const
 {
 	return(m_fComponents[0]);
 }
 //--------------------------------------------------------------------------------
-float& Plane3f::a()
+f32& Plane3f::a()
 {
 	return(m_fComponents[0]);
 }
 //--------------------------------------------------------------------------------
-float Plane3f::b() const
+f32 Plane3f::b() const
 {
 	return(m_fComponents[1]);
 }
 //--------------------------------------------------------------------------------
-float& Plane3f::b()
+f32& Plane3f::b()
 {
 	return(m_fComponents[1]);
 }
 //--------------------------------------------------------------------------------
-float Plane3f::c() const
+f32 Plane3f::c() const
 {
 	return(m_fComponents[2]);
 }
 //--------------------------------------------------------------------------------
-float& Plane3f::c()
+f32& Plane3f::c()
 {
 	return(m_fComponents[2]);
 }
 //--------------------------------------------------------------------------------
-float Plane3f::d() const
+f32 Plane3f::d() const
 {
 	return(m_fComponents[3]);
 }
 //--------------------------------------------------------------------------------
-float& Plane3f::d()
+f32& Plane3f::d()
 {
 	return(m_fComponents[3]);
 }

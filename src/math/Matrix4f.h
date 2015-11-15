@@ -21,17 +21,17 @@ namespace forward
 		Matrix4f();
 		Matrix4f( bool bZero );
 		Matrix4f( const Matrix4f& Matrix );
-		Matrix4f( float fM11, float fM12, float fM13, float fM14,
-				   float fM21, float fM22, float fM23, float fM24,
-				   float fM31, float fM32, float fM33, float fM34,
-				   float fM41, float fM42, float fM43, float fM44 );
+		Matrix4f( f32 fM11, f32 fM12, f32 fM13, f32 fM14,
+				   f32 fM21, f32 fM22, f32 fM23, f32 fM24,
+				   f32 fM31, f32 fM32, f32 fM33, f32 fM34,
+				   f32 fM41, f32 fM42, f32 fM43, f32 fM44 );
 		Matrix4f Inverse() const;
 
-		void RotationX( float fRadians );
-		void RotationY( float fRadians );
-		void RotationZ( float fRadians );
-		void Scale( float fScale );
-		void Translate( float fX, float fY, float fZ );
+		void RotationX( f32 fRadians );
+		void RotationY( f32 fRadians );
+		void RotationZ( f32 fRadians );
+		void Scale( f32 fScale );
+		void Translate( f32 fX, f32 fY, f32 fZ );
 
 		Vector3f GetBasisX() const;
 		Vector3f GetBasisY() const;
@@ -43,17 +43,17 @@ namespace forward
 		void SetRotation( const Matrix3f& Rot );
 		void SetTranslation( const Vector3f& Trans );
 
-		static Matrix4f RotationMatrixXYZ( float fRadiansX, float fRadiansY, float fRadiansZ );
-		static Matrix4f RotationMatrixX( float fRadians );
-		static Matrix4f RotationMatrixY( float fRadians );
-		static Matrix4f RotationMatrixZ( float fRadians );
-		static Matrix4f ScaleMatrix( float fScale );
+		static Matrix4f RotationMatrixXYZ( f32 fRadiansX, f32 fRadiansY, f32 fRadiansZ );
+		static Matrix4f RotationMatrixX( f32 fRadians );
+		static Matrix4f RotationMatrixY( f32 fRadians );
+		static Matrix4f RotationMatrixZ( f32 fRadians );
+		static Matrix4f ScaleMatrix( f32 fScale );
 		static Matrix4f ScaleMatrix( const Vector3f& scale );
-		static Matrix4f ScaleMatrixXYZ( float fX, float fY, float fZ );
-		static Matrix4f TranslationMatrix( float fX, float fY, float fZ );
+		static Matrix4f ScaleMatrixXYZ( f32 fX, f32 fY, f32 fZ );
+		static Matrix4f TranslationMatrix( f32 fX, f32 fY, f32 fZ );
 		static Matrix4f LookAtLHMatrix( Vector3f& eye, Vector3f& at, Vector3f& up );
-		static Matrix4f PerspectiveFovLHMatrix( float fovy, float aspect, float zn, float zf );
-		static Matrix4f OrthographicLHMatrix( float zn, float zf, float width, float height );
+		static Matrix4f PerspectiveFovLHMatrix( f32 fovy, f32 aspect, f32 zn, f32 zf );
+		static Matrix4f OrthographicLHMatrix( f32 zn, f32 zf, f32 width, f32 height );
 
 		void MakeZero( );
 		void MakeIdentity( );
@@ -67,10 +67,10 @@ namespace forward
 		Matrix4f& operator= ( const Matrix4f& Matrix );
 
 		// member access
-		float operator() ( i32 iRow, i32 iCol ) const;
-		float& operator() ( i32 iRow, i32 iCol );
-		float operator[] ( i32 iPos ) const;
-		float& operator[] ( i32 iPos );
+		f32 operator() ( i32 iRow, i32 iCol ) const;
+		f32& operator() ( i32 iRow, i32 iCol );
+		f32 operator[] ( i32 iPos ) const;
+		f32& operator[] ( i32 iPos );
 
 		void SetRow( i32 iRow, const Vector4f& Vector );
         void SetRow( i32 iRow, const Vector3f& Vector );		
@@ -86,16 +86,16 @@ namespace forward
 		Matrix4f operator+ ( const Matrix4f& Matrix ) const;
 		Matrix4f operator- ( const Matrix4f& Matrix ) const;
 		Matrix4f operator* ( const Matrix4f& Matrix ) const;
-		Matrix4f operator* ( float fScalar ) const;
-		Matrix4f operator/ ( float fScalar ) const;
+		Matrix4f operator* ( f32 fScalar ) const;
+		Matrix4f operator/ ( f32 fScalar ) const;
 		Matrix4f operator- () const;
 
 		// arithmetic updates
 		Matrix4f& operator+= ( const Matrix4f& Matrix );
 		Matrix4f& operator-= ( const Matrix4f& Matrix );
 		Matrix4f& operator*= ( const Matrix4f& Matrix );
-		Matrix4f& operator*= ( float fScalar );
-		Matrix4f& operator/= ( float fScalar );
+		Matrix4f& operator*= ( f32 fScalar );
+		Matrix4f& operator/= ( f32 fScalar );
 
 		// matrix - vector operations
 		Vector4f operator* ( const Vector4f& V ) const;  // M * v
@@ -122,7 +122,7 @@ namespace forward
 
 
 	protected:
-		float m_afEntry[4*4];
+		f32 m_afEntry[4*4];
 
 		static i32 I(i32 iRow, i32 iCol); // iRow*N + iCol
 	};

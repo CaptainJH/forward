@@ -26,7 +26,7 @@ VertexElementDX11::VertexElementDX11( i32 float_tuple, i32 elementCount )
 {
 	m_iTuple = float_tuple;
 	m_iCount = elementCount;
-	m_pfData = new float[ m_iTuple * m_iCount ];
+	m_pfData = new f32[ m_iTuple * m_iCount ];
 }
 //--------------------------------------------------------------------------------
 VertexElementDX11::~VertexElementDX11()
@@ -36,7 +36,7 @@ VertexElementDX11::~VertexElementDX11()
 //--------------------------------------------------------------------------------
 i32	VertexElementDX11::SizeInBytes()
 {
-	return( m_iTuple * sizeof(float) );
+	return( m_iTuple * sizeof(f32) );
 }
 //--------------------------------------------------------------------------------
 i32	VertexElementDX11::Tuple()
@@ -49,7 +49,7 @@ i32 VertexElementDX11::Count()
 	return( m_iCount );
 }
 //--------------------------------------------------------------------------------
-float* VertexElementDX11::Get1f( i32 i )
+f32* VertexElementDX11::Get1f( i32 i )
 {
 	return( &m_pfData[ i ] );
 }
@@ -79,12 +79,12 @@ u32* VertexElementDX11::Get1ui( i32 i )
 	return( (u32*)&m_pfData[ i ] );
 }
 //--------------------------------------------------------------------------------
-float* VertexElementDX11::operator[]( i32 i )
+f32* VertexElementDX11::operator[]( i32 i )
 {
 	return( &m_pfData[ m_iTuple * i ] );
 }
 //--------------------------------------------------------------------------------
-const float* VertexElementDX11::operator[]( i32 i ) const
+const f32* VertexElementDX11::operator[]( i32 i ) const
 {
 	return( &m_pfData[ m_iTuple * i ] );
 }

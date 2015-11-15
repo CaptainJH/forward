@@ -108,9 +108,9 @@ CompositeShape* CompositeShape::DeepCopy( )
 	return( pCopy );
 }
 //--------------------------------------------------------------------------------
-bool CompositeShape::RayIntersection( const Ray3f& ray, float* fDist )
+bool CompositeShape::RayIntersection( const Ray3f& ray, f32* fDist )
 {
-	//float fMin = 10000000000.0f;
+	//f32 fMin = 10000000000.0f;
 	bool bHit = false;
 
 	for ( auto pShape : m_Shapes )

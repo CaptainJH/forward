@@ -20,7 +20,7 @@ Sphere3f::Sphere3f( )
 	Radius = 0.0f;
 }
 //--------------------------------------------------------------------------------
-Sphere3f::Sphere3f( const Vector3f& center, float radius )
+Sphere3f::Sphere3f( const Vector3f& center, f32 radius )
 {
 	Update( center, radius );
 }
@@ -29,7 +29,7 @@ Sphere3f::~Sphere3f()
 {
 }
 //--------------------------------------------------------------------------------
-void Sphere3f::Update( const Vector3f& center, float radius ) 
+void Sphere3f::Update( const Vector3f& center, f32 radius ) 
 {
 	Center = center;
 	Radius = radius;
@@ -56,7 +56,7 @@ void Sphere3f::UpdateCenter( const Vector3f& center )
 	Center = center;
 }
 //--------------------------------------------------------------------------------
-void Sphere3f::UpdateRadius( float radius )
+void Sphere3f::UpdateRadius( f32 radius )
 {
 	Radius = radius;
 }
@@ -66,14 +66,14 @@ eSHAPE Sphere3f::GetShapeType( ) const
 	return( SPHERE );
 }
 //--------------------------------------------------------------------------------
-void Sphere3f::SamplePosition( Vector3f& position, float theta, float phi ) const
+void Sphere3f::SamplePosition( Vector3f& position, f32 theta, f32 phi ) const
 {
 	position.x = Radius * sinf( phi ) * cosf( theta ) + Center.x;
 	position.y = Radius * cosf( phi ) + Center.y;
 	position.z = Radius * sinf( phi ) * sinf( theta ) + Center.z;
 }
 //--------------------------------------------------------------------------------
-void Sphere3f::SampleNormal( Vector3f& normal, float theta, float phi ) const
+void Sphere3f::SampleNormal( Vector3f& normal, f32 theta, f32 phi ) const
 {
 	normal.x = Radius * sinf( phi ) * cosf( theta );
 	normal.y = Radius * cosf( phi );
@@ -82,7 +82,7 @@ void Sphere3f::SampleNormal( Vector3f& normal, float theta, float phi ) const
 	normal = Vector3f::Normalize( normal );
 }
 //--------------------------------------------------------------------------------
-void Sphere3f::SamplePositionAndNormal( Vector3f& position, Vector3f& normal, float theta, float phi ) const
+void Sphere3f::SamplePositionAndNormal( Vector3f& position, Vector3f& normal, f32 theta, f32 phi ) const
 {
 	normal.x = Radius * sinf( phi ) * cosf( theta );
 	normal.y = Radius * cosf( phi );

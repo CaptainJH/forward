@@ -26,24 +26,24 @@ namespace forward
 	{
 	public:
 		Sphere3f( );
-		Sphere3f( const Vector3f& center, float radius );
+		Sphere3f( const Vector3f& center, f32 radius );
 		virtual ~Sphere3f( );
 
-		void Update( const Vector3f& center, float radius );
+		void Update( const Vector3f& center, f32 radius );
 		void UpdateCenter( const Vector3f& center );
-		void UpdateRadius( float radius );
+		void UpdateRadius( f32 radius );
 
 		bool Intersects( const Sphere3f& test ) const;
 		bool Envelops( const Sphere3f& test ) const;
 
-		void SamplePosition( Vector3f& position, float theta, float phi ) const;
-		void SampleNormal( Vector3f& normal, float theta, float phi ) const;
-		void SamplePositionAndNormal( Vector3f& position, Vector3f& normal, float theta, float phi ) const;
+		void SamplePosition( Vector3f& position, f32 theta, f32 phi ) const;
+		void SampleNormal( Vector3f& normal, f32 theta, f32 phi ) const;
+		void SamplePositionAndNormal( Vector3f& position, Vector3f& normal, f32 theta, f32 phi ) const;
 
 		virtual eSHAPE GetShapeType( ) const;
 
 		Vector3f	Center;
-		float		Radius;
+		f32		Radius;
 	};
 };
 //--------------------------------------------------------------------------------

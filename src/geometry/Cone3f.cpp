@@ -22,7 +22,7 @@ Cone3f::Cone3f( ) :
 {
 }
 //--------------------------------------------------------------------------------
-Cone3f::Cone3f( const Vector3f& p1, float r1, const Vector3f& p2, float r2 ) :
+Cone3f::Cone3f( const Vector3f& p1, f32 r1, const Vector3f& p2, f32 r2 ) :
 	P1( p1 ),
 	P2( p2 ),
 	R1( r1 ),
@@ -39,13 +39,13 @@ eSHAPE Cone3f::GetShapeType( ) const
 	return( CONE );
 }
 //--------------------------------------------------------------------------------
-void Cone3f::SamplePosition( Vector3f& position, float theta, float height ) const
+void Cone3f::SamplePosition( Vector3f& position, f32 theta, f32 height ) const
 {
 	// Define the axis of the cylinder, and find its length.
 
 	Vector3f v = P1 - P2;
 	Vector3f vnorm = Vector3f::Normalize( v );
-	float l = v.Magnitude();
+	f32 l = v.Magnitude();
 
 	Vector3f up = Vector3f( 0.0f, 1.0f, 0.0f );
 
@@ -61,8 +61,8 @@ void Cone3f::SamplePosition( Vector3f& position, float theta, float height ) con
 		unit.Normalize();
 	}
 
-	float slope = ( R2 - R1 ) / l;
-	float radius = R2 + slope * height * l;
+	f32 slope = ( R2 - R1 ) / l;
+	f32 radius = R2 + slope * height * l;
 
 	// Calculate the position, which is a combination of an offset to the p2 endpoint,
 	// shifted along the axis of the cylinder, and a rotated and scaled radius component.
@@ -71,13 +71,13 @@ void Cone3f::SamplePosition( Vector3f& position, float theta, float height ) con
 	position = P2 + ( vnorm * l * height ) + ( r * unit * radius );
 }
 //--------------------------------------------------------------------------------
-void Cone3f::SampleNormal( Vector3f& normal, float theta, float height ) const
+void Cone3f::SampleNormal( Vector3f& normal, f32 theta, f32 height ) const
 {
 	// Define the axis of the cylinder, and find its length.
 
 	Vector3f v = P1 - P2;
 	Vector3f vnorm = Vector3f::Normalize( v );
-	float l = v.Magnitude();
+	f32 l = v.Magnitude();
 
 	Vector3f up = Vector3f( 0.0f, 1.0f, 0.0f );
 
@@ -93,8 +93,8 @@ void Cone3f::SampleNormal( Vector3f& normal, float theta, float height ) const
 		unit.Normalize();
 	}
 
-	float slope = ( R2 - R1 ) / l;
-	float radius = R2 + slope * height * l;
+	f32 slope = ( R2 - R1 ) / l;
+	f32 radius = R2 + slope * height * l;
 
 	// Calculate the position, which is a combination of an offset to the p2 endpoint,
 	// shifted along the axis of the cylinder, and a rotated and scaled radius component.
@@ -107,13 +107,13 @@ void Cone3f::SampleNormal( Vector3f& normal, float theta, float height ) const
 	normal.Normalize();
 }
 //--------------------------------------------------------------------------------
-void Cone3f::SamplePositionAndNormal( Vector3f& position, Vector3f& normal, float theta, float height ) const
+void Cone3f::SamplePositionAndNormal( Vector3f& position, Vector3f& normal, f32 theta, f32 height ) const
 {
 	// Define the axis of the cylinder, and find its length.
 
 	Vector3f v = P1 - P2;
 	Vector3f vnorm = Vector3f::Normalize( v );
-	float l = v.Magnitude();
+	f32 l = v.Magnitude();
 
 	Vector3f up = Vector3f( 0.0f, 1.0f, 0.0f );
 
@@ -129,8 +129,8 @@ void Cone3f::SamplePositionAndNormal( Vector3f& position, Vector3f& normal, floa
 		unit.Normalize();
 	}
 
-	float slope = ( R2 - R1 ) / l;
-	float radius = R2 + slope * height * l;
+	f32 slope = ( R2 - R1 ) / l;
+	f32 radius = R2 + slope * height * l;
 
 	// Calculate the position, which is a combination of an offset to the p2 endpoint,
 	// shifted along the axis of the cylinder, and a rotated and scaled radius component.

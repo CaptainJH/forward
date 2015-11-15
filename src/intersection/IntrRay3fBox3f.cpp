@@ -28,32 +28,32 @@ IntrRay3fBox3f::~IntrRay3fBox3f()
 //--------------------------------------------------------------------------------
 bool IntrRay3fBox3f::Test()
 {
-    float afWdU[3], afAWdU[3], afDdU[3], afADdU[3], afAWxDdU[3], fRhs;
+    f32 afWdU[3], afAWdU[3], afDdU[3], afADdU[3], afAWxDdU[3], fRhs;
 
     Vector3f kDiff = m_Ray.Origin - m_Box.Center;
 
     afWdU[0] = m_Ray.Direction.Dot( m_Box.Axis[0] );
-    afAWdU[0] = (float)fabs(afWdU[0]);
+    afAWdU[0] = (f32)fabs(afWdU[0]);
     afDdU[0] = kDiff.Dot(m_Box.Axis[0]);
-    afADdU[0] = (float)fabs(afDdU[0]);
+    afADdU[0] = (f32)fabs(afDdU[0]);
     if (afADdU[0] > m_Box.Extent[0] && afDdU[0]*afWdU[0] >= 0.0f)
     {
         return false;
     }
 
     afWdU[1] = m_Ray.Direction.Dot(m_Box.Axis[1]);
-    afAWdU[1] = (float)fabs(afWdU[1]);
+    afAWdU[1] = (f32)fabs(afWdU[1]);
     afDdU[1] = kDiff.Dot(m_Box.Axis[1]);
-    afADdU[1] = (float)fabs(afDdU[1]);
+    afADdU[1] = (f32)fabs(afDdU[1]);
     if (afADdU[1] > m_Box.Extent[1] && afDdU[1]*afWdU[1] >= 0.0)
     {
         return false;
     }
 
     afWdU[2] = m_Ray.Direction.Dot(m_Box.Axis[2]);
-    afAWdU[2] = (float)fabs(afWdU[2]);
+    afAWdU[2] = (f32)fabs(afWdU[2]);
     afDdU[2] = kDiff.Dot(m_Box.Axis[2]);
-    afADdU[2] = (float)fabs(afDdU[2]);
+    afADdU[2] = (f32)fabs(afDdU[2]);
     if (afADdU[2] > m_Box.Extent[2] && afDdU[2]*afWdU[2] >= 0.0)
     {
         return false;
@@ -61,21 +61,21 @@ bool IntrRay3fBox3f::Test()
 
     Vector3f kWxD = m_Ray.Direction.Cross( kDiff );
 
-    afAWxDdU[0] = (float)fabs(kWxD.Dot(m_Box.Axis[0]));
+    afAWxDdU[0] = (f32)fabs(kWxD.Dot(m_Box.Axis[0]));
     fRhs = m_Box.Extent[1]*afAWdU[2] + m_Box.Extent[2]*afAWdU[1];
     if (afAWxDdU[0] > fRhs)
     {
         return false;
     }
 
-    afAWxDdU[1] = (float)fabs(kWxD.Dot(m_Box.Axis[1]));
+    afAWxDdU[1] = (f32)fabs(kWxD.Dot(m_Box.Axis[1]));
     fRhs = m_Box.Extent[0]*afAWdU[2] + m_Box.Extent[2]*afAWdU[0];
     if (afAWxDdU[1] > fRhs)
     {
         return false;
     }
 
-    afAWxDdU[2] = (float)fabs(kWxD.Dot(m_Box.Axis[2]));
+    afAWxDdU[2] = (f32)fabs(kWxD.Dot(m_Box.Axis[2]));
     fRhs = m_Box.Extent[0]*afAWdU[1] + m_Box.Extent[1]*afAWdU[0];
     if (afAWxDdU[2] > fRhs)
     {
@@ -87,8 +87,8 @@ bool IntrRay3fBox3f::Test()
 //--------------------------------------------------------------------------------
 bool IntrRay3fBox3f::Find()
 {
-	float fT0 = 0.0f;
-	float fT1 = 10000000000.0f;
+	f32 fT0 = 0.0f;
+	f32 fT1 = 10000000000.0f;
 
     // convert linear component to box coordinates
     Vector3f kDiff = m_Ray.Origin - m_Box.Center;
@@ -105,7 +105,7 @@ bool IntrRay3fBox3f::Find()
         m_Ray.Direction.Dot(m_Box.Axis[2])
     );
 
-    float fSaveT0 = fT0, fSaveT1 = fT1;
+    f32 fSaveT0 = fT0, fSaveT1 = fT1;
 	fSaveT0; fSaveT1;
 
 	bool bNotAllClipped =
@@ -144,7 +144,7 @@ bool IntrRay3fBox3f::Find()
     return( m_iQuantity > 0 );
 }
 //--------------------------------------------------------------------------------
-bool IntrRay3fBox3f::Clip ( float fDenom, float fNumer, float& rfT0, float& rfT1 )
+bool IntrRay3fBox3f::Clip ( f32 fDenom, f32 fNumer, f32& rfT0, f32& rfT1 )
 {
     // Return value is 'true' if line segment intersects the current test
     // plane.  Otherwise 'false' is returned in which case the line segment

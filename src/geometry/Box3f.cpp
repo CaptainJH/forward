@@ -18,7 +18,7 @@ Box3f::Box3f()
 }
 //--------------------------------------------------------------------------------
 Box3f::Box3f( const Vector3f& center, const Vector3f& forward, const Vector3f& up, 
-			const Vector3f& right, float fextents, float uextents, float rextents )
+			const Vector3f& right, f32 fextents, f32 uextents, f32 rextents )
 {
 	Center = center;
 

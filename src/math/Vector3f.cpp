@@ -12,7 +12,7 @@ Vector3f::Vector3f( )
 {
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f::Vector3f( float X, float Y, float Z )
+Vector3f::Vector3f( f32 X, f32 Y, f32 Z )
 {
 	x = X;
 	y = Y;
@@ -35,19 +35,19 @@ void Vector3f::MakeZero( )
 //----------------------------------------------------------------------------------------------------
 void Vector3f::Normalize( )
 {
-	float Mag = Magnitude();
+	f32 Mag = Magnitude();
 	if ( 0.0f == Mag ) Mag = 0.0001f;
 
-	float fInvMag = ( 1.0f / Mag );
+	f32 fInvMag = ( 1.0f / Mag );
 
 	x *= fInvMag;
 	y *= fInvMag;
 	z *= fInvMag;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::Magnitude( )
+f32 Vector3f::Magnitude( )
 {
-	float fLength = 0.0f;
+	f32 fLength = 0.0f;
 
 	fLength += x * x;
 	fLength += y * y;
@@ -58,10 +58,10 @@ float Vector3f::Magnitude( )
 //----------------------------------------------------------------------------------------------------
 Vector3f Vector3f::Perpendicular( )
 {
-    float xAbs = fabs( x );
-    float yAbs = fabs( y );
-    float zAbs = fabs( z );
-    float minVal = std::min( std::min( xAbs, yAbs ), zAbs );
+    f32 xAbs = fabs( x );
+    f32 yAbs = fabs( y );
+    f32 zAbs = fabs( z );
+    f32 minVal = std::min( std::min( xAbs, yAbs ), zAbs );
 
     if ( xAbs == minVal )
         return Cross( Vector3f( 1.0f, 0.0f, 0.0f ) );
@@ -82,9 +82,9 @@ Vector3f Vector3f::Cross( const Vector3f& Vector ) const
 	return( vRet );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::Dot( const Vector3f& Vector ) const
+f32 Vector3f::Dot( const Vector3f& Vector ) const
 {
-	float ret = 0.0f;
+	f32 ret = 0.0f;
 	
 	ret  = x * Vector.x;
 	ret += y * Vector.y;
@@ -107,9 +107,9 @@ void Vector3f::Clamp()
 //----------------------------------------------------------------------------------------------------
 Vector3f Vector3f::Random( )
 {
-	float x = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
-	float y = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
-	float z = static_cast<float>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	f32 x = static_cast<f32>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	f32 y = static_cast<f32>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
+	f32 z = static_cast<f32>( (f64)rand() / RAND_MAX ) * 2.0f - 1.0f;
 	
 	Vector3f random = Vector3f( x, y, z );
 	random.Normalize();
@@ -126,14 +126,14 @@ Vector3f& Vector3f::operator= ( const Vector3f& Vector )
     return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::operator[] ( i32 iPos ) const
+f32 Vector3f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
 	return( z );
 }
 //----------------------------------------------------------------------------
-float& Vector3f::operator[] ( i32 iPos )
+f32& Vector3f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
@@ -180,7 +180,7 @@ Vector3f Vector3f::operator- ( const Vector3f& Vector ) const
 	return( diff );
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f Vector3f::operator* ( float fScalar ) const
+Vector3f Vector3f::operator* ( f32 fScalar ) const
 {
 	Vector3f prod;
 
@@ -202,12 +202,12 @@ Vector3f Vector3f::operator* ( const Vector3f& Vector ) const
     return( prod );
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f Vector3f::operator/ ( float fScalar ) const
+Vector3f Vector3f::operator/ ( f32 fScalar ) const
 {
 	Vector3f quot;
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;
+		f32 fInvScalar = 1.0f / fScalar;
 		quot.x = x * fInvScalar;
 		quot.y = y * fInvScalar;
 		quot.z = z * fInvScalar;
@@ -259,7 +259,7 @@ Vector3f& Vector3f::operator-= ( const Vector3f& Vector )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f& Vector3f::operator*= ( float fScalar )
+Vector3f& Vector3f::operator*= ( f32 fScalar )
 {
 	x *= fScalar;
 	y *= fScalar;
@@ -277,11 +277,11 @@ Vector3f& Vector3f::operator*= ( const Vector3f& Vector )
     return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector3f& Vector3f::operator/= ( float fScalar )
+Vector3f& Vector3f::operator/= ( f32 fScalar )
 {
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;	
+		f32 fInvScalar = 1.0f / fScalar;	
 		x *= fInvScalar;
 		y *= fInvScalar;
 		z *= fInvScalar;
@@ -315,12 +315,12 @@ Vector3f Vector3f::Cross( const Vector3f& A, const Vector3f& B )
     return A.Cross( B );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::Dot( const Vector3f& A, const Vector3f& B )
+f32 Vector3f::Dot( const Vector3f& A, const Vector3f& B )
 {    
     return A.Dot( B );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector3f::LengthSq( const Vector3f& A )
+f32 Vector3f::LengthSq( const Vector3f& A )
 {
     return Dot(A, A);
 }

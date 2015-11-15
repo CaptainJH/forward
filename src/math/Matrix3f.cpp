@@ -17,17 +17,17 @@ Matrix3f::Matrix3f()
 Matrix3f::Matrix3f( bool bZero )
 {
 	if ( bZero )
-		memset( m_afEntry, 0, 3*3*sizeof(float) );
+		memset( m_afEntry, 0, 3*3*sizeof(f32) );
 }
 //----------------------------------------------------------------------------------------------------
 Matrix3f::Matrix3f( const Matrix3f& Matrix )
 {
-    memcpy( m_afEntry, (void*)&Matrix, 9*sizeof(float) );
+    memcpy( m_afEntry, (void*)&Matrix, 9*sizeof(f32) );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix3f::Matrix3f(	float fM11, float fM12, float fM13,
-						float fM21, float fM22, float fM23,
-						float fM31, float fM32, float fM33 )
+Matrix3f::Matrix3f(	f32 fM11, f32 fM12, f32 fM13,
+						f32 fM21, f32 fM22, f32 fM23,
+						f32 fM31, f32 fM32, f32 fM33 )
 {
 	m_afEntry[0] = fM11;
 	m_afEntry[1] = fM12;
@@ -44,14 +44,14 @@ Matrix3f::Matrix3f(	float fM11, float fM12, float fM13,
 //----------------------------------------------------------------------------------------------------
 Matrix3f& Matrix3f::operator= ( const Matrix3f& Matrix )
 {
-    memcpy( m_afEntry, Matrix.m_afEntry, 9*sizeof(float) );
+    memcpy( m_afEntry, Matrix.m_afEntry, 9*sizeof(f32) );
     return *this;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationX( float fRadians )
+void Matrix3f::RotationX( f32 fRadians )
 {
-    float fSin = sinf( fRadians );
-	float fCos = cosf( fRadians );
+    f32 fSin = sinf( fRadians );
+	f32 fCos = cosf( fRadians );
 
 	m_afEntry[ 0] = 1.0f;
 	m_afEntry[ 1] = 0.0f;
@@ -66,10 +66,10 @@ void Matrix3f::RotationX( float fRadians )
 	m_afEntry[ 8] = fCos;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationY( float fRadians )
+void Matrix3f::RotationY( f32 fRadians )
 {
-	float fSin = sinf( fRadians );
-	float fCos = cosf( fRadians );
+	f32 fSin = sinf( fRadians );
+	f32 fCos = cosf( fRadians );
 
 	m_afEntry[ 0] = fCos;
 	m_afEntry[ 1] = 0.0f;
@@ -84,10 +84,10 @@ void Matrix3f::RotationY( float fRadians )
 	m_afEntry[ 8] = fCos;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationZ( float fRadians )
+void Matrix3f::RotationZ( f32 fRadians )
 {
-	float fSin = sinf( fRadians );
-	float fCos = cosf( fRadians );
+	f32 fSin = sinf( fRadians );
+	f32 fCos = cosf( fRadians );
 
 	m_afEntry[ 0] = fCos;
 	m_afEntry[ 1] = fSin;
@@ -128,11 +128,11 @@ void Matrix3f::RotationZYX( Vector3f& Rot )
 	*this = mRot1;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationEuler( Vector3f& Axis, float Angle )
+void Matrix3f::RotationEuler( Vector3f& Axis, f32 Angle )
 {
-	float s = sinf( Angle );
-	float c = cosf( Angle );
-	float t = 1 - c;
+	f32 s = sinf( Angle );
+	f32 c = cosf( Angle );
+	f32 t = 1 - c;
 
 	m_afEntry[0] = t*Axis.x*Axis.x + c;
 	m_afEntry[1] = t*Axis.x*Axis.y + s*Axis.z;
@@ -165,7 +165,7 @@ void Matrix3f::Orthonormalize()
 	//(1.0/sqrt((f64)fValue))
 
     // compute q0
-    float fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[0]*m_afEntry[0] +
+    f32 fInvLength = static_cast<f32>(1.0/sqrt((f64)(m_afEntry[0]*m_afEntry[0] +
         m_afEntry[3]*m_afEntry[3] + m_afEntry[6]*m_afEntry[6])));
 
     m_afEntry[0] *= fInvLength;
@@ -173,14 +173,14 @@ void Matrix3f::Orthonormalize()
     m_afEntry[6] *= fInvLength;
 
     // compute q1
-    float fDot0 = m_afEntry[0]*m_afEntry[1] + m_afEntry[3]*m_afEntry[4] +
+    f32 fDot0 = m_afEntry[0]*m_afEntry[1] + m_afEntry[3]*m_afEntry[4] +
         m_afEntry[6]*m_afEntry[7];
 
     m_afEntry[1] -= fDot0*m_afEntry[0];
     m_afEntry[4] -= fDot0*m_afEntry[3];
     m_afEntry[7] -= fDot0*m_afEntry[6];
 
-    fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[1]*m_afEntry[1] +
+    fInvLength = static_cast<f32>(1.0/sqrt((f64)(m_afEntry[1]*m_afEntry[1] +
         m_afEntry[4]*m_afEntry[4] + m_afEntry[7]*m_afEntry[7])));
 
     m_afEntry[1] *= fInvLength;
@@ -188,7 +188,7 @@ void Matrix3f::Orthonormalize()
     m_afEntry[7] *= fInvLength;
 
     // compute q2
-    float fDot1 = m_afEntry[1]*m_afEntry[2] + m_afEntry[4]*m_afEntry[5] +
+    f32 fDot1 = m_afEntry[1]*m_afEntry[2] + m_afEntry[4]*m_afEntry[5] +
         m_afEntry[7]*m_afEntry[8];
 
     fDot0 = m_afEntry[0]*m_afEntry[2] + m_afEntry[3]*m_afEntry[5] +
@@ -198,7 +198,7 @@ void Matrix3f::Orthonormalize()
     m_afEntry[5] -= fDot0*m_afEntry[3] + fDot1*m_afEntry[4];
     m_afEntry[8] -= fDot0*m_afEntry[6] + fDot1*m_afEntry[7];
 
-    fInvLength = static_cast<float>(1.0/sqrt((f64)(m_afEntry[2]*m_afEntry[2] +
+    fInvLength = static_cast<f32>(1.0/sqrt((f64)(m_afEntry[2]*m_afEntry[2] +
         m_afEntry[5]*m_afEntry[5] + m_afEntry[8]*m_afEntry[8])));
 
     m_afEntry[2] *= fInvLength;
@@ -206,34 +206,34 @@ void Matrix3f::Orthonormalize()
     m_afEntry[8] *= fInvLength;
 }
 //----------------------------------------------------------------------------
-float Matrix3f::operator[] ( i32 iPos ) const
+f32 Matrix3f::operator[] ( i32 iPos ) const
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------
-float& Matrix3f::operator[] ( i32 iPos )
+f32& Matrix3f::operator[] ( i32 iPos )
 {
     return( m_afEntry[iPos] );
 }
 //----------------------------------------------------------------------------
-float Matrix3f::operator() ( i32 iRow, i32 iCol ) const
+f32 Matrix3f::operator() ( i32 iRow, i32 iCol ) const
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
 //----------------------------------------------------------------------------
-float& Matrix3f::operator() ( i32 iRow, i32 iCol )
+f32& Matrix3f::operator() ( i32 iRow, i32 iCol )
 {
     return( m_afEntry[I(iRow,iCol)] );
 }
 //----------------------------------------------------------------------------
 bool Matrix3f::operator== ( const Matrix3f& Matrix ) const
 {
-    return( memcmp( m_afEntry, Matrix.m_afEntry, 3*3*sizeof(float) ) == 0 );
+    return( memcmp( m_afEntry, Matrix.m_afEntry, 3*3*sizeof(f32) ) == 0 );
 }
 //----------------------------------------------------------------------------------------------------
 bool Matrix3f::operator!= ( const Matrix3f& Matrix ) const
 {
-    return( memcmp( m_afEntry, Matrix.m_afEntry, 3*3*sizeof(float) ) != 0 );
+    return( memcmp( m_afEntry, Matrix.m_afEntry, 3*3*sizeof(f32) ) != 0 );
 }
 //----------------------------------------------------------------------------------------------------
 Matrix3f Matrix3f::operator* ( const Matrix3f& Matrix ) const
@@ -276,7 +276,7 @@ Matrix3f Matrix3f::operator- ( const Matrix3f& Matrix ) const
 	return( mDiff );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix3f Matrix3f::operator* ( float fScalar ) const
+Matrix3f Matrix3f::operator* ( f32 fScalar ) const
 {
 	Matrix3f mProd;
 
@@ -286,12 +286,12 @@ Matrix3f Matrix3f::operator* ( float fScalar ) const
 	return( mProd );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix3f Matrix3f::operator/ ( float fScalar ) const
+Matrix3f Matrix3f::operator/ ( f32 fScalar ) const
 {
 	Matrix3f mQuot;
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;
+		f32 fInvScalar = 1.0f / fScalar;
 		for ( i32 i = 0; i < 3*3; i++ )
 			mQuot.m_afEntry[i] = m_afEntry[i] * fInvScalar;
 	}
@@ -330,7 +330,7 @@ Matrix3f& Matrix3f::operator-= ( const Matrix3f& Matrix )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix3f& Matrix3f::operator*= ( float fScalar )
+Matrix3f& Matrix3f::operator*= ( f32 fScalar )
 {
 	for ( i32 i = 0; i < 3*3; i++ )
 		m_afEntry[i] *= fScalar;
@@ -358,11 +358,11 @@ Matrix3f& Matrix3f::operator*= ( const Matrix3f& Matrix )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix3f& Matrix3f::operator/= ( float fScalar )
+Matrix3f& Matrix3f::operator/= ( f32 fScalar )
 {
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;	
+		f32 fInvScalar = 1.0f / fScalar;	
 		for ( i32 i = 0; i < 3*3; i++ )
 			m_afEntry[i] *= fInvScalar;
 	}
@@ -377,7 +377,7 @@ Matrix3f& Matrix3f::operator/= ( float fScalar )
 //----------------------------------------------------------------------------------------------------
 void Matrix3f::MakeZero()
 {
-	memset( m_afEntry,0,3*3*sizeof(float) );
+	memset( m_afEntry,0,3*3*sizeof(f32) );
 }
 //----------------------------------------------------------------------------------------------------
 void Matrix3f::MakeIdentity()
@@ -404,7 +404,7 @@ void Matrix3f::MakeTranspose()
 			mTranspose.m_afEntry[I(iRow,iCol)] = m_afEntry[I(iCol,iRow)];
 	}
     
-	memcpy( m_afEntry, mTranspose.m_afEntry, 3*3*sizeof(float) );
+	memcpy( m_afEntry, mTranspose.m_afEntry, 3*3*sizeof(f32) );
 }
 //----------------------------------------------------------------------------------------------------
 Matrix3f Matrix3f::Zero()

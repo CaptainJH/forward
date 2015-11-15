@@ -18,11 +18,11 @@ namespace forward
 		void Tick();
 		void Reset();
 		i64 Runtime();  // in second
-		float Elapsed(); // in ms
+		f32 Elapsed(); // in ms
 		i32 Framerate();
 		i32 MaxFramerate();
 		i32 FrameCount();
-		float Frametime();	// in second
+		f32 Frametime();	// in second
 
 	private:
 		typedef std::chrono::high_resolution_clock ClockType;

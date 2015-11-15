@@ -12,7 +12,7 @@ Vector2f::Vector2f( )
 {
 }
 //----------------------------------------------------------------------------------------------------
-Vector2f::Vector2f( float X, float Y )
+Vector2f::Vector2f( f32 X, f32 Y )
 {
 	x = X;
 	y = Y;
@@ -40,15 +40,15 @@ void Vector2f::MakeZero( )
 //----------------------------------------------------------------------------------------------------
 void Vector2f::Normalize( )
 {
-	float fInvMag = ( 1.0f / Magnitude() );
+	f32 fInvMag = ( 1.0f / Magnitude() );
 
 	x *= fInvMag;
 	y *= fInvMag;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector2f::Magnitude( )
+f32 Vector2f::Magnitude( )
 {
-	float fLength = 0.0f;
+	f32 fLength = 0.0f;
 
 	fLength += x * x;
 	fLength += y * y;
@@ -65,13 +65,13 @@ void Vector2f::Clamp()
 	if ( y < 0.0f ) y = 0.0f;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector2f::operator[] ( i32 iPos ) const
+f32 Vector2f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	return( y );
 }
 //----------------------------------------------------------------------------
-float& Vector2f::operator[] ( i32 iPos )
+f32& Vector2f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	return( y );
@@ -122,7 +122,7 @@ Vector2f Vector2f::operator* ( const Vector2f& Vector ) const
 	return( prod );
 }
 //----------------------------------------------------------------------------------------------------
-Vector2f Vector2f::operator* ( float fScalar ) const
+Vector2f Vector2f::operator* ( f32 fScalar ) const
 {
 	Vector2f prod;
 
@@ -132,12 +132,12 @@ Vector2f Vector2f::operator* ( float fScalar ) const
 	return( prod );
 }
 //----------------------------------------------------------------------------------------------------
-Vector2f Vector2f::operator/ ( float fScalar ) const
+Vector2f Vector2f::operator/ ( f32 fScalar ) const
 {
 	Vector2f quot;
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;
+		f32 fInvScalar = 1.0f / fScalar;
 		quot.x = x * fInvScalar;
 		quot.y = y * fInvScalar;
 	}
@@ -175,7 +175,7 @@ Vector2f& Vector2f::operator-= ( const Vector2f& Vector )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector2f& Vector2f::operator*= ( float fScalar )
+Vector2f& Vector2f::operator*= ( f32 fScalar )
 {
 	x *= fScalar;
 	y *= fScalar;
@@ -183,11 +183,11 @@ Vector2f& Vector2f::operator*= ( float fScalar )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector2f& Vector2f::operator/= ( float fScalar )
+Vector2f& Vector2f::operator/= ( f32 fScalar )
 {
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;	
+		f32 fInvScalar = 1.0f / fScalar;	
 		x *= fInvScalar;
 		y *= fInvScalar;
 	}

@@ -37,7 +37,7 @@ namespace forward
 
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
-		float     AspectRatio()const;
+		f32     AspectRatio()const;
 
 		i32 Run();
 
@@ -53,7 +53,7 @@ namespace forward
 
 
 	protected:
-		virtual void UpdateScene(float dt) = 0;
+		virtual void UpdateScene(f32 dt) = 0;
 		virtual void DrawScene() = 0;
 
 		// Convenience overrides for handling mouse input.

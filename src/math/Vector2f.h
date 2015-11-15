@@ -13,21 +13,21 @@ namespace forward
 	{
 	public:
 		Vector2f( );
-		Vector2f( float x, float y );
+		Vector2f( f32 x, f32 y );
 		Vector2f( const Vector2f& Vector );
 
 		// vector operations
 		void Clamp( );
 		void MakeZero( );
 		void Normalize( );
-		float Magnitude( );
+		f32 Magnitude( );
 
 		// assignment
 		Vector2f& operator= ( const Vector2f& Vector );
 
 		// accessors
-		float operator[] ( i32 iPos ) const;
-		float& operator[] ( i32 iPos );
+		f32 operator[] ( i32 iPos ) const;
+		f32& operator[] ( i32 iPos );
 
 		// boolean comparison
 		bool operator== ( const Vector2f& Vector ) const;
@@ -37,19 +37,19 @@ namespace forward
 		Vector2f operator+ ( const Vector2f& Vector ) const;
 		Vector2f operator- ( const Vector2f& Vector ) const;
 		Vector2f operator* ( const Vector2f& Vector ) const;
-		Vector2f operator* ( float fScalar ) const;
-		Vector2f operator/ ( float fScalar ) const;
+		Vector2f operator* ( f32 fScalar ) const;
+		Vector2f operator/ ( f32 fScalar ) const;
 		Vector2f operator- ( ) const;
 
 		// arithmetic updates
 		Vector2f& operator+= ( const Vector2f& Vector );
 		Vector2f& operator-= ( const Vector2f& Vector );
-		Vector2f& operator*= ( float fScalar );
-		Vector2f& operator/= ( float fScalar );
+		Vector2f& operator*= ( f32 fScalar );
+		Vector2f& operator/= ( f32 fScalar );
 
 	public:
-		float x;
-		float y;
+		f32 x;
+		f32 y;
 	};
 };
 //----------------------------------------------------------------------------------------------------

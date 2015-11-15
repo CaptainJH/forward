@@ -112,7 +112,7 @@ bool Frustum3f::Test( const Sphere3f& TestSphere ) const
 {
 	// Test the center against each plane and compare the radius
 	
-	float fTemp = 0.0f;
+	f32 fTemp = 0.0f;
 	
 	for (i32 i = 0; i < 6; i++)
 	{
@@ -120,7 +120,7 @@ bool Frustum3f::Test( const Sphere3f& TestSphere ) const
 		if ( fTemp < -TestSphere.Radius )
 			return( false );
 
-		if ( float(fabs(fTemp)) < TestSphere.Radius )
+		if ( f32(fabs(fTemp)) < TestSphere.Radius )
 			return( true );
 	}
 

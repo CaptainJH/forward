@@ -13,23 +13,23 @@ namespace forward
 	{
 	public:
 		Vector3f( );
-		Vector3f( float x, float y, float z );
+		Vector3f( f32 x, f32 y, f32 z );
 		Vector3f( const Vector3f& Vector );
 
 		// vector operations
 		void Clamp( );
 		Vector3f Cross( const Vector3f& A ) const;
-		float Dot( const Vector3f& A ) const;
+		f32 Dot( const Vector3f& A ) const;
 		void MakeZero( );
-		float Magnitude( );
+		f32 Magnitude( );
 		void Normalize( );
         Vector3f Perpendicular( );
 
         // static vector ops
         static Vector3f Clamp( const Vector3f& A );
         static Vector3f Cross( const Vector3f& A, const Vector3f& B );
-        static float Dot( const Vector3f& A, const Vector3f& B );
-        static float LengthSq( const Vector3f& A );
+        static f32 Dot( const Vector3f& A, const Vector3f& B );
+        static f32 LengthSq( const Vector3f& A );
 		static Vector3f Normalize( const Vector3f& A );
         static Vector3f Perpendicular( const Vector3f& A );
 		static Vector3f Random( );
@@ -39,8 +39,8 @@ namespace forward
 		Vector3f& operator= (const Vector3f& Vector);
 
 		// member access
-		float operator[] (i32 iPos) const;
-		float& operator[] (i32 iPos);
+		f32 operator[] (i32 iPos) const;
+		f32& operator[] (i32 iPos);
 
 		// comparison
 		bool operator== ( const Vector3f& Vector ) const;
@@ -50,23 +50,23 @@ namespace forward
 		Vector3f operator+ ( const Vector3f& Vector ) const;
 		Vector3f operator- ( const Vector3f& Vector ) const;
         Vector3f operator* ( const Vector3f& Vector ) const;
-		Vector3f operator* ( float fScalar ) const;
+		Vector3f operator* ( f32 fScalar ) const;
         Vector3f operator/ ( const Vector3f& Vector ) const;
-		Vector3f operator/ ( float fScalar ) const;
+		Vector3f operator/ ( f32 fScalar ) const;
 		Vector3f operator- ( ) const;
 
 		// arithmetic updates
 		Vector3f& operator+= ( const Vector3f& Vector );
 		Vector3f& operator-= ( const Vector3f& Vector );
         Vector3f& operator*= ( const Vector3f& Vector );
-		Vector3f& operator*= ( float fScalar );
+		Vector3f& operator*= ( f32 fScalar );
         Vector3f& operator/= ( const Vector3f& Vector );
-		Vector3f& operator/= ( float fScalar );
+		Vector3f& operator/= ( f32 fScalar );
 
 	public:
-		float x;
-		float y;
-		float z;
+		f32 x;
+		f32 y;
+		f32 z;
 	};
 };
 //----------------------------------------------------------------------------------------------------

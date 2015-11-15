@@ -13,7 +13,7 @@ Vector4f::Vector4f( )
 {
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f::Vector4f( float X, float Y, float Z, float W )
+Vector4f::Vector4f( f32 X, f32 Y, f32 Z, f32 W )
 {
 	x = X;
 	y = Y;
@@ -21,7 +21,7 @@ Vector4f::Vector4f( float X, float Y, float Z, float W )
 	w = W;
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f::Vector4f( const Vector3f& Vector, float W )
+Vector4f::Vector4f( const Vector3f& Vector, f32 W )
 {
     x = Vector.x;
     y = Vector.y;
@@ -57,7 +57,7 @@ void Vector4f::MakeZero( )
 //----------------------------------------------------------------------------------------------------
 void Vector4f::Normalize( )
 {
-	float fInvMag = ( 1.0f / Magnitude() );
+	f32 fInvMag = ( 1.0f / Magnitude() );
 
 	x *= fInvMag;
 	y *= fInvMag;
@@ -65,9 +65,9 @@ void Vector4f::Normalize( )
 	w *= fInvMag;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector4f::Magnitude( )
+f32 Vector4f::Magnitude( )
 {
-	float fLength = 0.0f;
+	f32 fLength = 0.0f;
 
 	fLength += x * x;
 	fLength += y * y;
@@ -77,9 +77,9 @@ float Vector4f::Magnitude( )
 	return( sqrt(fLength) );
 }
 //----------------------------------------------------------------------------------------------------
-float Vector4f::Dot( Vector4f& Vector )
+f32 Vector4f::Dot( Vector4f& Vector )
 {
-	float ret = 0.0f;
+	f32 ret = 0.0f;
 	
 	ret += x * Vector.x;
 	ret += y * Vector.y;
@@ -89,7 +89,7 @@ float Vector4f::Dot( Vector4f& Vector )
 	return ret;
 }
 //----------------------------------------------------------------------------------------------------
-float Vector4f::operator[] ( i32 iPos ) const
+f32 Vector4f::operator[] ( i32 iPos ) const
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
@@ -97,7 +97,7 @@ float Vector4f::operator[] ( i32 iPos ) const
 	return( w );
 }
 //----------------------------------------------------------------------------
-float& Vector4f::operator[] ( i32 iPos )
+f32& Vector4f::operator[] ( i32 iPos )
 {
 	if ( iPos == 0 ) return( x );
 	if ( iPos == 1 ) return( y );
@@ -149,7 +149,7 @@ Vector4f Vector4f::operator- ( const Vector4f& Vector ) const
 	return( diff );
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f Vector4f::operator* ( float fScalar ) const
+Vector4f Vector4f::operator* ( f32 fScalar ) const
 {
 	Vector4f prod;
 
@@ -173,12 +173,12 @@ Vector4f Vector4f::operator* ( const Vector4f& Vector ) const
     return( prod );
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f Vector4f::operator/ ( float fScalar ) const
+Vector4f Vector4f::operator/ ( f32 fScalar ) const
 {
 	Vector4f quot;
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;
+		f32 fInvScalar = 1.0f / fScalar;
 		quot.x = x * fInvScalar;
 		quot.y = y * fInvScalar;
 		quot.z = z * fInvScalar;
@@ -235,7 +235,7 @@ Vector4f& Vector4f::operator-= ( const Vector4f& Vector )
 	return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f& Vector4f::operator*= ( float fScalar )
+Vector4f& Vector4f::operator*= ( f32 fScalar )
 {
 	x *= fScalar;
 	y *= fScalar;
@@ -255,11 +255,11 @@ Vector4f& Vector4f::operator*= ( const Vector4f& Vector )
     return( *this );
 }
 //----------------------------------------------------------------------------------------------------
-Vector4f& Vector4f::operator/= ( float fScalar )
+Vector4f& Vector4f::operator/= ( f32 fScalar )
 {
 	if ( fScalar != 0.0f )
 	{
-		float fInvScalar = 1.0f / fScalar;	
+		f32 fInvScalar = 1.0f / fScalar;	
 		x *= fInvScalar;
 		y *= fInvScalar;
 		z *= fInvScalar;
@@ -328,10 +328,10 @@ u32 Vector4f::toRGBA( )
 //----------------------------------------------------------------------------------------------------
 void Vector4f::fromARGB( u32 color )
 {
-	x = (float)((color & 0x00ff0000) >> 16)/(255.0f);	// red channel
-	y = (float)((color & 0x0000ff00) >> 8)/(255.0f);	// green channel
-	z = (float)((color & 0x000000ff))/(255.0f);		// blue channel
-	w = (float)((color & 0xff000000) >> 24)/(255.0f);	// alpha channel
+	x = (f32)((color & 0x00ff0000) >> 16)/(255.0f);	// red channel
+	y = (f32)((color & 0x0000ff00) >> 8)/(255.0f);	// green channel
+	z = (f32)((color & 0x000000ff))/(255.0f);		// blue channel
+	w = (f32)((color & 0xff000000) >> 24)/(255.0f);	// alpha channel
 }
 //----------------------------------------------------------------------------------------------------
 Vector3f Vector4f::xyz() const

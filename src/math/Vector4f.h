@@ -16,23 +16,23 @@ namespace forward
 	{
 	public:
 		Vector4f( );
-		Vector4f( float x, float y, float z, float w );
-        Vector4f( const Vector3f& vector, float w );
+		Vector4f( f32 x, f32 y, f32 z, f32 w );
+        Vector4f( const Vector3f& vector, f32 w );
 		Vector4f( const Vector4f& Vector );
 
 		// vector operations
 		void Clamp( );
-		float Dot( Vector4f& vector );
+		f32 Dot( Vector4f& vector );
 		void MakeZero( );
 		void Normalize( );
-		float Magnitude( );
+		f32 Magnitude( );
 
 		// Operators
 		Vector4f& operator= ( const Vector4f& Vector );
 
 		// member access
-		float operator[] ( i32 iPos ) const;
-		float& operator[] ( i32 iPos );
+		f32 operator[] ( i32 iPos ) const;
+		f32& operator[] ( i32 iPos );
 
 		// comparison
 		bool operator== ( const Vector4f& Vector ) const;
@@ -41,18 +41,18 @@ namespace forward
 		// arithmetic operations
 		Vector4f operator+ ( const Vector4f& Vector ) const;
 		Vector4f operator- ( const Vector4f& Vector ) const;
-		Vector4f operator* ( float fScalar ) const;
+		Vector4f operator* ( f32 fScalar ) const;
         Vector4f operator* ( const Vector4f& Vector ) const;
-		Vector4f operator/ ( float fScalar ) const;
+		Vector4f operator/ ( f32 fScalar ) const;
         Vector4f operator/ ( const Vector4f& Vector ) const;
 		Vector4f operator- ( ) const;
 
 		// arithmetic updates
 		Vector4f& operator+= ( const Vector4f& Vector );
 		Vector4f& operator-= ( const Vector4f& Vector );
-		Vector4f& operator*= ( float fScalar );
+		Vector4f& operator*= ( f32 fScalar );
         Vector4f& operator*= ( const Vector4f& Vector );
-		Vector4f& operator/= ( float fScalar );
+		Vector4f& operator/= ( f32 fScalar );
         Vector4f& operator/= ( const Vector4f& Vector );
 
 		u32 toARGB( );
@@ -63,10 +63,10 @@ namespace forward
 		Vector2f xy() const;
 
 	public:
-		float x;
-		float y;
-		float z;
-		float w;
+		f32 x;
+		f32 y;
+		f32 z;
+		f32 w;
 	};
 };
 //----------------------------------------------------------------------------------------------------

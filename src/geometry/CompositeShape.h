@@ -30,7 +30,7 @@ namespace forward
 		CompositeShape* DeepCopy( );
 
 		void AddShape( Shape3D* pShape );
-		bool RayIntersection( const Ray3f& ray, float* fDist );
+		bool RayIntersection( const Ray3f& ray, f32* fDist );
 
 		i32 GetNumberOfShapes() const;
 

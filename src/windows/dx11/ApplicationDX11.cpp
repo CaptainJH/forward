@@ -62,9 +62,9 @@ HWND ApplicationDX11::MainWnd()const
 	return mhMainWnd;
 }
 
-float ApplicationDX11::AspectRatio()const
+f32 ApplicationDX11::AspectRatio()const
 {
-	return static_cast<float>(mClientWidth) / mClientHeight;
+	return static_cast<f32>(mClientWidth) / mClientHeight;
 }
 
 i32 ApplicationDX11::Run()
@@ -314,7 +314,7 @@ bool ApplicationDX11::InitMainWindow()
 void ApplicationDX11::CalculateFrameStats()
 {
 	auto fps = mTimer.Framerate();
-	float mspf = mTimer.Elapsed();
+	f32 mspf = mTimer.Elapsed();
 
 	std::wostringstream outs;
 	outs.precision(6);
@@ -377,8 +377,8 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	// entire floating point area of the render target.
 
 	D3D11_VIEWPORT viewport;
-	viewport.Width = static_cast< float >(mClientWidth);
-	viewport.Height = static_cast< float >(mClientHeight);
+	viewport.Width = static_cast< f32 >(mClientWidth);
+	viewport.Height = static_cast< f32 >(mClientHeight);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0;

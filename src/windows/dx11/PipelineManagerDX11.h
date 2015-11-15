@@ -135,7 +135,7 @@ namespace forward
 		// Clear buffers does what it says - the currently bound render target views and depth
 		// stencil view are cleared to the provided values.
 
-		void ClearBuffers( Vector4f color, float depth = 1.0f, u32 stencil = 0 );
+		void ClearBuffers( Vector4f color, f32 depth = 1.0f, u32 stencil = 0 );
 		
 		// Resources can be mapped in order to manually modify or read their contents.  The 
 		// returned structure provides information about the resource including the pitch and

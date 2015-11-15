@@ -27,27 +27,27 @@ namespace forward
 	{
 	public:
 		Plane3f( );
-		Plane3f( float a, float b, float c, float d );
+		Plane3f( f32 a, f32 b, f32 c, f32 d );
 		virtual ~Plane3f( );
 
 		// Operations
 		void Normalize();
-		float DistanceToPoint( const Vector3f& pt ) const;
+		f32 DistanceToPoint( const Vector3f& pt ) const;
 
 		// Member Access
-		float a() const;
-		float& a();
-		float b() const;
-		float& b();
-		float c() const;
-		float& c();
-		float d() const;
-		float& d();
+		f32 a() const;
+		f32& a();
+		f32 b() const;
+		f32& b();
+		f32 c() const;
+		f32& c();
+		f32 d() const;
+		f32& d();
 
 		virtual eSHAPE GetShapeType( ) const;
 
 	protected:
-		float m_fComponents[4];
+		f32 m_fComponents[4];
 
 	};
 };

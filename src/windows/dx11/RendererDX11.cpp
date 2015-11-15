@@ -1005,8 +1005,8 @@ void RendererDX11::ResizeViewport( i32 ID, u32 width, u32 height )
 	}
 
 	ViewPortDX11& pViewport = m_vViewPorts[index];
-	pViewport.m_ViewPort.Width = static_cast<float>( width );
-	pViewport.m_ViewPort.Height = static_cast<float>( height );
+	pViewport.m_ViewPort.Width = static_cast<f32>( width );
+	pViewport.m_ViewPort.Height = static_cast<f32>( height );
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function, 
@@ -1394,8 +1394,8 @@ Vector2f RendererDX11::GetDesktopResolution()
 	pDXGIOutput->GetDesc( &desc );
 
 	// Return the current output's resolution from the description.
-	return( Vector2f( static_cast<float>( desc.DesktopCoordinates.right - desc.DesktopCoordinates.left ),
-						static_cast<float>( desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top ) ) );
+	return( Vector2f( static_cast<f32>( desc.DesktopCoordinates.right - desc.DesktopCoordinates.left ),
+						static_cast<f32>( desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top ) ) );
 }
 //--------------------------------------------------------------------------------
 BlendStateComPtr RendererDX11::GetBlendState( i32 index )

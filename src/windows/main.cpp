@@ -28,7 +28,7 @@ public:
 	virtual void OnResize();
 
 protected:
-	virtual void UpdateScene(float dt);
+	virtual void UpdateScene(f32 dt);
 	virtual void DrawScene();
 
 private:
@@ -60,8 +60,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	return theApp.Run();
 }
 
-#pragma warning(disable: 4245)
-void SimpleApp::UpdateScene(float /*dt*/)
+void SimpleApp::UpdateScene(f32 /*dt*/)
 {
 }
 

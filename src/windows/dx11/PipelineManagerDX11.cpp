@@ -563,7 +563,7 @@ void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, u32 offset, Reso
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, u32 stencil )
+void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 {
 	// Get the current render target view and depth stencil view from the OM stage.
     ID3D11RenderTargetView* pRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { NULL };
@@ -579,7 +579,7 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, u32 stencil
 
 	for( u32 i = 0; i < viewCount; ++i )
 	{
-	    float clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
+	    f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 		i32 rtv = OutputMergerStage.GetCurrentState().RenderTargetViews.GetState( i );
 		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( rtv );
 		pRenderTargetViews[i] = RTV.m_pRenderTargetView.Get(); 

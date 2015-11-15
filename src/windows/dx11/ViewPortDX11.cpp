@@ -22,12 +22,12 @@ ViewPortDX11::~ViewPortDX11()
 {
 }
 //--------------------------------------------------------------------------------
-float ViewPortDX11::GetWidth() const
+f32 ViewPortDX11::GetWidth() const
 {
 	return( m_ViewPort.Width );
 }
 //--------------------------------------------------------------------------------
-float ViewPortDX11::GetHeight() const
+f32 ViewPortDX11::GetHeight() const
 {
 	return( m_ViewPort.Height );
 }

@@ -127,7 +127,7 @@ void OutputMergerStageDX11::ApplyDesiredBlendAndDepthStencilStates( ID3D11Device
 
 			// TODO: Add in the blend factors as states to the OutputMergerStageStateDX11 class!
 			if ( pBlendState ) {
-				float afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+				f32 afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 				pContext->OMSetBlendState( pBlendState, afBlendFactors, 0xFFFFFFFF );
 			}
 

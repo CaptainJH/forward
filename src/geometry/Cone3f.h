@@ -27,19 +27,19 @@ namespace forward
 	{
 	public:
 		Cone3f( );
-		Cone3f( const Vector3f& p1, float r1, const Vector3f& p2, float r2 );
+		Cone3f( const Vector3f& p1, f32 r1, const Vector3f& p2, f32 r2 );
 		virtual ~Cone3f( );
 
-		void SamplePosition( Vector3f& position, float theta, float height ) const;
-		void SampleNormal( Vector3f& normal, float theta, float height ) const;
-		void SamplePositionAndNormal( Vector3f& position, Vector3f& normal, float theta, float height ) const;
+		void SamplePosition( Vector3f& position, f32 theta, f32 height ) const;
+		void SampleNormal( Vector3f& normal, f32 theta, f32 height ) const;
+		void SamplePositionAndNormal( Vector3f& position, Vector3f& normal, f32 theta, f32 height ) const;
 
 		virtual eSHAPE GetShapeType( ) const;
 
 		Vector3f	P1;
 		Vector3f	P2;
-		float		R1;
-		float		R2;
+		f32		R1;
+		f32		R2;
 	};
 };
 //--------------------------------------------------------------------------------

@@ -18,16 +18,16 @@ namespace forward
 		Matrix3f( );
 		Matrix3f( bool bZero );
 		Matrix3f( const Matrix3f& Matrix );
-		Matrix3f( float fM11, float fM12, float fM13,
-				   float fM21, float fM22, float fM23,
-				   float fM31, float fM32, float fM33 );
+		Matrix3f( f32 fM11, f32 fM12, f32 fM13,
+				   f32 fM21, f32 fM22, f32 fM23,
+				   f32 fM31, f32 fM32, f32 fM33 );
 		
-		void RotationX( float fRadians );
-		void RotationY( float fRadians );
-		void RotationZ( float fRadians );
+		void RotationX( f32 fRadians );
+		void RotationY( f32 fRadians );
+		void RotationZ( f32 fRadians );
 		void Rotation( Vector3f& Rot );
 		void RotationZYX( Vector3f& Rot );
-		void RotationEuler( Vector3f& Axis, float Angle );
+		void RotationEuler( Vector3f& Axis, f32 Angle );
 		void Orthonormalize();
 
 		void MakeZero();
@@ -42,10 +42,10 @@ namespace forward
 		Matrix3f& operator= ( const Matrix3f& Matrix );
 
 		// member access
-		float operator() ( i32 iRow, i32 iCol ) const;
-		float& operator() ( i32 iRow, i32 iCol );
-		float operator[] ( i32 iPos ) const;
-		float& operator[] ( i32 iPos );
+		f32 operator() ( i32 iRow, i32 iCol ) const;
+		f32& operator() ( i32 iRow, i32 iCol );
+		f32 operator[] ( i32 iPos ) const;
+		f32& operator[] ( i32 iPos );
 
 		void SetRow( i32 iRow, const Vector3f& Vector );
 		Vector3f GetRow( i32 iRow ) const;
@@ -60,22 +60,22 @@ namespace forward
 		Matrix3f operator+ ( const Matrix3f& Matrix ) const;
 		Matrix3f operator- ( const Matrix3f& Matrix ) const;
 		Matrix3f operator* ( const Matrix3f& Matrix ) const;
-		Matrix3f operator* ( float fScalar) const;
-		Matrix3f operator/ ( float fScalar) const;
+		Matrix3f operator* ( f32 fScalar) const;
+		Matrix3f operator/ ( f32 fScalar) const;
 		Matrix3f operator- ( ) const;
 
 		// arithmetic updates
 		Matrix3f& operator+= ( const Matrix3f& Matrix );
 		Matrix3f& operator-= ( const Matrix3f& Matrix );
 		Matrix3f& operator*= ( const Matrix3f& Matrix );
-		Matrix3f& operator*= ( float fScalar );
-		Matrix3f& operator/= ( float fScalar );
+		Matrix3f& operator*= ( f32 fScalar );
+		Matrix3f& operator/= ( f32 fScalar );
 
 		// matrix - vector operations
 		Vector3f operator* ( const Vector3f& rkV ) const;  // M * v
 
 	protected:
-		float m_afEntry[3*3];
+		f32 m_afEntry[3*3];
 
 		static i32 I(i32 iRow, i32 iCol); // iRow*N + iCol
 	};

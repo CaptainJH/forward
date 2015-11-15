@@ -53,7 +53,7 @@ namespace forward
 
 		void*			GetPtr( i32 i );
 
-		float*			Get1f( i32 i );
+		f32*			Get1f( i32 i );
 		Vector2f*		Get2f( i32 i );
 		Vector3f*		Get3f( i32 i );
 		Vector4f*		Get4f( i32 i );
@@ -62,8 +62,8 @@ namespace forward
 
 		u32*	Get1ui( i32 i );
 
-		float*					operator[]( i32 i );
-		const float*			operator[]( i32 i ) const;
+		f32*					operator[]( i32 i );
+		const f32*			operator[]( i32 i ) const;
 
 		std::string						m_SemanticName;
 		u32							m_uiSemanticIndex;
@@ -76,7 +76,7 @@ namespace forward
 	protected:
 		VertexElementDX11();
 
-		float*							m_pfData;
+		f32*							m_pfData;
 		i32								m_iTuple;
 		i32								m_iCount;
 	};

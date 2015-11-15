@@ -68,7 +68,7 @@ i64 Timer::Runtime()
 	return chrono::duration_cast<chrono::seconds>(length).count();
 }
 
-float Timer::Elapsed()
+f32 Timer::Elapsed()
 {
 	auto frameTime = chrono::duration_cast<chrono::microseconds>(m_deltaTime).count();
 	return frameTime / 1000.0f;
@@ -89,7 +89,7 @@ i32 Timer::FrameCount()
 	return m_iFrameCount;
 }
 
-float Timer::Frametime()
+f32 Timer::Frametime()
 {
 	return (1.0f / m_iFramesPerSecond);
 }

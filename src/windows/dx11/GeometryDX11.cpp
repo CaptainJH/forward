@@ -471,19 +471,19 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
         const Vector2f& w2 = *pTexCoordElement->Get2f( i2 );
         const Vector2f& w3 = *pTexCoordElement->Get2f( i3 );
 
-        float x1 = v2.x - v1.x;
-        float x2 = v3.x - v1.x;
-        float y1 = v2.y - v1.y;
-        float y2 = v3.y - v1.y;
-        float z1 = v2.z - v1.z;
-        float z2 = v3.z - v1.z;
+        f32 x1 = v2.x - v1.x;
+        f32 x2 = v3.x - v1.x;
+        f32 y1 = v2.y - v1.y;
+        f32 y2 = v3.y - v1.y;
+        f32 z1 = v2.z - v1.z;
+        f32 z2 = v3.z - v1.z;
 
-        float s1 = w2.x - w1.x;
-        float s2 = w3.x - w1.x;
-        float t1 = w2.y - w1.y;
-        float t2 = w3.y - w1.y;
+        f32 s1 = w2.x - w1.x;
+        f32 s2 = w3.x - w1.x;
+        f32 t1 = w2.y - w1.y;
+        f32 t2 = w3.y - w1.y;
 
-        float r = 1.0f / ( s1 * t2 - s2 * t1 );
+        f32 r = 1.0f / ( s1 * t2 - s2 * t1 );
         Vector3f sDir( ( t2 * x1 - t1 * x2) * r, ( t2 * y1 - t1 * y2 ) * r,
             ( t2 * z1 - t1 * z2 ) * r );
         Vector3f tDir( ( s1 * x2 - s2 * x1) * r, ( s1 * y2 - s2 * y1 ) * r,
@@ -507,7 +507,7 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
         Vector3f tangent = Vector3f::Normalize( ( t - n * Vector3f::Dot( n, t ) ) );                
 
         // Calculate handedness
-        float sign = ( Vector3f::Dot( Vector3f::Cross( n, t ), bitangents[i] ) < 0.0f ) ? -1.0f : 1.0f;
+        f32 sign = ( Vector3f::Dot( Vector3f::Cross( n, t ), bitangents[i] ) < 0.0f ) ? -1.0f : 1.0f;
 
         Vector4f& finalTangent = *pTangentElement->Get4f( i );
         finalTangent = Vector4f( tangent, sign );

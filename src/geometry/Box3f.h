@@ -25,7 +25,7 @@ namespace forward
 	public:
 		Box3f( );
 		Box3f( const Vector3f& center, const Vector3f& forward, const Vector3f& up, 
-			const Vector3f& right, float fextents, float uextents, float rextents );
+			const Vector3f& right, f32 fextents, f32 uextents, f32 rextents );
 		virtual ~Box3f( );
 
 		virtual eSHAPE GetShapeType( ) const;
@@ -34,7 +34,7 @@ namespace forward
 		Vector3f Center;
 
 		Vector3f Axis[3];
-		float Extent[3];
+		f32 Extent[3];
 	};
 };
 //--------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ namespace forward
 		Sphere3f		m_Sphere;
 
 		Vector3f		m_aPoints[2];
-		float			m_afRayT[2];
+		f32			m_afRayT[2];
 		i32				m_iQuantity;
 	};
 };
