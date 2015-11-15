@@ -103,7 +103,7 @@ ResourceProxyDX11::~ResourceProxyDX11()
 	SAFE_DELETE( m_pDSVConfig );
 }
 //--------------------------------------------------------------------------------
-void ResourceProxyDX11::CommonConstructor( forward::UINT BindFlags, int ResourceID, RendererDX11* pRenderer, 
+void ResourceProxyDX11::CommonConstructor( u32 BindFlags, int ResourceID, RendererDX11* pRenderer, 
                                         ShaderResourceViewConfigDX11* pSRVConfig, 
                                         RenderTargetViewConfigDX11* pRTVConfig, 
                                         UnorderedAccessViewConfigDX11* pUAVConfig, 

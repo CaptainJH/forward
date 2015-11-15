@@ -60,10 +60,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	return theApp.Run();
 }
 
-
+#pragma warning(disable: 4245)
 void SimpleApp::UpdateScene(float /*dt*/)
 {
 
+	char ch = -9;
+	unsigned char uch = -9;
+
+	short sh = -9;
+	unsigned short ush = -9;
+
+	__int64 i64 = -9;
+	unsigned long long ll = -9;
+
+	if (ch && uch && sh && ush && i64 && ll)
+		return;
 }
 
 void SimpleApp::DrawScene()

@@ -43,10 +43,10 @@ namespace forward
 		// provided to apply the resource changes as an optimization, which allows for the
 		// renderer to cache resource changes between rendering calls if appropriate.
 
-		//void BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		//void BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		//void BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
-		//void BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, UINT slot, IParameterManager* pParamManager );
+		//void BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
+		//void BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
+		//void BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
+		//void BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, IParameterManager* pParamManager );
 
 		//void BindShader( ShaderType type, int ID, IParameterManager* pParamManager );
 
@@ -85,33 +85,33 @@ namespace forward
 		//void Draw( RenderEffectDX11& effect, GeometryPtr chunk, IParameterManager* pParamManager );
 		//void Draw( RenderEffectDX11& effect, ResourcePtr vb, ResourcePtr ib,
 		//			int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
-		//			UINT vertexStride, UINT numIndices, IParameterManager* pParamManager);
+		//			u32 vertexStride, u32 numIndices, IParameterManager* pParamManager);
   //      void DrawNonIndexed( RenderEffectDX11& effect, ResourcePtr vb, int inputLayout, 
-  //                  D3D11_PRIMITIVE_TOPOLOGY primType, UINT vertexStride, UINT vertexCount, 
-  //                  UINT startVertexLocation, IParameterManager* pParamManager);
+  //                  D3D11_PRIMITIVE_TOPOLOGY primType, u32 vertexStride, u32 vertexCount, 
+  //                  u32 startVertexLocation, IParameterManager* pParamManager);
 		//void DrawInstanced( RenderEffectDX11& effect, GeometryPtr chunk,
-		//					ResourcePtr instanceData, UINT instanceDataStride,
-		//					UINT numInstances, IParameterManager* pParamManager );
+		//					ResourcePtr instanceData, u32 instanceDataStride,
+		//					u32 numInstances, IParameterManager* pParamManager );
 		//void DrawInstanced( RenderEffectDX11& effect, ResourcePtr vb,
 		//					D3D11_PRIMITIVE_TOPOLOGY primType, ResourcePtr ib,
-		//					int inputLayout, UINT vertexStride, UINT numIndices,
-		//					ResourcePtr instanceData, UINT instanceDataStride,
-		//					UINT numInstances, IParameterManager* pParamManager );
+		//					int inputLayout, u32 vertexStride, u32 numIndices,
+		//					ResourcePtr instanceData, u32 instanceDataStride,
+		//					u32 numInstances, IParameterManager* pParamManager );
 
-		//void Dispatch( RenderEffectDX11& effect, UINT x, UINT y, UINT z, IParameterManager* pParamManager );
+		//void Dispatch( RenderEffectDX11& effect, u32 x, u32 y, u32 z, IParameterManager* pParamManager );
 
-		//void DispatchIndirect( RenderEffectDX11& effect, ResourcePtr args, UINT offset, IParameterManager* pParamManager );
-		//void DrawIndirect( RenderEffectDX11& effect, ResourcePtr args, UINT offset, int inputLayout,
-		//	D3D11_PRIMITIVE_TOPOLOGY primType, UINT vertexStride, IParameterManager* pParamManager);
+		//void DispatchIndirect( RenderEffectDX11& effect, ResourcePtr args, u32 offset, IParameterManager* pParamManager );
+		//void DrawIndirect( RenderEffectDX11& effect, ResourcePtr args, u32 offset, int inputLayout,
+		//	D3D11_PRIMITIVE_TOPOLOGY primType, u32 vertexStride, IParameterManager* pParamManager);
 
 
 		// These draw calls are thin wrappers around the basic API draw calls.  They are intended
 		// to be used by the PipelineExecutorDX11 subclasses to invoke the pipeline.
 
-		void Draw( UINT VertexCount, UINT StartVertex );
-		void DrawIndexed( UINT IndexCount, UINT StartIndex, int VertexOffset ); 
-		void DrawIndexedInstanced( UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation );
-		void DrawInstancedIndirect( ID3D11Buffer* argsBuffer, UINT offset );
+		void Draw( u32 VertexCount, u32 StartVertex );
+		void DrawIndexed( u32 IndexCount, u32 StartIndex, int VertexOffset ); 
+		void DrawIndexedInstanced( u32 IndexCountPerInstance, u32 InstanceCount, u32 StartIndexLocation, INT BaseVertexLocation, u32 StartInstanceLocation );
+		void DrawInstancedIndirect( ID3D11Buffer* argsBuffer, u32 offset );
 
 
 
@@ -135,48 +135,48 @@ namespace forward
 		// Clear buffers does what it says - the currently bound render target views and depth
 		// stencil view are cleared to the provided values.
 
-		void ClearBuffers( Vector4f color, float depth = 1.0f, UINT stencil = 0 );
+		void ClearBuffers( Vector4f color, float depth = 1.0f, u32 stencil = 0 );
 		
 		// Resources can be mapped in order to manually modify or read their contents.  The 
 		// returned structure provides information about the resource including the pitch and
 		// width to be used in accessing it.
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource( int index, UINT subresource, D3D11_MAP actions, UINT flags );
-		void						UnMapResource( int index, UINT subresource );
+		D3D11_MAPPED_SUBRESOURCE	MapResource( int index, u32 subresource, D3D11_MAP actions, u32 flags );
+		void						UnMapResource( int index, u32 subresource );
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourcePtr pGlyphResource, UINT subresource, D3D11_MAP actions, UINT flags );
-		void						UnMapResource( ResourcePtr pGlyphResource, UINT subresource );
+		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourcePtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags );
+		void						UnMapResource( ResourcePtr pGlyphResource, u32 subresource );
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourceDX11* pGlyphResource, UINT subresource, D3D11_MAP actions, UINT flags );
-		void						UnMapResource( ResourceDX11* pGlyphResource, UINT subresource );
+		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourceDX11* pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags );
+		void						UnMapResource( ResourceDX11* pGlyphResource, u32 subresource );
 
 
 		// This is an alternative method to mapping for updating resources.  In certain 
 		// situations one method may or may not be more efficient than the other, so it is
 		// worth trying both to see which is more performant in a given situation.
 
-		void UpdateSubresource( int rid, UINT DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData,
-			UINT SrcRowPitch, UINT SrcDepthPitch );
+		void UpdateSubresource( int rid, u32 DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData,
+			u32 SrcRowPitch, u32 SrcDepthPitch );
 
 		// Copy from one resource to another resource.  Check the documentation for restrictions
 		// if you get errors when performing the copying.
 
-		void CopySubresourceRegion( ResourcePtr DestResource, UINT DstSubresource, UINT DstX, UINT DstY, UINT DstZ,
-			ResourcePtr SrcResource, UINT SrcSubresource, D3D11_BOX* pSrcBox );
+		void CopySubresourceRegion( ResourcePtr DestResource, u32 DstSubresource, u32 DstX, u32 DstY, u32 DstZ,
+			ResourcePtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox );
 
 		void CopyResource( ResourcePtr DestResource, ResourcePtr SrcResource );
 
         // Resolve a subresource from a MSAA texture to a non-MSAA texture.
         
-        void ResolveSubresource ( ResourcePtr DestResource, UINT DstSubresource, 
-                                    ResourcePtr SrcResource, UINT SrcSubresource,
+        void ResolveSubresource ( ResourcePtr DestResource, u32 DstSubresource, 
+                                    ResourcePtr SrcResource, u32 SrcSubresource,
                                     DXGI_FORMAT format );
 
 		// Copy the internal counter variable from a UAV (either from Append/Consume 
 		// functionality, or directly a StructuredBuffer internal counter) to the specified
 		// output buffer.
 
-		void CopyStructureCount( ResourcePtr dest, UINT offset, ResourcePtr uav );
+		void CopyStructureCount( ResourcePtr dest, u32 offset, ResourcePtr uav );
 
 
 

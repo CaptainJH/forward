@@ -85,7 +85,7 @@ list(APPEND SOURCE_FILES ${STATE_OBJECT_FILES})
 
 
 # Core
-file(GLOB HEADER_FILES_CORE "${forward_source_root}/core/*.h")
+file(GLOB HEADER_FILES_CORE "${forward_source_root}/core/*.h" "${forward_source_root}/core/*.cpp")
 source_group(Core FILES ${HEADER_FILES_CORE})
 list(APPEND HEADER_FILES ${HEADER_FILES_CORE})
 

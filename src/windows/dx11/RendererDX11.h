@@ -69,7 +69,7 @@ namespace forward
 
 		// Provide an estimate of the available video memory.
 
-		UINT64 GetAvailableVideoMemory();
+		u64 GetAvailableVideoMemory();
 
 		// Renderer initialization and shutdown methods.  These methods
 		// obtain and release all of the hardware specific resources that
@@ -81,7 +81,7 @@ namespace forward
 		// These methods provide rendering frame control.  They are closely
 		// related to the API for sequencing rendering batches.
 
-		void Present( HWND hWnd = 0, int SwapChain = -1, UINT SyncInterval = 0, UINT PresentFlags = 0 );
+		void Present( HWND hWnd = 0, int SwapChain = -1, u32 SyncInterval = 0, u32 PresentFlags = 0 );
 
 		// Allow the application to create swap chains
 
@@ -169,13 +169,13 @@ namespace forward
 		// will recreate the texture and its associated views with the exact same configuration
 		// except that the size will be updated.
 
-		void ResizeTexture( ResourcePtr texture, UINT width, UINT height );
-		void ResizeTextureSRV( int RID, int SRVID, UINT width, UINT height );
-		void ResizeTextureRTV( int RID, int RTVID, UINT width, UINT height );
-		void ResizeTextureDSV( int RID, int DSVID, UINT width, UINT height );
-		void ResizeTextureUAV( int RID, int UAVID, UINT width, UINT height );
-		void ResizeSwapChain( int ID, UINT width, UINT height );
-		void ResizeViewport( int ID, UINT width, UINT height );
+		void ResizeTexture( ResourcePtr texture, u32 width, u32 height );
+		void ResizeTextureSRV( int RID, int SRVID, u32 width, u32 height );
+		void ResizeTextureRTV( int RID, int RTVID, u32 width, u32 height );
+		void ResizeTextureDSV( int RID, int DSVID, u32 width, u32 height );
+		void ResizeTextureUAV( int RID, int UAVID, u32 width, u32 height );
+		void ResizeSwapChain( int ID, u32 width, u32 height );
+		void ResizeViewport( int ID, u32 width, u32 height );
 
 		// Provide access to the pipeline states.
 		BlendStateComPtr								GetBlendState( int index );

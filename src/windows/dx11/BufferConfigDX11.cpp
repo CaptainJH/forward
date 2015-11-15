@@ -35,7 +35,7 @@ void BufferConfigDX11::SetDefaults()
     m_State.StructureByteStride = 0;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultConstantBuffer( forward::UINT size, bool dynamic )
+void BufferConfigDX11::SetDefaultConstantBuffer( u32 size, bool dynamic )
 {
 	// Create the settings for a constant buffer.  This includes setting the 
 	// constant buffer flag, allowing the CPU write access, and a dynamic usage.
@@ -58,7 +58,7 @@ void BufferConfigDX11::SetDefaultConstantBuffer( forward::UINT size, bool dynami
 	}
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultVertexBuffer( forward::UINT size, bool dynamic )
+void BufferConfigDX11::SetDefaultVertexBuffer( u32 size, bool dynamic )
 {
 	// Create the settings for a vertex buffer.  This includes the setting the
 	// vertex buffer flag, 
@@ -80,7 +80,7 @@ void BufferConfigDX11::SetDefaultVertexBuffer( forward::UINT size, bool dynamic 
 	}
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultIndexBuffer( forward::UINT size, bool dynamic )
+void BufferConfigDX11::SetDefaultIndexBuffer( u32 size, bool dynamic )
 {
 	m_State.ByteWidth = size;
     m_State.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -99,7 +99,7 @@ void BufferConfigDX11::SetDefaultIndexBuffer( forward::UINT size, bool dynamic )
 	}
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultStructuredBuffer( forward::UINT size, forward::UINT structsize )
+void BufferConfigDX11::SetDefaultStructuredBuffer( u32 size, u32 structsize )
 {
 	m_State.ByteWidth = size * structsize;
     m_State.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
@@ -110,7 +110,7 @@ void BufferConfigDX11::SetDefaultStructuredBuffer( forward::UINT size, forward::
 	m_State.CPUAccessFlags = 0;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultByteAddressBuffer( forward::UINT size )
+void BufferConfigDX11::SetDefaultByteAddressBuffer( u32 size )
 {
 	// Set the state to the default configuration.  These are the D3D11 default
 	// values as well.
@@ -124,7 +124,7 @@ void BufferConfigDX11::SetDefaultByteAddressBuffer( forward::UINT size )
     m_State.StructureByteStride = 0;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultIndirectArgsBuffer( forward::UINT size )
+void BufferConfigDX11::SetDefaultIndirectArgsBuffer( u32 size )
 {
 	// Set the state to the default configuration.  These are the D3D11 default
 	// values as well.
@@ -137,7 +137,7 @@ void BufferConfigDX11::SetDefaultIndirectArgsBuffer( forward::UINT size )
     m_State.StructureByteStride = 0;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetDefaultStagingBuffer( forward::UINT size )
+void BufferConfigDX11::SetDefaultStagingBuffer( u32 size )
 {
 	// Set the state to the default configuration.  These are the D3D11 default
 	// values as well.
@@ -150,7 +150,7 @@ void BufferConfigDX11::SetDefaultStagingBuffer( forward::UINT size )
     m_State.StructureByteStride = 0;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetByteWidth( forward::UINT state )
+void BufferConfigDX11::SetByteWidth( u32 state )
 {
 	m_State.ByteWidth = state;
 }
@@ -160,22 +160,22 @@ void BufferConfigDX11::SetUsage( D3D11_USAGE state )
 	m_State.Usage = state;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetBindFlags( forward::UINT state )
+void BufferConfigDX11::SetBindFlags( u32 state )
 {
 	m_State.BindFlags = state;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetCPUAccessFlags( forward::UINT state )
+void BufferConfigDX11::SetCPUAccessFlags( u32 state )
 {
 	m_State.CPUAccessFlags = state;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetMiscFlags( forward::UINT state )
+void BufferConfigDX11::SetMiscFlags( u32 state )
 {
 	m_State.MiscFlags = state;
 }
 //--------------------------------------------------------------------------------
-void BufferConfigDX11::SetStructureByteStride( forward::UINT state )
+void BufferConfigDX11::SetStructureByteStride( u32 state )
 {
 	m_State.StructureByteStride = state;
 }

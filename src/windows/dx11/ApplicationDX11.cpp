@@ -19,7 +19,7 @@ namespace
 }
 
 LRESULT CALLBACK
-MainWndProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LPARAM lParam)
+MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
@@ -126,7 +126,7 @@ void ApplicationDX11::OnResize()
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
 }
 
-LRESULT ApplicationDX11::MsgProc(HWND hwnd, forward::UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT ApplicationDX11::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{

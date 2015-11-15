@@ -83,7 +83,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 	OutputMergerStage.SetFeautureLevel( level );
 }
 //--------------------------------------------------------------------------------
-//void PipelineManagerDX11::BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//void PipelineManagerDX11::BindConstantBufferParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, 
 //                                                      IParameterManager* pParamManager )
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
@@ -121,7 +121,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //	}
 //}
 ////--------------------------------------------------------------------------------
-//void PipelineManagerDX11::BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//void PipelineManagerDX11::BindShaderResourceParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, 
 //                                                      IParameterManager* pParamManager )
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
@@ -148,7 +148,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //	}
 //}
 ////--------------------------------------------------------------------------------
-//void PipelineManagerDX11::BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//void PipelineManagerDX11::BindUnorderedAccessParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, 
 //                                                       IParameterManager* pParamManager )
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
@@ -179,7 +179,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //	}
 //}
 ////--------------------------------------------------------------------------------
-//void PipelineManagerDX11::BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, forward::UINT slot, 
+//void PipelineManagerDX11::BindSamplerStateParameter( ShaderType type, RenderParameterDX11* pParam, u32 slot, 
 //                                                    IParameterManager* pParamManager )
 //{
 //	RendererDX11* pRenderer = RendererDX11::Get();
@@ -323,22 +323,22 @@ void PipelineManagerDX11::ClearPipelineSRVs()
 	ComputeShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawIndexed( forward::UINT IndexCount, forward::UINT StartIndex, int VertexOffset )
+void PipelineManagerDX11::DrawIndexed( u32 IndexCount, u32 StartIndex, int VertexOffset )
 {
 	m_pContext->DrawIndexed( IndexCount, StartIndex, VertexOffset );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::Draw( forward::UINT VertexCount, forward::UINT StartVertex )
+void PipelineManagerDX11::Draw( u32 VertexCount, u32 StartVertex )
 {
 	m_pContext->Draw( VertexCount, StartVertex );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawIndexedInstanced( forward::UINT IndexCountPerInstance, forward::UINT InstanceCount, forward::UINT StartIndexLocation, INT BaseVertexLocation, forward::UINT StartInstanceLocation )
+void PipelineManagerDX11::DrawIndexedInstanced( u32 IndexCountPerInstance, u32 InstanceCount, u32 StartIndexLocation, INT BaseVertexLocation, u32 StartInstanceLocation )
 {
 	m_pContext->DrawIndexedInstanced( IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forward::UINT offset )
+void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, u32 offset )
 {
 	m_pContext->DrawInstancedIndirect( argsBuffer, offset );
 }
@@ -353,7 +353,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::Draw( RenderEffectDX11& effect, ResourcePtr vb, ResourcePtr ib,
 //						int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
-//						forward::UINT vertexStride, forward::UINT numIndices, IParameterManager* pParamManager )
+//						u32 vertexStride, u32 numIndices, IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
 //
@@ -392,7 +392,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawNonIndexed( RenderEffectDX11& effect, ResourcePtr vb, 
 //                                           int inputLayout, D3D11_PRIMITIVE_TOPOLOGY primType,
-//                                           forward::UINT vertexStride, forward::UINT vertexCount, forward::UINT startVertexLocation,
+//                                           u32 vertexStride, u32 vertexCount, u32 startVertexLocation,
 //                                           IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
@@ -420,8 +420,8 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 //}
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawInstanced( RenderEffectDX11& effect, GeometryPtr geometry,
-//								 ResourcePtr instanceData, forward::UINT instanceDataStride,
-//								 forward::UINT numInstances, IParameterManager* pParamManager )
+//								 ResourcePtr instanceData, u32 instanceDataStride,
+//								 u32 numInstances, IParameterManager* pParamManager )
 //{
 //	DrawInstanced( effect, geometry->m_VB, geometry->m_ePrimType, geometry->m_IB,
 //		geometry->GetInputLayout( effect.GetVertexShader() ),
@@ -431,9 +431,9 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawInstanced( RenderEffectDX11& effect, ResourcePtr vb,
 //								 D3D11_PRIMITIVE_TOPOLOGY primType, ResourcePtr ib,
-//								 int inputLayout, forward::UINT vertexStride, forward::UINT numIndices,
-//								 ResourcePtr instanceData, forward::UINT instanceDataStride,
-//								 forward::UINT numInstances, IParameterManager* pParamManager )
+//								 int inputLayout, u32 vertexStride, u32 numIndices,
+//								 ResourcePtr instanceData, u32 instanceDataStride,
+//								 u32 numInstances, IParameterManager* pParamManager )
 //{
 //	InputAssemblerStage.ClearDesiredState();
 //
@@ -470,7 +470,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DispatchIndirect( RenderEffectDX11& effect,
 //										    ResourcePtr args,
-//											forward::UINT offset,
+//											u32 offset,
 //											IParameterManager* pParamManager )
 //{
 //	// Use the effect to load all of the pipeline stages here.
@@ -496,10 +496,10 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 ////--------------------------------------------------------------------------------
 //void PipelineManagerDX11::DrawIndirect( RenderEffectDX11& effect,
 //									    ResourcePtr args,
-//										forward::UINT offset,
+//										u32 offset,
 //										int inputLayout,
 //										D3D11_PRIMITIVE_TOPOLOGY primType,
-//										forward::UINT vertexStride,
+//										u32 vertexStride,
 //										IParameterManager* pParamManager )
 //{
 //	IndirectArgsBufferDX11* pBuffer = RendererDX11::Get()->GetIndirectArgsBufferByIndex( args->m_iResource );
@@ -531,7 +531,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 //
 //}
 ////--------------------------------------------------------------------------------
-//void PipelineManagerDX11::Dispatch( RenderEffectDX11& effect, forward::UINT x, forward::UINT y, forward::UINT z, IParameterManager* pParamManager )
+//void PipelineManagerDX11::Dispatch( RenderEffectDX11& effect, u32 x, u32 y, u32 z, IParameterManager* pParamManager )
 //{
 //	// Use the effect to load all of the pipeline stages here.
 //
@@ -542,7 +542,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, forwa
 //	m_pContext->Dispatch( x, y, z );
 //}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, forward::UINT offset, ResourcePtr uav )
+void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, u32 offset, ResourcePtr uav )
 {
 	int id = dest->m_iResource;
 
@@ -563,7 +563,7 @@ void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, forward::UINT of
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, forward::UINT stencil )
+void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, u32 stencil )
 {
 	// Get the current render target view and depth stencil view from the OM stage.
     ID3D11RenderTargetView* pRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { NULL };
@@ -575,9 +575,9 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, forward::UI
 	// For each view that the application thinks is bound, we clear it as requested.  Since
 	// the view count is the number of non-null views, we don't need to check here.
 
-	forward::UINT viewCount = OutputMergerStage.GetCurrentState().GetRenderTargetCount();
+	u32 viewCount = OutputMergerStage.GetCurrentState().GetRenderTargetCount();
 
-	for( forward::UINT i = 0; i < viewCount; ++i )
+	for( u32 i = 0; i < viewCount; ++i )
 	{
 	    float clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 		int rtv = OutputMergerStage.GetCurrentState().RenderTargetViews.GetState( i );
@@ -596,7 +596,7 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, forward::UI
 		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( dsv );
 		pDepthStencilView = DSV.m_pDepthStencilView.Get();
 		if ( pDepthStencilView != nullptr ) {
-			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, static_cast<UINT8>(stencil) );
+			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, static_cast<u8>(stencil) );
 		}
 	}
 }
@@ -629,7 +629,7 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, float depth, forward::UI
 //	}
 //}
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, u32 subresource, D3D11_MAP actions, u32 flags )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -638,7 +638,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( int rid, forward::UIN
 	return( MapResource( pGlyphResource, subresource, actions, flags ) );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( int rid, forward::UINT subresource )
+void PipelineManagerDX11::UnMapResource( int rid, u32 subresource )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -647,7 +647,7 @@ void PipelineManagerDX11::UnMapResource( int rid, forward::UINT subresource )
 	UnMapResource( pGlyphResource, subresource );
 }
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource, u32 subresource, D3D11_MAP actions, u32 flags )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -656,7 +656,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource
 	return( MapResource( pGlyphResource, subresource, actions, flags ) );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, forward::UINT subresource )
+void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, u32 subresource )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -665,7 +665,7 @@ void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, forward::UINT su
 	UnMapResource( pGlyphResource, subresource );
 }
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphResource, forward::UINT subresource, D3D11_MAP actions, forward::UINT flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags )
 {
 	D3D11_MAPPED_SUBRESOURCE Data;
 	Data.pData = NULL;
@@ -695,7 +695,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceDX11* pGlyphR
 	return( Data );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, forward::UINT subresource )
+void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, u32 subresource )
 {
 	if ( NULL == pGlyphResource ) {
 		Log::Get().Write( L"Trying to unmap a subresource that doesn't exist!!!" );
@@ -715,7 +715,7 @@ void PipelineManagerDX11::UnMapResource( ResourceDX11* pGlyphResource, forward::
 	m_pContext->Unmap( pResource, subresource );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UpdateSubresource( int rid, forward::UINT DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData, forward::UINT SrcRowPitch, forward::UINT SrcDepthPitch )
+void PipelineManagerDX11::UpdateSubresource( int rid, u32 DstSubresource, const D3D11_BOX *pDstBox, const void *pSrcData, u32 SrcRowPitch, u32 SrcDepthPitch )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -815,8 +815,8 @@ void PipelineManagerDX11::SaveTextureScreenShot( int index, std::wstring filenam
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, forward::UINT DstSubresource, 
-	forward::UINT DstX, forward::UINT DstY, forward::UINT DstZ, ResourcePtr SrcResource, forward::UINT SrcSubresource, D3D11_BOX* pSrcBox )
+void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, u32 DstSubresource, 
+	u32 DstX, u32 DstY, u32 DstZ, ResourcePtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox )
 {
 	ID3D11Resource* pDestResource = RendererDX11::Get()->GetResourceByIndex(DestResource->m_iResource)->GetResource();
 	ID3D11Resource* pSrcResource = RendererDX11::Get()->GetResourceByIndex(SrcResource->m_iResource)->GetResource();
@@ -911,8 +911,8 @@ void PipelineManagerDX11::CopyResource( ResourcePtr DestResource, ResourcePtr Sr
 //	ComputeShaderStage.ClearDesiredState();
 //}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, forward::UINT DstSubresource, 
-                                              ResourcePtr SrcResource, forward::UINT SrcSubresource, 
+void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, u32 DstSubresource, 
+                                              ResourcePtr SrcResource, u32 SrcSubresource, 
                                               DXGI_FORMAT format )
 {
     int DestID = DestResource->m_iResource;

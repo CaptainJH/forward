@@ -91,7 +91,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 		// TODO: convert this to bind the UAVs too...
 		pContext->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv );
 		//pContext->OMSetRenderTargetsAndUnorderedAccessViews( rtvCount, rtvs, dsv, 
-		//	rtvCount, uavCount, uavs, (UINT*)&DesiredState.UAVInitialCounts );
+		//	rtvCount, uavCount, uavs, (u32*)&DesiredState.UAVInitialCounts );
 
 		// TODO: Find a better way to copy the state from desired to current...
 

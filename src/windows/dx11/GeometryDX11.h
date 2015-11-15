@@ -42,22 +42,22 @@ namespace forward
 		void AddFace( TriangleIndices& face );
 		void AddLine( LineIndices& line );
 		void AddPoint( PointIndices& point );
-		void AddIndex( UINT index );
+		void AddIndex( u32 index );
 
         VertexElementDX11* GetElement( std::string name );
 		VertexElementDX11* GetElement( std::wstring name );
 		VertexElementDX11* GetElement( int index );
 
-		forward::UINT GetIndex( forward::UINT index );
+		u32 GetIndex( u32 index );
 
 		D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveType();
 		void SetPrimitiveType( D3D11_PRIMITIVE_TOPOLOGY type );
 
 		int GetPrimitiveCount();
-		UINT GetIndexCount();
+		u32 GetIndexCount();
 		
 		int GetVertexCount();
-		UINT GetElementCount();
+		u32 GetElementCount();
 		int GetVertexSize();
 
 		int CalculateVertexSize();
@@ -73,7 +73,7 @@ namespace forward
                                   std::string tangentSemantic = VertexElementDX11::TangentSemantic );
 
 		std::vector<VertexElementDX11*>		m_vElements;
-		std::vector<UINT>					m_vIndices;
+		std::vector<u32>					m_vIndices;
 		
 		ResourcePtr m_VB;
 		ResourcePtr m_IB;

@@ -17,19 +17,19 @@ namespace forward
 		virtual ~Texture2dConfigDX11();
 
 		void SetDefaults();
-		void SetDepthBuffer( UINT width, UINT height );
-		void SetColorBuffer( UINT width, UINT height );
+		void SetDepthBuffer( u32 width, u32 height );
+		void SetColorBuffer( u32 width, u32 height );
 
-		void SetWidth( UINT state );
-		void SetHeight( UINT state );
-		void SetMipLevels( UINT state );
-		void SetArraySize( UINT state );
+		void SetWidth( u32 state );
+		void SetHeight( u32 state );
+		void SetMipLevels( u32 state );
+		void SetArraySize( u32 state );
 		void SetFormat( DXGI_FORMAT state );
 		void SetSampleDesc( DXGI_SAMPLE_DESC state );
 		void SetUsage( D3D11_USAGE state ); 
-		void SetBindFlags( UINT state );
-		void SetCPUAccessFlags( UINT state );
-		void SetMiscFlags( UINT state );
+		void SetBindFlags( u32 state );
+		void SetCPUAccessFlags( u32 state );
+		void SetMiscFlags( u32 state );
 
 		D3D11_TEXTURE2D_DESC GetTextureDesc();
 

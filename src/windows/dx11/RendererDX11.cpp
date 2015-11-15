@@ -123,7 +123,7 @@ D3D_FEATURE_LEVEL RendererDX11::GetCurrentFeatureLevel()
 	return( m_FeatureLevel );
 }
 //--------------------------------------------------------------------------------
-UINT64 RendererDX11::GetAvailableVideoMemory()
+u64 RendererDX11::GetAvailableVideoMemory()
 {
     // Acquire the DXGI device, then the adapter.
 	// TODO: This method needs to be capable of checking on multiple adapters!
@@ -140,7 +140,7 @@ UINT64 RendererDX11::GetAvailableVideoMemory()
     DXGI_ADAPTER_DESC AdapterDesc;
     pDXGIAdapter->GetDesc( &AdapterDesc );
 
-	UINT64 availableVideoMem = 0;
+	u64 availableVideoMem = 0;
 
     if ( AdapterDesc.DedicatedVideoMemory )
         availableVideoMem = AdapterDesc.DedicatedVideoMemory;
@@ -167,7 +167,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	ComPtr<IDXGIAdapter1> pCurrentAdapter;
 	std::vector<DXGIAdapter> vAdapters;
 
-	while( pFactory->EnumAdapters1( static_cast<UINT>(vAdapters.size()), pCurrentAdapter.ReleaseAndGetAddressOf() ) != DXGI_ERROR_NOT_FOUND )
+	while( pFactory->EnumAdapters1( static_cast<u32>(vAdapters.size()), pCurrentAdapter.ReleaseAndGetAddressOf() ) != DXGI_ERROR_NOT_FOUND )
 	{
 		vAdapters.push_back( pCurrentAdapter );
 
@@ -178,7 +178,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	}
 
 	// Specify debug
-	UINT CreateDeviceFlags = 0;
+	u32 CreateDeviceFlags = 0;
 #ifdef _DEBUG
     CreateDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -311,7 +311,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	// TODO: Enumerate all of the formats and quality levels available for the given format.
 	//       It may be beneficial to allow this query from the user instead of enumerating
 	//       all possible formats...
-	UINT NumQuality;
+	u32 NumQuality;
 	HRESULT hr1 = m_pDevice->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, 4, &NumQuality );
 
 
@@ -402,7 +402,7 @@ void RendererDX11::Shutdown()
 	//SAFE_RELEASE( m_pDebugger );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, forward::UINT SyncInterval, forward::UINT PresentFlags )
+void RendererDX11::Present(HWND /*hWnd*/, int SwapChain, u32 SyncInterval, u32 PresentFlags )
 {
 	// Present to the window
 
@@ -786,7 +786,7 @@ int RendererDX11::CreateUnorderedAccessView( int ResourceID, D3D11_UNORDERED_ACC
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTexture( ResourcePtr texture, forward::UINT width, forward::UINT height )
+void RendererDX11::ResizeTexture( ResourcePtr texture, u32 width, u32 height )
 {
 	// For the texture, and then for each associated resource view create the new
 	// sized versions.  Afterwards, release the old versions and replace them with
@@ -816,7 +816,7 @@ void RendererDX11::ResizeTexture( ResourcePtr texture, forward::UINT width, forw
 	ResizeTextureUAV( rid, texture->m_iResourceUAV, width, height );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureSRV( int RID, int SRVID, forward::UINT /*width*/, forward::UINT /*height*/ )
+void RendererDX11::ResizeTextureSRV( int RID, int SRVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( SRVID == 0 ) {
@@ -850,7 +850,7 @@ void RendererDX11::ResizeTextureSRV( int RID, int SRVID, forward::UINT /*width*/
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureRTV( int RID, int RTVID, forward::UINT /*width*/, forward::UINT /*height*/ )
+void RendererDX11::ResizeTextureRTV( int RID, int RTVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( RTVID == 0 ) {
@@ -884,7 +884,7 @@ void RendererDX11::ResizeTextureRTV( int RID, int RTVID, forward::UINT /*width*/
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureDSV( int RID, int DSVID, forward::UINT /*width*/, forward::UINT /*height*/ )
+void RendererDX11::ResizeTextureDSV( int RID, int DSVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( DSVID == 0 ) {
@@ -918,7 +918,7 @@ void RendererDX11::ResizeTextureDSV( int RID, int DSVID, forward::UINT /*width*/
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTextureUAV( int RID, int UAVID, forward::UINT /*width*/, forward::UINT /*height*/ )
+void RendererDX11::ResizeTextureUAV( int RID, int UAVID, u32 /*width*/, u32 /*height*/ )
 {
 	// Check to make sure we are supposed to do anything...
 	if ( UAVID == 0 ) {
@@ -952,7 +952,7 @@ void RendererDX11::ResizeTextureUAV( int RID, int UAVID, forward::UINT /*width*/
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeSwapChain( int SID, forward::UINT width, forward::UINT height )
+void RendererDX11::ResizeSwapChain( int SID, u32 width, u32 height )
 {
 	unsigned int index = static_cast<unsigned int>( SID );
 
@@ -996,7 +996,7 @@ void RendererDX11::ResizeSwapChain( int SID, forward::UINT width, forward::UINT 
 	hr = m_pDevice->CreateRenderTargetView( pBackBuffer->m_pTexture.Get(), &RTVDesc, RTV.m_pRenderTargetView.GetAddressOf() );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeViewport( int ID, forward::UINT width, forward::UINT height )
+void RendererDX11::ResizeViewport( int ID, u32 width, u32 height )
 {
 	unsigned int index = static_cast<unsigned int>( ID );
 
@@ -1445,7 +1445,7 @@ ResourceDX11* RendererDX11::GetResourceByIndex( int ID )
 	ResourceDX11* pResource = 0;
 
 	unsigned int index = ID & 0xffff;
-	forward::UINT innerID = ( ID & 0xffff0000 ) >> 16;
+	u32 innerID = ( ID & 0xffff0000 ) >> 16;
 
 	if ( index < m_vResources.size() ) {
 		pResource = m_vResources[index];

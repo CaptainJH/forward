@@ -30,7 +30,7 @@ void Texture2dConfigDX11::SetDefaults()
     m_State.MiscFlags = 0;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetDepthBuffer(forward::UINT width, forward::UINT height)
+void Texture2dConfigDX11::SetDepthBuffer(u32 width, u32 height)
 {
 	m_State.Width = width;
 	m_State.Height = height;
@@ -45,7 +45,7 @@ void Texture2dConfigDX11::SetDepthBuffer(forward::UINT width, forward::UINT heig
 	m_State.MiscFlags = 0;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetColorBuffer(forward::UINT width, forward::UINT height)
+void Texture2dConfigDX11::SetColorBuffer(u32 width, u32 height)
 {
 	m_State.Width = width;
 	m_State.Height = height;
@@ -60,22 +60,22 @@ void Texture2dConfigDX11::SetColorBuffer(forward::UINT width, forward::UINT heig
 	m_State.MiscFlags = 0;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetWidth( forward::UINT state )
+void Texture2dConfigDX11::SetWidth( u32 state )
 {
 	m_State.Width = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetHeight( forward::UINT state )
+void Texture2dConfigDX11::SetHeight( u32 state )
 {
 	m_State.Height = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetMipLevels( forward::UINT state )
+void Texture2dConfigDX11::SetMipLevels( u32 state )
 {
 	m_State.MipLevels = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetArraySize( forward::UINT state )
+void Texture2dConfigDX11::SetArraySize( u32 state )
 {
 	m_State.ArraySize = state;
 }
@@ -95,17 +95,17 @@ void Texture2dConfigDX11::SetUsage( D3D11_USAGE state )
 	m_State.Usage = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetBindFlags( forward::UINT state )
+void Texture2dConfigDX11::SetBindFlags( u32 state )
 {
 	m_State.BindFlags = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetCPUAccessFlags( forward::UINT state )
+void Texture2dConfigDX11::SetCPUAccessFlags( u32 state )
 {
 	m_State.CPUAccessFlags = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetMiscFlags( forward::UINT state )
+void Texture2dConfigDX11::SetMiscFlags( u32 state )
 {
 	m_State.MiscFlags = state;
 }

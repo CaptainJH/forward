@@ -67,9 +67,9 @@ void StreamOutputStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 		// Start slot is always zero since there is no way to specify buffers
 		// starting from a different index.
 
-		UINT startSlot = 0;
+		u32 startSlot = 0;
 
-		UINT endSlot = max( DesiredState.StreamBuffers.GetEndSlot(),
+		u32 endSlot = max( DesiredState.StreamBuffers.GetEndSlot(),
 			DesiredState.StreamOffsets.GetEndSlot() );
 
 		pContext->SOSetTargets( 

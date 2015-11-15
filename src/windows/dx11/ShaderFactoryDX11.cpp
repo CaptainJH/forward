@@ -44,7 +44,7 @@ ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, const std::wst
 	//       for the moment, since the new FXC.exe compiler in VS2012 is
 	//       apparently more strict than before.
 
-    UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
+    u32 flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 #ifdef _DEBUG
     flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION; // | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #endif

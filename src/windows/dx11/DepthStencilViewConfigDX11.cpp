@@ -32,7 +32,7 @@ void DepthStencilViewConfigDX11::SetViewDimensions( D3D11_DSV_DIMENSION state )
 	m_State.ViewDimension = state;
 }
 //--------------------------------------------------------------------------------
-void DepthStencilViewConfigDX11::SetFlags( forward::UINT state )
+void DepthStencilViewConfigDX11::SetFlags( u32 state )
 {
 	m_State.Flags = state;
 }

@@ -68,7 +68,7 @@ namespace forward
 
     protected: 
         
-        void CommonConstructor( UINT BindFlags, int ResourceID, RendererDX11* pRenderer, 
+        void CommonConstructor( u32 BindFlags, int ResourceID, RendererDX11* pRenderer, 
                                 ShaderResourceViewConfigDX11* pSRVConfig,
                                 RenderTargetViewConfigDX11* pRTVConfig,
                                 UnorderedAccessViewConfigDX11* pUAVConfig,

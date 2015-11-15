@@ -22,31 +22,31 @@ namespace forward
 		D3D11_BUFFER_DESC			GetDesiredDescription();
 		void						SetDesiredDescription( D3D11_BUFFER_DESC desc );
 
-		UINT						GetByteWidth();
-		void						SetByteWidth( UINT width );
+		u32						GetByteWidth();
+		void						SetByteWidth( u32 width );
 
 		D3D11_USAGE					GetUsage();
 		void						SetUsage( D3D11_USAGE usage );
 
-		UINT						GetBindFlags();
-		void						SetBindFlags( UINT flags );
+		u32						GetBindFlags();
+		void						SetBindFlags( u32 flags );
 
-		UINT						GetCPUAccessFlags();
-		void						SetCPUAccessFlags( UINT flags );
+		u32						GetCPUAccessFlags();
+		void						SetCPUAccessFlags( u32 flags );
 
-		UINT						GetMiscFlags();
-		void						SetMiscFlags( UINT flags );
+		u32						GetMiscFlags();
+		void						SetMiscFlags( u32 flags );
 
-		UINT						GetStructureByteStride();
-		void						SetStructureByteStride( UINT stride );
+		u32						GetStructureByteStride();
+		void						SetStructureByteStride( u32 stride );
 
 		void*						Map();
 		void						UnMap();
 
 		virtual ID3D11Resource*				GetResource();
 
-		virtual UINT						GetEvictionPriority();
-		virtual void						SetEvictionPriority( UINT EvictionPriority );
+		virtual u32						GetEvictionPriority();
+		virtual void						SetEvictionPriority( u32 EvictionPriority );
 
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_pBuffer;

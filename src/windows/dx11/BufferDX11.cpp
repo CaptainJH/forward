@@ -34,7 +34,7 @@ void BufferDX11::SetDesiredDescription( D3D11_BUFFER_DESC desc )
 	m_DesiredDesc = desc;
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetByteWidth()
+u32 BufferDX11::GetByteWidth()
 {
 	D3D11_BUFFER_DESC description = GetActualDescription();
 
@@ -48,35 +48,35 @@ D3D11_USAGE BufferDX11::GetUsage()
 	return( description.Usage );
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetBindFlags()
+u32 BufferDX11::GetBindFlags()
 {
 	D3D11_BUFFER_DESC description = GetActualDescription();
 
 	return( description.BindFlags );
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetCPUAccessFlags()
+u32 BufferDX11::GetCPUAccessFlags()
 {
 	D3D11_BUFFER_DESC description = GetActualDescription();
 
 	return( description.CPUAccessFlags );
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetMiscFlags()
+u32 BufferDX11::GetMiscFlags()
 {
 	D3D11_BUFFER_DESC description = GetActualDescription();
 
 	return( description.MiscFlags );
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetStructureByteStride()
+u32 BufferDX11::GetStructureByteStride()
 {
 	D3D11_BUFFER_DESC description = GetActualDescription();
 
 	return( description.StructureByteStride );
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetByteWidth( forward::UINT width )
+void BufferDX11::SetByteWidth( u32 width )
 {
 	m_DesiredDesc.ByteWidth = width;
 }
@@ -86,22 +86,22 @@ void BufferDX11::SetUsage( D3D11_USAGE usage )
 	m_DesiredDesc.Usage = usage;
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetBindFlags( forward::UINT flags )
+void BufferDX11::SetBindFlags( u32 flags )
 {
 	m_DesiredDesc.BindFlags = flags;
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetCPUAccessFlags( forward::UINT flags )
+void BufferDX11::SetCPUAccessFlags( u32 flags )
 {
 	m_DesiredDesc.CPUAccessFlags = flags;
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetMiscFlags( forward::UINT flags )
+void BufferDX11::SetMiscFlags( u32 flags )
 {
 	m_DesiredDesc.MiscFlags = flags;
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetStructureByteStride( forward::UINT stride )
+void BufferDX11::SetStructureByteStride( u32 stride )
 {
 	m_DesiredDesc.StructureByteStride = stride;
 }
@@ -120,9 +120,9 @@ ID3D11Resource*	BufferDX11::GetResource()
 	return( m_pBuffer.Get() );
 }
 //--------------------------------------------------------------------------------
-forward::UINT BufferDX11::GetEvictionPriority()
+u32 BufferDX11::GetEvictionPriority()
 {
-	forward::UINT priority = 0;
+	u32 priority = 0;
 
 	if ( m_pBuffer )
 		priority = m_pBuffer->GetEvictionPriority();
@@ -130,7 +130,7 @@ forward::UINT BufferDX11::GetEvictionPriority()
 	return( priority );
 }
 //--------------------------------------------------------------------------------
-void BufferDX11::SetEvictionPriority( forward::UINT EvictionPriority )
+void BufferDX11::SetEvictionPriority( u32 EvictionPriority )
 {
 	if ( m_pBuffer )
 		m_pBuffer->SetEvictionPriority( EvictionPriority );

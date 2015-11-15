@@ -18,14 +18,14 @@ namespace forward
 
 		void SetDefaults();
 
-		void SetWidth( UINT state );
-		void SetMipLevels( UINT state );
-		void SetArraySize( UINT state );
+		void SetWidth( u32 state );
+		void SetMipLevels( u32 state );
+		void SetArraySize( u32 state );
 		void SetFormat( DXGI_FORMAT state );
 		void SetUsage( D3D11_USAGE state ); 
-		void SetBindFlags( UINT state );
-		void SetCPUAccessFlags( UINT state );
-		void SetMiscFlags( UINT state );
+		void SetBindFlags( u32 state );
+		void SetCPUAccessFlags( u32 state );
+		void SetMiscFlags( u32 state );
 
 		D3D11_TEXTURE1D_DESC GetTextureDesc();
 

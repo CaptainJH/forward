@@ -50,13 +50,13 @@ namespace forward
 		virtual ResourceType				GetType() = 0;
 		virtual ID3D11Resource*				GetResource() = 0;
 
-		virtual UINT						GetEvictionPriority() = 0;
-		virtual void						SetEvictionPriority( UINT EvictionPriority ) = 0;
+		virtual u32						GetEvictionPriority() = 0;
+		virtual void						SetEvictionPriority( u32 EvictionPriority ) = 0;
 
-		UINT						GetInnerID();
+		u32						GetInnerID();
 
-		static UINT				s_usResourceUID;
-		UINT						m_usInnerID;
+		static u32				s_usResourceUID;
+		u32						m_usInnerID;
 	};
 
 };

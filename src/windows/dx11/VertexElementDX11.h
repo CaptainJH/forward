@@ -66,12 +66,12 @@ namespace forward
 		const float*			operator[]( int i ) const;
 
 		std::string						m_SemanticName;
-		UINT							m_uiSemanticIndex;
+		u32							m_uiSemanticIndex;
 		DXGI_FORMAT						m_Format;
-		UINT							m_uiInputSlot;
-		UINT							m_uiAlignedByteOffset;
+		u32							m_uiInputSlot;
+		u32							m_uiAlignedByteOffset;
 		D3D11_INPUT_CLASSIFICATION		m_InputSlotClass;
-		UINT							m_uiInstanceDataStepRate;
+		u32							m_uiInstanceDataStepRate;
 
 	protected:
 		VertexElementDX11();

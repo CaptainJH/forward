@@ -23,8 +23,8 @@ namespace forward
 		virtual ResourceType				GetType();
 		virtual ID3D11Resource*				GetResource();
 
-		virtual UINT						GetEvictionPriority();
-		virtual void						SetEvictionPriority( UINT EvictionPriority );
+		virtual u32						GetEvictionPriority();
+		virtual void						SetEvictionPriority( u32 EvictionPriority );
 
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11Texture3D>		m_pTexture;

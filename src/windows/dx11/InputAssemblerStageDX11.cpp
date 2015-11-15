@@ -89,11 +89,11 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 			}
 		}
 
-		UINT startSlot = min( DesiredState.VertexBuffers.GetStartSlot(),
+		u32 startSlot = min( DesiredState.VertexBuffers.GetStartSlot(),
 			min( DesiredState.VertexBufferOffsets.GetStartSlot(),
 			DesiredState.VertexBufferStrides.GetStartSlot() ) );
 
-		UINT endSlot = max( DesiredState.VertexBuffers.GetEndSlot(),
+		u32 endSlot = max( DesiredState.VertexBuffers.GetEndSlot(),
 			max( DesiredState.VertexBufferOffsets.GetEndSlot(),
 			DesiredState.VertexBufferStrides.GetEndSlot() ) );
 

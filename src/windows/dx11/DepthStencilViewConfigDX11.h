@@ -20,7 +20,7 @@ namespace forward
 
 		void SetFormat( DXGI_FORMAT state );
 		void SetViewDimensions( D3D11_DSV_DIMENSION state );
-		void SetFlags( UINT state );
+		void SetFlags( u32 state );
 
         void SetTexture1D( D3D11_TEX1D_DSV state );
         void SetTexture1DArray( D3D11_TEX1D_ARRAY_DSV state );

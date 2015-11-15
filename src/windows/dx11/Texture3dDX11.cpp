@@ -45,9 +45,9 @@ ID3D11Resource* Texture3dDX11::GetResource()
 	return( m_pTexture.Get() );
 }
 //--------------------------------------------------------------------------------
-forward::UINT Texture3dDX11::GetEvictionPriority()
+u32 Texture3dDX11::GetEvictionPriority()
 {
-	forward::UINT priority = 0;
+	u32 priority = 0;
 
 	if ( m_pTexture )
 		priority = m_pTexture->GetEvictionPriority();
@@ -55,7 +55,7 @@ forward::UINT Texture3dDX11::GetEvictionPriority()
 	return( priority );
 }
 //--------------------------------------------------------------------------------
-void Texture3dDX11::SetEvictionPriority( forward::UINT EvictionPriority )
+void Texture3dDX11::SetEvictionPriority( u32 EvictionPriority )
 {
 	if ( m_pTexture )
 		m_pTexture->SetEvictionPriority( EvictionPriority );

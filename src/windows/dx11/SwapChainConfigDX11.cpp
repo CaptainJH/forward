@@ -42,22 +42,22 @@ void SwapChainConfigDX11::SetDefaults()
 	m_State.Flags = 0; 
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetWidth( forward::UINT width )
+void SwapChainConfigDX11::SetWidth( u32 width )
 {
 	m_State.BufferDesc.Width = width;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetHeight( forward::UINT height )
+void SwapChainConfigDX11::SetHeight( u32 height )
 {
 	m_State.BufferDesc.Height = height;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetRefreshRateNumerator( forward::UINT numerator )
+void SwapChainConfigDX11::SetRefreshRateNumerator( u32 numerator )
 {
 	m_State.BufferDesc.RefreshRate.Numerator = numerator;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetRefreshRateDenominator( forward::UINT denominator )
+void SwapChainConfigDX11::SetRefreshRateDenominator( u32 denominator )
 {
 	m_State.BufferDesc.RefreshRate.Denominator = denominator;
 }
@@ -92,7 +92,7 @@ void SwapChainConfigDX11::SetBufferUsage( DXGI_USAGE BufferUsage )
 	m_State.BufferUsage = BufferUsage;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetBufferCount( forward::UINT BufferCount )
+void SwapChainConfigDX11::SetBufferCount( u32 BufferCount )
 {
 	m_State.BufferCount = BufferCount;
 }
@@ -112,7 +112,7 @@ void SwapChainConfigDX11::SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect )
 	m_State.SwapEffect = SwapEffect;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetFlags( forward::UINT Flags )
+void SwapChainConfigDX11::SetFlags( u32 Flags )
 {
 	m_State.Flags = Flags;
 }

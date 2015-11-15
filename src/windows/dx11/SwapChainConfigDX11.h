@@ -18,10 +18,10 @@ namespace forward
 
 		void SetDefaults();
 
-		void SetWidth( UINT width );
-		void SetHeight( UINT height );
-		void SetRefreshRateNumerator( UINT numerator );
-		void SetRefreshRateDenominator( UINT denominator );
+		void SetWidth( u32 width );
+		void SetHeight( u32 height );
+		void SetRefreshRateNumerator( u32 numerator );
+		void SetRefreshRateDenominator( u32 denominator );
 		void SetFormat( DXGI_FORMAT Format );
 		void SetScanlineOrder( DXGI_MODE_SCANLINE_ORDER ScanlineOrdering );
 		void SetScaling( DXGI_MODE_SCALING Scaling );
@@ -30,11 +30,11 @@ namespace forward
 		void SetBufferDesc( DXGI_MODE_DESC BufferDesc );
 		void SetSampleDesc( DXGI_SAMPLE_DESC SampleDesc );
 		void SetBufferUsage( DXGI_USAGE BufferUsage );
-		void SetBufferCount( UINT BufferCount );
+		void SetBufferCount( u32 BufferCount );
 		void SetOutputWindow( HWND OutputWindow );
 		void SetWindowed( bool Windowed );
 		void SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect );
-		void SetFlags( UINT Flags );
+		void SetFlags( u32 Flags );
 
 		DXGI_SWAP_CHAIN_DESC GetSwapChainDesc();
 

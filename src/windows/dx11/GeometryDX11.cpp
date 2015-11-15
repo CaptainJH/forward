@@ -96,7 +96,7 @@ void GeometryDX11::AddPoint( PointIndices& point )
 	m_vIndices.push_back( point.P1() );
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::AddIndex( forward::UINT index )
+void GeometryDX11::AddIndex( u32 index )
 {
 	m_vIndices.push_back( index );
 }
@@ -124,7 +124,7 @@ VertexElementDX11* GeometryDX11::GetElement( int index )
 	return( m_vElements[index] );
 }
 //--------------------------------------------------------------------------------
-forward::UINT GeometryDX11::GetIndex( forward::UINT index )
+u32 GeometryDX11::GetIndex( u32 index )
 {
 	if ( index < m_vIndices.size() )
 		return( m_vIndices[index] );
@@ -141,8 +141,8 @@ D3D11_PRIMITIVE_TOPOLOGY GeometryDX11::GetPrimitiveType()
 //--------------------------------------------------------------------------------
 int GeometryDX11::GetPrimitiveCount()
 {
-	UINT count = 0;
-	UINT indices = static_cast<forward::UINT>(m_vIndices.size());
+	u32 count = 0;
+	u32 indices = static_cast<u32>(m_vIndices.size());
 
 	switch ( m_ePrimType )
 	{
@@ -245,9 +245,9 @@ int GeometryDX11::GetVertexCount()
 	return( m_iVertexCount );
 }
 //--------------------------------------------------------------------------------
-forward::UINT GeometryDX11::GetElementCount()
+u32 GeometryDX11::GetElementCount()
 {
-	return( static_cast<forward::UINT>(m_vElements.size()) );
+	return( static_cast<u32>(m_vElements.size()) );
 }
 //--------------------------------------------------------------------------------
 int GeometryDX11::GetVertexSize()
@@ -386,13 +386,13 @@ void GeometryDX11::LoadToBuffers()
 	data.SysMemSlicePitch = 0;
 	
 	BufferConfigDX11 ibuffer;
-	ibuffer.SetDefaultIndexBuffer( sizeof( UINT ) * GetIndexCount(), false );
+	ibuffer.SetDefaultIndexBuffer( sizeof( u32 ) * GetIndexCount(), false );
 	m_IB = RendererDX11::Get()->CreateIndexBuffer( &ibuffer, &data );
 }
 //--------------------------------------------------------------------------------
-forward::UINT GeometryDX11::GetIndexCount()
+u32 GeometryDX11::GetIndexCount()
 {
-	return( static_cast<forward::UINT>(m_vIndices.size()) );
+	return( static_cast<u32>(m_vIndices.size()) );
 }
 //--------------------------------------------------------------------------------
 bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
@@ -457,11 +457,11 @@ bool GeometryDX11::ComputeTangentFrame( std::string positionSemantic,
     ZeroMemory( bitangents, m_iVertexCount * sizeof( Vector3f ) );
 
     // Loop through each triangle    
-    for ( UINT i = 0; i < m_vIndices.size(); i += 3 )
+    for ( u32 i = 0; i < m_vIndices.size(); i += 3 )
     {
-        UINT i1 = m_vIndices[i + 0];
-        UINT i2 = m_vIndices[i + 1];
-        UINT i3 = m_vIndices[i + 2];
+        u32 i1 = m_vIndices[i + 0];
+        u32 i2 = m_vIndices[i + 1];
+        u32 i3 = m_vIndices[i + 2];
 
         const Vector3f& v1 = *pPositionElement->Get3f( i1 );
         const Vector3f& v2 = *pPositionElement->Get3f( i2 );

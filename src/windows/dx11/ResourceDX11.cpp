@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-forward::UINT ResourceDX11::s_usResourceUID = 0;
+u32 ResourceDX11::s_usResourceUID = 0;
 //--------------------------------------------------------------------------------
 ResourceDX11::ResourceDX11( )
 {
@@ -16,7 +16,7 @@ ResourceDX11::~ResourceDX11()
 {
 }
 //--------------------------------------------------------------------------------
-forward::UINT ResourceDX11::GetInnerID()
+u32 ResourceDX11::GetInnerID()
 {
 	return( m_usInnerID );
 }

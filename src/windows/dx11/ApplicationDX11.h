@@ -49,7 +49,7 @@ namespace forward
 
 		// Request an exit from windows
 		void RequestTermination();
-		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		virtual LRESULT MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam);
 
 
 	protected:
@@ -80,7 +80,7 @@ namespace forward
 		bool      mMinimized;
 		bool      mMaximized;
 		bool      mResizing;
-		UINT      m4xMsaaQuality;
+		u32      m4xMsaaQuality;
 
 		Timer mTimer;
 		FileSystem mFileSystem;

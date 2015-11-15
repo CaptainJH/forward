@@ -28,20 +28,20 @@ namespace forward
 
 		void SetDefaults();
 
-		void SetDefaultConstantBuffer( UINT size, bool dynamic );
-		void SetDefaultVertexBuffer( UINT size, bool dynamic );
-		void SetDefaultIndexBuffer( UINT size, bool dynamic );
-		void SetDefaultStructuredBuffer( UINT size, UINT structsize );
-		void SetDefaultByteAddressBuffer( UINT size );
-		void SetDefaultIndirectArgsBuffer( UINT size );
-		void SetDefaultStagingBuffer( UINT size );
+		void SetDefaultConstantBuffer( u32 size, bool dynamic );
+		void SetDefaultVertexBuffer( u32 size, bool dynamic );
+		void SetDefaultIndexBuffer( u32 size, bool dynamic );
+		void SetDefaultStructuredBuffer( u32 size, u32 structsize );
+		void SetDefaultByteAddressBuffer( u32 size );
+		void SetDefaultIndirectArgsBuffer( u32 size );
+		void SetDefaultStagingBuffer( u32 size );
 
-		void SetByteWidth( UINT state );
+		void SetByteWidth( u32 state );
 		void SetUsage( D3D11_USAGE state );
-	    void SetBindFlags( UINT state );
-	    void SetCPUAccessFlags( UINT state );
-	    void SetMiscFlags( UINT state );	
-	    void SetStructureByteStride( UINT state );
+	    void SetBindFlags( u32 state );
+	    void SetCPUAccessFlags( u32 state );
+	    void SetMiscFlags( u32 state );	
+	    void SetStructureByteStride( u32 state );
 
 		D3D11_BUFFER_DESC GetBufferDesc();
 
