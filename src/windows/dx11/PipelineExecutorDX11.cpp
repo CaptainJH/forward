@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "PipelineExecutorDX11.h"
-//#include "RendererDX11.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -41,18 +41,18 @@ i32 PipelineExecutorDX11::GetInputLayout( i32 ShaderID )
 	return( layout );
 }
 //--------------------------------------------------------------------------------
-void PipelineExecutorDX11::GenerateInputLayout( i32 /*ShaderID*/ )
+void PipelineExecutorDX11::GenerateInputLayout( i32 ShaderID )
 {
 	// Create the input layout for the given shader index
 
-	//RendererDX11* pRenderer = RendererDX11::Get();
-	//if ( m_InputLayouts[ShaderID] == 0 )
-	//{
-	//	InputLayoutKey* pKey = new InputLayoutKey();
-	//	pKey->shader = ShaderID;
-	//	pKey->layout = pRenderer->CreateInputLayout( m_elements, ShaderID );
-	//	m_InputLayouts[ShaderID] = pKey;
-	//}
+	RendererDX11* pRenderer = RendererDX11::Get();
+	if ( m_InputLayouts[ShaderID] == 0 )
+	{
+		InputLayoutKey* pKey = new InputLayoutKey();
+		pKey->shader = ShaderID;
+		pKey->layout = pRenderer->CreateInputLayout( m_elements, ShaderID );
+		m_InputLayouts[ShaderID] = pKey;
+	}
 }
 //--------------------------------------------------------------------------------
 void PipelineExecutorDX11::SetLayoutElements( u32 count, D3D11_INPUT_ELEMENT_DESC* pElements )

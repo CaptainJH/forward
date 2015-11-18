@@ -42,6 +42,7 @@ namespace forward
         static std::string BoneIDSemantic;
 		static std::string BoneWeightSemantic;
         static std::string TangentSemantic;
+		static std::string ColorSemantic;
 
 	public:
 		VertexElementDX11( i32 tuple, i32 elementCount );

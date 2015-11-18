@@ -20,6 +20,7 @@ std::string VertexElementDX11::TexCoordSemantic = "TEXCOORDS";
 std::string VertexElementDX11::BoneIDSemantic = "BONEIDS";
 std::string VertexElementDX11::BoneWeightSemantic = "BONEWEIGHTS";
 std::string VertexElementDX11::TangentSemantic = "TANGENT";
+std::string VertexElementDX11::ColorSemantic = "COLOR";
 
 //--------------------------------------------------------------------------------
 VertexElementDX11::VertexElementDX11( i32 float_tuple, i32 elementCount )

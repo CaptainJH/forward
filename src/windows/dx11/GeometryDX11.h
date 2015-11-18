@@ -39,9 +39,9 @@ namespace forward
 		virtual void Execute( PipelineManagerDX11* pPipeline );
 
 		void AddElement( VertexElementDX11* element );
-		void AddFace( TriangleIndices& face );
-		void AddLine( LineIndices& line );
-		void AddPoint( PointIndices& point );
+		void AddFace( const TriangleIndices& face );
+		void AddLine( const LineIndices& line );
+		void AddPoint( const PointIndices& point );
 		void AddIndex( u32 index );
 
         VertexElementDX11* GetElement( std::string name );

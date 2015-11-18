@@ -2,7 +2,7 @@
 cbuffer Transforms
 {
 	matrix WorldViewProjMatrix;	
-	float4 Distance;
+	//float4 Distance;
 };
 
 Texture2D tex0: register( t0 );;
@@ -42,14 +42,7 @@ VS_OUTPUT VSMain( in VS_INPUT v )
 //-----------------------------------------------------------------------------
 float4 PSMain( in GS_INPUTOUTPUT input ) : SV_Target
 {
-	float threshold = 0.8f;
-	float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	float d = min(input.color.x, min(input.color.y, input.color.z));
-	if(d < threshold && Distance.w > 0)
-		color = Distance;
-
-	return( color );
+	return input.color;
 }
 
 
