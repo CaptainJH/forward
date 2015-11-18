@@ -72,7 +72,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 
 void BasicGeometryApp::UpdateScene(f32 /*dt*/)
 {
-	auto frames = (float)mTimer.FrameCount() / 1000;
+	auto frames = (f32)mTimer.FrameCount() / 1000;
 	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
 }
 
