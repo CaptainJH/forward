@@ -25,7 +25,10 @@ public:
 		: Application(hInstance, width, height)
 		, m_vsID(-1)
 		, m_psID(-1)
-	{}
+	{
+		mMainWndCaption = L"BasicGeometryApp";
+	}
+
 	~BasicGeometryApp()
 	{
 		Log::Get().Close();
@@ -120,7 +123,7 @@ bool BasicGeometryApp::Init()
 
 void BasicGeometryApp::BuildShaders()
 {
-	const std::wstring shaderfile = L"shader.hlsl";
+	const std::wstring shaderfile = L"BasicShader.hlsl";
 	const std::wstring VSMain = L"VSMain";
 	const std::wstring PSMain = L"PSMain";
 	m_vsID = m_pRender->LoadShader(ShaderType::VERTEX_SHADER, shaderfile, VSMain, std::wstring(L"vs_5_0"));

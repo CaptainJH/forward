@@ -18,7 +18,10 @@ public:
 		: Application(hInstance, width, height)
 		, m_vsID(-1)
 		, m_psID(-1)
-	{}
+	{
+		mMainWndCaption = L"Hello World!";
+	}
+
 	~HelloWorld()
 	{
 		Log::Get().Close();
@@ -89,7 +92,7 @@ bool HelloWorld::Init()
 
 void HelloWorld::BuildShaders()
 {
-	const std::wstring shaderfile = L"shader.hlsl";
+	const std::wstring shaderfile = L"BasicShader.hlsl";
 	const std::wstring VSMain = L"VSMainQuad";
 	const std::wstring PSMain = L"PSMainQuad";
 	m_vsID = m_pRender->LoadShader(ShaderType::VERTEX_SHADER, shaderfile, VSMain, std::wstring(L"vs_5_0"));

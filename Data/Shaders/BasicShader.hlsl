@@ -2,11 +2,7 @@
 cbuffer Transforms
 {
 	matrix WorldViewProjMatrix;	
-	//float4 Distance;
 };
-
-Texture2D tex0: register( t0 );;
-SamplerState s0: register( s0 );;
 
 //-----------------------------------------------------------------------------
 struct VS_INPUT
@@ -19,12 +15,6 @@ struct VS_OUTPUT
 {
 	float4 position : SV_Position;
 	float4 color : COLOR;
-};
-
-struct GS_INPUTOUTPUT
-{
-	float4 position			: SV_Position;
-	float4 color			: COLOR;
 };
 
 //-----------------------------------------------------------------------------
@@ -40,7 +30,7 @@ VS_OUTPUT VSMain( in VS_INPUT v )
 
 
 //-----------------------------------------------------------------------------
-float4 PSMain( in GS_INPUTOUTPUT input ) : SV_Target
+float4 PSMain( in VS_OUTPUT input ) : SV_Target
 {
 	return input.color;
 }
@@ -55,7 +45,7 @@ VS_OUTPUT VSMainQuad( in VS_INPUT v, uint vid : SV_VertexID )
 
 	return o;
 }
-float4 PSMainQuad( in GS_INPUTOUTPUT input ) : SV_Target
+float4 PSMainQuad( in VS_OUTPUT input ) : SV_Target
 {
 	return input.color;
 }
