@@ -96,8 +96,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	//MSAA_Demo theApp(hInstance, 1200, 800);
-	MSAA_Demo theApp(hInstance, 800, 600);
+	MSAA_Demo theApp(hInstance, 1200, 800);
 
 	if (!theApp.Init())
 		return 0;
