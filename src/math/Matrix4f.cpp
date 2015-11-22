@@ -396,7 +396,7 @@ Matrix4f Matrix4f::TranslationMatrix( f32 fX, f32 fY, f32 fZ )
 	return( ret );
 }
 //----------------------------------------------------------------------------------------------------
-Matrix4f Matrix4f::LookAtLHMatrix( Vector3f& eye, Vector3f& at, Vector3f& up )
+Matrix4f Matrix4f::LookAtLHMatrix(const Vector3f& eye, const Vector3f& at, const Vector3f& up )
 {
 	// This method is based on the method of the same name from the D3DX library.
 

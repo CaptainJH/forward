@@ -265,6 +265,10 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lPara
 			OnEnter();
 			break;
 		};
+
+	case WM_CHAR:
+		OnChar(static_cast<i8>(wParam));
+		break;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);

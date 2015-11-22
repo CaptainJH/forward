@@ -25,9 +25,9 @@ namespace forward
 		void RotationX( f32 fRadians );
 		void RotationY( f32 fRadians );
 		void RotationZ( f32 fRadians );
-		void Rotation( Vector3f& Rot );
-		void RotationZYX( Vector3f& Rot );
-		void RotationEuler( Vector3f& Axis, f32 Angle );
+		void Rotation(const Vector3f& Rot );
+		void RotationZYX(const Vector3f& Rot );
+		void RotationEuler(const Vector3f& Axis, f32 Angle );
 		void Orthonormalize();
 
 		void MakeZero();

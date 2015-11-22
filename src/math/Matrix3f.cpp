@@ -102,7 +102,7 @@ void Matrix3f::RotationZ( f32 fRadians )
 	m_afEntry[ 8] = 1.0f;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::Rotation( Vector3f& Rot )
+void Matrix3f::Rotation(const Vector3f& Rot )
 {
 	Matrix3f mRot1;
 	Matrix3f mRot2;
@@ -115,7 +115,7 @@ void Matrix3f::Rotation( Vector3f& Rot )
 	*this = mRot1;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationZYX( Vector3f& Rot )
+void Matrix3f::RotationZYX(const Vector3f& Rot )
 {
 	Matrix3f mRot1;
 	Matrix3f mRot2;
@@ -128,7 +128,7 @@ void Matrix3f::RotationZYX( Vector3f& Rot )
 	*this = mRot1;
 }
 //----------------------------------------------------------------------------------------------------
-void Matrix3f::RotationEuler( Vector3f& Axis, f32 Angle )
+void Matrix3f::RotationEuler(const Vector3f& Axis, f32 Angle )
 {
 	f32 s = sinf( Angle );
 	f32 c = cosf( Angle );

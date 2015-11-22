@@ -63,6 +63,7 @@ namespace forward
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
+		virtual void OnChar(i8 /*key*/) {}
 
 	protected:
 		bool InitMainWindow();
