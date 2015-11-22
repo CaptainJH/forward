@@ -80,7 +80,7 @@ void Camera::setViewMatrix(const Matrix4f& mat4)
 	m_rot = inv.GetRotation();
 }
 
-Matrix4f Camera::upViewMatrix()
+Matrix4f Camera::updateViewMatrix()
 {
 	Matrix4f viewMat;
 

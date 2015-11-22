@@ -14,7 +14,7 @@ namespace forward
 		void updateWithKeyboardInput(i8 key);
 		void updateWithMouseInput(i32 x, i32 y);
 
-		Matrix4f upViewMatrix();
+		Matrix4f updateViewMatrix();
 		void setViewMatrix(const Matrix4f& mat4);
 
 		void pitch(f32 radians);

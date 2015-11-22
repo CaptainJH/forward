@@ -4,6 +4,8 @@
 #include "Texture2dConfigDX11.h"
 #include "ShaderResourceViewConfigDX11.h"
 #include "RenderTargetViewConfigDX11.h"
+#include "DepthStencilViewConfigDX11.h"
+#include "ShaderResourceViewConfigDX11.h"
 #include "SamplerStateConfigDX11.h"
 #include "ShaderResourceViewDX11.h"
 #include "TriangleIndices.h"
@@ -23,6 +25,7 @@ struct Vertex
 struct CBufferType
 {
 	Matrix4f mat;
+	Matrix4f matLight;
 };
 
 class ShadowMapApp : public Application
@@ -32,7 +35,7 @@ public:
 		: Application(hInstance, width, height)
 		, m_vsID(-1)
 		, m_psID(-1)
-		, m_drawFrame(true)
+		, m_drawShadowTarget(false)
 	{
 		mMainWndCaption = L"ShadowMapApp";
 	}
@@ -54,6 +57,8 @@ protected:
 	virtual void OnMouseDown(WPARAM btnState, i32 x, i32 y);
 	virtual void OnMouseMove(WPARAM btnState, i32 x, i32 y);
 
+	void renderShadowTarget(const Matrix4f& mat);
+
 private:
 	void BuildShaders();
 	void BuildGeometry();
@@ -63,21 +68,24 @@ private:
 	i32 m_vsID;
 	i32 m_psID;
 
+	i32 m_vsShadowTargetID;
+	i32 m_psShadowTargetID;
+
 	GeometryPtr m_pGeometry;
+	GeometryPtr m_pFloor;
 	Matrix4f m_worldMat;
 	ResourcePtr m_constantBuffer;
 
-	GeometryPtr m_pFloor;
-
-	i32 m_rsStateID;
 	ResourcePtr m_renderTargetTex;
 	ResourcePtr m_depthTargetTex;
-	ResourcePtr m_resolveTex;
 	i32 m_samplerID;
 
-	bool m_drawFrame;
+	bool m_drawShadowTarget;
 
 	Camera m_camMain;
+	Camera m_camLight;
 	i32 m_preMouseX;
 	i32 m_preMouseY;
+
+	i32 m_shadowMapViewportID;
 };
