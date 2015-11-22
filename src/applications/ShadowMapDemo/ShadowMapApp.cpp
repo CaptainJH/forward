@@ -29,6 +29,7 @@ void ShadowMapApp::DrawScene()
 		auto pBuffer = (CBufferType*)pData.pData;
 		pBuffer->mat = m_worldMat * viewMat * m_camMain.getProjectionMatrix();
 		pBuffer->matLight = m_worldMat * viewLight * m_camMain.getProjectionMatrix();
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 
 		ShaderStageStateDX11 vsState;
@@ -39,7 +40,9 @@ void ShadowMapApp::DrawScene()
 		ShaderStageStateDX11 psState;
 		psState.ShaderProgram.SetState(m_psID);
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
+		psState.SamplerStates.SetState(1, m_pRender->GetSamplerState(m_pcfSamplerID).Get());
 		psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_depthTargetTex->m_iResourceSRV).GetSRV());
+		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
@@ -52,6 +55,7 @@ void ShadowMapApp::DrawScene()
 		pBuffer = (CBufferType*)pData.pData;
 		pBuffer->mat = viewMat * m_camMain.getProjectionMatrix();
 		pBuffer->matLight = viewLight * m_camMain.getProjectionMatrix();
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 		m_pFloor->Execute(m_pRender->pImmPipeline);
 	}
@@ -144,6 +148,11 @@ void ShadowMapApp::BuildRenderTarget()
 
 	SamplerStateConfigDX11 sampConfig;
 	m_samplerID = m_pRender->CreateSamplerState(&sampConfig);
+
+	// Create the PCF sampler state
+	sampConfig.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampConfig.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	m_pcfSamplerID = m_pRender->CreateSamplerState(&sampConfig);
 }
 
 void ShadowMapApp::OnResize()
@@ -301,6 +310,10 @@ void ShadowMapApp::OnChar(i8 key)
 	case 'd':
 		m_camMain.updateWithKeyboardInput(key);
 		break;
+
+	case 'p':
+		m_usePCF = !m_usePCF;
+		break;
 	}
 }
 
@@ -332,6 +345,9 @@ void ShadowMapApp::renderShadowTarget(const Matrix4f& ViewLight)
 {
 	if (!m_drawShadowTarget)
 	{
+		m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+		m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 1);
+
 		// setup render target
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_renderTargetTex->m_iResourceRTV);
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_depthTargetTex->m_iResourceDSV);
@@ -340,6 +356,9 @@ void ShadowMapApp::renderShadowTarget(const Matrix4f& ViewLight)
 	}
 	else
 	{
+		m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+		m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
+
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
@@ -363,9 +382,6 @@ void ShadowMapApp::renderShadowTarget(const Matrix4f& ViewLight)
 	psState.ShaderProgram.SetState(m_psShadowTargetID);
 	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
-
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 1);
 
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 	m_pGeometry->Execute(m_pRender->pImmPipeline);

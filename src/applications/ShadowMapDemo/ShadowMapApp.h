@@ -26,6 +26,7 @@ struct CBufferType
 {
 	Matrix4f mat;
 	Matrix4f matLight;
+	Vector4f flags;
 };
 
 class ShadowMapApp : public Application
@@ -36,6 +37,7 @@ public:
 		, m_vsID(-1)
 		, m_psID(-1)
 		, m_drawShadowTarget(false)
+		, m_usePCF(false)
 	{
 		mMainWndCaption = L"ShadowMapApp";
 	}
@@ -79,8 +81,10 @@ private:
 	ResourcePtr m_renderTargetTex;
 	ResourcePtr m_depthTargetTex;
 	i32 m_samplerID;
+	i32 m_pcfSamplerID;
 
 	bool m_drawShadowTarget;
+	bool m_usePCF;
 
 	Camera m_camMain;
 	Camera m_camLight;
