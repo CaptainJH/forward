@@ -45,7 +45,7 @@ void Vector3f::Normalize( )
 	z *= fInvMag;
 }
 //----------------------------------------------------------------------------------------------------
-f32 Vector3f::Magnitude( )
+f32 Vector3f::Magnitude() const
 {
 	f32 fLength = 0.0f;
 

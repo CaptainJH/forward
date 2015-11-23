@@ -23,6 +23,14 @@ namespace forward
 		void setProjectionParams(f32 fov, f32 aspect, f32 nearPlane, f32 farPlane);
 		const Matrix4f& getProjectionMatrix() const;
 
+		f32 getFOV() const { return m_fov; }
+		f32 getAspectRatio() const { return m_aspect; }
+		f32 getNearClip() const { return m_near; }
+		f32 getFarClip() const { return m_far; }
+		const Vector3f& getWorldEyePos() const { return m_pos; }
+		Vector3f getWorldRight() const { return m_rot.GetRow(0); }
+		Vector3f getWorldUp() const { return m_rot.GetRow(1); }
+		Vector3f getWorldLookingDir() const { return m_rot.GetRow(2); }
 
 	protected:
 		Vector3f m_pos;

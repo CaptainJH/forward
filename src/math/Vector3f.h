@@ -21,7 +21,7 @@ namespace forward
 		Vector3f Cross( const Vector3f& A ) const;
 		f32 Dot( const Vector3f& A ) const;
 		void MakeZero( );
-		f32 Magnitude( );
+		f32 Magnitude() const;
 		void Normalize( );
         Vector3f Perpendicular( );
 
