@@ -4,6 +4,7 @@ cbuffer Transforms
 	matrix WorldViewProjMatrix;	
 	matrix WorldViewProjMatrixLight;
 	float4 flags;
+	matrix CSMViewProjMatrix[3];
 };
 
 Texture2D<float> tex0: register( t0 );
@@ -22,6 +23,14 @@ struct VS_OUTPUT
 	float4 position : SV_Position;
 	float4 color : COLOR;
 	float4 positionLight : PositionLightSpace;
+};
+
+struct GS_OUTPUT
+{
+	float4 Pos		: SV_POSITION;
+	float4 Color 	: COLOR;
+	float4 positionLight : PositionLightSpace;	
+	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
 //-----------------------------------------------------------------------------
@@ -82,4 +91,37 @@ VS_OUTPUT VSShadowTargetMain( in VS_INPUT v )
 float4 PSShadowTargetMain( in VS_OUTPUT input ) : SV_Target
 {
 	return input.color;
+}
+
+//-----------------------------------------------------------------------------
+VS_OUTPUT VSCSMTargetMain(in VS_INPUT v)
+{
+	VS_OUTPUT o = (VS_OUTPUT)0;
+	o.position = v.position;
+	o.color = v.color;
+
+	return o;
+}
+
+///////////////////////////////////////////////////////////////////
+// Cascaded shadow maps generation
+///////////////////////////////////////////////////////////////////
+[maxvertexcount(9)]
+void GSCSMTargetMain(triangle float4 InPos[3] : SV_Position, inout TriangleStream<GS_OUTPUT> OutStream)
+{
+	for(int iFace = 0; iFace < 3; iFace++ )
+	{
+		GS_OUTPUT output;
+
+		output.RTIndex = iFace;
+
+		for(int v = 0; v < 3; v++ )
+		{
+			output.Pos = mul(InPos[v], CSMViewProjMatrix[iFace]);
+			output.Color = float4(1, 0, 0, 1);
+			output.positionLight = output.Pos;
+			OutStream.Append(output);
+		}
+		OutStream.RestartStrip();
+	}
 }

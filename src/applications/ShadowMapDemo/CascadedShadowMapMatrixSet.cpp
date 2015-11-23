@@ -184,7 +184,7 @@ void CascadedShadowMapMatrixSet::ExtractFrustumBoundSphere(f32 fNear, f32 fFar, 
 
 	// Calculate the tangent values (this can be cached as long as the FOV doesn't change)
 	const float fTanFOVX = tanf(m_camera.getAspectRatio() * m_camera.getFOV());
-	const float fTanFOVY = tanf(m_camera.getAspectRatio());
+	const float fTanFOVY = tanf(m_camera.getFOV());
 
 	// The center of the sphere is in the center of the frustum
 	vBoundCenter = camPos + camForward * (fNear + 0.5f * (fNear + fFar));
