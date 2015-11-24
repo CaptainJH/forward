@@ -5,9 +5,13 @@ cbuffer Transforms
 	matrix WorldViewProjMatrixLight;
 	float4 flags;
 	matrix CSMViewProjMatrix[3];
+	float4 toCascadeOffsetX;
+	float4 toCascadeOffsetY;
+	float4 toCascadeScale;
 };
 
 Texture2D<float> tex0: register( t0 );
+Texture2DArray<float> tex1 : register( t1 );
 SamplerState s0: register( s0 );
 SamplerComparisonState PCFSampler : register( s1 );
 
@@ -50,19 +54,59 @@ VS_OUTPUT VSMain( in VS_INPUT v )
 float4 PSMain( in VS_OUTPUT input ) : SV_Target
 {
 	float4 ambient = float4(0.01, 0.01, 0.01, 1);
-	float bias = 0.0001f;
+	float bias = 0.000001f;
 	float3 pos = input.positionLight.xyz / input.positionLight.w;
 	float2 uv = float2(0, 0);
 	uv.x = pos.x * 0.5f + 0.5f;
-	uv.y = -pos.y * 0.5 + 0.5f;
+	uv.y = -pos.y * 0.5f + 0.5f;
+	float d = pos.z - bias;	
 	float depthInShadowMap = tex0.Sample(s0, uv).r;
-	float depthInShadowMapPCF = tex0.SampleCmpLevelZero(PCFSampler, uv, pos.z - bias).r;
-
-	float d = pos.z - bias;
+	float depthInShadowMapPCF = tex0.SampleCmpLevelZero(PCFSampler, uv, d).r;
 
 	bool usePCF = (flags.x >= 1.0f);
+	bool useCSM = (flags.y >= 1.0f);
 
-	if(usePCF)
+	if(useCSM)
+	{
+		// Transform the shadow space position into each cascade position
+		float4 posCascadeSpaceX = (toCascadeOffsetX + pos.xxxx) * toCascadeScale;
+		float4 posCascadeSpaceY = (toCascadeOffsetY + pos.yyyy) * toCascadeScale;
+
+		// Check which cascade we are in
+		float4 inCascadeX = abs(posCascadeSpaceX) <= 1.0;
+		float4 inCascadeY = abs(posCascadeSpaceY) <= 1.0;
+		float4 inCascade = inCascadeX * inCascadeY;
+
+		// Prepare a mask for the highest quality cascade the position is in
+		float4 bestCascadeMask = inCascade;
+		bestCascadeMask.yzw = (1.0 - bestCascadeMask.x) * bestCascadeMask.yzw;
+		bestCascadeMask.zw = (1.0 - bestCascadeMask.y) * bestCascadeMask.zw;
+		bestCascadeMask.w = (1.0 - bestCascadeMask.z) * bestCascadeMask.w;
+		float bestCascade = dot(bestCascadeMask, float4(0.0, 1.0, 2.0, 3.0));
+
+		// Pick the position in the selected cascade
+		float3 UVD;
+		UVD.x = dot(posCascadeSpaceX, bestCascadeMask);
+		UVD.y = dot(posCascadeSpaceY, bestCascadeMask);
+		UVD.z = pos.z;
+
+		// Convert to shadow map UV values
+		UVD.xy = 0.5 * UVD.xy + 0.5;
+		UVD.y = 1.0 - UVD.y;
+
+		depthInShadowMap = tex1.Sample(s0, float3(UVD.xy, bestCascade));
+		depthInShadowMapPCF = tex1.SampleCmpLevelZero(PCFSampler, float3(UVD.xy, bestCascade), d);
+
+		if(usePCF)
+			return input.color * depthInShadowMapPCF;
+		else
+		{
+			if(d >= depthInShadowMap)
+				return ambient * input.color;
+			return input.color;
+		}
+	}
+	else if(usePCF)
 	{
 		return input.color * depthInShadowMapPCF;
 	}

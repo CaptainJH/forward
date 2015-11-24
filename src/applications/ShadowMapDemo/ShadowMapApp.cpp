@@ -28,8 +28,18 @@ void ShadowMapApp::DrawScene()
 		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
 		auto pBuffer = (CBufferType*)pData.pData;
 		pBuffer->mat = m_worldMat * viewMat * m_camMain.getProjectionMatrix();
-		pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+		if (m_useCSM)
+		{
+			pBuffer->matLight = m_worldMat * m_CSM.GetWorldToShadowSpace();
+		}
+		else
+		{
+			pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
+		}
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
+		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
+		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
+		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 
 		ShaderStageStateDX11 vsState;
@@ -46,6 +56,7 @@ void ShadowMapApp::DrawScene()
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
 		psState.SamplerStates.SetState(1, m_pRender->GetSamplerState(m_pcfSamplerID).Get());
 		psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_shadowMapDepthTargetTex->m_iResourceSRV).GetSRV());
+		psState.ShaderResourceViews.SetState(1, m_pRender->GetShaderResourceViewByIndex(m_CSMDepthTargetTex->m_iResourceSRV).GetSRV());
 		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
@@ -58,8 +69,18 @@ void ShadowMapApp::DrawScene()
 		pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
 		pBuffer = (CBufferType*)pData.pData;
 		pBuffer->mat = viewMat * m_camMain.getProjectionMatrix();
-		pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+		if (m_useCSM)
+		{
+			pBuffer->matLight = m_CSM.GetWorldToShadowSpace();
+		}
+		else
+		{
+			pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
+		}
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
+		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
+		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
+		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 		m_pFloor->Execute(m_pRender->pImmPipeline);
 
@@ -85,10 +106,10 @@ bool ShadowMapApp::Init()
 	target.y = 1.0f;
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	m_camMain.setViewMatrix(Matrix4f::LookAtLHMatrix(pos, target, up));
-	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(2.0f, 10.0f, 2.0f), target, up));
+	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(2.0f, 80.0f, 2.0f), target, up));
 	// Build the projection matrix
 	m_camMain.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 50.0f);
-	m_camLight.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 50.0f);
+	m_camLight.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
 	BufferConfigDX11 cbConfig;
 	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
@@ -156,6 +177,8 @@ void ShadowMapApp::BuildRenderTarget()
 
 	/// create depth buffer texture for CSM
 	texConfig.SetDepthBuffer(shadowTargetWidth, shadowTargetWidth);
+	texConfig.SetFormat(DXGI_FORMAT_R32_TYPELESS);
+	texConfig.SetBindFlags(D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
 	texConfig.SetArraySize(m_CSM.m_iTotalCascades);
 	texConfig.SetMiscFlags(0);
 	D3D11_TEX2D_ARRAY_SRV csmSrv;
@@ -193,9 +216,6 @@ void ShadowMapApp::BuildRenderTarget()
 	sampConfig.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 	sampConfig.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	m_pcfSamplerID = m_pRender->CreateSamplerState(&sampConfig);
-
-	// Create the CSM sampler state
-	
 }
 
 void ShadowMapApp::OnResize()
@@ -273,7 +293,7 @@ void ShadowMapApp::BuildGeometry()
 		m_pGeometry->LoadToBuffers();
 	}
 
-	// create the floor: shaow receiver
+	// create the floor: shadow receiver
 	{
 		m_pFloor = GeometryPtr(new GeometryDX11());
 
@@ -356,6 +376,10 @@ void ShadowMapApp::OnChar(i8 key)
 
 	case 'p':
 		m_usePCF = !m_usePCF;
+		break;
+
+	case 'c':
+		m_useCSM = !m_useCSM;
 		break;
 	}
 }

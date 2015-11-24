@@ -30,6 +30,9 @@ struct CBufferType
 	Matrix4f matLight;
 	Vector4f flags;
 	Matrix4f matCSM[CascadedShadowMapMatrixSet::m_iTotalCascades];
+	Vector4f toCascadeOffsetX;
+	Vector4f toCascadeOffsetY;
+	Vector4f toCascadeScale;
 };
 
 class ShadowMapApp : public Application
@@ -41,6 +44,7 @@ public:
 		, m_psID(-1)
 		, m_drawShadowTarget(false)
 		, m_usePCF(false)
+		, m_useCSM(false)
 		, m_CSM(m_camMain)
 	{
 		mMainWndCaption = L"ShadowMapApp";
@@ -93,10 +97,10 @@ private:
 	ResourcePtr m_CSMDepthTargetTex;
 	i32 m_samplerID;
 	i32 m_pcfSamplerID;
-	i32 m_CSMSamplerID;
 
 	bool m_drawShadowTarget;
 	bool m_usePCF;
+	bool m_useCSM;
 
 	Camera m_camMain;
 	Camera m_camLight;

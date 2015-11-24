@@ -5,8 +5,8 @@
 using namespace forward;
 
 CascadedShadowMapMatrixSet::CascadedShadowMapMatrixSet(const Camera& ca) 
-	: m_bAntiFlickerOn(true)
-	, m_fCascadeTotalRange(50.0f)
+	: m_bAntiFlickerOn(false)
+	, m_fCascadeTotalRange(100.0f)
 	, m_camera(ca)
 {
 
@@ -94,7 +94,7 @@ void CascadedShadowMapMatrixSet::Update(const Vector3f& vDirectionalDir)
 
 			// Update the scale from shadow to cascade space
 			m_vToCascadeScale[iCascadeIdx] = m_fShadowBoundRadius / m_arrCascadeBoundRadius[iCascadeIdx];
-			cascadeScale.ScaleMatrix(Vector3f(m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f));
+			cascadeScale = Matrix4f::ScaleMatrix(Vector3f(m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f));
 			//Matrix4fScaling( &cascadeScale, m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f );
 		}
 		else
@@ -104,7 +104,7 @@ void CascadedShadowMapMatrixSet::Update(const Vector3f& vDirectionalDir)
 			Vector3f arrFrustumPoints[8];
 			ExtractFrustumPoints(m_arrCascadeRanges[iCascadeIdx], m_arrCascadeRanges[iCascadeIdx+1], arrFrustumPoints);
 
-			// Transform to shadow space and extract the minimum andn maximum
+			// Transform to shadow space and extract the minimum and maximum
 			Vector3f vMin = Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
 			Vector3f vMax = Vector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 			for(auto i = 0; i < 8; i++)
@@ -132,7 +132,7 @@ void CascadedShadowMapMatrixSet::Update(const Vector3f& vDirectionalDir)
 
 			// Update the scale from shadow to cascade space
 			m_vToCascadeScale[iCascadeIdx] = 2.0f / std::max(vMax.x - vMin.x, vMax.y - vMin.y);
-			cascadeScale.ScaleMatrix(Vector3f(m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f));
+			cascadeScale = Matrix4f::ScaleMatrix(Vector3f(m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f));
 			//Matrix4fScaling( &cascadeScale, m_vToCascadeScale[iCascadeIdx], m_vToCascadeScale[iCascadeIdx], 1.0f );
 		}
 
@@ -158,8 +158,8 @@ void CascadedShadowMapMatrixSet::ExtractFrustumPoints(f32 fNear, f32 fFar, Vecto
 	const Vector3f& camForward = m_camera.getWorldLookingDir();
 
 	// Calculate the tangent values (this can be cached
-	const f32 fTanFOVX = tanf(m_camera.getAspectRatio() * m_camera.getFOV());
-	const f32 fTanFOVY = tanf(m_camera.getAspectRatio());
+	const float fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
+	const float fTanFOVY = tanf(m_camera.getFOV() / 2);
 
 	// Calculate the points on the near plane
 	arrFrustumCorners[0] = camPos + (-camRight * fTanFOVX + camUp * fTanFOVY + camForward) * fNear;
@@ -183,8 +183,8 @@ void CascadedShadowMapMatrixSet::ExtractFrustumBoundSphere(f32 fNear, f32 fFar, 
 	const Vector3f& camForward = m_camera.getWorldLookingDir();
 
 	// Calculate the tangent values (this can be cached as long as the FOV doesn't change)
-	const float fTanFOVX = tanf(m_camera.getAspectRatio() * m_camera.getFOV());
-	const float fTanFOVY = tanf(m_camera.getFOV());
+	const float fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
+	const float fTanFOVY = tanf(m_camera.getFOV() / 2);
 
 	// The center of the sphere is in the center of the frustum
 	vBoundCenter = camPos + camForward * (fNear + 0.5f * (fNear + fFar));
