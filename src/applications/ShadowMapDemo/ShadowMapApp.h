@@ -29,7 +29,7 @@ struct CBufferType
 	Matrix4f mat;
 	Matrix4f matLight;
 	Vector4f flags;
-	Matrix4f matCSM[CascadedShadowMapMatrixSet::m_iTotalCascades];
+	Matrix4f matCSM[CascadedShadowMapMatrixSetCaculator::m_iTotalCascades];
 	Vector4f toCascadeOffsetX;
 	Vector4f toCascadeOffsetY;
 	Vector4f toCascadeScale;
@@ -110,5 +110,5 @@ private:
 	i32 m_shadowMapViewportID;
 	i32 m_CSMViewportID;
 
-	CascadedShadowMapMatrixSet m_CSM;
+	CascadedShadowMapMatrixSetCaculator m_CSM;
 };

@@ -5,12 +5,12 @@
 
 namespace forward
 {
-	class CascadedShadowMapMatrixSet
+	class CascadedShadowMapMatrixSetCaculator
 	{
 	public:
 
-		CascadedShadowMapMatrixSet(const Camera& ca);
-		~CascadedShadowMapMatrixSet();
+		CascadedShadowMapMatrixSetCaculator(const Camera& ca);
+		~CascadedShadowMapMatrixSetCaculator();
 
 		void Init(i32 iShadowMapSize);
 

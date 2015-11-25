@@ -4,7 +4,7 @@
 
 using namespace forward;
 
-CascadedShadowMapMatrixSet::CascadedShadowMapMatrixSet(const Camera& ca) 
+CascadedShadowMapMatrixSetCaculator::CascadedShadowMapMatrixSetCaculator(const Camera& ca) 
 	: m_bAntiFlickerOn(false)
 	, m_fCascadeTotalRange(100.0f)
 	, m_camera(ca)
@@ -12,12 +12,12 @@ CascadedShadowMapMatrixSet::CascadedShadowMapMatrixSet(const Camera& ca)
 
 }
 
-CascadedShadowMapMatrixSet::~CascadedShadowMapMatrixSet()
+CascadedShadowMapMatrixSetCaculator::~CascadedShadowMapMatrixSetCaculator()
 {
 
 }
 
-void CascadedShadowMapMatrixSet::Init(i32 iShadowMapSize)
+void CascadedShadowMapMatrixSetCaculator::Init(i32 iShadowMapSize)
 {
 	m_iShadowMapSize = iShadowMapSize;
 
@@ -34,7 +34,7 @@ void CascadedShadowMapMatrixSet::Init(i32 iShadowMapSize)
 	}
 }
 
-void CascadedShadowMapMatrixSet::Update(const Vector3f& vDirectionalDir)
+void CascadedShadowMapMatrixSetCaculator::Update(const Vector3f& vDirectionalDir)
 {
 	// Find the view matrix
 	Vector3f vWorldCenter = m_camera.getWorldEyePos() + m_camera.getWorldLookingDir() * m_fCascadeTotalRange * 0.5f;
@@ -149,7 +149,7 @@ void CascadedShadowMapMatrixSet::Update(const Vector3f& vDirectionalDir)
 	}
 }
 
-void CascadedShadowMapMatrixSet::ExtractFrustumPoints(f32 fNear, f32 fFar, Vector3f* arrFrustumCorners)
+void CascadedShadowMapMatrixSetCaculator::ExtractFrustumPoints(f32 fNear, f32 fFar, Vector3f* arrFrustumCorners)
 {
 	// Get the camera bases
 	const Vector3f& camPos = m_camera.getWorldEyePos();
@@ -174,7 +174,7 @@ void CascadedShadowMapMatrixSet::ExtractFrustumPoints(f32 fNear, f32 fFar, Vecto
 	arrFrustumCorners[7] = camPos + (-camRight * fTanFOVX - camUp * fTanFOVY + camForward) * fFar;
 }
 
-void CascadedShadowMapMatrixSet::ExtractFrustumBoundSphere(f32 fNear, f32 fFar, Vector3f& vBoundCenter, f32& fBoundRadius)
+void CascadedShadowMapMatrixSetCaculator::ExtractFrustumBoundSphere(f32 fNear, f32 fFar, Vector3f& vBoundCenter, f32& fBoundRadius)
 {
 	// Get the camera bases
 	const Vector3f& camPos = m_camera.getWorldEyePos();
@@ -194,7 +194,7 @@ void CascadedShadowMapMatrixSet::ExtractFrustumBoundSphere(f32 fNear, f32 fFar, 
 	fBoundRadius = vBoundSpan.Magnitude();
 }
 
-bool CascadedShadowMapMatrixSet::CascadeNeedsUpdate(const Matrix4f& matShadowView, i32 iCascadeIdx, const Vector3f& newCenter, Vector3f& vOffset)
+bool CascadedShadowMapMatrixSetCaculator::CascadeNeedsUpdate(const Matrix4f& matShadowView, i32 iCascadeIdx, const Vector3f& newCenter, Vector3f& vOffset)
 {
 	// Find the offset between the new and old bound ceter
 	Vector3f vOldCenterInCascade = (matShadowView * Vector4f(m_arrCascadeBoundCenter[iCascadeIdx], 1.0f)).xyz();
