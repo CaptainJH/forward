@@ -4,6 +4,15 @@
 
 using namespace forward;
 
+Vector3f operator*(const Vector3f& vec3, const Matrix4f& mat)
+{
+	Vector4f vec4(vec3, 1.0f);
+	vec4 = mat * vec4;
+	vec4 /= vec4.w;
+
+	return vec4.xyz();
+}
+
 LightSpacePerspectiveShadowMapMatrixCaculator::LightSpacePerspectiveShadowMapMatrixCaculator(const Camera& lc, const Camera& vc)
 	: m_lightCamera(lc)
 	, m_viewCamera(vc)
@@ -177,6 +186,7 @@ Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getNearCameraPointE( ) c
 				{
 					const Vector4f& pos = v->Tuple() == 3 ? Vector4f(*v->Get3f(i), 1.0f) : *v->Get4f(i);
 					Vector4f posL = worldMatrix * eyeView * pos;
+					posL /= posL.w;
 
 					if (posL.z < nearestV.z)
 					{
@@ -195,8 +205,8 @@ Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getNearCameraPointE( ) c
 //and on the near plane of the C frustum (the plane z = bZmax) and on the line x = e.x
 Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getZ0_ls(const Matrix4f& lightSpace, const Vector3f& e, const f32& b_lsZmax, const Vector3f& eyeDir) const
 {
-	const Vector3f e_ls = (lightSpace * Vector4f(e, 1.0f)).xyz();
-	const Vector3f p_ls = (lightSpace * Vector4f((e + eyeDir), 1.0f)).xyz();
+	const Vector3f e_ls = e * lightSpace;
+	const Vector3f p_ls = (e + eyeDir) * lightSpace;
 
     //to calculate the parallel plane to the near plane through e we
     //calculate the plane A with the three points
@@ -223,8 +233,8 @@ f32 LightSpacePerspectiveShadowMapMatrixCaculator::calcNoptGeneral(const Matrix4
     const Matrix4f& eyeView = m_viewCamera.getViewMatrix();
 	const Matrix4f invLightSpace = lightSpace.Inverse();
 
-    const Vector3f z0_ls = getZ0_ls(lightSpace, _E, B_ls.second.z, m_viewCamera.getWorldLookingDir());
-    const Vector3f z1_ls = Vector3f(z0_ls.x, z0_ls.y, B_ls.first.z);
+    const Vector3f z0_ls = getZ0_ls(lightSpace, _E, B_ls.first.z, m_viewCamera.getWorldLookingDir());
+    const Vector3f z1_ls = Vector3f(z0_ls.x, z0_ls.y, B_ls.second.z);
 
     //to world
     const Vector4f z0_ws = invLightSpace * Vector4f(z0_ls, 1);
@@ -307,6 +317,11 @@ std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::com
 
 	for (auto obj : m_sceneObjects)
 	{
+		Matrix4f worldMatrix = Matrix4f::Identity();
+		auto itMat = m_matrixLinks.find(obj);
+		if (itMat != m_matrixLinks.end())
+			worldMatrix = *itMat->second;
+
 		for (auto v : obj->m_vElements)
 		{
 			if (v->m_SemanticName == VertexElementDX11::PositionSemantic)
@@ -314,26 +329,29 @@ std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::com
 				for (auto i = 0; i < v->Count(); ++i)
 				{
 					const Vector4f& pos = v->Tuple() == 3 ? Vector4f(*v->Get3f(i), 1.0f) : *v->Get4f(i);
-					Vector4f pos2 = mat * pos;
-					if (pos2.x < minV.x)
-						minV.x = pos2.x;
-					else if (pos2.x > maxV.x)
-						maxV.x = pos2.x;
+					Vector3f pos3 = pos.xyz() * worldMatrix * mat;
+					if (pos3.x < minV.x)
+						minV.x = pos3.x;
+					else if (pos3.x > maxV.x)
+						maxV.x = pos3.x;
 
-					if (pos2.y < minV.y)
-						minV.y = pos2.y;
-					else if (pos2.y > maxV.y)
-						maxV.y = pos2.y;
+					if (pos3.y < minV.y)
+						minV.y = pos3.y;
+					else if (pos3.y > maxV.y)
+						maxV.y = pos3.y;
 
-					if (pos2.z < minV.z)
-						minV.z = pos2.z;
-					else if (pos2.z > maxV.z)
-						maxV.z = pos2.z;
+					if (pos3.z < minV.z)
+						minV.z = pos3.z;
+					else if (pos3.z > maxV.z)
+						maxV.z = pos3.z;
 				}
 			}
 		}
 	}
 
+	const f32 safeBias = 0.1f;
+	minV.z -= safeBias;
+	maxV.z += safeBias;
 	return std::make_pair(minV, maxV);
 }
 
@@ -343,10 +361,10 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
     //const osg::BoundingBox B_ls = _hull.computeBoundingBox( lightSpace );
 	auto B_ls = computeBoundingBox(lightSpace);
 
-    const f32 n = calcNoptGeneral(lightSpace,B_ls);
+    const f32 n = calcNoptGeneral(lightSpace, B_ls);
 
     //get the coordinates of the near camera point in light space
-    const Vector3f e_ls = (lightSpace * Vector4f(_E, 1.0f)).xyz();
+    const Vector3f e_ls = _E * lightSpace;
     //c start has the x and y coordinate of e, the z coord of B.min()
     const Vector3f Cstart_lp(e_ls.x, e_ls.y, B_ls.second.z);
 
@@ -358,12 +376,12 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
     //calc C the projection center
     //new projection center C, n behind the near plane of P
     //we work along a negative axis so we transform +n*<the positive axis> == -n*<neg axis>
-    const Vector3f C( Cstart_lp + Vector3f(0.0f, 0.0f, 1.0f) * n );
+    const Vector3f C( Cstart_lp - Vector3f(0.0f, 0.0f, 1.0f) * n );
     //construct a translation that moves to the projection center
 	const Matrix4f projectionCenter = Matrix4f::TranslationMatrix(-C.x, -C.y, -C.z);
 
     //calc d the perspective transform depth or light space y extents
-    const f32 d = fabs(B_ls.second.z - B_ls.second.z);
+    const f32 d = fabs(B_ls.second.z - B_ls.first.z);
 
     //the lispsm perspective transformation
 
@@ -437,6 +455,8 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     Matrix4f L = lightView * lightProj;
     Vector3f projViewDir = getProjViewDir_ls(L);
 
+	MatrixTester(L);
+
 	{
         //do Light Space Perspective shadow mapping
         //rotate the lightspace so that the proj light view always points upwards
@@ -450,10 +470,12 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     }
 
     const Matrix4f PL = lightView * lightProj;
+	MatrixTester(PL);
 
     auto bb = computeBoundingBox( PL );
 
-	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z, bb.second.z);
+	const f32 SafeBias = 0.01f;
+	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z - SafeBias, bb.second.z + SafeBias);
 
     //map to unit cube
     lightProj = lightProj * fitToUnitFrustum;
@@ -470,8 +492,9 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     //transform from right handed system into left handed ndc
     //lightProj = lightProj * osg::Matrix::scale(1.0,1.0,-1.0);
 
-	m_finalMat = lightProj;
-	return lightProj;
+	m_finalMat = lightView * lightProj;
+	MatrixTester(m_finalMat);
+	return m_finalMat;
 }
 
 //void LightSpacePerspectiveShadowMapAlgorithm::operator()
@@ -510,3 +533,25 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 //    lispsm->updateLightMtx
 //        ( cameraShadow->getViewMatrix(), cameraShadow->getProjectionMatrix() );
 //}
+
+void LightSpacePerspectiveShadowMapMatrixCaculator::MatrixTester(const Matrix4f& mat)
+{
+	m_tempVs.clear();
+	m_tempV4.clear();
+
+	for (auto obj : m_sceneObjects)
+	{
+		for (auto v : obj->m_vElements)
+		{
+			if (v->m_SemanticName == VertexElementDX11::PositionSemantic)
+			{
+				for (auto i = 0; i < v->Count(); ++i)
+				{
+					const Vector4f& pos = v->Tuple() == 3 ? Vector4f(*v->Get3f(i), 1.0f) : *v->Get4f(i);
+					m_tempVs.push_back(pos.xyz() * mat);
+					m_tempV4.push_back(mat * pos);
+				}
+			}
+		}
+	}
+}

@@ -35,7 +35,10 @@ void ShadowMapApp::DrawScene()
 		}
 		else
 		{
-			pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
+			if (m_useLiSP)
+				pBuffer->matLight = m_LiSP.getMatrix();
+			else
+				pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
 		}
 		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
@@ -76,7 +79,10 @@ void ShadowMapApp::DrawScene()
 		}
 		else
 		{
-			pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
+			if (m_useLiSP)
+				pBuffer->matLight = m_LiSP.getMatrix();
+			else
+				pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
 		}
 		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
