@@ -30,6 +30,15 @@ Plane3f::Plane3f(f32 a, f32 b, f32 c, f32 d)
 	m_fComponents[3] = d;
 }
 //--------------------------------------------------------------------------------
+Plane3f::Plane3f(const Vector3f& normal, const Vector3f& v)
+{
+	auto d = -normal.Dot(v);
+	m_fComponents[0] = normal.x;
+	m_fComponents[1] = normal.y;
+	m_fComponents[2] = normal.z;
+	m_fComponents[3] = d;
+}
+//--------------------------------------------------------------------------------
 Plane3f::~Plane3f()
 {
 }

@@ -11,7 +11,8 @@
 #include "TriangleIndices.h"
 
 #include "Camera.h"
-#include "CascadedShadowMapMatrixSet.h"
+#include "CascadedShadowMapMatrixSetCaculator.h"
+#include "LightSpacePerspectiveShadowMapMatrixCaculator.h"
 
 using namespace forward;
 
@@ -45,7 +46,9 @@ public:
 		, m_drawShadowTarget(false)
 		, m_usePCF(false)
 		, m_useCSM(false)
+		, m_useLiSP(false)
 		, m_CSM(m_camMain)
+		, m_LiSP(m_camLight, m_camMain)
 	{
 		mMainWndCaption = L"ShadowMapApp";
 	}
@@ -101,6 +104,7 @@ private:
 	bool m_drawShadowTarget;
 	bool m_usePCF;
 	bool m_useCSM;
+	bool m_useLiSP;
 
 	Camera m_camMain;
 	Camera m_camLight;
@@ -111,4 +115,5 @@ private:
 	i32 m_CSMViewportID;
 
 	CascadedShadowMapMatrixSetCaculator m_CSM;
+	LightSpacePerspectiveShadowMapMatrixCaculator m_LiSP;
 };

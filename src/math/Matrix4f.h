@@ -53,7 +53,9 @@ namespace forward
 		static Matrix4f TranslationMatrix( f32 fX, f32 fY, f32 fZ );
 		static Matrix4f LookAtLHMatrix(const Vector3f& eye, const Vector3f& at, const Vector3f& up );
 		static Matrix4f PerspectiveFovLHMatrix( f32 fovy, f32 aspect, f32 zn, f32 zf );
+		static Matrix4f PerspectiveFrustumLHMatrix(f32 left, f32 right, f32 bottom, f32 top, f32 zn, f32 zf);
 		static Matrix4f OrthographicLHMatrix( f32 zn, f32 zf, f32 width, f32 height );
+		static Matrix4f OrthographicLHMatrix(f32 left, f32 right, f32 bottom, f32 top, f32 zn, f32 zf);
 
 		void MakeZero( );
 		void MakeIdentity( );

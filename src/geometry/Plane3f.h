@@ -28,6 +28,7 @@ namespace forward
 	public:
 		Plane3f( );
 		Plane3f( f32 a, f32 b, f32 c, f32 d );
+		Plane3f(const Vector3f& normal, const Vector3f& v);
 		virtual ~Plane3f( );
 
 		// Operations

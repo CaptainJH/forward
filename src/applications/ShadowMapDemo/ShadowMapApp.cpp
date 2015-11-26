@@ -7,6 +7,7 @@ void ShadowMapApp::UpdateScene(f32 dt)
 
 	m_camMain.update(dt);
 	m_camLight.update(dt);
+	m_LiSP.update();
 }
 
 void ShadowMapApp::DrawScene()
@@ -118,6 +119,10 @@ bool ShadowMapApp::Init()
 	BuildShaders();
 	BuildGeometry();
 	BuildRenderTarget();
+
+	m_LiSP.addSceneObjects(m_pGeometry.get());
+	m_LiSP.addSceneObjects(m_pFloor.get());
+	m_LiSP.linkWorldMatrixOfObject(m_pGeometry.get(), &m_worldMat);
 
 	return true;
 }
@@ -381,6 +386,10 @@ void ShadowMapApp::OnChar(i8 key)
 	case 'c':
 		m_useCSM = !m_useCSM;
 		break;
+
+	case 'l':
+		m_useLiSP = !m_useLiSP;
+		break;
 	}
 }
 
@@ -436,7 +445,10 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 
 	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
 	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->matLight = m_worldMat * ViewLight * m_camLight.getProjectionMatrix();
+	if (m_useLiSP)
+		pBuffer->matLight = m_worldMat * m_LiSP.getMatrix();
+	else
+		pBuffer->matLight = m_worldMat * ViewLight * m_camLight.getProjectionMatrix();
 	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 
 	ShaderStageStateDX11 vsState;
@@ -458,7 +470,10 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 
 	pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
 	pBuffer = (CBufferType*)pData.pData;
-	pBuffer->matLight = ViewLight * m_camLight.getProjectionMatrix();
+	if (m_useLiSP)
+		pBuffer->matLight = m_LiSP.getMatrix();
+	else
+		pBuffer->matLight = ViewLight * m_camLight.getProjectionMatrix();
 	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 	m_pFloor->Execute(m_pRender->pImmPipeline);
 }

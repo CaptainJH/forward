@@ -433,6 +433,34 @@ Matrix4f Matrix4f::LookAtLHMatrix(const Vector3f& eye, const Vector3f& at, const
 	return( ret );
 }
 //----------------------------------------------------------------------------------------------------
+Matrix4f Matrix4f::PerspectiveFrustumLHMatrix(f32 left, f32 right, f32 bottom, f32 top, f32 zn, f32 zf)
+{
+	Matrix4f ret;
+
+	ret.m_afEntry[0] = 2.0f * zn / (right - left);
+	ret.m_afEntry[1] = 0.0f;
+	ret.m_afEntry[2] = 0.0f;
+	ret.m_afEntry[3] = 0.0f;
+
+	ret.m_afEntry[4] = 0.0f;
+	ret.m_afEntry[5] = 2.0f * zn / (top - bottom);
+	ret.m_afEntry[6] = 0.0f;
+	ret.m_afEntry[7] = 0.0f;
+
+	ret.m_afEntry[8] = (right + left) / (right - left);
+	ret.m_afEntry[9] = (top + bottom) / (top - bottom);
+	ret.m_afEntry[10] = (fabs(zf)>FLT_MAX) ? -1.0f : -(zf + zn) / (zf - zn);
+	ret.m_afEntry[11] = -1.0f;
+
+	ret.m_afEntry[12] = 0.0f;
+	ret.m_afEntry[13] = 0.0f;
+	ret.m_afEntry[14] = (fabs(zf)>FLT_MAX) ? -2.0f*zn : -2.0f*zf*zn / (zf - zn);
+	ret.m_afEntry[15] = 0.0f;
+
+	return ret;
+}
+
+//----------------------------------------------------------------------------------------------------
 Matrix4f Matrix4f::PerspectiveFovLHMatrix( f32 fovy, f32 aspect, f32 zn, f32 zf )
 {
 	// This method is based on the method of the same name from the D3DX library.
@@ -468,6 +496,35 @@ Matrix4f Matrix4f::PerspectiveFovLHMatrix( f32 fovy, f32 aspect, f32 zn, f32 zf 
 
 	return( ret );
 }
+
+//----------------------------------------------------------------------------------------------------
+Matrix4f Matrix4f::OrthographicLHMatrix(f32 left, f32 right, f32 bottom, f32 top, f32 zn, f32 zf)
+{
+	Matrix4f ret;
+
+	ret.m_afEntry[0] = 2.0f / (right - left);
+	ret.m_afEntry[1] = 0.0f;
+	ret.m_afEntry[2] = 0.0f;
+	ret.m_afEntry[3] = 0.0f;
+
+	ret.m_afEntry[4] = 0.0f;
+	ret.m_afEntry[5] = 2.0f / (top - bottom);
+	ret.m_afEntry[6] = 0.0f;
+	ret.m_afEntry[7] = 0.0f;
+
+	ret.m_afEntry[8] = 0.0f;
+	ret.m_afEntry[9] = 0.0f;
+	ret.m_afEntry[10] = -2.0f / (zn - zf);
+	ret.m_afEntry[11] = 0.0f;
+
+	ret.m_afEntry[12] = -(right + left) / (right - left);
+	ret.m_afEntry[13] = -(top + bottom) / (top - bottom);
+	ret.m_afEntry[14] = -(zf + zn) / (zf - zn);
+	ret.m_afEntry[15] = 1.0f;
+
+	return ret;
+}
+
 //----------------------------------------------------------------------------------------------------
 Matrix4f Matrix4f::OrthographicLHMatrix( f32 zn, f32 zf, f32 width, f32 height )
 {

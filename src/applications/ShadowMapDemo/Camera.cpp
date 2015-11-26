@@ -78,6 +78,8 @@ void Camera::setViewMatrix(const Matrix4f& mat4)
 	auto inv = mat4.Inverse();
 	m_pos = inv.GetTranslation();
 	m_rot = inv.GetRotation();
+
+	m_viewMat = mat4;
 }
 
 Matrix4f Camera::updateViewMatrix()
@@ -106,4 +108,9 @@ void Camera::setProjectionParams(f32 fov, f32 aspect, f32 nearPlane, f32 farPlan
 const Matrix4f& Camera::getProjectionMatrix() const
 {
 	return m_projMat;
+}
+
+const Matrix4f& Camera::getViewMatrix() const
+{
+	return m_viewMat;
 }

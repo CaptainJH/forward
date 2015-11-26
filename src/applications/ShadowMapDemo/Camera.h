@@ -22,6 +22,7 @@ namespace forward
 
 		void setProjectionParams(f32 fov, f32 aspect, f32 nearPlane, f32 farPlane);
 		const Matrix4f& getProjectionMatrix() const;
+		const Matrix4f& getViewMatrix() const;
 
 		f32 getFOV() const { return m_fov; }
 		f32 getAspectRatio() const { return m_aspect; }
@@ -42,5 +43,6 @@ namespace forward
 		f32 m_near, m_far;
 		f32 m_aspect;
 		Matrix4f m_projMat;
+		Matrix4f m_viewMat;
 	};
 }
