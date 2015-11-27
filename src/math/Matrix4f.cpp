@@ -450,7 +450,7 @@ Matrix4f Matrix4f::PerspectiveFrustumLHMatrix(f32 left, f32 right, f32 bottom, f
 	ret.m_afEntry[8] = 0.0f;
 	ret.m_afEntry[9] = 0.0f;
 	ret.m_afEntry[10] = zf / (zf - zn);
-	ret.m_afEntry[11] = -1.0f;
+	ret.m_afEntry[11] = 1.0f;
 
 	ret.m_afEntry[12] = 0.0f;
 	ret.m_afEntry[13] = 0.0f;

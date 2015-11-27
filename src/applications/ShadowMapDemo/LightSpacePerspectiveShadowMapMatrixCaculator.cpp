@@ -4,6 +4,18 @@
 
 using namespace forward;
 
+Matrix4f NormalToLightSpace(
+	1, 0, 0, 0,      // x
+	0, 0, -1, 0,      // y
+	0, 1, 0, 0,      // z
+	0, 0, 0, 1); // w
+
+Matrix4f LightSpaceToNormal(
+	1, 0, 0, 0,      // x
+	0, 0, 1, 0,      // y
+	0, -1, 0, 0,      // z
+	0, 0, 0, 1); // w
+
 Vector3f operator*(const Vector3f& vec3, const Matrix4f& mat)
 {
 	Vector4f vec4(vec3, 1.0f);
@@ -442,8 +454,9 @@ Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getProjViewDir_ls(const 
 
 Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 {
+	Matrix4f ToGL = Matrix4f::ScaleMatrix(Vector3f(1.0f, 1.0f, -1.0f));
 	Matrix4f lightView = m_lightCamera.getViewMatrix();
-	Matrix4f lightProj = m_lightCamera.getProjectionMatrix();
+	Matrix4f lightProj = m_lightCamera.getProjectionMatrix() * ToGL * NormalToLightSpace;
 
     //calculate standard light space for spot or directional lights
     //this routine returns two matrices:
@@ -499,7 +512,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     //transform from right handed system into left handed ndc
     //lightProj = lightProj * osg::Matrix::scale(1.0,1.0,-1.0);
 
-	m_finalMat = lightView * lightProj;
+	m_finalMat = lightView * lightProj * LightSpaceToNormal * ToGL;
 	MatrixTester(m_finalMat);
 	return m_finalMat;
 }

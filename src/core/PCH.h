@@ -22,7 +22,7 @@
 #include <d3dCompiler.h>
 
 #include <wrl.h>
-
+#define NOMINMAX
 
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DeviceContextComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Query> QueryComPtr;
