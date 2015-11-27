@@ -349,9 +349,9 @@ std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::com
 		}
 	}
 
-	const f32 safeBias = 0.1f;
-	minV.z -= safeBias;
-	maxV.z += safeBias;
+	//const f32 safeBias = 0.1f;
+	//minV.z -= safeBias;
+	//maxV.z += safeBias;
 	return std::make_pair(minV, maxV);
 }
 
@@ -362,11 +362,18 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
 	auto B_ls = computeBoundingBox(lightSpace);
 
     const f32 n = calcNoptGeneral(lightSpace, B_ls);
+	//const f32 n = B_ls.first.z - 0.1f;
+	const f32 l = B_ls.second.z - B_ls.first.z;
+	const f32 zRange = B_ls.second.z - B_ls.first.z;
+
+	const Vector3f eye_ws = m_viewCamera.getWorldEyePos();
+	const f32 projLength = _E.Dot(m_viewCamera.getWorldLookingDir());
+	const Vector3f center = eye_ws + m_viewCamera.getWorldLookingDir() * projLength;
 
     //get the coordinates of the near camera point in light space
-    const Vector3f e_ls = _E * lightSpace;
+    const Vector3f e_ls = center * lightSpace;
     //c start has the x and y coordinate of e, the z coord of B.min()
-    const Vector3f Cstart_lp(e_ls.x, e_ls.y, B_ls.second.z);
+    const Vector3f Cstart_lp(e_ls.x, e_ls.y, B_ls.first.z);
 
     //if( n >= OSG_INFINITY ) {
     //    //if n is inf. than we should do uniform shadow mapping
@@ -389,14 +396,14 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
     //corner points [-1,-1,-1] and [1,1,1].
     //in directX you can use the same mapping and do a mapping to the directX post-perspective cube
     //with corner points [-1,-1,0] and [1,1,1] as the final step after all the shadow mapping.
-    Matrix4f P = Matrix4f::PerspectiveFrustumLHMatrix( -1.0, 1.0, -1.0, 1.0, n, n+d );
+    Matrix4f P = Matrix4f::PerspectiveFrustumLHMatrix( -1.0, 1.0, -1.0, 1.0, n, n + d );
 
     //invert the transform from right handed into left handed coordinate system for the ndc
     //done by the openGL style frustumGL call
     //so we stay in a right handed system
     //P = P * osg::Matrix::scale( 1.0,1.0,-1.0 );
     //return the lispsm frustum with the projection center
-    return projectionCenter * P;
+    return projectionCenter * P ;
 }
 
 Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getProjViewDir_ls(const Matrix4f& lightSpace) const

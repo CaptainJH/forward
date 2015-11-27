@@ -108,7 +108,7 @@ bool ShadowMapApp::Init()
 	// Init the world matrix
 	m_worldMat = Matrix4f::Identity();
 	// Build the view matrix.
-	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
+	Vector3f pos = Vector3f(0.0f, 0.0f, -9.0f);
 	Vector3f target; target.MakeZero();
 	target.y = 1.0f;
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
@@ -331,10 +331,10 @@ void ShadowMapApp::BuildGeometry()
 		m_pFloor->AddElement(pPositions);
 		m_pFloor->AddElement(pColors);
 
-		*pPositions->Get3f(0) = Vector3f(-10.0f, -3.0f, +10.0f);
-		*pPositions->Get3f(1) = Vector3f(+10.0f, -3.0f, +10.0f);
-		*pPositions->Get3f(2) = Vector3f(-10.0f, -3.0f, -10.0f);
-		*pPositions->Get3f(3) = Vector3f(+10.0f, -3.0f, -10.0f);
+		*pPositions->Get3f(0) = Vector3f(-5.0f, -3.0f, +5.0f);
+		*pPositions->Get3f(1) = Vector3f(+5.0f, -3.0f, +5.0f);
+		*pPositions->Get3f(2) = Vector3f(-5.0f, -3.0f, -5.0f);
+		*pPositions->Get3f(3) = Vector3f(+5.0f, -3.0f, -5.0f);
 		*pColors->Get4f(0) = Colors::White;
 		*pColors->Get4f(1) = Colors::White;
 		*pColors->Get4f(2) = Colors::White;
