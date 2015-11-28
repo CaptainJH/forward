@@ -206,66 +206,74 @@ float4 PSMain( in VS_OUTPUT input ) : SV_Target
 	bool usePCSS= (flags.z >= 1.0f);
 	bool useVSM = (flags.w >= 1.0f);
 
-	if(useCSM)
+	// Determine if the projected coordinates are in the 0 to 1 range.  If so then this pixel is in the view of the light.
+	if((saturate(uv.x) == uv.x) && (saturate(uv.y) == uv.y))
 	{
-		// Transform the shadow space position into each cascade position
-		float4 posCascadeSpaceX = (toCascadeOffsetX + pos.xxxx) * toCascadeScale;
-		float4 posCascadeSpaceY = (toCascadeOffsetY + pos.yyyy) * toCascadeScale;
+		if(useCSM)
+		{
+			// Transform the shadow space position into each cascade position
+			float4 posCascadeSpaceX = (toCascadeOffsetX + pos.xxxx) * toCascadeScale;
+			float4 posCascadeSpaceY = (toCascadeOffsetY + pos.yyyy) * toCascadeScale;
 
-		// Check which cascade we are in
-		float4 inCascadeX = abs(posCascadeSpaceX) <= 1.0;
-		float4 inCascadeY = abs(posCascadeSpaceY) <= 1.0;
-		float4 inCascade = inCascadeX * inCascadeY;
+			// Check which cascade we are in
+			float4 inCascadeX = abs(posCascadeSpaceX) <= 1.0;
+			float4 inCascadeY = abs(posCascadeSpaceY) <= 1.0;
+			float4 inCascade = inCascadeX * inCascadeY;
 
-		// Prepare a mask for the highest quality cascade the position is in
-		float4 bestCascadeMask = inCascade;
-		bestCascadeMask.yzw = (1.0 - bestCascadeMask.x) * bestCascadeMask.yzw;
-		bestCascadeMask.zw = (1.0 - bestCascadeMask.y) * bestCascadeMask.zw;
-		bestCascadeMask.w = (1.0 - bestCascadeMask.z) * bestCascadeMask.w;
-		float bestCascade = dot(bestCascadeMask, float4(0.0, 1.0, 2.0, 3.0));
+			// Prepare a mask for the highest quality cascade the position is in
+			float4 bestCascadeMask = inCascade;
+			bestCascadeMask.yzw = (1.0 - bestCascadeMask.x) * bestCascadeMask.yzw;
+			bestCascadeMask.zw = (1.0 - bestCascadeMask.y) * bestCascadeMask.zw;
+			bestCascadeMask.w = (1.0 - bestCascadeMask.z) * bestCascadeMask.w;
+			float bestCascade = dot(bestCascadeMask, float4(0.0, 1.0, 2.0, 3.0));
 
-		// Pick the position in the selected cascade
-		float3 UVD;
-		UVD.x = dot(posCascadeSpaceX, bestCascadeMask);
-		UVD.y = dot(posCascadeSpaceY, bestCascadeMask);
-		UVD.z = pos.z;
+			// Pick the position in the selected cascade
+			float3 UVD;
+			UVD.x = dot(posCascadeSpaceX, bestCascadeMask);
+			UVD.y = dot(posCascadeSpaceY, bestCascadeMask);
+			UVD.z = pos.z;
 
-		// Convert to shadow map UV values
-		UVD.xy = 0.5 * UVD.xy + 0.5;
-		UVD.y = 1.0 - UVD.y;
+			// Convert to shadow map UV values
+			UVD.xy = 0.5 * UVD.xy + 0.5;
+			UVD.y = 1.0 - UVD.y;
 
-		float bias = 0.000002f;
-		float d = pos.z - bias;	
+			float bias = 0.000002f;
+			float d = pos.z - bias;	
 
-		float depthInShadowMap = tex1.Sample(s0, float3(UVD.xy, bestCascade));
-		float depthInShadowMapPCF = tex1.SampleCmpLevelZero(PCFSampler, float3(UVD.xy, bestCascade), d);
+			float depthInShadowMap = tex1.Sample(s0, float3(UVD.xy, bestCascade));
+			float depthInShadowMapPCF = tex1.SampleCmpLevelZero(PCFSampler, float3(UVD.xy, bestCascade), d);
 
-		if(usePCF)
-			return input.color * depthInShadowMapPCF;
+			if(usePCF)
+				return input.color * depthInShadowMapPCF;
+			else
+			{
+				if(d >= depthInShadowMap)
+					return ambient * input.color;
+				return input.color;
+			}
+		}
+		else if(usePCF)
+		{
+			return spotShadowPCF(pos, uv, input.color);
+		}
+		else if(usePCSS)
+		{
+			return spotShadowPCSS(pos) * input.color;
+		}
+		else if(useVSM)
+		{
+			return spotShadowVSM(pos, uv) * input.color;
+			//return float4(pos.zzz, 1.0f);
+			//return float4(input.position.zzz, 1.0f);
+		}
 		else
 		{
-			if(d >= depthInShadowMap)
-				return ambient * input.color;
-			return input.color;
+			return spotShadowBasic(pos, uv, input.color);
 		}
-	}
-	else if(usePCF)
-	{
-		return spotShadowPCF(pos, uv, input.color);
-	}
-	else if(usePCSS)
-	{
-		return spotShadowPCSS(pos) * input.color;
-	}
-	else if(useVSM)
-	{
-		return spotShadowVSM(pos, uv) * input.color;
-		//return float4(pos.zzz, 1.0f);
-		//return float4(input.position.zzz, 1.0f);
 	}
 	else
 	{
-		return spotShadowBasic(pos, uv, input.color);
+		return input.color;
 	}
 }
 
