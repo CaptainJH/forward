@@ -36,7 +36,8 @@ struct CBufferType
 	Vector4f toCascadeScale;
 	f32 shadowMapPixelSize;
 	f32 lightSize;
-	f32 pad[2];
+	f32 blurFactorX;
+	f32 blurFactorY;
 };
 
 class ShadowMapApp : public Application
@@ -52,6 +53,8 @@ public:
 		, m_useLiSP(false)
 		, m_usePCSS(false)
 		, m_useVSM(false)
+		, m_useBlur(false)
+		, m_blurCoef(0.25f)
 		, m_CSM(m_camMain)
 		, m_LiSP(m_camLight, m_camMain)
 	{
@@ -85,6 +88,8 @@ private:
 	void renderSpotLightShadowMap(const Matrix4f& mat);
 	void renderCSMShadowMap();
 
+	void blurShadowRenderTarget(ResourcePtr ptr);
+
 	i32 m_vsID;
 	i32 m_psID;
 
@@ -96,8 +101,12 @@ private:
 
 	i32 m_psVSMDepthGenID;
 
+	i32 m_vsQuadID;
+	i32 m_psQuadBlurID;
+
 	GeometryPtr m_pGeometry;
 	GeometryPtr m_pFloor;
+	GeometryPtr m_pQuad;
 	Matrix4f m_worldMat;
 	ResourcePtr m_constantBuffer;
 
@@ -106,6 +115,7 @@ private:
 	ResourcePtr m_CSMRenderTargetTex;
 	ResourcePtr m_CSMDepthTargetTex;
 	ResourcePtr m_VSMRenderTargetTex;
+	ResourcePtr m_VSMBlurRenderTargetTex;
 	i32 m_samplerID;
 	i32 m_pcfSamplerID;
 
@@ -115,6 +125,11 @@ private:
 	bool m_useLiSP;
 	bool m_usePCSS;
 	bool m_useVSM;
+	bool m_useBlur;
+
+	f32 m_blurCoef;
+	f32 m_blurCoefW;
+	f32 m_blurCoefH;
 
 	Camera m_camMain;
 	Camera m_camLight;
@@ -123,6 +138,7 @@ private:
 
 	i32 m_shadowMapViewportID;
 	i32 m_CSMViewportID;
+	i32 m_blurViewportID;
 
 	CascadedShadowMapMatrixSetCaculator m_CSM;
 	LightSpacePerspectiveShadowMapMatrixCaculator m_LiSP;

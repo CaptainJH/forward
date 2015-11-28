@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-#pragma warning( disable : 4189 )
-
 using namespace forward;
 
 Camera::Camera()

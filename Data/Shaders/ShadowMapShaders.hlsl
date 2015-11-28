@@ -10,6 +10,8 @@ cbuffer Transforms
 	float4 toCascadeScale;
 	float ShadowMapPixelSize;
 	float LightSize;
+	float BlurFactorX;
+	float BlurFactorY;
 };
 
 Texture2D<float> tex0: register( t0 );
@@ -31,6 +33,12 @@ struct VS_OUTPUT
 	float4 color : COLOR;
 	float4 positionLight : PositionLightSpace;
 	float4 positionWorld : PositionWorldSpace;
+};
+
+struct Quad_VS_OUTPUT
+{
+	float4 position : SV_Position;
+	float4 color : COLOR;
 };
 
 struct GS_OUTPUT
@@ -338,4 +346,22 @@ float2 PSVSMDepthGenMain( in VS_OUTPUT input ) : SV_Target
 	
 
 	return float2( moment1, moment2);
+}
+
+///////////////////////////////////////////////////////////////////////
+/// Pixel Shader for texture blurring
+///////////////////////////////////////////////////////////////////////
+float2 PSQuadBlurMain( in Quad_VS_OUTPUT input ) : SV_Target
+{
+	float2 color = 0.0f;
+
+	color += vsmTex.Sample(s0, input.color.xy + float2(-3.0 * BlurFactorX, -3.0 * BlurFactorY) ) * 0.015625;
+	color += vsmTex.Sample(s0, input.color.xy + float2(-2.0 * BlurFactorX, -2.0 * BlurFactorY) ) * 0.09375;
+	color += vsmTex.Sample(s0, input.color.xy + float2(-1.0 * BlurFactorX, -1.0 * BlurFactorY) ) * 0.234375;
+	color += vsmTex.Sample(s0, input.color.xy + float2(-0.0 * BlurFactorX, -0.0 * BlurFactorY) ) * 0.3125;
+	color += vsmTex.Sample(s0, input.color.xy + float2(+1.0 * BlurFactorX, +1.0 * BlurFactorY) ) * 0.234375;
+	color += vsmTex.Sample(s0, input.color.xy + float2(+2.0 * BlurFactorX, +2.0 * BlurFactorY) ) * 0.09375;
+	color += vsmTex.Sample(s0, input.color.xy + float2(+3.0 * BlurFactorX, +3.0 * BlurFactorY) ) * 0.015625;
+
+	return color;
 }
