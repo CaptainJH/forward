@@ -14,6 +14,7 @@ cbuffer Transforms
 
 Texture2D<float> tex0: register( t0 );
 Texture2DArray<float> tex1 : register( t1 );
+Texture2D<float2> vsmTex: register( t2 );
 SamplerState s0: register( s0 );
 SamplerComparisonState PCFSampler : register( s1 );
 
@@ -29,13 +30,15 @@ struct VS_OUTPUT
 	float4 position : SV_Position;
 	float4 color : COLOR;
 	float4 positionLight : PositionLightSpace;
+	float4 positionWorld : PositionWorldSpace;
 };
 
 struct GS_OUTPUT
 {
 	float4 Pos		: SV_POSITION;
 	float4 Color 	: COLOR;
-	float4 positionLight : PositionLightSpace;	
+	float4 positionLight : PositionLightSpace;
+	float4 positionWorld : PositionWorldSpace;	
 	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
@@ -54,7 +57,7 @@ VS_OUTPUT VSMain( in VS_INPUT v )
 float4 spotShadowBasic(float3 pos, float2 uv, float4 defaultColor)
 {
 	float4 ambient = float4(0.01, 0.01, 0.01, 1);
-	float bias = 0.000001f;
+	float bias = 0.0001f;
 
 	float d = pos.z -bias;
 	float depthInShadowMap = tex0.Sample(s0, uv).r;
@@ -67,7 +70,7 @@ float4 spotShadowBasic(float3 pos, float2 uv, float4 defaultColor)
 
 float4 spotShadowPCF(float3 pos, float2 uv, float4 defaultColor)
 {
-	float bias = 0.000002f;
+	float bias = 0.002f;
 
 	float d = pos.z - bias;	
 	float depthInShadowMapPCF = tex0.SampleCmpLevelZero(PCFSampler, uv, d).r;
@@ -99,7 +102,7 @@ static const float2 poissonDisk[16] =
 // Shadow PCSS calculation helper function
 float spotShadowPCSS( float3 pos )
 {
-	float bias = 0.000002f;
+	float bias = 0.002f;
 
 	// Transform the position to shadow clip space
 	float3 UVD = pos;
@@ -153,6 +156,34 @@ float spotShadowPCSS( float3 pos )
 	return att * 0.0625;
 }
 
+
+float chebyshevUpperBound( float distance, float2 uv)
+{
+	float bias = 0.0001f;
+	float2 moments = vsmTex.Sample(s0, uv).xy;
+	//texture2D(ShadowMap,ShadowCoordPostW.xy).rg;
+	
+	// Surface is fully lit. as the current fragment is before the light occluder
+	if (distance - bias <= moments.x)
+		return 1.0 ;
+
+	// The fragment is either in shadow or penumbra. We now use chebyshev's upperBound to check
+	// How likely this pixel is to be lit (p_max)
+	float variance = moments.y - (moments.x*moments.x);
+	variance = max(variance,0.00002);
+
+	float d = distance - moments.x;
+	float p_max = variance / (variance + d*d);
+
+	return p_max;
+}
+
+float spotShadowVSM(float3 pos, float2 uv)
+{
+	float shadow = chebyshevUpperBound(pos.z, uv);
+	return shadow;
+}
+
 //-----------------------------------------------------------------------------
 float4 PSMain( in VS_OUTPUT input ) : SV_Target
 {
@@ -165,6 +196,7 @@ float4 PSMain( in VS_OUTPUT input ) : SV_Target
 	bool usePCF = (flags.x >= 1.0f);
 	bool useCSM = (flags.y >= 1.0f);
 	bool usePCSS= (flags.z >= 1.0f);
+	bool useVSM = (flags.w >= 1.0f);
 
 	if(useCSM)
 	{
@@ -217,6 +249,12 @@ float4 PSMain( in VS_OUTPUT input ) : SV_Target
 	{
 		return spotShadowPCSS(pos) * input.color;
 	}
+	else if(useVSM)
+	{
+		return spotShadowVSM(pos, uv) * input.color;
+		//return float4(pos.zzz, 1.0f);
+		//return float4(input.position.zzz, 1.0f);
+	}
 	else
 	{
 		return spotShadowBasic(pos, uv, input.color);
@@ -231,8 +269,11 @@ VS_OUTPUT VSShadowTargetMain( in VS_INPUT v )
 	o.position = mul(v.position, WorldViewProjMatrixLight);
 	o.color = v.color;
 
-	o.position.xyz = o.position.xyz / o.position.w;
-	o.position.w = 1.0f;
+	//o.position.xyz = o.position.xyz / o.position.w;
+	//o.position.w = 1.0f;
+	o.positionWorld = v.position;
+	o.positionLight = float4(o.position.xyz / o.position.w, 1.0f);
+
 
 	return o;
 }
@@ -271,8 +312,30 @@ void GSCSMTargetMain(triangle float4 InPos[3] : SV_Position, inout TriangleStrea
 			output.Pos = mul(InPos[v], CSMViewProjMatrix[iFace]);
 			output.Color = float4(1, 0, 0, 1);
 			output.positionLight = output.Pos;
+			output.positionWorld = output.Pos;
 			OutStream.Append(output);
 		}
 		OutStream.RestartStrip();
 	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// Variance shadow map generation
+/////////////////////////////////////////////////////////////////////
+float2 PSVSMDepthGenMain( in VS_OUTPUT input ) : SV_Target
+{
+	//float depth = input.positionLight.z ;
+	float depth = input.position.z;
+	//depth = depth * 0.5 + 0.5;			//Don't forget to move away from unit cube ([-1,1]) to [0,1] coordinate system
+
+	float moment1 = depth;
+	float moment2 = depth * depth;
+
+	// Adjusting moments (this is sort of bias per pixel) using derivative
+	float dx = ddx(depth);
+	float dy = ddy(depth);
+	moment2 += 0.25*(dx*dx+dy*dy) ;
+	
+
+	return float2( moment1, moment2);
 }

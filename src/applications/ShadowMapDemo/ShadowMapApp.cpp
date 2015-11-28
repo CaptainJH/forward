@@ -19,7 +19,7 @@ void ShadowMapApp::DrawScene()
 	renderShadowTarget(viewLight);
 
 	// Pass : draw the scene without any AA
-	if(!m_drawShadowTarget)
+	if (!m_drawShadowTarget)
 	{
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
@@ -40,7 +40,7 @@ void ShadowMapApp::DrawScene()
 			else
 				pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
 		}
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, 0.0f);
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, m_useVSM ? 1.0f : 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
 		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
 		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
@@ -63,6 +63,7 @@ void ShadowMapApp::DrawScene()
 		psState.SamplerStates.SetState(1, m_pRender->GetSamplerState(m_pcfSamplerID).Get());
 		psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_shadowMapDepthTargetTex->m_iResourceSRV).GetSRV());
 		psState.ShaderResourceViews.SetState(1, m_pRender->GetShaderResourceViewByIndex(m_CSMDepthTargetTex->m_iResourceSRV).GetSRV());
+		psState.ShaderResourceViews.SetState(2, m_pRender->GetShaderResourceViewByIndex(m_VSMRenderTargetTex->m_iResourceSRV).GetSRV());
 		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
@@ -86,7 +87,7 @@ void ShadowMapApp::DrawScene()
 			else
 				pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
 		}
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, 0.0f);
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, m_useVSM ? 1.0f : 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
 		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
 		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
@@ -97,6 +98,8 @@ void ShadowMapApp::DrawScene()
 
 		// clear shader resource view
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(0, nullptr);
+		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(1, nullptr);
+		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(2, nullptr);
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 	}
 
@@ -117,10 +120,10 @@ bool ShadowMapApp::Init()
 	target.y = 1.0f;
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	m_camMain.setViewMatrix(Matrix4f::LookAtLHMatrix(pos, target, up));
-	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(2.0f, 20.0f, 2.0f), target, up));
+	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(5.0f, 3.0f, 5.0f), target, up));
 	// Build the projection matrix
 	m_camMain.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 50.0f);
-	m_camLight.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+	m_camLight.setProjectionParams(0.25f * Pi, AspectRatio(), 1.0f, 50.0f);
 
 	BufferConfigDX11 cbConfig;
 	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
@@ -152,6 +155,8 @@ void ShadowMapApp::BuildShaders()
 
 	m_vsCSMID = m_pRender->LoadShader(ShaderType::VERTEX_SHADER, shaderfile, L"VSCSMTargetMain", vs_5_0);
 	m_gsCSMID = m_pRender->LoadShader(ShaderType::GEOMETRY_SHADER, shaderfile, L"GSCSMTargetMain", gs_5_0);
+
+	m_psVSMDepthGenID = m_pRender->LoadShader(ShaderType::PIXEL_SHADER, shaderfile, L"PSVSMDepthGenMain", ps_5_0);
 }
 
 void ShadowMapApp::BuildRenderTarget()
@@ -210,6 +215,13 @@ void ShadowMapApp::BuildRenderTarget()
 	m_CSMDepthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0, &srvConfig, 0, 0, &dsvConfig);
 
 	m_CSM.Init(shadowTargetWidth);
+
+	/// create render target buffer VSM
+	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetHeight);
+	texConfig.SetFormat(DXGI_FORMAT_R32G32_FLOAT);
+	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+	m_VSMRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
+
 
 	D3D11_VIEWPORT viewport;
 	viewport.Width = static_cast<f32>(shadowTargetWidth);
@@ -335,10 +347,10 @@ void ShadowMapApp::BuildGeometry()
 		m_pFloor->AddElement(pPositions);
 		m_pFloor->AddElement(pColors);
 
-		*pPositions->Get3f(0) = Vector3f(-5.0f, -3.0f, +5.0f);
-		*pPositions->Get3f(1) = Vector3f(+5.0f, -3.0f, +5.0f);
-		*pPositions->Get3f(2) = Vector3f(-5.0f, -3.0f, -5.0f);
-		*pPositions->Get3f(3) = Vector3f(+5.0f, -3.0f, -5.0f);
+		*pPositions->Get3f(0) = Vector3f(-10.0f, -1.0f, +10.0f);
+		*pPositions->Get3f(1) = Vector3f(+10.0f, -1.0f, +10.0f);
+		*pPositions->Get3f(2) = Vector3f(-10.0f, -1.0f, -10.0f);
+		*pPositions->Get3f(3) = Vector3f(+10.0f, -1.0f, -10.0f);
 		*pColors->Get4f(0) = Colors::White;
 		*pColors->Get4f(1) = Colors::White;
 		*pColors->Get4f(2) = Colors::White;
@@ -404,6 +416,10 @@ void ShadowMapApp::OnChar(i8 key)
 	case 'z':
 		m_usePCSS = !m_usePCSS;
 		break;
+
+	case 'v':
+		m_useVSM = !m_useVSM;
+		break;
 	}
 }
 
@@ -439,7 +455,10 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, m_shadowMapViewportID);
 
 		// setup render target
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_shadowMapRenderTargetTex->m_iResourceRTV);
+		if (m_useVSM)
+			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_VSMRenderTargetTex->m_iResourceRTV);
+		else
+			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_shadowMapRenderTargetTex->m_iResourceRTV);
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_shadowMapDepthTargetTex->m_iResourceDSV);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
@@ -475,7 +494,10 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 	m_pRender->pImmPipeline->GeometryShaderStage.DesiredState = gsState;
 
 	ShaderStageStateDX11 psState;
-	psState.ShaderProgram.SetState(m_psShadowTargetID);
+	if (m_useVSM)
+		psState.ShaderProgram.SetState(m_psVSMDepthGenID);
+	else
+		psState.ShaderProgram.SetState(m_psShadowTargetID);
 	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 	m_pRender->pImmPipeline->ApplyPipelineResources();

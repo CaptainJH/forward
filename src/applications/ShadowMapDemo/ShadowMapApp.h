@@ -51,6 +51,7 @@ public:
 		, m_useCSM(false)
 		, m_useLiSP(false)
 		, m_usePCSS(false)
+		, m_useVSM(false)
 		, m_CSM(m_camMain)
 		, m_LiSP(m_camLight, m_camMain)
 	{
@@ -93,6 +94,8 @@ private:
 	i32 m_vsCSMID;
 	i32 m_gsCSMID;
 
+	i32 m_psVSMDepthGenID;
+
 	GeometryPtr m_pGeometry;
 	GeometryPtr m_pFloor;
 	Matrix4f m_worldMat;
@@ -102,6 +105,7 @@ private:
 	ResourcePtr m_shadowMapDepthTargetTex;
 	ResourcePtr m_CSMRenderTargetTex;
 	ResourcePtr m_CSMDepthTargetTex;
+	ResourcePtr m_VSMRenderTargetTex;
 	i32 m_samplerID;
 	i32 m_pcfSamplerID;
 
@@ -110,6 +114,7 @@ private:
 	bool m_useCSM;
 	bool m_useLiSP;
 	bool m_usePCSS;
+	bool m_useVSM;
 
 	Camera m_camMain;
 	Camera m_camLight;
