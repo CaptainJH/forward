@@ -34,6 +34,9 @@ struct CBufferType
 	Vector4f toCascadeOffsetX;
 	Vector4f toCascadeOffsetY;
 	Vector4f toCascadeScale;
+	f32 shadowMapPixelSize;
+	f32 lightSize;
+	f32 pad[2];
 };
 
 class ShadowMapApp : public Application
@@ -47,6 +50,7 @@ public:
 		, m_usePCF(false)
 		, m_useCSM(false)
 		, m_useLiSP(false)
+		, m_usePCSS(false)
 		, m_CSM(m_camMain)
 		, m_LiSP(m_camLight, m_camMain)
 	{
@@ -105,6 +109,7 @@ private:
 	bool m_usePCF;
 	bool m_useCSM;
 	bool m_useLiSP;
+	bool m_usePCSS;
 
 	Camera m_camMain;
 	Camera m_camLight;

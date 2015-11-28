@@ -40,10 +40,12 @@ void ShadowMapApp::DrawScene()
 			else
 				pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
 		}
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
 		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
 		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
+		pBuffer->shadowMapPixelSize = 1.0f / mClientWidth;
+		pBuffer->lightSize = 25.0f;
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 
 		ShaderStageStateDX11 vsState;
@@ -84,10 +86,12 @@ void ShadowMapApp::DrawScene()
 			else
 				pBuffer->matLight = viewLight * m_camLight.getProjectionMatrix();
 		}
-		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, 0.0f, 0.0f);
+		pBuffer->flags = Vector4f(m_usePCF ? 1.0f : 0.0f, m_useCSM ? 1.0f : 0.0f, m_usePCSS ? 1.0f : 0.0f, 0.0f);
 		pBuffer->toCascadeOffsetX = m_CSM.GetToCascadeOffsetX();
 		pBuffer->toCascadeOffsetY = m_CSM.GetToCascadeOffsetY();
 		pBuffer->toCascadeScale = m_CSM.GetToCascadeScale();
+		pBuffer->shadowMapPixelSize = 1.0f / mClientWidth;
+		pBuffer->lightSize = 25.0f;
 		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 		m_pFloor->Execute(m_pRender->pImmPipeline);
 
@@ -113,7 +117,7 @@ bool ShadowMapApp::Init()
 	target.y = 1.0f;
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	m_camMain.setViewMatrix(Matrix4f::LookAtLHMatrix(pos, target, up));
-	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(2.0f, 80.0f, 2.0f), target, up));
+	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(2.0f, 20.0f, 2.0f), target, up));
 	// Build the projection matrix
 	m_camMain.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 50.0f);
 	m_camLight.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
@@ -395,6 +399,10 @@ void ShadowMapApp::OnChar(i8 key)
 
 	case 'l':
 		m_useLiSP = !m_useLiSP;
+		break;
+
+	case 'z':
+		m_usePCSS = !m_usePCSS;
 		break;
 	}
 }
