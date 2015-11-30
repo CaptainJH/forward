@@ -42,9 +42,9 @@ void Camera::updateWithKeyboardInput(i8 key)
 
 void Camera::updateWithMouseInput(i32 x, i32 y)
 {
-	const float mouseMoveSpeed = 0.0010f;
-	const float rotY = x * mouseMoveSpeed;
-	const float rotX = y * mouseMoveSpeed;
+	const f32 mouseMoveSpeed = 0.0010f;
+	const f32 rotY = x * mouseMoveSpeed;
+	const f32 rotX = y * mouseMoveSpeed;
 
 	pitch(rotX);
 	yaw(rotY);

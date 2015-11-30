@@ -158,8 +158,8 @@ void CascadedShadowMapMatrixSetCaculator::ExtractFrustumPoints(f32 fNear, f32 fF
 	const Vector3f& camForward = m_camera.getWorldLookingDir();
 
 	// Calculate the tangent values (this can be cached
-	const float fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
-	const float fTanFOVY = tanf(m_camera.getFOV() / 2);
+	const f32 fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
+	const f32 fTanFOVY = tanf(m_camera.getFOV() / 2);
 
 	// Calculate the points on the near plane
 	arrFrustumCorners[0] = camPos + (-camRight * fTanFOVX + camUp * fTanFOVY + camForward) * fNear;
@@ -183,8 +183,8 @@ void CascadedShadowMapMatrixSetCaculator::ExtractFrustumBoundSphere(f32 fNear, f
 	const Vector3f& camForward = m_camera.getWorldLookingDir();
 
 	// Calculate the tangent values (this can be cached as long as the FOV doesn't change)
-	const float fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
-	const float fTanFOVY = tanf(m_camera.getFOV() / 2);
+	const f32 fTanFOVX = m_camera.getAspectRatio() * tanf(m_camera.getFOV() / 2);
+	const f32 fTanFOVY = tanf(m_camera.getFOV() / 2);
 
 	// The center of the sphere is in the center of the frustum
 	vBoundCenter = camPos + camForward * (fNear + 0.5f * (fNear + fFar));
