@@ -22,7 +22,9 @@ FileSystem::FileSystem()
 	auto pathStr = path.generic_wstring();
 	auto index = pathStr.find(L"forward");
 	assert(index < pathStr.length());
-	mCWD = pathStr.substr(0, index) + L"forward/";
+	auto indexEnd = pathStr.find_first_of(L'/', index);
+	assert(indexEnd < pathStr.length());
+	mCWD = pathStr.substr(0, indexEnd + 1);
 	sDataFolder = mCWD + sDataFolder;
 	sLogFolder = mCWD + sLogFolder;
 
