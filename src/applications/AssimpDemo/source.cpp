@@ -60,6 +60,7 @@ private:
 	ResourcePtr m_constantBuffer;
 
 	std::vector<GeometryPtr> m_vGeoms;
+	std::vector<Matrix4f> m_vMats;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -88,15 +89,16 @@ void AssimpDemo::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::LightSteelBlue);
 
+	for (auto i = 0; i < m_vGeoms.size(); ++i)
+	{
+		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
+		auto pBuffer = (CBufferType*)pData.pData;
+		pBuffer->mat = m_vMats[i] * m_worldMat * m_viewMat * m_projMat;
+		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+		m_pRender->pImmPipeline->ApplyPipelineResources();
 
-	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->mat = m_worldMat * m_viewMat * m_projMat;
-	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
-
-	m_pRender->pImmPipeline->ApplyPipelineResources();
-	for (auto g : m_vGeoms)
-		g->Execute(m_pRender->pImmPipeline);
+		m_vGeoms[i]->Execute(m_pRender->pImmPipeline);
+	}
 
 	m_pRender->Present(MainWnd(), 0);
 }
@@ -207,6 +209,25 @@ void AssimpDemo::LoadGeometry()
 
 		pGeometry->LoadToBuffers();
 		m_vGeoms.push_back(pGeometry);
+	}
+
+	count = pScene->mRootNode->mNumChildren;
+	for (auto i = 0U; i < count; ++i)
+	{
+		Matrix4f mat(true);
+		aiNode* node = pScene->mRootNode->mChildren[i];
+		for (auto j = 0; j < 4; ++j)
+		{
+			aiMatrix4x4 trans = node->mTransformation;
+			auto ptr = trans[j];
+			mat(j, 0) = ptr[0];
+			mat(j, 1) = ptr[1];
+			mat(j, 2) = ptr[2];
+			mat(j, 3) = ptr[3];
+		}
+
+		mat = mat.Transpose();
+		m_vMats.push_back(mat);
 	}
 
 	SetupPipeline();
