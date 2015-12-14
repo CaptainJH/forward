@@ -19,7 +19,7 @@ if(Boost_FOUND)
 	#target_link_libraries(progname ${Boost_LIBRARIES})
 endif()
 
-include_directories("../libs")
+include_directories("../libs/assimp/include/")
 include_directories("include/")
 include_directories("core/")
 include_directories("windows/")
@@ -35,6 +35,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
     add_definitions(-DUNICODE -D_UNICODE)
     MESSAGE( STATUS "MSVC")
+
+    link_directories("../libs/assimp/Win64")
 endif()
 
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${warnings}")
