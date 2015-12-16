@@ -27,6 +27,8 @@ struct CBufferType
 {
 	Vector4f screenParams;
 	Vector4f cameraPos;
+	Vector4f SDFParams;
+	Vector4f SDFOrigin;
 	Matrix4f matWorld;
 	Matrix4f matViewProj;
 	Matrix4f matViewProjInverse;
@@ -79,6 +81,8 @@ private:
 	std::vector<GeometryPtr> m_vGeoms;
 	std::vector<Matrix4f> m_vMats;
 
+	Vector4f m_cameraPos;
+
 	GeometryPtr m_pQuad;
 	i32 m_samplerID;
 };
@@ -101,8 +105,17 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 
 void SDFShadowDemo::UpdateScene(f32 /*dt*/)
 {
-	auto frames = (f32)mTimer.FrameCount() / 1000;
-	m_worldMat = Matrix4f::RotationMatrixY(frames);
+	auto frames = (f32)mTimer.FrameCount() / 2000;
+	//m_worldMat = Matrix4f::RotationMatrixY(frames);
+	m_worldMat = Matrix4f::Identity();
+
+	Matrix4f viewRot = Matrix4f::RotationMatrixY(frames);
+	// Build the view matrix.
+	m_cameraPos = Vector4f(0.0f, 1.0f, -5.0f, 1.0f);
+	m_cameraPos = viewRot * m_cameraPos;
+	Vector3f target; target.MakeZero();
+	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+	m_viewMat = Matrix4f::LookAtLHMatrix(m_cameraPos.xyz(), target, up);
 }
 
 void SDFShadowDemo::DrawScene()
@@ -130,7 +143,9 @@ void SDFShadowDemo::DrawScene()
 	pBuffer->matViewProj = m_viewMat * m_projMat;
 	pBuffer->matViewProjInverse = (m_viewMat * m_projMat).Inverse();
 	pBuffer->screenParams = Vector4f(mClientWidth, mClientHeight, 0.0f, 0.0f);
-	pBuffer->cameraPos = Vector4f(0.0f, 1.0f, -5.0f, 1.0f);
+	pBuffer->SDFParams = m_sdfParams;
+	pBuffer->SDFOrigin = m_sdfOrigin;
+	pBuffer->cameraPos = m_cameraPos;
 	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
 
 	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
