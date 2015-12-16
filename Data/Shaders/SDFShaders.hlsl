@@ -244,8 +244,8 @@ float3 CalculateVolumeIntersectionPos(float3 rayOrigin, float3 rayDir)
 
 float CalculateRayMarchingSteps(float3 origin, float3 dir)
 {
-	const int MaxSteps = 10;
-	const float epsilon = 0.1f;
+	const int MaxSteps = 50;
+	const float epsilon = 0.01f;
 
 	bool inside = isInsideVolume(origin);
 	float3 start = origin;
@@ -299,8 +299,4 @@ float3 PSMainQuad( in VS_OUTPUT input ) : SV_Target
 	float value = steps / 400;
 
 	return float3(value, value, value);
-	//float value = SampleVolume(float3(input.uv, SDFOrigin.w / SDFParams.z)) / 10.0f;
-	//if(value < 0.0f)
-	//	return float3(1.0f, 1.0f, 1.0f);
-	//return float3(value, value, value);
 }
