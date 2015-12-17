@@ -13,6 +13,9 @@ cbuffer SDFParams
 Texture3D<float> tex0: register( t0 );
 SamplerState s0: register( s0 );
 
+static const float3 ZERO = 0.0f;
+static const float3 kNoIntersection = -1000.0f;
+
 //-----------------------------------------------------------------------------
 struct VS_INPUT
 {
@@ -95,14 +98,17 @@ bool isInsideVolume(float3 pos)
 	float3 maxPos;
 	GetVolumePos(minPos, maxPos);
 
-	if(pos.x < minPos.x || pos.x > maxPos.x)
+	// this line equals to the commented lines below
+	if(any(min(ZERO, pos - minPos)) || any(max(ZERO, pos - maxPos)))
 		return false;
+	//if(pos.x < minPos.x || pos.x > maxPos.x)
+	//	return false;
 
-	if(pos.y < minPos.y || pos.y > maxPos.y)
-		return false;
+	//if(pos.y < minPos.y || pos.y > maxPos.y)
+	//	return false;
 
-	if(pos.z < minPos.z || pos.z > maxPos.z)
-		return false;
+	//if(pos.z < minPos.z || pos.z > maxPos.z)
+	//	return false;
 
 	return true;
 }
@@ -128,8 +134,6 @@ float3 CalculateVolumeIntersectionPos(float3 rayOrigin, float3 rayDir)
 	float3 minPos; 
 	float3 maxPos;
 	GetVolumePos(minPos, maxPos);
-
-	float3 kNoIntersection = float3(-1000.0f, -1000.0f, -1000.0f);
 
 	float xt;
 	if(rayOrigin.x < minPos.x)
@@ -210,32 +214,21 @@ float3 CalculateVolumeIntersectionPos(float3 rayOrigin, float3 rayDir)
 		t = zt;
 	}
 
+	float3 rayEnd = rayOrigin + rayDir * t;
 	if(which == 0)
 	{
-		float y = rayOrigin.y + rayDir.y * t;
-		if(y < minPos.y || y > maxPos.y)
-			return kNoIntersection;
-		float z = rayOrigin.z + rayDir.z * t;
-		if(z < minPos.z || z > maxPos.z)
+		if(any(min(ZERO, rayEnd.yz - minPos.yz)) || any(max(ZERO, rayEnd.yz - maxPos.yz)))
 			return kNoIntersection;
 	}
 	else if(which == 1)
 	{
-		float x = rayOrigin.x + rayDir.x * t;
-		if(x < minPos.x || x > maxPos.x)
-			return kNoIntersection;
-		float z = rayOrigin.z + rayDir.z * t;
-		if(z < minPos.z || z > maxPos.z)
+		if(any(min(ZERO, rayEnd.xz - minPos.xz)) || any(max(ZERO, rayEnd.xz - maxPos.xz)))
 			return kNoIntersection;
 	}
 	else if(which == 2)
 	{
-		float x = rayOrigin.x + rayDir.x * t;
-		if(x < minPos.x || x > maxPos.x)
-			return kNoIntersection;
-		float y = rayOrigin.y + rayDir.y * t;
-		if(y < minPos.y || y > maxPos.y)
-			return kNoIntersection;					
+		if(any(min(ZERO, rayEnd.xy - minPos.xy)) || any(max(ZERO, rayEnd.xy - maxPos.xy)))
+			return kNoIntersection;				
 	}
 
 
@@ -244,7 +237,7 @@ float3 CalculateVolumeIntersectionPos(float3 rayOrigin, float3 rayDir)
 
 float CalculateRayMarchingSteps(float3 origin, float3 dir)
 {
-	const int MaxSteps = 50;
+	const int MaxSteps = 64;
 	const float epsilon = 0.01f;
 
 	bool inside = isInsideVolume(origin);
@@ -257,7 +250,7 @@ float CalculateRayMarchingSteps(float3 origin, float3 dir)
 		steps += 1;
 	}
 
-	if(start.x < -900.0f && start.y < -900.0f && start.z < -900.0f)
+	if(any(start - kNoIntersection) == false)
 		return 0.0f;
 
 	float df = 0.0f;
