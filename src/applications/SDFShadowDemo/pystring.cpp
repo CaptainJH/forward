@@ -39,6 +39,8 @@
 #include <iostream>
 #include <sstream>
 
+#pragma warning(disable : 4127 4800)
+
 namespace pystring
 {
 

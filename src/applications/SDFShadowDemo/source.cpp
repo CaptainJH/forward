@@ -142,7 +142,7 @@ void SDFShadowDemo::DrawScene()
 	pBuffer->matWorld = m_worldMat;
 	pBuffer->matViewProj = m_viewMat * m_projMat;
 	pBuffer->matViewProjInverse = (m_viewMat * m_projMat).Inverse();
-	pBuffer->screenParams = Vector4f(mClientWidth, mClientHeight, 0.0f, 0.0f);
+	pBuffer->screenParams = Vector4f(static_cast<f32>(mClientWidth), static_cast<f32>(mClientHeight), 0.0f, 0.0f);
 	pBuffer->SDFParams = m_sdfParams;
 	pBuffer->SDFOrigin = m_sdfOrigin;
 	pBuffer->cameraPos = m_cameraPos;
@@ -374,36 +374,36 @@ void SDFShadowDemo::LoadSDFBuffer()
 	std::string line0 = lines[0];
 	std::vector<std::string> line0Split;
 	pystring::split(line0, line0Split, " ");
-	m_sdfParams.x = atof(line0Split[0].c_str());
-	m_sdfParams.y = atof(line0Split[1].c_str());
-	m_sdfParams.z = atof(line0Split[2].c_str());
-	m_sdfParams.w = atof(lines[2].c_str());
+	m_sdfParams.x = strtof(line0Split[0].c_str(), 0);
+	m_sdfParams.y = strtof(line0Split[1].c_str(), 0);
+	m_sdfParams.z = strtof(line0Split[2].c_str(), 0);
+	m_sdfParams.w = strtof(lines[2].c_str(), 0);
 	
 	std::string line1 = lines[1];
 	std::vector<std::string> line1Split;
 	pystring::split(line1, line1Split, " ");
-	m_sdfOrigin.x = atof(line1Split[0].c_str());
-	m_sdfOrigin.y = atof(line1Split[1].c_str());
-	m_sdfOrigin.z = atof(line1Split[2].c_str());
+	m_sdfOrigin.x = strtof(line1Split[0].c_str(), 0);
+	m_sdfOrigin.y = strtof(line1Split[1].c_str(), 0);
+	m_sdfOrigin.z = strtof(line1Split[2].c_str(), 0);
 
 	const auto SDFCount = m_sdfParams.x * m_sdfParams.y * m_sdfParams.z;
 	for (auto i = 0; i < SDFCount; ++i)
 	{
-		f32 value = atof(lines[3 + i].c_str());
+		f32 value = strtof(lines[3 + i].c_str(), 0);
 		m_sdf.push_back(value);
 	}
 
 	Texture3dConfigDX11 texConfig;
 	texConfig.SetDefaults();
-	texConfig.SetWidth(m_sdfParams.x);
-	texConfig.SetHeight(m_sdfParams.y);
-	texConfig.SetDepth(m_sdfParams.z);
+	texConfig.SetWidth(static_cast<u32>(m_sdfParams.x));
+	texConfig.SetHeight(static_cast<u32>(m_sdfParams.y));
+	texConfig.SetDepth(static_cast<u32>(m_sdfParams.z));
 	texConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
 	
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &m_sdf[0];
-	data.SysMemPitch = sizeof(f32) * m_sdfParams.x;
-	data.SysMemSlicePitch = sizeof(f32) * m_sdfParams.x * m_sdfParams.y;
+	data.SysMemPitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x);
+	data.SysMemSlicePitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x * m_sdfParams.y);
 
 	ShaderResourceViewConfigDX11 srvConfig;
 	srvConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
