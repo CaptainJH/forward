@@ -1,9 +1,8 @@
 #include "ApplicationDX11.h"
 #include "BufferConfigDX11.h"
 #include "TriangleIndices.h"
-#include "assimp\Importer.hpp"
-#include "assimp\scene.h"
-#include "assimp\postprocess.h"
+
+#include "GeometryLoader.h"
 
 
 using namespace forward;
@@ -146,89 +145,11 @@ void AssimpDemo::OnResize()
 
 void AssimpDemo::LoadGeometry()
 {
-	// load mesh file
-	Assimp::Importer imp;
-	const aiScene* pScene = nullptr;
-
 	const std::wstring meshFileNameW = L"simpleScene.dae";
-	const std::wstring meshFilePathW = FileSystem::getSingleton().GetModelsFolder();
-	const std::string meshFileFullPath = TextHelper::ToAscii(meshFilePathW + meshFileNameW);
+	//const std::wstring meshFilePathW = FileSystem::getSingleton().GetModelsFolder();
+	//const std::string meshFileFullPath = TextHelper::ToAscii(meshFilePathW + meshFileNameW);
 
-	pScene = imp.ReadFile(meshFileFullPath, aiProcess_MakeLeftHanded | aiProcess_Triangulate | aiProcess_FlipWindingOrder);
-	if (!pScene)
-	{
-		return;
-	}
-
-	auto count = pScene->mNumMeshes;
-	if (count < 1)
-		return;
-
-	// load a scene into GeometryDX11
-	for (auto id = 0U; id < count; ++id)
-	{
-		auto pMesh = pScene->mMeshes[id];
-		auto pGeometry = GeometryPtr(new GeometryDX11());
-
-		const i32 NumVertexOfBox = pMesh->mNumVertices;
-		// create the vertex element streams
-		VertexElementDX11* pPositions = new VertexElementDX11(3, NumVertexOfBox);
-		pPositions->m_SemanticName = VertexElementDX11::PositionSemantic;
-		pPositions->m_uiSemanticIndex = 0;
-		pPositions->m_Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		pPositions->m_uiInputSlot = 0;
-		pPositions->m_uiAlignedByteOffset = 0;
-		pPositions->m_InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		pPositions->m_uiInstanceDataStepRate = 0;
-
-		VertexElementDX11* pColors = new VertexElementDX11(4, NumVertexOfBox);
-		pColors->m_SemanticName = VertexElementDX11::ColorSemantic;
-		pColors->m_uiSemanticIndex = 0;
-		pColors->m_Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		pColors->m_uiInputSlot = 0;
-		pColors->m_uiAlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-		pColors->m_InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		pColors->m_uiInstanceDataStepRate = 0;
-
-		pGeometry->AddElement(pPositions);
-		pGeometry->AddElement(pColors);
-
-		for (auto i = 0; i < NumVertexOfBox; ++i)
-		{
-			aiVector3D pos = pMesh->mVertices[i];
-			*pPositions->Get3f(i) = Vector3f(pos.x, pos.y, pos.z);
-			*pColors->Get4f(i) = Colors::Green;
-		}
-
-		for (auto i = 0U; i < pMesh->mNumFaces; ++i)
-		{
-			aiFace face = pMesh->mFaces[i];
-			assert(face.mNumIndices == 3);
-			pGeometry->AddFace(TriangleIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]));
-		}
-
-		pGeometry->LoadToBuffers();
-		m_vGeoms.push_back(pGeometry);
-	}
-
-	count = pScene->mRootNode->mNumChildren;
-	for (auto i = 0U; i < count; ++i)
-	{
-		Matrix4f mat(true);
-		aiNode* node = pScene->mRootNode->mChildren[i];
-		for (auto j = 0; j < 4; ++j)
-		{
-			aiMatrix4x4 trans = node->mTransformation;
-			auto ptr = trans[j];
-			mat(j, 0) = ptr[0];
-			mat(j, 1) = ptr[1];
-			mat(j, 2) = ptr[2];
-			mat(j, 3) = ptr[3];
-		}
-
-		mat = mat.Transpose();
-		m_vMats.push_back(mat);
-	}
+	GeometryLoader::loadMeshFileDX(meshFileNameW, m_vGeoms, m_vMats);
 
 	SetupPipeline();
 }
