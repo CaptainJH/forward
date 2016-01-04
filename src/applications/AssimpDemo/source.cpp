@@ -150,6 +150,10 @@ void AssimpDemo::LoadGeometry()
 	//const std::string meshFileFullPath = TextHelper::ToAscii(meshFilePathW + meshFileNameW);
 
 	GeometryLoader::loadMeshFileDX(meshFileNameW, m_vGeoms, m_vMats);
+	for (auto p : m_vGeoms)
+	{
+		p->LoadToBuffers();
+	}
 
 	SetupPipeline();
 }

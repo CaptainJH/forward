@@ -121,7 +121,6 @@ i32 GeometryLoader::loadMeshFileDX(std::wstring filename, std::vector<GeometryPt
 			pGeometry->AddFace(TriangleIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]));
 		}
 
-		pGeometry->LoadToBuffers();
 		outMeshes.push_back(pGeometry);
 	}
 
