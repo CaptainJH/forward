@@ -4,16 +4,29 @@
 
 using namespace forward;
 
+Matrix4f ExpandZ(
+	1, 0,  0, 0,
+	0, 1,  0, 0,
+	0, 0,  2, 0,
+	0, 0, -1, 1);
+
+Matrix4f ShrinkZ(
+	1, 0, 0,   0,
+	0, 1, 0,   0,
+	0, 0, 0.5, 0,
+	0, 0, 0.5, 1
+	);
+
 Matrix4f NormalToLightSpace(
-	1, 0, 0, 0,      // x
-	0, 0, -1, 0,      // y
-	0, 1, 0, 0,      // z
-	0, 0, 0, 1); // w
+	1, 0,  0, 0,      // x
+	0, 0,  1, 0,      // y
+	0, 1,  0, 0,      // z
+	0, 0,  0, 1); // w
 
 Matrix4f LightSpaceToNormal(
 	1, 0, 0, 0,      // x
 	0, 0, 1, 0,      // y
-	0, -1, 0, 0,      // z
+	0, 1, 0, 0,      // z
 	0, 0, 0, 1); // w
 
 Vector3f operator*(const Vector3f& vec3, const Matrix4f& mat)
@@ -456,7 +469,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 {
 	Matrix4f ToGL = Matrix4f::ScaleMatrix(Vector3f(1.0f, 1.0f, -1.0f));
 	Matrix4f lightView = m_lightCamera.getViewMatrix();
-	Matrix4f lightProj = m_lightCamera.getProjectionMatrix();
+	Matrix4f lightProj = m_lightCamera.getProjectionMatrix() * ExpandZ * NormalToLightSpace;
 
     //calculate standard light space for spot or directional lights
     //this routine returns two matrices:
@@ -477,17 +490,17 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 
 	MatrixTester(L);
 
-	//{
- //       //do Light Space Perspective shadow mapping
- //       //rotate the lightspace so that the proj light view always points upwards
- //       //calculate a frame matrix that uses the projViewDir[light-space] as up vector
- //       //look(from position, into the direction of the projected direction, with unchanged up-vector)
- //       lightProj = lightProj *
- //           Matrix4f::LookAtLHMatrix( Vector3f(0.0f, 0.0f, 0.0f), projViewDir, Vector3f(0.0f, 1.0f, 0.0f) );
+	{
+        //do Light Space Perspective shadow mapping
+        //rotate the lightspace so that the proj light view always points upwards
+        //calculate a frame matrix that uses the projViewDir[light-space] as up vector
+        //look(from position, into the direction of the projected direction, with unchanged up-vector)
+        lightProj = lightProj *
+            Matrix4f::LookAtLHMatrix( Vector3f(0.0f, 0.0f, 0.0f), projViewDir, Vector3f(0.0f, 1.0f, 0.0f) );
 
- //       Matrix4f lispsm = getLispSmMtx( lightView * lightProj );
- //       lightProj = lightProj * lispsm;
- //   }
+        Matrix4f lispsm = getLispSmMtx( lightView * lightProj );
+        lightProj = lightProj * lispsm;
+    }
 
     const Matrix4f PL = lightView * lightProj;
 	MatrixTester(PL);
@@ -512,7 +525,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     //transform from right handed system into left handed ndc
     //lightProj = lightProj * osg::Matrix::scale(1.0,1.0,-1.0);
 
-	m_finalMat = lightView * lightProj;
+	m_finalMat = lightView * lightProj * LightSpaceToNormal * ShrinkZ;
 	MatrixTester(m_finalMat);
 	return m_finalMat;
 }
