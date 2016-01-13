@@ -388,7 +388,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
 
     const f32 n = calcNoptGeneral(lightSpace, B_ls);
 	//const f32 n = B_ls.first.z - 0.1f;
-	const f32 l = B_ls.second.z - B_ls.first.z;
+	//const f32 l = B_ls.second.z - B_ls.first.z;
 	const f32 zRange = B_ls.second.z - B_ls.first.z;
 
 	const Vector3f eye_ws = m_viewCamera.getWorldEyePos();
@@ -428,7 +428,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
     //so we stay in a right handed system
     //P = P * osg::Matrix::scale( 1.0,1.0,-1.0 );
     //return the lispsm frustum with the projection center
-    return projectionCenter * P ;
+    return projectionCenter * P * ExpandZ;
 }
 
 Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getProjViewDir_ls(const Matrix4f& lightSpace) const
@@ -507,8 +507,8 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 
     auto bb = computeBoundingBox( PL );
 
-	const f32 SafeBias = 0.01f;
-	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z - SafeBias, bb.second.z + SafeBias);
+	const f32 SafeBias = 0.0f;
+	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z - SafeBias, bb.second.z + SafeBias) * ExpandZ;
 
     //map to unit cube
     lightProj = lightProj * fitToUnitFrustum;
