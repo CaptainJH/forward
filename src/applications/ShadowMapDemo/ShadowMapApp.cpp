@@ -36,7 +36,7 @@ void ShadowMapApp::DrawScene()
 		else
 		{
 			if (m_useLiSP)
-				pBuffer->matLight = m_LiSP.getMatrix();
+				pBuffer->matLight = m_worldMat * m_LiSP.getMatrix();
 			else
 				pBuffer->matLight = m_worldMat * viewLight * m_camLight.getProjectionMatrix();
 		}
@@ -123,10 +123,10 @@ bool ShadowMapApp::Init()
 	target.y = 1.0f;
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	m_camMain.setViewMatrix(Matrix4f::LookAtLHMatrix(pos, target, up));
-	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(5.0f, 3.0f, 5.0f), target, up));
+	m_camLight.setViewMatrix(Matrix4f::LookAtLHMatrix(Vector3f(120.0f, 70.0f, 0.0f), target, up));
 	// Build the projection matrix
 	m_camMain.setProjectionParams(0.5f * Pi, AspectRatio(), 0.01f, 50.0f);
-	m_camLight.setProjectionParams(0.25f * Pi, AspectRatio(), 1.0f, 50.0f);
+	m_camLight.setProjectionParams(0.25f * Pi, AspectRatio(), 1.0f, 150.0f);
 
 	BufferConfigDX11 cbConfig;
 	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);

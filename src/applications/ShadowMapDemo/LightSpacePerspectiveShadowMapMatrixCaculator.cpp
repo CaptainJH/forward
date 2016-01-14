@@ -59,137 +59,6 @@ void LightSpacePerspectiveShadowMapMatrixCaculator::linkWorldMatrixOfObject(cons
 		m_matrixLinks[obj] = worldMat;
 }
 
-// Adapted Modified version of LispSM authors implementation from 2006
-// Nopt formula differs from the paper. I adopted original authors class to
-// use with OSG
-
-
-
-//we search the point in the LVS volume that is nearest to the camera
-
-//static const float OSG_INFINITY = FLT_MAX;
-
-//namespace osgShadow {
-//
-//class LispSM {
-//public:
-//    typedef std::vector<osg::Vec3d> Vertices;
-//
-//    void setProjectionMatrix( const osg::Matrix & projectionMatrix )
-//        { _projectionMatrix = projectionMatrix; }
-//
-//    void setViewMatrix( const osg::Matrix & viewMatrix )
-//        { _viewMatrix = viewMatrix; }
-//
-//    void setHull( const ConvexPolyhedron & hull )
-//        { _hull = hull; }
-//
-//    const ConvexPolyhedron & getHull( ) const
-//        { return _hull; }
-//
-//    const osg::Matrix & getProjectionMatrix( void ) const
-//        { return _projectionMatrix; }
-//
-//    const osg::Matrix & getViewMatrix( void ) const
-//        { return _viewMatrix; }
-//
-//    bool getUseLiSPSM() const
-//        { return _useLiSPSM; }
-//
-//    void setUseLiSPSM( bool use )
-//        { _useLiSPSM = use; }
-//
-//    bool getUseFormula() const
-//        { return _useFormula; }
-//
-//    void setUseFormula( bool use )
-//        { _useFormula = use; }
-//
-//    bool getUseOldFormula() const
-//        { return _useOldFormula; }
-//
-//    void setUseOldFormula( bool use )
-//        { _useOldFormula = use; }
-//
-//    void setN(const double& n )
-//        { _N = n; }
-//
-//    const double getN() const
-//        { return _N; }
-//
-//    //for old LispSM formula from paper
-//    const double getNearDist() const
-//        { return _nearDist; }
-//
-//    void setNearDist( const double & nearDist )
-//        { _nearDist = nearDist; }
-//
-//    const double getFarDist() const
-//        { return _farDist; }
-//
-//    void setFarDist( const double & farDist )
-//        { _farDist = farDist; }
-//
-//    const osg::Vec3d & getEyeDir() const
-//        { return _eyeDir; }
-//
-//    const osg::Vec3d & getLightDir() const
-//        { return _lightDir; }
-//
-//    void setEyeDir( const osg::Vec3d eyeDir )
-//        { _eyeDir = eyeDir; }
-//
-//    void setLightDir( const osg::Vec3d lightDir )
-//        { _lightDir = lightDir; }
-//
-//protected:
-//
-//    bool        _useLiSPSM;
-//    bool        _useFormula;
-//    bool        _useOldFormula;
-//    double      _N;
-//    double      _nearDist;
-//    double      _farDist;
-//
-//    mutable osg::Vec3d  _E;
-//    osg::Vec3d  _eyeDir;
-//    osg::Vec3d  _lightDir;
-//
-//    ConvexPolyhedron _hull;
-//
-//    osg::Matrix _viewMatrix;
-//    osg::Matrix _projectionMatrix;
-//
-//    double      getN(const osg::Matrix lightSpace, const osg::BoundingBox& B_ls) const;
-//
-//    osg::Vec3d  getNearCameraPointE() const;
-//
-//    osg::Vec3d  getZ0_ls
-//                    (const osg::Matrix& lightSpace, const osg::Vec3d& e, const double& b_lsZmax, const osg::Vec3d& eyeDir) const;
-//
-//    double      calcNoptGeneral
-//                    (const osg::Matrix lightSpace, const osg::BoundingBox& B_ls) const;
-//
-//    double      calcNoptOld
-//                    ( const double gamma_ = 999) const;
-//
-//    osg::Matrix getLispSmMtx
-//                    (const osg::Matrix& lightSpace) const;
-//
-//    osg::Vec3d  getProjViewDir_ls
-//                    (const osg::Matrix& lightSpace) const;
-//
-//    void        updateLightMtx
-//                    (osg::Matrix& lightView, osg::Matrix& lightProj, const std::vector<osg::Vec3d>& B) const;
-//
-//public:
-//    LispSM( ) : _useLiSPSM( true ), _useFormula( true ), _useOldFormula( false ), _N( 1 ), _nearDist( 1 ), _farDist( 10 ) { }
-//
-//    virtual void updateLightMtx( osg::Matrix& lightView, osg::Matrix& lightProj ) const;
-//};
-//
-//}
-
 Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getNearCameraPointE( ) const
 {
 	const Matrix4f& eyeView = m_viewCamera.getViewMatrix();
@@ -295,45 +164,6 @@ f32 LightSpacePerspectiveShadowMapMatrixCaculator::calcNoptGeneral(const Matrix4
 
     return N;
 }
-
-//double LispSM::calcNoptOld( const double gamma_ ) const
-//{
-//    const double& n = getNearDist();
-//    const double& f = getFarDist();
-//    const double d = abs(f-n);
-//    double sinGamma(0);
-//    if(999 == gamma_) {
-//        double dot = getEyeDir() * getLightDir();
-//        sinGamma = sqrt( 1.0 - dot * dot );
-//    }
-//    else {
-//        sinGamma = sin(gamma_);
-//    }
-//
-//    double N = (n+sqrt(n*(n+d*sinGamma)))/sinGamma;
-//#if PRINT_COMPUTED_N_OPT
-//    std::cout
-//       << " N=" << std::setw(8) << N
-//       << " n=" << std::setw(8) << n
-//       << " f=" << std::setw(8) << f
-//       << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
-//       << std::flush;
-//#endif
-//    return N;
-//}
-//
-//double LispSM::getN(const osg::Matrix lightSpace, const osg::BoundingBox& B_ls) const
-//{
-//    if( getUseFormula()) {
-//        if( getUseOldFormula() )
-//            return calcNoptOld();
-//        else
-//            return calcNoptGeneral(lightSpace,B_ls);
-//    }
-//    else {
-//        return getN();
-//    }
-//}
 
 std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::computeBoundingBox(const Matrix4f& mat) const
 {
@@ -467,7 +297,6 @@ Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getProjViewDir_ls(const 
 
 Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
 {
-	Matrix4f ToGL = Matrix4f::ScaleMatrix(Vector3f(1.0f, 1.0f, -1.0f));
 	Matrix4f lightView = m_lightCamera.getViewMatrix();
 	Matrix4f lightProj = m_lightCamera.getProjectionMatrix() * ExpandZ * NormalToLightSpace;
 
@@ -488,8 +317,6 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     Matrix4f L = lightView * lightProj;
     Vector3f projViewDir = getProjViewDir_ls(L);
 
-	MatrixTester(L);
-
 	{
         //do Light Space Perspective shadow mapping
         //rotate the lightspace so that the proj light view always points upwards
@@ -503,7 +330,6 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     }
 
     const Matrix4f PL = lightView * lightProj;
-	MatrixTester(PL);
 
     auto bb = computeBoundingBox( PL );
 
@@ -513,78 +339,6 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     //map to unit cube
     lightProj = lightProj * fitToUnitFrustum;
 
-    //coordinate system change for calculations in the article
-    //osg::Matrix switchToGL = osg::Matrix::identity();
-    //switchToGL(1,1) =  0.0;
-    //switchToGL(1,2) =  1.0; // y -> z
-    //switchToGL(2,1) = -1.0; // z -> -y
-    //switchToGL(2,2) =  0.0;
-
-    //back to open gl coordinate system y <-> z
-    //lightProj = lightProj * switchToGL;
-    //transform from right handed system into left handed ndc
-    //lightProj = lightProj * osg::Matrix::scale(1.0,1.0,-1.0);
-
 	m_finalMat = lightView * lightProj * LightSpaceToNormal * ShrinkZ;
-	MatrixTester(m_finalMat);
 	return m_finalMat;
-}
-
-//void LightSpacePerspectiveShadowMapAlgorithm::operator()
-//    ( const osgShadow::ConvexPolyhedron* hullShadowedView,
-//      const osg::Camera* cameraMain,
-//      osg::Camera* cameraShadow ) const
-//{
-//    lispsm->setHull( *hullShadowedView );
-//    lispsm->setViewMatrix( cameraMain->getViewMatrix() );
-//    lispsm->setProjectionMatrix( cameraMain->getViewMatrix() );
-//
-//#if 1
-//    osg::Vec3d lightDir = osg::Matrix::transform3x3( osg::Vec3d( 0, 0, -1 ), osg::Matrix::inverse( cameraShadow->getViewMatrix() ) );
-//    osg::Vec3d eyeDir = osg::Matrix::transform3x3( osg::Vec3d( 0, 0, -1 ), osg::Matrix::inverse( cameraMain->getViewMatrix() ) );
-//
-//#else
-//    osg::Vec3d lightDir = osg::Matrix::transform3x3( cameraShadow->getViewMatrix(), osg::Vec3d( 0.0, 0.0, -1.0 ) );
-//    osg::Vec3d eyeDir = osg::Matrix::transform3x3( cameraMain->getViewMatrix(), osg::Vec3d( 0.0, 0.0, -1.0 ) );
-//#endif
-//
-//    lightDir.normalize();
-//    eyeDir.normalize();
-//
-//    lispsm->setLightDir(lightDir);
-//
-//    eyeDir.normalize();
-//
-//    lispsm->setEyeDir( eyeDir );
-//
-//    osg::BoundingBox bb =
-//        hullShadowedView->computeBoundingBox( cameraMain->getViewMatrix() );
-//
-//    lispsm->setNearDist( -bb.zMax() );
-//    lispsm->setFarDist( -bb.zMin() );
-//
-//    lispsm->updateLightMtx
-//        ( cameraShadow->getViewMatrix(), cameraShadow->getProjectionMatrix() );
-//}
-
-void LightSpacePerspectiveShadowMapMatrixCaculator::MatrixTester(const Matrix4f& mat)
-{
-	m_tempVs.clear();
-	m_tempV4.clear();
-
-	for (auto obj : m_sceneObjects)
-	{
-		for (auto v : obj->m_vElements)
-		{
-			if (v->m_SemanticName == VertexElementDX11::PositionSemantic)
-			{
-				for (auto i = 0; i < v->Count(); ++i)
-				{
-					const Vector4f& pos = v->Tuple() == 3 ? Vector4f(*v->Get3f(i), 1.0f) : *v->Get4f(i);
-					m_tempVs.push_back(pos.xyz() * mat);
-					m_tempV4.push_back(mat * pos);
-				}
-			}
-		}
-	}
 }
