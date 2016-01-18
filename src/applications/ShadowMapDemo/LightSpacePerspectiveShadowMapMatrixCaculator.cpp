@@ -138,8 +138,8 @@ f32 LightSpacePerspectiveShadowMapMatrixCaculator::calcNoptGeneral(const Matrix4
     const Vector4f z0_cs = eyeView * z0_ws;
     const Vector4f z1_cs = eyeView * z1_ws;
 
-    f32 z0 = -z0_cs.z / z0_cs.w;
-    f32 z1 = -z1_cs.z / z1_cs.w;
+    f32 z0 = z0_cs.z / z0_cs.w;
+    f32 z1 = z1_cs.z / z1_cs.w;
 
     if( z1 / z0 <= 1.0f ) 
 	{
@@ -158,11 +158,7 @@ f32 LightSpacePerspectiveShadowMapMatrixCaculator::calcNoptGeneral(const Matrix4
             z1 = z0 + 0.1f;
     }
 
-    const f32 d = fabs(B_ls.second.z - B_ls.first.z);
-
-    f32 N = d/( sqrt( z1 / z0 ) - 1.0f );
-
-    return N;
+	return m_viewCamera.getNearClip() + sqrt(z0 * z1);
 }
 
 std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::computeBoundingBox(const Matrix4f& mat) const
@@ -204,9 +200,6 @@ std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::com
 		}
 	}
 
-	const f32 safeBias = 0.1f;
-	minV.z -= safeBias;
-	maxV.z += safeBias;
 	return std::make_pair(minV, maxV);
 }
 
