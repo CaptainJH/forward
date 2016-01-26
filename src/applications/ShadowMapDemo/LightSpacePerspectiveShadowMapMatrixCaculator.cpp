@@ -85,7 +85,7 @@ Vector3f LightSpacePerspectiveShadowMapMatrixCaculator::getNearCameraPointE( ) c
 					if (posL.z < nearestV.z)
 					{
 						nearestV = posL.xyz();
-						ret = pos.xyz();
+						ret = pos.xyz() * worldMatrix;
 					}
 				}
 			}
@@ -206,12 +206,9 @@ std::pair<Vector3f, Vector3f> LightSpacePerspectiveShadowMapMatrixCaculator::com
 //this is the algorithm discussed in the article
 Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matrix4f& lightSpace ) const
 {
-    //const osg::BoundingBox B_ls = _hull.computeBoundingBox( lightSpace );
 	auto B_ls = computeBoundingBox(lightSpace);
 
     const f32 n = calcNoptGeneral(lightSpace, B_ls);
-	//const f32 n = B_ls.first.z - 0.1f;
-	//const f32 l = B_ls.second.z - B_ls.first.z;
 	const f32 zRange = B_ls.second.z - B_ls.first.z;
 
 	const Vector3f eye_ws = m_viewCamera.getWorldEyePos();
@@ -246,11 +243,6 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::getLispSmMtx( const Matr
     //with corner points [-1,-1,0] and [1,1,1] as the final step after all the shadow mapping.
     Matrix4f P = Matrix4f::PerspectiveFrustumLHMatrix( -1.0, 1.0, -1.0, 1.0, n, n + d );
 
-    //invert the transform from right handed into left handed coordinate system for the ndc
-    //done by the openGL style frustumGL call
-    //so we stay in a right handed system
-    //P = P * osg::Matrix::scale( 1.0,1.0,-1.0 );
-    //return the lispsm frustum with the projection center
     return projectionCenter * P * ExpandZ;
 }
 
@@ -325,9 +317,7 @@ Matrix4f LightSpacePerspectiveShadowMapMatrixCaculator::update()
     const Matrix4f PL = lightView * lightProj;
 
     auto bb = computeBoundingBox( PL );
-
-	const f32 SafeBias = 0.0f;
-	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z - SafeBias, bb.second.z + SafeBias) * ExpandZ;
+	Matrix4f fitToUnitFrustum = Matrix4f::OrthographicLHMatrix(bb.first.x, bb.second.x, bb.first.y, bb.second.y, bb.first.z, bb.second.z) * ExpandZ;
 
     //map to unit cube
     lightProj = lightProj * fitToUnitFrustum;

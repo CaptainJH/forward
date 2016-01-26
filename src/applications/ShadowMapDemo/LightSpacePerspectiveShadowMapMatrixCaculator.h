@@ -38,11 +38,5 @@ namespace forward
 		/// these are the intermedia caculation result. Outside user should never touch it
 		Vector3f _E; // store the closest vertex to the near plane of view camera in world space
 
-		//for debug
-	private:
-		std::vector<Vector3f> m_tempVs;
-		std::vector<Vector4f> m_tempV4;
-		void MatrixTester(const Matrix4f& mat);
-
 	};
 }
