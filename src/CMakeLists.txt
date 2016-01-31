@@ -37,6 +37,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     MESSAGE( STATUS "MSVC")
 
     link_directories("../libs/assimp/Win64")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+    set(SubSystem "/SUBSYSTEM:CONSOLE")
+
+    MESSAGE( STATUS "Xcode")
 endif()
 
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${warnings}")
@@ -56,5 +61,7 @@ add_subdirectory(applications)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    add_subdirectory(osx)
 endif()
 
