@@ -7,7 +7,6 @@ using namespace forward;
 #pragma warning(disable : 4091)
 #include <DbgHelp.h>
 #include <WinBase.h>
-#pragma comment(lib, "Dbghelp.lib")
 
 std::vector<std::string> CallStackTraceGenerator::GetTrace()
 {

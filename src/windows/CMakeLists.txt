@@ -118,6 +118,3 @@ source_group(Utilities FILES ${SOURCE_FILES_UTILITIES})
 list(APPEND SOURCE_FILES ${SOURCE_FILES_UTILITIES})
 
 add_library(forward STATIC ${HEADER_FILES} ${SOURCE_FILES})
-if(Boost_FOUND)
-	target_link_libraries(forward ${Boost_LIBRARIES})
-endif()

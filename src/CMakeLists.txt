@@ -31,7 +31,8 @@ include_directories("utilities/")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX")
-    set(RenderAPILib "d3d11.lib D3DCompiler.lib dxgi.lib")
+    set(RenderAPILibs "d3d11.lib D3DCompiler.lib dxgi.lib")
+    set(OtherLibs "Dbghelp.lib")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
     add_definitions(-DUNICODE -D_UNICODE)
     MESSAGE( STATUS "MSVC")
@@ -46,7 +47,7 @@ endif()
 
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${warnings}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warnings}")
-set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} ${RenderAPILib}")
+set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} ${RenderAPILibs} ${OtherLibs}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${SubSystem}")
 
 
