@@ -2,9 +2,10 @@
 #include "PCH.h"
 #include "FileSystem.h"
 #include <chrono>
-#include <boost\filesystem.hpp>
+#include <filesystem>
 //--------------------------------------------------------------------------------
 using namespace forward;
+using namespace std::experimental;
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::sDataFolder = L"Data/";
 std::wstring FileSystem::sModelsSubFolder = L"Models/";
@@ -18,7 +19,7 @@ FileSystem* forward::Singleton<FileSystem>::msSingleton = 0;
 //--------------------------------------------------------------------------------
 FileSystem::FileSystem()
 {
-	auto path = boost::filesystem::current_path();
+	auto path = filesystem::current_path();
 	auto pathStr = path.generic_wstring();
 	auto index = pathStr.find(L"forward");
 	assert(index < pathStr.length());
@@ -28,10 +29,10 @@ FileSystem::FileSystem()
 	sDataFolder = mCWD + sDataFolder;
 	sLogFolder = mCWD + sLogFolder;
 
-	auto logPath = boost::filesystem::path(sLogFolder);
-	if (!boost::filesystem::exists(logPath))
+	auto logPath = filesystem::path(sLogFolder);
+	if (!filesystem::exists(logPath))
 	{
-		boost::filesystem::create_directory(logPath);
+		filesystem::create_directory(logPath);
 	}
 }
 //--------------------------------------------------------------------------------
@@ -109,8 +110,8 @@ bool FileSystem::FileExists( const std::wstring& file )
 {
 	// Check if the file exists, and that it is not a directory
 
-	boost::filesystem::path path(file);
-	return boost::filesystem::exists(path) && !boost::filesystem::is_directory(path);
+	filesystem::path path(file);
+	return filesystem::exists(path) && !filesystem::is_directory(path);
 }
 //--------------------------------------------------------------------------------
 /// return true if file1 is newer, otherwise return false
@@ -118,15 +119,12 @@ bool FileSystem::FileIsNewer( const std::wstring& file1, const std::wstring& fil
 {
 	// This method assumes that the existance of the files has already been verified!
 
-	boost::filesystem::path file1path(file1);
-	boost::filesystem::path file2path(file2);
+	filesystem::path file1path(file1);
+	filesystem::path file2path(file2);
 
-	std::time_t stamp1 = boost::filesystem::last_write_time(file1path);
-	std::time_t stamp2 = boost::filesystem::last_write_time(file2path);
+	std::chrono::system_clock::time_point stamp1 = filesystem::last_write_time(file1path);
+	std::chrono::system_clock::time_point stamp2 = filesystem::last_write_time(file2path);
 
-	auto tp1 = std::chrono::system_clock::from_time_t(stamp1);
-	auto tp2 = std::chrono::system_clock::from_time_t(stamp2);
-
-	return tp1 > tp2;
+	return stamp1 > stamp2;
 }
 //--------------------------------------------------------------------------------

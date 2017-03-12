@@ -1216,7 +1216,9 @@ ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 
 	// Test whether this is a DDS file or not.
 	std::wstring extension = filename.substr( filename.size()-3, 3 );
-	std::transform( extension.begin(), extension.end(), extension.begin(), ::tolower );
+	std::transform(extension.begin(), extension.end(), extension.begin(), [](wchar_t ch)->wchar_t { 
+		return static_cast<wchar_t>(::tolower(ch)); 
+	});
 
 	HRESULT hr = S_OK;
 
