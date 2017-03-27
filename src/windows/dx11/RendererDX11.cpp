@@ -53,6 +53,7 @@
 #pragma warning( disable : 4267 )
 #pragma warning( disable : 4239 )
 #pragma warning( disable : 4189 )
+#pragma warning( disable : 4018 )
 
 using Microsoft::WRL::ComPtr;
 

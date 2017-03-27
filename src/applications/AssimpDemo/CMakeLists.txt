@@ -9,6 +9,6 @@ target_link_libraries(AssimpDemo assimp-vc130-mt.lib)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_custom_command(TARGET AssimpDemo POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
-		"${PROJECT_SOURCE_DIR}/../libs/assimp/Win64/assimp-vc130-mt.dll" 
+		"${PROJECT_SOURCE_DIR}/libs/assimp/Win64/assimp-vc130-mt.dll" 
 		$<TARGET_FILE_DIR:AssimpDemo>)
 endif()

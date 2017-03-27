@@ -24,8 +24,11 @@ FileSystem::FileSystem()
 	auto index = pathStr.find(L"forward");
 	assert(index < pathStr.length());
 	auto indexEnd = pathStr.find_first_of(L'/', index);
-	assert(indexEnd < pathStr.length());
-	mCWD = pathStr.substr(0, indexEnd + 1);
+	mCWD = pathStr;
+	if(indexEnd < pathStr.length())
+		mCWD = pathStr.substr(0, indexEnd + 1);
+	else
+		mCWD += L'/';
 	sDataFolder = mCWD + sDataFolder;
 	sLogFolder = mCWD + sLogFolder;
 

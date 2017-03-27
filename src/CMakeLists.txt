@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project("forward")
+#project("forward")
 
 set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -19,7 +19,7 @@ if(Boost_FOUND)
 	#target_link_libraries(progname ${Boost_LIBRARIES})
 endif()
 
-include_directories("../libs/assimp/include/")
+include_directories("${forward_project_root}/libs/assimp/include/")
 include_directories("include/")
 include_directories("core/")
 include_directories("windows/")

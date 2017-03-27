@@ -88,7 +88,7 @@ void AssimpDemo::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::LightSteelBlue);
 
-	for (auto i = 0; i < m_vGeoms.size(); ++i)
+	for (auto i = 0U; i < m_vGeoms.size(); ++i)
 	{
 		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
 		auto pBuffer = (CBufferType*)pData.pData;
