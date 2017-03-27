@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.3)
-#project("forward")
 
 set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
