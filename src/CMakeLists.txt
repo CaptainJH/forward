@@ -18,7 +18,7 @@ if(Boost_FOUND)
 	#target_link_libraries(progname ${Boost_LIBRARIES})
 endif()
 
-include_directories("${forward_project_root}/libs/assimp/include/")
+include_directories("${forward_repository_root}/libs/assimp/include/")
 include_directories("include/")
 include_directories("core/")
 include_directories("windows/")
