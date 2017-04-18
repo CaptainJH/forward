@@ -10,66 +10,83 @@
 
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "DomainShaderStageDX11.h"
-#include "DomainShaderDX11.h"
+#include "ComputeShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ComputeShaderDX11.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-DomainStageDX11::DomainStageDX11()
+ComputeStageDX11::ComputeStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-DomainStageDX11::~DomainStageDX11()
+ComputeStageDX11::~ComputeStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ShaderType DomainStageDX11::GetType()
+ShaderType ComputeStageDX11::GetType()
 {
-	return( DOMAIN_SHADER );
+	return( COMPUTE_SHADER );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
+void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
 	RendererDX11* pRenderer = RendererDX11::Get();
 	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	ID3D11DomainShader* pShader = 0;
+	ID3D11ComputeShader* pShader = 0;
 	
 	if ( pShaderDX11 ) {
-		pShader = reinterpret_cast<DomainShaderDX11*>( pShaderDX11 )->m_pDomainShader;
+		pShader = reinterpret_cast<ComputeShaderDX11*>( pShaderDX11 )->m_pComputeShader;
 	}
 
-	pContext->DSSetShader( pShader, 0, 0 );
+	pContext->CSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->DSSetConstantBuffers( 
+	pContext->CSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
 		DesiredState.ConstantBuffers.GetRange(),
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->DSSetSamplers( 
+	pContext->CSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
 		DesiredState.SamplerStates.GetRange(),
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->DSSetShaderResources( 
+	pContext->CSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
 		DesiredState.ShaderResourceViews.GetRange(),
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void DomainStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
+void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	// Do nothing - the geometry shader doesn't support UAV's!
+	// Here we need to get the start and end slots from both the UAV states and the 
+	// UAV initial counts, and take the superset of those to ensure that all of the
+	// UAV states are accounted for.
+
+	u32 minStartSlot = 
+		min( DesiredState.UnorderedAccessViews.GetStartSlot(),
+		DesiredState.UAVInitialCounts.GetStartSlot() );
+
+	u32 maxEndSlot =
+		max( DesiredState.UnorderedAccessViews.GetEndSlot(),
+		DesiredState.UAVInitialCounts.GetEndSlot() );
+
+	pContext->CSSetUnorderedAccessViews( 
+		minStartSlot,
+		maxEndSlot - minStartSlot + 1,
+		DesiredState.UnorderedAccessViews.GetSlotLocation( minStartSlot ),
+		DesiredState.UAVInitialCounts.GetSlotLocation( minStartSlot ) );
 }
 //--------------------------------------------------------------------------------
+
 

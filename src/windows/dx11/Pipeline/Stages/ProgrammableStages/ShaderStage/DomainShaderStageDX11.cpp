@@ -10,65 +10,66 @@
 
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "VertexShaderStageDX11.h"
-#include "VertexShaderDX11.h"
+#include "DomainShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\DomainShaderDX11.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-VertexStageDX11::VertexStageDX11()
+DomainStageDX11::DomainStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-VertexStageDX11::~VertexStageDX11()
+DomainStageDX11::~DomainStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ShaderType VertexStageDX11::GetType()
+ShaderType DomainStageDX11::GetType()
 {
-	return( VERTEX_SHADER );
+	return( DOMAIN_SHADER );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
+void DomainStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
 	RendererDX11* pRenderer = RendererDX11::Get();
 	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	ID3D11VertexShader* pShader = 0;
-		
+	ID3D11DomainShader* pShader = 0;
+	
 	if ( pShaderDX11 ) {
-		pShader = reinterpret_cast<VertexShaderDX11*>( pShaderDX11 )->m_pVertexShader;
+		pShader = reinterpret_cast<DomainShaderDX11*>( pShaderDX11 )->m_pDomainShader;
 	}
 
-	pContext->VSSetShader( pShader, 0, 0 );
+	pContext->DSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void DomainStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->VSSetConstantBuffers( 
+	pContext->DSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
 		DesiredState.ConstantBuffers.GetRange(),
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void DomainStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->VSSetSamplers( 
+	pContext->DSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
 		DesiredState.SamplerStates.GetRange(),
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void DomainStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->VSSetShaderResources( 
+	pContext->DSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
 		DesiredState.ShaderResourceViews.GetRange(),
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void VertexStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
+void DomainStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
-	// Do nothing - the vertex shader doesn't support UAV's!
+	// Do nothing - the geometry shader doesn't support UAV's!
 }
 //--------------------------------------------------------------------------------
+

@@ -12,9 +12,9 @@
 #include "Vector4f.h"
 #include "Matrix4f.h"
 
-#include "ResourceProxyDX11.h"
-#include "PipelineManagerDX11.h"
-#include "ShaderDX11.h"
+#include "ResourceSystem\ResourceProxyDX11.h"
+#include "Pipeline\PipelineManagerDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ShaderDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

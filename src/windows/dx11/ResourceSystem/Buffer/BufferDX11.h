@@ -7,7 +7,7 @@
 #ifndef BufferDX11_h
 #define BufferDX11_h
 //--------------------------------------------------------------------------------
-#include "ResourceDX11.h"
+#include "ResourceSystem\ResourceDX11.h"
 #include <wrl.h>
 //--------------------------------------------------------------------------------
 namespace forward

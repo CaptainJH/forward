@@ -1,11 +1,11 @@
 #include "ApplicationDX11.h"
-#include "BufferConfigDX11.h"
+#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 #include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
-#include "Texture2dConfigDX11.h"
-#include "ShaderResourceViewConfigDX11.h"
-#include "RenderTargetViewConfigDX11.h"
+#include "ResourceSystem\Texture\Texture2dConfigDX11.h"
+#include "ResourceSystem\ResourceView\ShaderResourceViewConfigDX11.h"
+#include "ResourceSystem\ResourceView\RenderTargetViewConfigDX11.h"
 #include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
-#include "ShaderResourceViewDX11.h"
+#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
 #include "TriangleIndices.h"
 
 using namespace forward;

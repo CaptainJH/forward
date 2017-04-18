@@ -11,9 +11,9 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "GeometryDX11.h"
-#include "VertexBufferDX11.h"
-#include "IndexBufferDX11.h"
-#include "BufferConfigDX11.h"
+#include "ResourceSystem\Buffer\VertexBufferDX11.h"
+#include "ResourceSystem\Buffer\IndexBufferDX11.h"
+#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 #include "Log.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------

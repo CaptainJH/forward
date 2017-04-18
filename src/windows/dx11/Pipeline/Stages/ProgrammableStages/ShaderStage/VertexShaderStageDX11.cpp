@@ -10,83 +10,65 @@
 
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ComputeShaderStageDX11.h"
-#include "ComputeShaderDX11.h"
+#include "VertexShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\VertexShaderDX11.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ComputeStageDX11::ComputeStageDX11()
+VertexStageDX11::VertexStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ComputeStageDX11::~ComputeStageDX11()
+VertexStageDX11::~VertexStageDX11()
 {
 }
 //--------------------------------------------------------------------------------
-ShaderType ComputeStageDX11::GetType()
+ShaderType VertexStageDX11::GetType()
 {
-	return( COMPUTE_SHADER );
+	return( VERTEX_SHADER );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
+void VertexStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
 	RendererDX11* pRenderer = RendererDX11::Get();
 	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
-	ID3D11ComputeShader* pShader = 0;
-	
+	ID3D11VertexShader* pShader = 0;
+		
 	if ( pShaderDX11 ) {
-		pShader = reinterpret_cast<ComputeShaderDX11*>( pShaderDX11 )->m_pComputeShader;
+		pShader = reinterpret_cast<VertexShaderDX11*>( pShaderDX11 )->m_pVertexShader;
 	}
 
-	pContext->CSSetShader( pShader, 0, 0 );
+	pContext->VSSetShader( pShader, 0, 0 );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void VertexStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->CSSetConstantBuffers( 
+	pContext->VSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
 		DesiredState.ConstantBuffers.GetRange(),
 		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void VertexStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->CSSetSamplers( 
+	pContext->VSSetSamplers( 
 		DesiredState.SamplerStates.GetStartSlot(),
 		DesiredState.SamplerStates.GetRange(),
 		DesiredState.SamplerStates.GetFirstSlotLocation() );
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void VertexStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
-	pContext->CSSetShaderResources( 
+	pContext->VSSetShaderResources( 
 		DesiredState.ShaderResourceViews.GetStartSlot(),
 		DesiredState.ShaderResourceViews.GetRange(),
 		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
 }
 //--------------------------------------------------------------------------------
-void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
+void VertexStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )
 {
-	// Here we need to get the start and end slots from both the UAV states and the 
-	// UAV initial counts, and take the superset of those to ensure that all of the
-	// UAV states are accounted for.
-
-	u32 minStartSlot = 
-		min( DesiredState.UnorderedAccessViews.GetStartSlot(),
-		DesiredState.UAVInitialCounts.GetStartSlot() );
-
-	u32 maxEndSlot =
-		max( DesiredState.UnorderedAccessViews.GetEndSlot(),
-		DesiredState.UAVInitialCounts.GetEndSlot() );
-
-	pContext->CSSetUnorderedAccessViews( 
-		minStartSlot,
-		maxEndSlot - minStartSlot + 1,
-		DesiredState.UnorderedAccessViews.GetSlotLocation( minStartSlot ),
-		DesiredState.UAVInitialCounts.GetSlotLocation( minStartSlot ) );
+	// Do nothing - the vertex shader doesn't support UAV's!
 }
 //--------------------------------------------------------------------------------
-
-

@@ -10,7 +10,7 @@
 
 //--------------------------------------------------------------------------------
 #include "StreamOutputStageDX11.h"
-#include "VertexBufferDX11.h"
+#include "ResourceSystem\Buffer\VertexBufferDX11.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;

@@ -11,8 +11,8 @@
 //--------------------------------------------------------------------------------
 //#include "RendererDX11.h"
 #include "InputAssemblerStageDX11.h"
-#include "VertexBufferDX11.h"
-#include "IndexBufferDX11.h"
+#include "ResourceSystem\Buffer\VertexBufferDX11.h"
+#include "ResourceSystem\Buffer\IndexBufferDX11.h"
 #include "RendererDX11.h"
 #include "Log.h"
 //--------------------------------------------------------------------------------

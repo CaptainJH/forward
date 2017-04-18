@@ -1,5 +1,5 @@
 #include "ApplicationDX11.h"
-#include "BufferConfigDX11.h"
+#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
 using namespace forward;
 

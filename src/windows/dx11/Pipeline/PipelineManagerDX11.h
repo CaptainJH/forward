@@ -6,20 +6,20 @@
 #define PipelineManagerDX11_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "VertexShaderStageDX11.h"
-#include "HullShaderStageDX11.h"
-#include "DomainShaderStageDX11.h"
-#include "GeometryShaderStageDX11.h"
-#include "StreamOutputStageDX11.h"
-#include "RasterizerStageDX11.h"
-#include "PixelShaderStageDX11.h"
-#include "ComputeShaderStageDX11.h"
-#include "InputAssemblerStageDX11.h"
-#include "OutputMergerStageDX11.h"
-#include "GeometryDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\VertexShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\HullShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\DomainShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\GeometryShaderStageDX11.h"
+#include "Pipeline\Stages\FixedStages\StreamOutput\StreamOutputStageDX11.h"
+#include "Pipeline\Stages\FixedStages\Rasterizer\RasterizerStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\PixelShaderStageDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderStage\ComputeShaderStageDX11.h"
+#include "Pipeline\Stages\FixedStages\InputAssembler\InputAssemblerStageDX11.h"
+#include "Pipeline\Stages\FixedStages\OutputMerger\OutputMergerStageDX11.h"
+#include "Pipeline\Executors\GeometryDX11.h"
 //#include "RenderEffectDX11.h"
-#include "ResourceProxyDX11.h"
-#include "ResourceDX11.h"
+#include "ResourceSystem\ResourceProxyDX11.h"
+#include "ResourceSystem\ResourceDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

@@ -16,7 +16,7 @@
 #define BufferConfigDX11_h
 //--------------------------------------------------------------------------------
 #include "Types.h"
-#include "ResourceDX11.h"
+#include "ResourceSystem\ResourceDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

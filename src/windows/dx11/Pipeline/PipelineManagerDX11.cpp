@@ -6,26 +6,25 @@
 #include "ResourceSystem\StateObject\ViewPortDX11.h"
 
 
-#include "ResourceDX11.h"
+#include "ResourceSystem\ResourceDX11.h"
+
+#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
+#include "ResourceSystem\ResourceView\RenderTargetViewDX11.h"
+#include "ResourceSystem\ResourceView\DepthStencilViewDX11.h"
+#include "ResourceSystem\ResourceView\UnorderedAccessViewDX11.h"
 
 
-#include "ShaderResourceViewDX11.h"
-#include "RenderTargetViewDX11.h"
-#include "DepthStencilViewDX11.h"
-#include "UnorderedAccessViewDX11.h"
+#include "Pipeline\Executors\GeometryDX11.h"
 
 
-#include "GeometryDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\VertexShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\HullShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\DomainShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\GeometryShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\PixelShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ComputeShaderDX11.h"
 
-
-#include "VertexShaderDX11.h"
-#include "HullShaderDX11.h"
-#include "DomainShaderDX11.h"
-#include "GeometryShaderDX11.h"
-#include "PixelShaderDX11.h"
-#include "ComputeShaderDX11.h"
-
-#include "IndirectArgsBufferDX11.h"
+#include "ResourceSystem\Buffer\IndirectArgsBufferDX11.h"
 
 #include "RendererDX11.h"
 

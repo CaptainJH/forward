@@ -9,53 +9,49 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// StreamOutputStageDX11
+// ShaderStageStateDX11
 //
 //--------------------------------------------------------------------------------
-#ifndef StreamOutputStageDX11_h
-#define StreamOutputStageDX11_h
+#ifndef ShaderStageStateDX11_h
+#define ShaderStageStateDX11_h
 //--------------------------------------------------------------------------------
 #include <d3d11_2.h>
-#include "ResourceProxyDX11.h"
-#include "StreamOutputStageStateDX11.h"
+#include "ResourceSystem\ResourceProxyDX11.h"
+#include "TStateMonitor.h"
+#include "TStateArrayMonitor.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class PipelineManagerDX11;
-
-	class StreamOutputStageDX11
+	class ShaderStageStateDX11
 	{
 	public:
-		StreamOutputStageDX11();
-		virtual ~StreamOutputStageDX11();
+		ShaderStageStateDX11();
+		virtual ~ShaderStageStateDX11();
 
 		void SetFeautureLevel( D3D_FEATURE_LEVEL level );
 
-		void ClearDesiredState( );
-		void ClearCurrentState( );
-		void ApplyDesiredState( ID3D11DeviceContext* pContext );
+		
+		void ClearState( );
 
-		const StreamOutputStageStateDX11& GetCurrentState() const;
+		void SetSisterState( ShaderStageStateDX11* pState );
+		void ResetUpdateFlags( );
 
-		// The desired state is a public member that will allow the user of this
-		// class to configure the state as desired before applying the state.
-
-		StreamOutputStageStateDX11		DesiredState;
+		TStateMonitor< i32 > ShaderProgram;
+		TStateArrayMonitor< ID3D11Buffer*, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT >  ConstantBuffers;
+		TStateArrayMonitor< ID3D11SamplerState*, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT > SamplerStates;
+		TStateArrayMonitor< ID3D11ShaderResourceView*, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT > ShaderResourceViews;
+		TStateArrayMonitor< ID3D11UnorderedAccessView*, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessViews;
+		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
 
 	protected:
 
-		D3D_FEATURE_LEVEL				m_FeatureLevel;
+		D3D_FEATURE_LEVEL			m_FeatureLevel;
 
-		// The current state of the API is used to allow for caching and elimination
-		// of redundant API calls.  This should make it possible to minimize the number
-		// of settings that need to be performed.
+		ShaderStageStateDX11*		m_pSisterState;
 
-		StreamOutputStageStateDX11		CurrentState;
-
-		friend PipelineManagerDX11;
 	};
 };
 //--------------------------------------------------------------------------------
-#endif // StreamOutputStageDX11_h
+#endif // ShaderStageStateDX11_h
 //--------------------------------------------------------------------------------
 

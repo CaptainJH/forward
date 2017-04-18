@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "PixelShaderStageDX11.h"
-#include "PixelShaderDX11.h"
+#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\PixelShaderDX11.h"
 #include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;

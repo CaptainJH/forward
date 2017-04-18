@@ -5,7 +5,7 @@
 #ifndef Texture3dDX11_h
 #define Texture3dDX11_h
 //--------------------------------------------------------------------------------
-#include "ResourceDX11.h"
+#include "ResourceSystem\ResourceDX11.h"
 #include <wrl.h>
 //--------------------------------------------------------------------------------
 namespace forward
