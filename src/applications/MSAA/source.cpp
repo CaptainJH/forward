@@ -1,10 +1,10 @@
 #include "ApplicationDX11.h"
 #include "BufferConfigDX11.h"
-#include "RasterizerStateConfigDX11.h"
+#include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
 #include "Texture2dConfigDX11.h"
 #include "ShaderResourceViewConfigDX11.h"
 #include "RenderTargetViewConfigDX11.h"
-#include "SamplerStateConfigDX11.h"
+#include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
 #include "ShaderResourceViewDX11.h"
 #include "TriangleIndices.h"
 

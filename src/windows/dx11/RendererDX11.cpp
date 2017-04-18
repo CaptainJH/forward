@@ -15,7 +15,7 @@
 #include "Texture3dDX11.h"
 #include "ResourceDX11.h"
 #include "SwapChainDX11.h"
-#include "ViewPortDX11.h"
+#include "ResourceSystem\StateObject\ViewPortDX11.h"
 
 #include "BufferConfigDX11.h"
 #include "Texture1dConfigDX11.h"
@@ -28,9 +28,9 @@
 #include "DepthStencilViewDX11.h"
 #include "UnorderedAccessViewDX11.h"
 
-#include "BlendStateConfigDX11.h"
-#include "DepthStencilStateConfigDX11.h"
-#include "RasterizerStateConfigDX11.h"
+#include "ResourceSystem\StateObject\BlendStateConfigDX11.h"
+#include "ResourceSystem\StateObject\DepthStencilStateConfigDX11.h"
+#include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
 
 #include "VertexShaderDX11.h"
 #include "HullShaderDX11.h"

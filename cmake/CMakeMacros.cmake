@@ -3,13 +3,14 @@ cmake_minimum_required(VERSION 3.6)
 # Set each source file proper source group
 macro(set_source_groups pList)
 	foreach(FilePath ${pList})
+        string(REPLACE ${forward_source_root} "" FilePath ${FilePath})
 		get_filename_component(DirName ${FilePath} DIRECTORY)
 		if( NOT "${DirName}" STREQUAL "" )
 			string(REGEX REPLACE "[.][.][/]" "" GroupName "${DirName}")
 			string(REGEX REPLACE "/" "\\\\" GroupName "${GroupName}")
-			source_group("${GroupName}" FILES ${FilePath})
+			source_group("${GroupName}" FILES "${forward_source_root}/${FilePath}")
 		else()
-			source_group("" FILES ${FilePath})
+			source_group("" FILES "${forward_source_root}/${FilePath}")
 		endif()
 	endforeach()
 endmacro()
@@ -31,7 +32,7 @@ macro(find_source_files_of_type pFileExtensions pResult)
 	endif()
 	list(APPEND ${pResult} ${FileList})
 
-	set_source_groups("${FileList}")
+	#set_source_groups("${FileList}")
 endmacro()
 
 # Get all source files recursively and add them to pResult
@@ -52,23 +53,12 @@ macro(find_source_files pResult)
 		foreach(FileExtension ${FileExtensions})
 			list(APPEND UpdatedFileExtensions "${SearchDir}/${FileExtension}")
 		endforeach()
-		file(GLOB_RECURSE FileList RELATIVE ${PROJECT_SOURCE_DIR} ${UpdatedFileExtensions})
+		#file(GLOB_RECURSE FileList RELATIVE ${forward_source_root} ${UpdatedFileExtensions})
+        file(GLOB_RECURSE FileListFullPath ${UpdatedFileExtensions})
 	endif()
-	list(APPEND ${pResult} ${FileList})
+	list(APPEND ${pResult} ${FileListFullPath})
 
-	set_source_groups("${FileList}")
-
-	# Patch for Android compiler that refuse -std=c++11 flag on .c files.
-	# Normally we would use CMAKE_CXX_FLAGS to add this flag only to .cpp files,
-	# but somehow with NVidia NSight Tegra it also passes to .c files.
-	if( PLATFORM_ANDROID OR PLATFORM_WEB )
-		foreach(FilePath ${FileList})
-			get_filename_component(ExtName ${FilePath} EXT)
-			if( "${ExtName}" STREQUAL ".cpp" )
-				set_source_files_properties(${FilePath} PROPERTIES COMPILE_FLAGS "-std=c++11")
-			endif()
-		endforeach()
-	endif()
+	#set_source_groups("${FileList}")
 endmacro()
 
 # Remove files matching the given base path(s) from the list

@@ -4,7 +4,7 @@
 #include "FileLoader.h"
 #include "Texture3dConfigDX11.h"
 #include "ShaderResourceViewConfigDX11.h"
-#include "SamplerStateConfigDX11.h"
+#include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
 #include "ShaderResourceViewDX11.h"
 
 #include "assimp\Importer.hpp"
