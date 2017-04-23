@@ -17,3 +17,15 @@ Vector4f Colors::Magenta = { 1.0f, 0.0f, 1.0f, 1.0f };
 
 Vector4f Colors::Silver = { 0.75f, 0.75f, 0.75f, 1.0f };
 Vector4f Colors::LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
+
+D3D11_SUBRESOURCE_DATA forward::ConvertSubResource(const Subresource* pData)
+{
+	assert(pData);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = pData->data;
+	data.SysMemPitch = pData->rowPitch;
+	data.SysMemSlicePitch = pData->slicePitch;
+
+	return data;
+}

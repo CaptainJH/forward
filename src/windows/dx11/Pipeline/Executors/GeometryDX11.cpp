@@ -25,7 +25,7 @@ GeometryDX11::GeometryDX11( )
 	m_iVertexCount = 0;
 
 	// Default to triangle lists
-	m_ePrimType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_ePrimType = PT_TRIANGLELIST;
 }
 //--------------------------------------------------------------------------------
 GeometryDX11::~GeometryDX11()
@@ -134,7 +134,7 @@ u32 GeometryDX11::GetIndex( u32 index )
 	return( 0 );
 }
 //--------------------------------------------------------------------------------
-D3D11_PRIMITIVE_TOPOLOGY GeometryDX11::GetPrimitiveType()
+PrimitiveTopologyType GeometryDX11::GetPrimitiveType()
 {
 	return( m_ePrimType );
 }
@@ -144,7 +144,8 @@ i32 GeometryDX11::GetPrimitiveCount()
 	u32 count = 0;
 	u32 indices = static_cast<u32>(m_vIndices.size());
 
-	switch ( m_ePrimType )
+	D3D_PRIMITIVE_TOPOLOGY primType = static_cast<D3D_PRIMITIVE_TOPOLOGY>(m_ePrimType);
+	switch ( primType )
 	{
 	case D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED:
 		break;
@@ -235,7 +236,7 @@ i32 GeometryDX11::GetPrimitiveCount()
 	return( count );
 }
 //--------------------------------------------------------------------------------
-void GeometryDX11::SetPrimitiveType( D3D11_PRIMITIVE_TOPOLOGY type )
+void GeometryDX11::SetPrimitiveType(PrimitiveTopologyType type )
 {
 	m_ePrimType = type;
 }
@@ -366,10 +367,10 @@ void GeometryDX11::LoadToBuffers()
 			}
 		}
 
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = reinterpret_cast<void*>( pBytes );
-		data.SysMemPitch = 0;
-		data.SysMemSlicePitch = 0;
+		Subresource data;
+		data.data = reinterpret_cast<void*>(pBytes);
+		data.rowPitch = 0;
+		data.slicePitch = 0;
 
 		BufferConfigDX11 vbuffer;
 		vbuffer.SetDefaultVertexBuffer( vertices_length, false );

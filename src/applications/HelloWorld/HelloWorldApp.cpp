@@ -120,10 +120,10 @@ void HelloWorld::BuildGeometry()
 			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
 		};
 
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = quadVertices;
-		data.SysMemPitch = 0;
-		data.SysMemSlicePitch = 0;
+		Subresource data;
+		data.data = quadVertices;
+		data.rowPitch = 0;
+		data.slicePitch = 0;
 
 		BufferConfigDX11 vbConfig;
 		vbConfig.SetDefaultVertexBuffer(4 * sizeof(Vertex), false);
@@ -158,7 +158,7 @@ void HelloWorld::BuildGeometry()
 void HelloWorld::SetupPipeline()
 {
 	InputAssemblerStateDX11 iaState;
-	iaState.PrimitiveTopology.SetState(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	iaState.PrimitiveTopology.SetState(PT_TRIANGLESTRIP);
 	iaState.InputLayout.SetState(m_VertexLayout);
 	iaState.VertexBuffers.SetState(0, m_pVertexBuffer->m_iResource);
 	iaState.VertexBufferStrides.SetState(0, sizeof(Vertex));

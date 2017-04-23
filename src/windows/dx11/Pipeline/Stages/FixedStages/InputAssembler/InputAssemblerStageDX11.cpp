@@ -66,7 +66,7 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	// Bind the primitive topology
 	if ( DesiredState.PrimitiveTopology.IsUpdateNeeded() ) 
 	{
-		pContext->IASetPrimitiveTopology( DesiredState.PrimitiveTopology.GetState() );
+		pContext->IASetPrimitiveTopology( static_cast<D3D11_PRIMITIVE_TOPOLOGY>(DesiredState.PrimitiveTopology.GetState()) );
 	}
 
 	// Bind the vertex buffers

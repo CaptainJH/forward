@@ -24,6 +24,7 @@
 #include "PointIndices.h"
 #include "PipelineExecutorDX11.h"
 #include "Pipeline\Stages\FixedStages\InputAssembler\InputAssemblerStateDX11.h"
+#include "PrimitiveTopology.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -50,8 +51,8 @@ namespace forward
 
 		u32 GetIndex( u32 index );
 
-		D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveType();
-		void SetPrimitiveType( D3D11_PRIMITIVE_TOPOLOGY type );
+		PrimitiveTopologyType GetPrimitiveType();
+		void SetPrimitiveType(PrimitiveTopologyType type );
 
 		i32 GetPrimitiveCount();
 		u32 GetIndexCount();
@@ -83,7 +84,7 @@ namespace forward
 		i32 m_iVertexCount;
 
 		// The type of primitives listed in the index buffer
-		D3D11_PRIMITIVE_TOPOLOGY m_ePrimType;
+		PrimitiveTopologyType m_ePrimType;
 	};
 
 	typedef std::shared_ptr<GeometryDX11> GeometryPtr;

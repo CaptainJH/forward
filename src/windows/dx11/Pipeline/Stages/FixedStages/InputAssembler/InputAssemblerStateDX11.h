@@ -18,6 +18,7 @@
 #include <d3d11_2.h>
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
+#include "PrimitiveTopology.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -36,11 +37,11 @@ namespace forward
 
 		TStateMonitor< i32 > IndexBuffer;
 		TStateMonitor< DXGI_FORMAT > IndexBufferFormat;
-		TStateArrayMonitor< i32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
-		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
-		TStateArrayMonitor< u32, D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
+		TStateArrayMonitor< i32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
+		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
+		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
 		TStateMonitor< i32 > InputLayout;
-		TStateMonitor< D3D11_PRIMITIVE_TOPOLOGY > PrimitiveTopology;
+		TStateMonitor< PrimitiveTopologyType > PrimitiveTopology;
 
 	protected:
 
@@ -50,6 +51,7 @@ namespace forward
 
 		u32					AvailableSlotCount;
 	};
+
 };
 //--------------------------------------------------------------------------------
 #endif // InputAssemblerStateDX11_h

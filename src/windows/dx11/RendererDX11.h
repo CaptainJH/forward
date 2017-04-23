@@ -15,6 +15,7 @@
 #include "ResourceSystem\ResourceProxyDX11.h"
 #include "Pipeline\PipelineManagerDX11.h"
 #include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ShaderDX11.h"
+#include "render.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -91,7 +92,7 @@ namespace forward
 		// structures - vertex, index, and constant buffers.  These all utilize the
 		// same ID3D11Buffer interface, and only vary with a flag in the description.
 
-		ResourcePtr CreateVertexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
+		ResourcePtr CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData );
 		ResourcePtr CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
 		ResourcePtr CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData, bool bAutoUpdate = true );
 		ResourcePtr CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );

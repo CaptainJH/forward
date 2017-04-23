@@ -481,11 +481,12 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
 	return( m_vSwapChains.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
+ResourcePtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData )
 {
 	// Create the buffer with the specified configuration.
 	BufferComPtr pBuffer;
-	HRESULT hr = m_pDevice->CreateBuffer( &pConfig->m_State, pData, pBuffer.GetAddressOf() );
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateBuffer( &pConfig->m_State, &data, pBuffer.GetAddressOf() );
 
 	if ( pBuffer )
 	{

@@ -9,7 +9,9 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
- 
+
+
+#include <d3d11_2.h>
 #include <cassert>
 #include <algorithm>
 #include <string>
@@ -20,6 +22,7 @@
 #include <codecvt>
 
 #include "Vector4f.h"
+#include "render.h"
 
 namespace forward
 {
@@ -113,6 +116,8 @@ namespace forward
 		extern Vector4f Silver;
 		extern Vector4f LightSteelBlue;
 	}
+
+	D3D11_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
 
 }
 

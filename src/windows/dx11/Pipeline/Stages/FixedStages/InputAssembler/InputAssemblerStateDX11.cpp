@@ -21,7 +21,7 @@ InputAssemblerStateDX11::InputAssemblerStateDX11() :
 	VertexBufferStrides( 0 ),
 	VertexBufferOffsets( 0 ),
 	InputLayout( -1 ),
-	PrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED ),
+	PrimitiveTopology( PT_UNDEFINED ),
 	m_FeatureLevel( D3D_FEATURE_LEVEL_9_1 ),
 	m_pSisterState( nullptr ),
 	AvailableSlotCount( 0 )
