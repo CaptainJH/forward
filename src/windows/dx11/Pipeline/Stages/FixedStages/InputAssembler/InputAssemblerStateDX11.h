@@ -19,6 +19,7 @@
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
 #include "PrimitiveTopology.h"
+#include "DataFormat.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -36,7 +37,7 @@ namespace forward
 		u32 GetAvailableSlotCount();
 
 		TStateMonitor< i32 > IndexBuffer;
-		TStateMonitor< DXGI_FORMAT > IndexBufferFormat;
+		TStateMonitor< DataFormatType > IndexBufferFormat;
 		TStateArrayMonitor< i32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
 		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
 		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;

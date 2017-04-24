@@ -16,7 +16,7 @@ using namespace forward;
 //--------------------------------------------------------------------------------
 InputAssemblerStateDX11::InputAssemblerStateDX11() :
 	IndexBuffer( -1 ),
-	IndexBufferFormat( DXGI_FORMAT_R32_UINT ),
+	IndexBufferFormat( DF_R32_UINT ),
 	VertexBuffers( -1 ),
 	VertexBufferStrides( 0 ),
 	VertexBufferOffsets( 0 ),

@@ -110,11 +110,15 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 
 		IndexBufferDX11* pBuffer = pRenderer->GetIndexBufferByIndex( index );
 
-		if ( pBuffer ) {
+		DXGI_FORMAT dataFormat = static_cast<DXGI_FORMAT>(DesiredState.IndexBufferFormat.GetState());
+		if ( pBuffer ) 
+		{
 			ID3D11Buffer* pIndexBuffer = reinterpret_cast<ID3D11Buffer*>( pBuffer->GetResource() );
-			pContext->IASetIndexBuffer( pIndexBuffer, DesiredState.IndexBufferFormat.GetState(), 0 );
-		} else {
-			pContext->IASetIndexBuffer( 0, DesiredState.IndexBufferFormat.GetState(), 0 );
+			pContext->IASetIndexBuffer( pIndexBuffer, dataFormat, 0 );
+		} 
+		else 
+		{
+			pContext->IASetIndexBuffer( 0, dataFormat, 0 );
 		}
 	}
 
