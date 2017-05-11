@@ -83,11 +83,8 @@ void BasicGeometryApp::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::LightSteelBlue);
 
-
-	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->mat = m_worldMat * m_viewMat * m_projMat;
-	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+	auto mat = m_worldMat * m_viewMat * m_projMat;
+	m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &mat, sizeof(mat));
 
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 	m_pGeometry->Execute(m_pRender->pImmPipeline);

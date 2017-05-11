@@ -136,19 +136,8 @@ namespace forward
 		// stencil view are cleared to the provided values.
 
 		void ClearBuffers( Vector4f color, f32 depth = 1.0f, u32 stencil = 0 );
-		
-		// Resources can be mapped in order to manually modify or read their contents.  The 
-		// returned structure provides information about the resource including the pitch and
-		// width to be used in accessing it.
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource( i32 index, u32 subresource, D3D11_MAP actions, u32 flags );
-		void						UnMapResource( i32 index, u32 subresource );
-
-		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourcePtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags );
-		void						UnMapResource( ResourcePtr pGlyphResource, u32 subresource );
-
-		D3D11_MAPPED_SUBRESOURCE	MapResource( ResourceDX11* pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags );
-		void						UnMapResource( ResourceDX11* pGlyphResource, u32 subresource );
+		bool UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size);
 
 
 		// This is an alternative method to mapping for updating resources.  In certain 
@@ -230,6 +219,20 @@ namespace forward
 		StreamOutputStageDX11	StreamOutputStage;
 		RasterizerStageDX11		RasterizerStage;
 		OutputMergerStageDX11	OutputMergerStage;
+
+	private:
+		// Resources can be mapped in order to manually modify or read their contents.  The 
+		// returned structure provides information about the resource including the pitch and
+		// width to be used in accessing it.
+
+		D3D11_MAPPED_SUBRESOURCE	MapResource(i32 index, u32 subresource, D3D11_MAP actions, u32 flags);
+		void						UnMapResource(i32 index, u32 subresource);
+
+		D3D11_MAPPED_SUBRESOURCE	MapResource(ResourcePtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags);
+		void						UnMapResource(ResourcePtr pGlyphResource, u32 subresource);
+
+		D3D11_MAPPED_SUBRESOURCE	MapResource(ResourceDX11* pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags);
+		void						UnMapResource(ResourceDX11* pGlyphResource, u32 subresource);
 
 	};
 };

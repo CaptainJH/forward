@@ -118,11 +118,10 @@ void MSAA_Demo::DrawScene()
 
 	// Pass 1 : draw a cube without any AA
 	{
-		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-		auto pBuffer = (CBufferType*)pData.pData;
-		pBuffer->mat = m_worldMat * m_viewMat * m_projMat;
-		pBuffer->distance = Vector4f(1.0f, 0.0f, 0.0f, m_drawFrame ? 1.0f : 0.0f);
-		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+		CBufferType buffer;
+		buffer.mat = m_worldMat * m_viewMat * m_projMat;
+		buffer.distance = Vector4f(1.0f, 0.0f, 0.0f, m_drawFrame ? 1.0f : 0.0f);
+		m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
 		ShaderStageStateDX11 vsState;
 		vsState.ShaderProgram.SetState(m_vsID);
@@ -149,11 +148,10 @@ void MSAA_Demo::DrawScene()
 
 	// Pass 2 : draw to a render target
 	{
-		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-		auto pBuffer = (CBufferType*)pData.pData;
-		pBuffer->mat = m_worldMat * m_viewMat * m_projMat;
-		pBuffer->distance = Vector4f(0.0f, 0.0f, 0.0f, m_drawFrame ? 1.0f : 0.0f);
-		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+		CBufferType buffer;
+		buffer.mat = m_worldMat * m_viewMat * m_projMat;
+		buffer.distance = Vector4f(0.0f, 0.0f, 0.0f, m_drawFrame ? 1.0f : 0.0f);
+		m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
 		// to render target
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_renderTargetTex->m_iResourceRTV);

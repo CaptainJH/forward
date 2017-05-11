@@ -90,10 +90,8 @@ void AssimpDemo::DrawScene()
 
 	for (auto i = 0U; i < m_vGeoms.size(); ++i)
 	{
-		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-		auto pBuffer = (CBufferType*)pData.pData;
-		pBuffer->mat = m_vMats[i] * m_worldMat * m_viewMat * m_projMat;
-		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+		auto mat = m_vMats[i] * m_worldMat * m_viewMat * m_projMat;
+		m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &mat, sizeof(mat));
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 
 		m_vGeoms[i]->Execute(m_pRender->pImmPipeline);

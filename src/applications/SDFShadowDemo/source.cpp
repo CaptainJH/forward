@@ -137,16 +137,15 @@ void SDFShadowDemo::DrawScene()
 	vsState.ShaderProgram.SetState(m_vsID);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
-	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->matWorld = m_worldMat;
-	pBuffer->matViewProj = m_viewMat * m_projMat;
-	pBuffer->matViewProjInverse = (m_viewMat * m_projMat).Inverse();
-	pBuffer->screenParams = Vector4f(static_cast<f32>(mClientWidth), static_cast<f32>(mClientHeight), 0.0f, 0.0f);
-	pBuffer->SDFParams = m_sdfParams;
-	pBuffer->SDFOrigin = m_sdfOrigin;
-	pBuffer->cameraPos = m_cameraPos;
-	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+	CBufferType buffer;
+	buffer.matWorld = m_worldMat;
+	buffer.matViewProj = m_viewMat * m_projMat;
+	buffer.matViewProjInverse = (m_viewMat * m_projMat).Inverse();
+	buffer.screenParams = Vector4f(static_cast<f32>(mClientWidth), static_cast<f32>(mClientHeight), 0.0f, 0.0f);
+	buffer.SDFParams = m_sdfParams;
+	buffer.SDFOrigin = m_sdfOrigin;
+	buffer.cameraPos = m_cameraPos;
+	m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
 	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
 

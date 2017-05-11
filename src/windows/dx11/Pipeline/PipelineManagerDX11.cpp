@@ -953,3 +953,11 @@ ID3D11DeviceContext* PipelineManagerDX11::GetDeviceContext()
 	return( m_pContext.Get() );
 }
 //--------------------------------------------------------------------------------
+bool PipelineManagerDX11::UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size)
+{
+	auto pDstResource = MapResource(pResource, 0, D3D11_MAP_WRITE_DISCARD, 0);
+	memcpy(pDstResource.pData, pdata, size);
+	UnMapResource(pResource, 0);
+	return true;
+}
+
