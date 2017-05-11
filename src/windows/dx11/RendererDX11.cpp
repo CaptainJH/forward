@@ -1359,9 +1359,9 @@ i32 RendererDX11::CreateSamplerState( D3D11_SAMPLER_DESC* pDesc )
 	return( m_vSamplerStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-i32 RendererDX11::CreateViewPort( D3D11_VIEWPORT viewport )
+i32 RendererDX11::CreateViewPort(const u32 width, const u32 height)
 {
-	m_vViewPorts.emplace_back( viewport );
+	m_vViewPorts.emplace_back( ViewPortDX11(width, height) );
 
 	return( m_vViewPorts.size() - 1 );
 }

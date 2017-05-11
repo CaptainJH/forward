@@ -140,7 +140,7 @@ namespace forward
 		i32 CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig );
 		i32 CreateRasterizerState( RasterizerStateConfigDX11* pConfig );
 		i32 CreateSamplerState( D3D11_SAMPLER_DESC* pDesc );
-		i32 CreateViewPort( D3D11_VIEWPORT viewport );
+		i32 CreateViewPort(const u32 width, const u32 height);
 
 
 		// Each programmable shader stage can be loaded from file, and stored in a list for

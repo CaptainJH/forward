@@ -235,22 +235,12 @@ void ShadowMapApp::BuildRenderTarget()
 	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 	m_VSMBlurRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
-	D3D11_VIEWPORT viewport;
-	viewport.Width = static_cast<f32>(shadowTargetWidth);
-	viewport.Height = static_cast<f32>(shadowTargetHeight);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	m_shadowMapViewportID = m_pRender->CreateViewPort(viewport);
+	m_shadowMapViewportID = m_pRender->CreateViewPort(shadowTargetWidth, shadowTargetHeight);
+	m_CSMViewportID = m_pRender->CreateViewPort(shadowTargetWidth, shadowTargetWidth);
 
-	viewport.Width = static_cast<f32>(shadowTargetWidth);
-	viewport.Height = static_cast<f32>(shadowTargetWidth);
-	m_CSMViewportID = m_pRender->CreateViewPort(viewport);
-
-	viewport.Width = shadowTargetWidth * m_blurCoef;
-	viewport.Height = shadowTargetHeight * m_blurCoef;
-	m_blurViewportID = m_pRender->CreateViewPort(viewport);
+	u32 width = static_cast<u32>(shadowTargetWidth * m_blurCoef);
+	u32 height = static_cast<u32>(shadowTargetHeight * m_blurCoef);
+	m_blurViewportID = m_pRender->CreateViewPort(width, height);
 
 	SamplerStateConfigDX11 sampConfig;
 	m_samplerID = m_pRender->CreateSamplerState(&sampConfig);

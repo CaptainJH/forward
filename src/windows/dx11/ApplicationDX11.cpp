@@ -379,16 +379,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 
 	// Create a view port to use on the scene.  This basically selects the 
 	// entire floating point area of the render target.
-
-	D3D11_VIEWPORT viewport;
-	viewport.Width = static_cast< f32 >(mClientWidth);
-	viewport.Height = static_cast< f32 >(mClientHeight);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-
-	i32 ViewPort = m_pRender->CreateViewPort(viewport);
+	i32 ViewPort = m_pRender->CreateViewPort(mClientWidth, mClientHeight);
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, ViewPort);
 

@@ -13,9 +13,14 @@ ViewPortDX11::ViewPortDX11()
 	m_ViewPort.MaxDepth = 1.0f;
 }
 //--------------------------------------------------------------------------------
-ViewPortDX11::ViewPortDX11( D3D11_VIEWPORT viewport )
+ViewPortDX11::ViewPortDX11(const u32 width, const u32 height)
 {
-	m_ViewPort = viewport;
+	m_ViewPort.Width = static_cast<f32>(width);
+	m_ViewPort.Height = static_cast<f32>(height);
+	m_ViewPort.TopLeftX = 0.0f;
+	m_ViewPort.TopLeftY = 0.0f;
+	m_ViewPort.MinDepth = 0.0f;
+	m_ViewPort.MaxDepth = 1.0f;
 }
 //--------------------------------------------------------------------------------
 ViewPortDX11::~ViewPortDX11()

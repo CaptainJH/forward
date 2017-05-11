@@ -14,7 +14,7 @@ namespace forward
 	{
 	public:
 		ViewPortDX11();
-		ViewPortDX11( D3D11_VIEWPORT viewport );
+		ViewPortDX11( const u32 width, const u32 height );
 		~ViewPortDX11();
 
 		f32 GetWidth() const;
