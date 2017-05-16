@@ -21,8 +21,8 @@ void ShadowMapApp::DrawScene()
 	// Pass : draw the scene without any AA
 	if (!m_drawShadowTarget)
 	{
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 
@@ -508,10 +508,10 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 
 		// setup render target
 		if (m_useVSM)
-			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_VSMRenderTargetTex->m_iResourceRTV);
+			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_VSMRenderTargetTex);
 		else
-			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_shadowMapRenderTargetTex->m_iResourceRTV);
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_shadowMapDepthTargetTex->m_iResourceDSV);
+			m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_shadowMapRenderTargetTex);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_shadowMapDepthTargetTex);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 	}
@@ -520,8 +520,8 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
 
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Black);
 	}
@@ -570,8 +570,8 @@ void ShadowMapApp::renderCSMShadowMap()
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(i, m_CSMViewportID);
 
 	// setup render target
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_CSMRenderTargetTex->m_iResourceRTV);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_CSMDepthTargetTex->m_iResourceDSV);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_CSMRenderTargetTex);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_CSMDepthTargetTex);
 	m_pRender->pImmPipeline->ApplyRenderTargets();
 	m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 
@@ -621,8 +621,8 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, m_blurViewportID);
 
 	// setup render target
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_VSMBlurRenderTargetTex->m_iResourceRTV);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(0); // use null here!
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_VSMBlurRenderTargetTex);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(0); // use null here!
 	m_pRender->pImmPipeline->ApplyRenderTargets();
 	m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 

@@ -579,8 +579,8 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 	for( u32 i = 0; i < viewCount; ++i )
 	{
 	    f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
-		i32 rtv = OutputMergerStage.GetCurrentState().RenderTargetViews.GetState( i );
-		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( rtv );
+		ResourcePtr rtvPtr = OutputMergerStage.GetCurrentState().RenderTargetResources.GetState( i );
+		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );
 		pRenderTargetViews[i] = RTV.m_pRenderTargetView.Get(); 
 		if ( pRenderTargetViews[i] != nullptr ) {
 			m_pContext->ClearRenderTargetView( pRenderTargetViews[i], clearColours );
@@ -589,10 +589,10 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 
 	// Check if the output merger currently has a depth target set, and if so clear it.
 
-	if ( OutputMergerStage.GetCurrentState().DepthTargetViews.GetState() != -1 )
+	if ( OutputMergerStage.GetCurrentState().DepthTargetResources.GetState() != nullptr )
 	{
-		i32 dsv = OutputMergerStage.GetCurrentState().DepthTargetViews.GetState();
-		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( dsv );
+		ResourcePtr dsvPtr = OutputMergerStage.GetCurrentState().DepthTargetResources.GetState();
+		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( dsvPtr->m_iResourceDSV );
 		pDepthStencilView = DSV.m_pDepthStencilView.Get();
 		if ( pDepthStencilView != nullptr ) {
 			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, static_cast<u8>(stencil) );

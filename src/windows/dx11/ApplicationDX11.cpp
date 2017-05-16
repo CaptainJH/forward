@@ -117,8 +117,8 @@ void ApplicationDX11::OnResize()
 	m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
 
 	m_pRender->pImmPipeline->ClearRenderTargets();
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
 	m_pRender->pImmPipeline->ApplyRenderTargets();
 
 	m_pRender->ResizeViewport(0, mClientWidth, mClientHeight);
@@ -372,8 +372,8 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	// rendering.  
 
 	m_pRender->pImmPipeline->ClearRenderTargets();
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
 	m_pRender->pImmPipeline->ApplyRenderTargets();
 
 

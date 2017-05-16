@@ -154,8 +154,8 @@ void MSAA_Demo::DrawScene()
 		m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
 		// to render target
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_renderTargetTex->m_iResourceRTV);
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_depthTargetTex->m_iResourceDSV);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_renderTargetTex);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_depthTargetTex);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 
@@ -171,8 +171,8 @@ void MSAA_Demo::DrawScene()
 		m_pRender->pImmPipeline->ResolveSubresource(m_resolveTex, 0, m_renderTargetTex, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		// draw quad
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetViews.SetState(0, m_RenderTarget->m_iResourceRTV);
-		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetViews.SetState(m_DepthTarget->m_iResourceDSV);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
 		m_pRender->pImmPipeline->ApplyRenderTargets();
 
 		rect = { mClientWidth / 2, 0, mClientWidth, mClientHeight };

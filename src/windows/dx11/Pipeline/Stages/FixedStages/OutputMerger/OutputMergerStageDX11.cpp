@@ -54,19 +54,22 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 	i32 rtvCount = 0;
 	i32 uavCount = 0;
 
-	if ( DesiredState.RenderTargetViews.IsUpdateNeeded() 
-		|| DesiredState.UnorderedAccessViews.IsUpdateNeeded()
-		|| DesiredState.DepthTargetViews.IsUpdateNeeded() ) {
-
+	if ( DesiredState.RenderTargetResources.IsUpdateNeeded() 
+		|| DesiredState.UnorderedAccessResources.IsUpdateNeeded()
+		|| DesiredState.DepthTargetResources.IsUpdateNeeded() ) 
+	{
 		RendererDX11* pRenderer = RendererDX11::Get();
 
-		ID3D11RenderTargetView*	rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
-		ID3D11UnorderedAccessView* uavs[D3D11_PS_CS_UAV_REGISTER_COUNT];
+		ID3D11RenderTargetView*	rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { 0 };
+		ID3D11UnorderedAccessView* uavs[D3D11_PS_CS_UAV_REGISTER_COUNT] = { 0 };
 		ID3D11DepthStencilView* dsv = 0;
 
-		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
-
-			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( DesiredState.RenderTargetViews.GetState( i ) );
+		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) 
+		{
+			ResourcePtr rtvPtr = DesiredState.RenderTargetResources.GetState(i);
+			if (rtvPtr == nullptr)
+				continue;
+			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );
 			rtvs[i] = rtv.m_pRenderTargetView.Get();
 
 			if ( rtvs[i] != nullptr ) {
@@ -74,9 +77,12 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			}
 		}
 
-		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
-
-			UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( DesiredState.UnorderedAccessViews.GetState( i ) );
+		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) 
+		{
+			ResourcePtr uavPtr = DesiredState.UnorderedAccessResources.GetState(i);
+			if (uavPtr == nullptr)
+				continue;
+			UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( uavPtr->m_iResourceUAV );
 			uavs[i] = uav.m_pUnorderedAccessView.Get();
 
 			if ( uavs[i] != nullptr ) {
@@ -84,9 +90,12 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			}
 		}
 
-		
-		DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex( DesiredState.DepthTargetViews.GetState() );
-		dsv = DSV.m_pDepthStencilView.Get();
+		ResourcePtr dsvPtr = DesiredState.DepthTargetResources.GetState();
+		if (dsvPtr != nullptr)
+		{
+			DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex(dsvPtr->m_iResourceDSV);
+			dsv = DSV.m_pDepthStencilView.Get();
+		}
 
 		// TODO: convert this to bind the UAVs too...
 		pContext->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv );
@@ -95,21 +104,23 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 
 		// TODO: Find a better way to copy the state from desired to current...
 
-		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) {
-			CurrentState.RenderTargetViews.SetState( i, DesiredState.RenderTargetViews.GetState( i ) );
+		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) 
+		{
+			CurrentState.RenderTargetResources.SetState( i, DesiredState.RenderTargetResources.GetState( i ) );
 		}
 
-		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) {
-			CurrentState.UnorderedAccessViews.SetState( i, DesiredState.UnorderedAccessViews.GetState( i ) );
+		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) 
+		{
+			CurrentState.UnorderedAccessResources.SetState( i, DesiredState.UnorderedAccessResources.GetState( i ) );
 			CurrentState.UAVInitialCounts.SetState( i, DesiredState.UAVInitialCounts.GetState( i ) );
 		}
 
-		CurrentState.DepthTargetViews.SetState( DesiredState.DepthTargetViews.GetState() );
+		CurrentState.DepthTargetResources.SetState( DesiredState.DepthTargetResources.GetState() );
 
-		DesiredState.RenderTargetViews.ResetTracking();
-		DesiredState.UnorderedAccessViews.ResetTracking();
+		DesiredState.RenderTargetResources.ResetTracking();
+		DesiredState.UnorderedAccessResources.ResetTracking();
 		DesiredState.UAVInitialCounts.ResetTracking();
-		DesiredState.DepthTargetViews.ResetTracking();
+		DesiredState.DepthTargetResources.ResetTracking();
 	}
 }
 //--------------------------------------------------------------------------------

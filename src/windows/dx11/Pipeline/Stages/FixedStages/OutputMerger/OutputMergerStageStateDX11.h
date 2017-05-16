@@ -18,6 +18,7 @@
 #include <d3d11_2.h>
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
+#include "ResourceSystem/ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -37,9 +38,9 @@ namespace forward
 		TStateMonitor< i32 > BlendState;
 		TStateMonitor< i32 > DepthStencilState;
 		TStateMonitor< u32 > StencilRef;
-		TStateArrayMonitor< i32, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetViews;
-		TStateMonitor< i32 > DepthTargetViews;
-		TStateArrayMonitor< i32, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessViews;
+		TStateArrayMonitor< ResourcePtr, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetResources;
+		TStateMonitor< ResourcePtr > DepthTargetResources;
+		TStateArrayMonitor< ResourcePtr, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessResources;
 		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
 
 	protected:
