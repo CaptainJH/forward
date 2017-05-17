@@ -12,3 +12,7 @@ UnorderedAccessViewDX11::~UnorderedAccessViewDX11()
 {
 }
 //--------------------------------------------------------------------------------
+ID3D11UnorderedAccessView* UnorderedAccessViewDX11::GetUAV()
+{
+	return m_pUnorderedAccessView.Get();
+}

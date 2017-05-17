@@ -19,6 +19,8 @@ namespace forward
 		UnorderedAccessViewDX11( UnorderedAccessViewComPtr pView );
 		~UnorderedAccessViewDX11();
 
+		ID3D11UnorderedAccessView* GetUAV();
+
 	protected:
 		UnorderedAccessViewComPtr			m_pUnorderedAccessView;
 		

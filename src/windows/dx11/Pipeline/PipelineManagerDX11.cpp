@@ -137,7 +137,7 @@ void PipelineManagerDX11::SetDeviceContext( DeviceContextComPtr pContext, D3D_FE
 //			i32 ID = pResource->GetIndex( tID ); 
 //
 //			ShaderResourceViewDX11& view = pRenderer->GetShaderResourceViewByIndex( ID );
-//			ShaderStages[type]->DesiredState.ShaderResourceViews.SetState( slot, view.m_pShaderResourceView.Get() );
+//			ShaderStages[type]->DesiredState.ShaderResources.SetState( slot, view.m_pShaderResourceView.Get() );
 //
 //		} else {
 //			Log::Get().Write( L"Tried to set a non-shader resource ID as a shader resource!" );
@@ -314,12 +314,12 @@ void PipelineManagerDX11::ClearPipelineSRVs()
 	// ensuring that the pipeline is free from resources that may be used for 
 	// output in a subsequent rendering pass.
 
-	VertexShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
-	HullShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
-	DomainShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
-	GeometryShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
-	PixelShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
-	ComputeShaderStage.DesiredState.ShaderResourceViews.InitializeStates();
+	VertexShaderStage.DesiredState.ShaderResources.InitializeStates();
+	HullShaderStage.DesiredState.ShaderResources.InitializeStates();
+	DomainShaderStage.DesiredState.ShaderResources.InitializeStates();
+	GeometryShaderStage.DesiredState.ShaderResources.InitializeStates();
+	PixelShaderStage.DesiredState.ShaderResources.InitializeStates();
+	ComputeShaderStage.DesiredState.ShaderResources.InitializeStates();
 }
 //--------------------------------------------------------------------------------
 void PipelineManagerDX11::DrawIndexed( u32 IndexCount, u32 StartIndex, i32 VertexOffset )

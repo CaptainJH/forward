@@ -45,10 +45,13 @@ void ComputeStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 //--------------------------------------------------------------------------------
 void ComputeStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
+	const auto Length = DesiredState.ConstantBuffers.Size;
+	std::array<ID3D11Buffer*, Length> constantBuffers = { nullptr };
+	extractConstantBuffers(Length, &constantBuffers[0]);
 	pContext->CSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
 		DesiredState.ConstantBuffers.GetRange(),
-		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
+		&constantBuffers[0] );
 }
 //--------------------------------------------------------------------------------
 void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
@@ -61,10 +64,13 @@ void ComputeStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*c
 //--------------------------------------------------------------------------------
 void ComputeStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
+	const auto Length = DesiredState.ShaderResources.Size;
+	std::array<ID3D11ShaderResourceView*, Length> shaderResources = { nullptr };
+	extractShaderResourceViews(Length, &shaderResources[0]);
 	pContext->CSSetShaderResources( 
-		DesiredState.ShaderResourceViews.GetStartSlot(),
-		DesiredState.ShaderResourceViews.GetRange(),
-		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
+		DesiredState.ShaderResources.GetStartSlot(),
+		DesiredState.ShaderResources.GetRange(),
+		&shaderResources[0] );
 }
 //--------------------------------------------------------------------------------
 void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
@@ -74,17 +80,20 @@ void ComputeStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* pContext, 
 	// UAV states are accounted for.
 
 	u32 minStartSlot = 
-		min( DesiredState.UnorderedAccessViews.GetStartSlot(),
+		min( DesiredState.UnorderedAccessResources.GetStartSlot(),
 		DesiredState.UAVInitialCounts.GetStartSlot() );
 
 	u32 maxEndSlot =
-		max( DesiredState.UnorderedAccessViews.GetEndSlot(),
+		max( DesiredState.UnorderedAccessResources.GetEndSlot(),
 		DesiredState.UAVInitialCounts.GetEndSlot() );
 
+	const auto Length = DesiredState.UnorderedAccessResources.Size;
+	std::array<ID3D11UnorderedAccessView*, Length> unorderAccessResources = { nullptr };
+	extractUnorderAccessResourceViews(Length, &unorderAccessResources[0]);
 	pContext->CSSetUnorderedAccessViews( 
 		minStartSlot,
 		maxEndSlot - minStartSlot + 1,
-		DesiredState.UnorderedAccessViews.GetSlotLocation( minStartSlot ),
+		&unorderAccessResources[0],
 		DesiredState.UAVInitialCounts.GetSlotLocation( minStartSlot ) );
 }
 //--------------------------------------------------------------------------------

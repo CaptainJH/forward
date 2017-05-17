@@ -37,6 +37,11 @@ namespace forward
 		u32 GetEndSlot();
 		u32 GetRange();
 
+		enum 
+		{
+			Size = N
+		};
+
 		T GetState( u32 slot ) const;
 		T* GetFirstSlotLocation();
 		T* GetSlotLocation( u32 slot );

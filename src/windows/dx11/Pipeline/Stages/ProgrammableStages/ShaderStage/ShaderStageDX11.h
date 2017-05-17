@@ -60,6 +60,10 @@ namespace forward
 		// of settings that need to be performed.
 
 		ShaderStageStateDX11		CurrentState;
+
+		bool extractShaderResourceViews(const u32 length, ID3D11ShaderResourceView** pResult);
+		bool extractUnorderAccessResourceViews(const u32 length, ID3D11UnorderedAccessView** pResult);
+		bool extractConstantBuffers(const u32 length, ID3D11Buffer** pResult);
 	};
 };
 //--------------------------------------------------------------------------------

@@ -114,8 +114,6 @@ void MSAA_Demo::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 
-	ResourceDX11* resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	// Pass 1 : draw a cube without any AA
 	{
 		CBufferType buffer;
@@ -125,7 +123,7 @@ void MSAA_Demo::DrawScene()
 
 		ShaderStageStateDX11 vsState;
 		vsState.ShaderProgram.SetState(m_vsID);
-		vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+		vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 		ShaderStageStateDX11 gsState;
@@ -134,7 +132,7 @@ void MSAA_Demo::DrawScene()
 
 		ShaderStageStateDX11 psState;
 		psState.ShaderProgram.SetState(m_psID);
-		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+		psState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 		D3D11_RECT rect = { 0, 0, mClientWidth / 2, mClientHeight };
@@ -191,7 +189,7 @@ void MSAA_Demo::DrawScene()
 		ShaderStageStateDX11 psState;
 		psState.ShaderProgram.SetState(m_psQuadID);
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
-		psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_resolveTex->m_iResourceSRV).GetSRV());
+		psState.ShaderResources.SetState(0, m_resolveTex);
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 		m_pRender->pImmPipeline->ApplyPipelineResources();
@@ -398,16 +396,14 @@ void MSAA_Demo::BuildGeometry()
 
 void MSAA_Demo::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 

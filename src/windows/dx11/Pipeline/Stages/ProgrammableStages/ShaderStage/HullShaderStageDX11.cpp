@@ -45,10 +45,13 @@ void HullStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 //--------------------------------------------------------------------------------
 void HullStageDX11::BindConstantBuffers( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
+	const auto Length = DesiredState.ConstantBuffers.Size;
+	std::array<ID3D11Buffer*, Length> constantBuffers = { nullptr };
+	extractConstantBuffers(Length, &constantBuffers[0]);
 	pContext->HSSetConstantBuffers( 
 		DesiredState.ConstantBuffers.GetStartSlot(),
 		DesiredState.ConstantBuffers.GetRange(),
-		DesiredState.ConstantBuffers.GetFirstSlotLocation() );
+		&constantBuffers[0] );
 }
 //--------------------------------------------------------------------------------
 void HullStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*count*/ )
@@ -61,10 +64,13 @@ void HullStageDX11::BindSamplerStates( ID3D11DeviceContext* pContext, i32 /*coun
 //--------------------------------------------------------------------------------
 void HullStageDX11::BindShaderResourceViews( ID3D11DeviceContext* pContext, i32 /*count*/ )
 {
+	const auto Length = DesiredState.ShaderResources.Size;
+	std::array<ID3D11ShaderResourceView*, Length> shaderResources = { nullptr };
+	extractShaderResourceViews(Length, &shaderResources[0]);
 	pContext->HSSetShaderResources( 
-		DesiredState.ShaderResourceViews.GetStartSlot(),
-		DesiredState.ShaderResourceViews.GetRange(),
-		DesiredState.ShaderResourceViews.GetFirstSlotLocation() ); 
+		DesiredState.ShaderResources.GetStartSlot(),
+		DesiredState.ShaderResources.GetRange(),
+		&shaderResources[0] ); 
 }
 //--------------------------------------------------------------------------------
 void HullStageDX11::BindUnorderedAccessViews( ID3D11DeviceContext* /*pContext*/, i32 /*count*/ )

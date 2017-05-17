@@ -12,7 +12,6 @@ void ShadowMapApp::UpdateScene(f32 dt)
 
 void ShadowMapApp::DrawScene()
 {
-	ResourceDX11* resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
 	Matrix4f viewMat = m_camMain.updateViewMatrix();
 	Matrix4f viewLight = m_camLight.updateViewMatrix();
 
@@ -49,7 +48,7 @@ void ShadowMapApp::DrawScene()
 
 		ShaderStageStateDX11 vsState;
 		vsState.ShaderProgram.SetState(m_vsID);
-		vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+		vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 		ShaderStageStateDX11 gsState;
@@ -60,13 +59,13 @@ void ShadowMapApp::DrawScene()
 		psState.ShaderProgram.SetState(m_psID);
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
 		psState.SamplerStates.SetState(1, m_pRender->GetSamplerState(m_pcfSamplerID).Get());
-		psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_shadowMapDepthTargetTex->m_iResourceSRV).GetSRV());
-		psState.ShaderResourceViews.SetState(1, m_pRender->GetShaderResourceViewByIndex(m_CSMDepthTargetTex->m_iResourceSRV).GetSRV());
+		psState.ShaderResources.SetState(0, m_shadowMapDepthTargetTex);
+		psState.ShaderResources.SetState(1, m_CSMDepthTargetTex);
 		if (m_useBlur)
-			psState.ShaderResourceViews.SetState(2, m_pRender->GetShaderResourceViewByIndex(m_VSMBlurRenderTargetTex->m_iResourceSRV).GetSRV());
+			psState.ShaderResources.SetState(2, m_VSMBlurRenderTargetTex);
 		else
-			psState.ShaderResourceViews.SetState(2, m_pRender->GetShaderResourceViewByIndex(m_VSMRenderTargetTex->m_iResourceSRV).GetSRV());
-		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+			psState.ShaderResources.SetState(2, m_VSMRenderTargetTex);
+		psState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 		m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
@@ -97,9 +96,9 @@ void ShadowMapApp::DrawScene()
 		m_pFloor->Execute(m_pRender->pImmPipeline);
 
 		// clear shader resource view
-		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(0, nullptr);
-		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(1, nullptr);
-		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(2, nullptr);
+		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResources.SetState(0, nullptr);
+		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResources.SetState(1, nullptr);
+		m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResources.SetState(2, nullptr);
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 	}
 
@@ -415,16 +414,14 @@ void ShadowMapApp::BuildGeometry()
 
 void ShadowMapApp::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 
@@ -526,8 +523,6 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 		m_pRender->pImmPipeline->ClearBuffers(Colors::Black);
 	}
 
-	ResourceDX11* resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	CBufferType buffer;
 	if (m_useLiSP)
 		buffer.matLight = m_worldMat * m_LiSP.getMatrix();
@@ -537,7 +532,7 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsShadowTargetID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 gsState;
@@ -549,7 +544,7 @@ void ShadowMapApp::renderSpotLightShadowMap(const Matrix4f& ViewLight)
 		psState.ShaderProgram.SetState(m_psVSMDepthGenID);
 	else
 		psState.ShaderProgram.SetState(m_psShadowTargetID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 
@@ -578,8 +573,6 @@ void ShadowMapApp::renderCSMShadowMap()
 	auto lightDir = m_camLight.getWorldLookingDir();
 	m_CSM.Update(lightDir);
 
-	ResourceDX11* resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	CBufferType buffer;
 	for (auto i = 0; i < m_CSM.m_iTotalCascades; ++i)
 		buffer.matCSM[i] = m_worldMat * m_CSM.GetWorldToCascadeProj(i);
@@ -591,7 +584,7 @@ void ShadowMapApp::renderCSMShadowMap()
 
 	ShaderStageStateDX11 gsState;
 	gsState.ShaderProgram.SetState(m_gsCSMID);
-	gsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	gsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->GeometryShaderStage.DesiredState = gsState;
 
 	ShaderStageStateDX11 psState;
@@ -626,7 +619,6 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 	m_pRender->pImmPipeline->ApplyRenderTargets();
 	m_pRender->pImmPipeline->ClearBuffers(Colors::Blue);
 
-	ResourceDX11* resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
 	CBufferType buffer;
 
 	///blur horizontally
@@ -637,7 +629,7 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 
 		ShaderStageStateDX11 vsState;
 		vsState.ShaderProgram.SetState(m_vsQuadID);
-		vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+		vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 		ShaderStageStateDX11 gsState;
@@ -647,8 +639,8 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 		ShaderStageStateDX11 psState;
 		psState.ShaderProgram.SetState(m_psQuadBlurID);
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
-		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
-		psState.ShaderResourceViews.SetState(2, m_pRender->GetShaderResourceViewByIndex(m_VSMRenderTargetTex->m_iResourceSRV).GetSRV());
+		psState.ConstantBuffers.SetState(0, m_constantBuffer);
+		psState.ShaderResources.SetState(2, m_VSMRenderTargetTex);
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 
@@ -663,7 +655,7 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 
 		ShaderStageStateDX11 vsState;
 		vsState.ShaderProgram.SetState(m_vsQuadID);
-		vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+		vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 		m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 		ShaderStageStateDX11 gsState;
@@ -673,8 +665,8 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 		ShaderStageStateDX11 psState;
 		psState.ShaderProgram.SetState(m_psQuadBlurID);
 		psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
-		psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
-		psState.ShaderResourceViews.SetState(2, m_pRender->GetShaderResourceViewByIndex(m_VSMRenderTargetTex->m_iResourceSRV).GetSRV());
+		psState.ConstantBuffers.SetState(0, m_constantBuffer);
+		psState.ShaderResources.SetState(2, m_VSMRenderTargetTex);
 		m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 
@@ -682,6 +674,6 @@ void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
 	}
 
 	// clear shader resource view
-	m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResourceViews.SetState(2, nullptr);
+	m_pRender->pImmPipeline->PixelShaderStage.DesiredState.ShaderResources.SetState(2, nullptr);
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 }

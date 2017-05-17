@@ -147,13 +147,11 @@ void SDFShadowDemo::DrawScene()
 	buffer.cameraPos = m_cameraPos;
 	m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
 	psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
-	psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_SDFTex3D->m_iResourceSRV).GetSRV());
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ShaderResources.SetState(0, m_SDFTex3D);
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 	m_pRender->pImmPipeline->ApplyPipelineResources();
@@ -299,16 +297,14 @@ void SDFShadowDemo::LoadGeometry()
 
 void SDFShadowDemo::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 

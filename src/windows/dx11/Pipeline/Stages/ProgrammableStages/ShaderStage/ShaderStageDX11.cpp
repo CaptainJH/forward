@@ -11,6 +11,10 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "ShaderStageDX11.h"
+#include "RendererDX11.h"
+#include "ResourceSystem/Buffer/ConstantBufferDX11.h"
+#include "ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
+#include "ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -67,12 +71,12 @@ void ShaderStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	}
 
 	// Compare the shader resource view states and set them if necesary.
-	if ( DesiredState.ShaderResourceViews.IsUpdateNeeded() ) {
+	if ( DesiredState.ShaderResources.IsUpdateNeeded() ) {
 		BindShaderResourceViews( pContext, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT-1 ); 
 	}
 
 	// Compare the unordered access view states and set them if necesary.
-	if ( DesiredState.UnorderedAccessViews.IsUpdateNeeded() 
+	if ( DesiredState.UnorderedAccessResources.IsUpdateNeeded() 
 		|| DesiredState.UAVInitialCounts.IsUpdateNeeded() ) {
 		if ( m_FeatureLevel != D3D_FEATURE_LEVEL_11_0 )
 			BindUnorderedAccessViews( pContext, 1 );
@@ -86,3 +90,47 @@ void ShaderStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 	CurrentState = DesiredState;
 }
 //--------------------------------------------------------------------------------
+bool ShaderStageDX11::extractConstantBuffers(const u32 length, ID3D11Buffer** pResult)
+{
+	for (u32 i = 0; i < length; ++i)
+	{
+		ResourcePtr ptr = DesiredState.ConstantBuffers.GetState(i);
+		if (ptr == nullptr)
+			continue;
+		auto bufferID = ptr->m_iResource;
+		ConstantBufferDX11* pBuffer = RendererDX11::Get()->GetConstantBufferByIndex(bufferID);
+		pResult[i] = static_cast<ID3D11Buffer*>(pBuffer->GetResource());
+	}
+
+	return true;
+}
+//--------------------------------------------------------------------------------
+bool ShaderStageDX11::extractShaderResourceViews(const u32 length, ID3D11ShaderResourceView** pResult)
+{
+	for (u32 i = 0; i < length; ++i)
+	{
+		ResourcePtr ptr = DesiredState.ShaderResources.GetState(i);
+		if (ptr == nullptr)
+			continue;
+		auto shaderViewID = ptr->m_iResourceSRV;
+		ShaderResourceViewDX11& srv = RendererDX11::Get()->GetShaderResourceViewByIndex(shaderViewID);
+		pResult[i] = static_cast<ID3D11ShaderResourceView*>(srv.GetSRV());
+	}
+
+	return true;
+}
+//--------------------------------------------------------------------------------
+bool ShaderStageDX11::extractUnorderAccessResourceViews(const u32 length, ID3D11UnorderedAccessView** pResult)
+{
+	for (u32 i = 0; i < length; ++i)
+	{
+		ResourcePtr ptr = DesiredState.UnorderedAccessResources.GetState(i);
+		if (ptr == nullptr)
+			continue;
+		auto unorderViewID = ptr->m_iResourceUAV;
+		UnorderedAccessViewDX11& uav = RendererDX11::Get()->GetUnorderedAccessViewByIndex(unorderViewID);
+		pResult[i] = static_cast<ID3D11UnorderedAccessView*>(uav.GetUAV());
+	}
+
+	return true;
+}

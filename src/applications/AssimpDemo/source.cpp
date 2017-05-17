@@ -158,16 +158,14 @@ void AssimpDemo::LoadGeometry()
 
 void AssimpDemo::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 

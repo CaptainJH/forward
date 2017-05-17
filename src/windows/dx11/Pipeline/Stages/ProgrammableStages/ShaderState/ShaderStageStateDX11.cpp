@@ -17,8 +17,8 @@ ShaderStageStateDX11::ShaderStageStateDX11() :
 	ShaderProgram( -1 ),
 	ConstantBuffers( nullptr ),
 	SamplerStates( nullptr ),
-	ShaderResourceViews( nullptr ),
-	UnorderedAccessViews( nullptr ),
+	ShaderResources( nullptr ),
+	UnorderedAccessResources( nullptr ),
 	UAVInitialCounts( 0 ),
 	m_FeatureLevel( D3D_FEATURE_LEVEL_9_1 ),
 	m_pSisterState( nullptr )
@@ -40,8 +40,8 @@ void ShaderStageStateDX11::ClearState()
 	ShaderProgram.InitializeState();
 	ConstantBuffers.InitializeStates();
 	SamplerStates.InitializeStates();
-	ShaderResourceViews.InitializeStates();
-	UnorderedAccessViews.InitializeStates();
+	ShaderResources.InitializeStates();
+	UnorderedAccessResources.InitializeStates();
 	UAVInitialCounts.InitializeStates();
 }
 //--------------------------------------------------------------------------------
@@ -51,8 +51,8 @@ void ShaderStageStateDX11::SetSisterState( ShaderStageStateDX11* pState )
 	ShaderProgram.SetSister( &m_pSisterState->ShaderProgram );
 	ConstantBuffers.SetSister( &m_pSisterState->ConstantBuffers );
 	SamplerStates.SetSister( &m_pSisterState->SamplerStates );
-	ShaderResourceViews.SetSister( &m_pSisterState->ShaderResourceViews );
-	UnorderedAccessViews.SetSister( &m_pSisterState->UnorderedAccessViews );
+	ShaderResources.SetSister( &m_pSisterState->ShaderResources );
+	UnorderedAccessResources.SetSister( &m_pSisterState->UnorderedAccessResources );
 	UAVInitialCounts.SetSister( &m_pSisterState->UAVInitialCounts );
 }
 //--------------------------------------------------------------------------------
@@ -61,8 +61,8 @@ void ShaderStageStateDX11::ResetUpdateFlags( )
 	ShaderProgram.ResetTracking();
 	ConstantBuffers.ResetTracking();
 	SamplerStates.ResetTracking();
-	ShaderResourceViews.ResetTracking();
-	UnorderedAccessViews.ResetTracking();
+	ShaderResources.ResetTracking();
+	UnorderedAccessResources.ResetTracking();
 	UAVInitialCounts.ResetTracking();
 }
 //--------------------------------------------------------------------------------
