@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_subdirectory(HelloWorld)
+	add_subdirectory(HelloDX12)
 	add_subdirectory(BasicGeometryApp)
 	add_subdirectory(MSAA)
 	add_subdirectory(ShadowMapDemo)

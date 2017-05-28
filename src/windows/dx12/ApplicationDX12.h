@@ -32,6 +32,70 @@ namespace forward
 	class ApplicationDX12
 	{
 	public:
+		ApplicationDX12(HINSTANCE hInstance, i32 width = 800, i32 height = 600);
+		virtual ~ApplicationDX12();
+
+		HINSTANCE AppInst()const;
+		HWND      MainWnd()const;
+		f32     AspectRatio()const;
+
+		i32 Run();
+
+		// Framework methods.  Derived client class overrides these methods to 
+		// implement specific application requirements.
+
+		virtual bool Init();
+		virtual void OnResize();
+
+		// Request an exit from windows
+		void RequestTermination();
+		virtual LRESULT MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam);
+
+
+	protected:
+		virtual void UpdateScene(f32 dt) = 0;
+		virtual void DrawScene() = 0;
+
+		// Convenience overrides for handling mouse input.
+		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnMouseMove(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnEsc() { RequestTermination(); }
+		virtual void OnEnter() {}
+		virtual void OnSpace() {}
+		virtual void OnChar(i8 /*key*/) {}
+
+	protected:
+		bool InitMainWindow();
+
+		virtual bool ConfigureRendererComponents();
+		virtual void ShutdownRendererComponents();
+
+		void CalculateFrameStats();
+
+	protected:
+
+		HINSTANCE mhAppInst;
+		HWND      mhMainWnd;
+		bool      mAppPaused;
+		bool      mMinimized;
+		bool      mMaximized;
+		bool      mResizing;
+		u32      m4xMsaaQuality;
+
+		Timer mTimer;
+		FileSystem mFileSystem;
+
+		//RendererDX11*	m_pRender;
+		//ResourcePtr		m_RenderTarget;
+		//ResourcePtr		m_DepthTarget;
+
+		// Derived class should set these in derived constructor to customize starting values.
+		std::wstring mMainWndCaption;
+		//D3D_DRIVER_TYPE md3dDriverType;
+		i32 mClientWidth;
+		i32 mClientHeight;
+		bool mEnable4xMsaa;
 	};
 
 };
