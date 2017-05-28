@@ -219,8 +219,8 @@ void ShadowMapApp::BuildRenderTarget()
 	m_samplerID = m_pRender->CreateSamplerState(&sampConfig);
 
 	// Create the PCF sampler state
-	sampConfig.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-	sampConfig.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	sampConfig.GetDesc().Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampConfig.GetDesc().ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	m_pcfSamplerID = m_pRender->CreateSamplerState(&sampConfig);
 }
 

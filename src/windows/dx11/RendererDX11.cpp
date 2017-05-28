@@ -4,45 +4,46 @@
 
 #include "Log.h"
 
-#include "ResourceSystem\Buffer\VertexBufferDX11.h"
-#include "ResourceSystem\Buffer\IndexBufferDX11.h"
-#include "ResourceSystem\Buffer\ConstantBufferDX11.h"
-#include "ResourceSystem\Buffer\StructuredBufferDX11.h"
-#include "ResourceSystem\Buffer\ByteAddressBufferDX11.h"
-#include "ResourceSystem\Buffer\IndirectArgsBufferDX11.h"
-#include "ResourceSystem\Texture\Texture1dDX11.h"
-#include "ResourceSystem\Texture\Texture2dDX11.h"
-#include "ResourceSystem\Texture\Texture3dDX11.h"
-#include "ResourceSystem\ResourceDX11.h"
-#include "ResourceSystem\Texture\SwapChainDX11.h"
-#include "ResourceSystem\StateObject\ViewPortDX11.h"
+#include "ResourceSystem/Buffer/VertexBufferDX11.h"
+#include "ResourceSystem/Buffer/IndexBufferDX11.h"
+#include "ResourceSystem/Buffer/ConstantBufferDX11.h"
+#include "ResourceSystem/Buffer/StructuredBufferDX11.h"
+#include "ResourceSystem/Buffer/ByteAddressBufferDX11.h"
+#include "ResourceSystem/Buffer/IndirectArgsBufferDX11.h"
+#include "ResourceSystem/Texture/Texture1dDX11.h"
+#include "ResourceSystem/Texture/Texture2dDX11.h"
+#include "ResourceSystem/Texture/Texture3dDX11.h"
+#include "ResourceSystem/ResourceDX11.h"
+#include "ResourceSystem/Texture/SwapChainDX11.h"
+#include "ResourceSystem/StateObject/ViewPortDX11.h"
+						
+#include "ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "ResourceSystem/Texture/Texture1dConfigDX11.h"
+#include "ResourceSystem/Texture/Texture2dConfigDX11.h"
+#include "ResourceSystem/Texture/Texture3dConfigDX11.h"
+#include "ResourceSystem/Texture/SwapChainConfigDX11.h"
+						
+#include "ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
+#include "ResourceSystem/ResourceView/RenderTargetViewDX11.h"
+#include "ResourceSystem/ResourceView/DepthStencilViewDX11.h"
+#include "ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
+						
+#include "ResourceSystem/StateObject/BlendStateConfigDX11.h"
+#include "ResourceSystem/StateObject/DepthStencilStateConfigDX11.h"
+#include "ResourceSystem/StateObject/RasterizerStateConfigDX11.h"
+#include "ResourceSystem/StateObject/SamplerStateConfigDX11.h"
 
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
-#include "ResourceSystem\Texture\Texture1dConfigDX11.h"
-#include "ResourceSystem\Texture\Texture2dConfigDX11.h"
-#include "ResourceSystem\Texture\Texture3dConfigDX11.h"
-#include "ResourceSystem\Texture\SwapChainConfigDX11.h"
-
-#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
-#include "ResourceSystem\ResourceView\RenderTargetViewDX11.h"
-#include "ResourceSystem\ResourceView\DepthStencilViewDX11.h"
-#include "ResourceSystem\ResourceView\UnorderedAccessViewDX11.h"
-
-#include "ResourceSystem\StateObject\BlendStateConfigDX11.h"
-#include "ResourceSystem\StateObject\DepthStencilStateConfigDX11.h"
-#include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
-
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\VertexShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\HullShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\DomainShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\GeometryShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\PixelShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ComputeShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ShaderFactoryDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/VertexShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/HullShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/DomainShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/GeometryShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/PixelShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/ComputeShaderDX11.h"
+#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/ShaderFactoryDX11.h"
 //#include "ShaderReflectionDX11.h"
 //#include "ShaderReflectionFactoryDX11.h"
 
-#include "Pipeline\Executors\GeometryDX11.h"
+#include "Pipeline/Executors/GeometryDX11.h"
 
 #include "DXGIAdapter.h"
 #include "DXGIOutput.h"
@@ -1297,7 +1298,7 @@ i32 RendererDX11::CreateBlendState( BlendStateConfigDX11* pConfig )
 {
 	BlendStateComPtr pState;
 
-	HRESULT hr = m_pDevice->CreateBlendState( dynamic_cast<D3D11_BLEND_DESC*>( pConfig ), pState.GetAddressOf() );
+	HRESULT hr = m_pDevice->CreateBlendState( &pConfig->GetDesc(), pState.GetAddressOf() );
 
 	if ( FAILED( hr ) )
 	{
@@ -1314,7 +1315,7 @@ i32 RendererDX11::CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig 
 {
 	DepthStencilStateComPtr pState;
 
-	HRESULT hr = m_pDevice->CreateDepthStencilState( dynamic_cast<D3D11_DEPTH_STENCIL_DESC*>( pConfig ), pState.GetAddressOf() );
+	HRESULT hr = m_pDevice->CreateDepthStencilState( &pConfig->GetDesc(), pState.GetAddressOf() );
 
 	if ( FAILED( hr ) )
 	{
@@ -1331,7 +1332,7 @@ i32 RendererDX11::CreateRasterizerState( RasterizerStateConfigDX11* pConfig )
 {
 	RasterizerStateComPtr pState;
 
-	HRESULT hr = m_pDevice->CreateRasterizerState( dynamic_cast<D3D11_RASTERIZER_DESC*>( pConfig ), pState.GetAddressOf() );
+	HRESULT hr = m_pDevice->CreateRasterizerState( &pConfig->GetDesc(), pState.GetAddressOf() );
 
 	if ( FAILED( hr ) )
 	{
@@ -1344,11 +1345,11 @@ i32 RendererDX11::CreateRasterizerState( RasterizerStateConfigDX11* pConfig )
 	return( m_vRasterizerStates.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-i32 RendererDX11::CreateSamplerState( D3D11_SAMPLER_DESC* pDesc )
+i32 RendererDX11::CreateSamplerState(SamplerStateConfigDX11* pConfig)
 {
 	SamplerStateComPtr pState;
 
-	HRESULT hr = m_pDevice->CreateSamplerState( pDesc, pState.GetAddressOf() );
+	HRESULT hr = m_pDevice->CreateSamplerState(&pConfig->GetDesc(), pState.GetAddressOf() );
 
 	if ( FAILED( hr ) )
 	{

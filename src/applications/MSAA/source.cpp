@@ -218,7 +218,7 @@ bool MSAA_Demo::Init()
 
 	//create new rasterizer state
 	RasterizerStateConfigDX11 rsStateConfig;
-	rsStateConfig.ScissorEnable = true;
+	rsStateConfig.GetDesc().ScissorEnable = true;
 	m_rsStateID = m_pRender->CreateRasterizerState(&rsStateConfig);
 
 	BuildShaders();

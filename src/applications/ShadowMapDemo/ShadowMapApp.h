@@ -1,6 +1,5 @@
 #include "ApplicationDX11.h"
 #include "ResourceSystem\Buffer\BufferConfigDX11.h"
-#include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
 #include "ResourceSystem\Texture\Texture2dConfigDX11.h"
 #include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
 #include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"

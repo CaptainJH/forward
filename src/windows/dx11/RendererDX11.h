@@ -49,6 +49,7 @@ namespace forward
 	class BlendStateConfigDX11;
 	class DepthStencilStateConfigDX11;
 	class RasterizerStateConfigDX11;
+	class SamplerStateConfigDX11;
 
 
 	class RendererDX11
@@ -129,7 +130,7 @@ namespace forward
 		i32 CreateBlendState( BlendStateConfigDX11* pConfig );
 		i32 CreateDepthStencilState( DepthStencilStateConfigDX11* pConfig );
 		i32 CreateRasterizerState( RasterizerStateConfigDX11* pConfig );
-		i32 CreateSamplerState( D3D11_SAMPLER_DESC* pDesc );
+		i32 CreateSamplerState( SamplerStateConfigDX11* pConfig );
 		i32 CreateViewPort(const u32 width, const u32 height);
 
 

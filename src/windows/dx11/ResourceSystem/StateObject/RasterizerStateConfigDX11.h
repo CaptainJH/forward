@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class RasterizerStateConfigDX11 : public D3D11_RASTERIZER_DESC
+	class RasterizerStateConfigDX11
 	{
 	public:
 		RasterizerStateConfigDX11();
@@ -18,7 +18,11 @@ namespace forward
 
 		void SetDefaults();
 
+		const D3D11_RASTERIZER_DESC& GetDesc() const;
+		D3D11_RASTERIZER_DESC& GetDesc();
+
 	protected:
+		D3D11_RASTERIZER_DESC m_state;
 
 		//friend RendererDX11;
 	};

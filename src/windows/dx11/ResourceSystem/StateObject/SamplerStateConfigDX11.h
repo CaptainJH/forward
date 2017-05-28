@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class SamplerStateConfigDX11 : public D3D11_SAMPLER_DESC
+	class SamplerStateConfigDX11
 	{
 	public:
 		SamplerStateConfigDX11();
@@ -18,7 +18,11 @@ namespace forward
 
 		void SetDefaults();
 
+		const D3D11_SAMPLER_DESC& GetDesc() const;
+		D3D11_SAMPLER_DESC& GetDesc();
+
 	protected:
+		D3D11_SAMPLER_DESC m_state;
 
 		//friend RendererDX11;
 	};

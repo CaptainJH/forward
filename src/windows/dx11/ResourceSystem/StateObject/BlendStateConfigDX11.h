@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class BlendStateConfigDX11 : public D3D11_BLEND_DESC
+	class BlendStateConfigDX11
 	{
 	public:
 		BlendStateConfigDX11();
@@ -17,7 +17,11 @@ namespace forward
 
 		void SetDefaults();
 
+		const D3D11_BLEND_DESC& GetDesc() const;
+		D3D11_BLEND_DESC& GetDesc();
+
 	protected:
+		D3D11_BLEND_DESC m_state;
 
 		//friend RendererDX11;
 	};
