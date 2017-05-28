@@ -78,3 +78,7 @@ D3D11_DEPTH_STENCIL_VIEW_DESC& DepthStencilViewConfigDX11::GetDSVDesc()
 	return( m_State );
 }
 //--------------------------------------------------------------------------------
+DXGI_FORMAT DepthStencilViewConfigDX11::GetFormat() const
+{
+	return m_State.Format;
+}

@@ -99,19 +99,9 @@ namespace forward
 		ResourcePtr CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
 		ResourcePtr CreateIndirectArgsBuffer( BufferConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData );
 
-		ResourcePtr CreateTexture1D( Texture1dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                        ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                                        RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                                        UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		ResourcePtr CreateTexture2D( Texture2dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                        ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                                        RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                                        UnorderedAccessViewConfigDX11* pUAVConfig = NULL,
-                                        DepthStencilViewConfigDX11* pDSVConfig = NULL );
-		ResourcePtr CreateTexture3D( Texture3dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                        ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                                        RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                                        UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
+		ResourcePtr CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData );
+		ResourcePtr CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData );
+		ResourcePtr CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData );
 
 		void DeleteResource( ResourcePtr ptr );
 		void DeleteResource( i32 index );

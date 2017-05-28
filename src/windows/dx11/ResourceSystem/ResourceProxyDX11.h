@@ -27,23 +27,10 @@ namespace forward
 	public:
 		ResourceProxyDX11();
 
-		ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer, 
-                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer, 
-                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
-		ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer, 
-                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL,
-                            DepthStencilViewConfigDX11* pDSVConfig = NULL );
-		ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer, 
-                            ShaderResourceViewConfigDX11* pSRVConfig = NULL,
-                            RenderTargetViewConfigDX11* pRTVConfig = NULL,
-                            UnorderedAccessViewConfigDX11* pUAVConfig = NULL );
+		ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer );
+		ResourceProxyDX11(i32 ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer);
+		ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer);
+		ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer);
 
 		virtual ~ResourceProxyDX11();
 

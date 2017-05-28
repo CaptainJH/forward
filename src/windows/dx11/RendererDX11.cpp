@@ -626,13 +626,11 @@ ResourcePtr RendererDX11::CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D1
 	return( ResourcePtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                          ShaderResourceViewConfigDX11* pSRVConfig,
-                                          RenderTargetViewConfigDX11* pRTVConfig,
-                                          UnorderedAccessViewConfigDX11* pUAVConfig )
+ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData )
 {
 	Texture1DComPtr pTexture;
-	HRESULT hr = m_pDevice->CreateTexture1D( &pConfig->m_State, pData, pTexture.GetAddressOf() );
+	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
+	HRESULT hr = m_pDevice->CreateTexture1D( &pConfig->m_State, pDataIn, pTexture.GetAddressOf() );
 
 	if ( pTexture )
 	{
@@ -642,7 +640,7 @@ ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, D3D11_S
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig ) );
+		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
@@ -650,14 +648,20 @@ ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, D3D11_S
 	return( ResourcePtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                          ShaderResourceViewConfigDX11* pSRVConfig,
-                                          RenderTargetViewConfigDX11* pRTVConfig,
-                                          UnorderedAccessViewConfigDX11* pUAVConfig,
-                                          DepthStencilViewConfigDX11* pDSVConfig )
+ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData )
 {
 	Texture2DComPtr pTexture;
-	HRESULT hr = m_pDevice->CreateTexture2D( &pConfig->m_State, pData, pTexture.GetAddressOf() );
+	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
+	HRESULT hr = S_OK;
+	if (pConfig->IsDepthStencil())
+	{
+		Texture2dConfigDX11 Config2 = *pConfig;
+		DXGI_FORMAT resourceFormat = Texture2dConfigDX11::GetDepthResourceFormat(pConfig->GetFormat());
+		Config2.SetFormat(resourceFormat);
+		hr = m_pDevice->CreateTexture2D(&Config2.m_State, pDataIn, pTexture.GetAddressOf());
+	}
+	else
+		hr = m_pDevice->CreateTexture2D( &pConfig->m_State, pDataIn, pTexture.GetAddressOf() );
 
 	if ( pTexture )
 	{
@@ -667,7 +671,7 @@ ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, D3D11_S
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig, pDSVConfig ) );
+		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
@@ -675,13 +679,11 @@ ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, D3D11_S
 	return( ResourcePtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData,
-                                          ShaderResourceViewConfigDX11* pSRVConfig,
-                                          RenderTargetViewConfigDX11* pRTVConfig,
-                                          UnorderedAccessViewConfigDX11* pUAVConfig )
+ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData)
 {
 	Texture3DComPtr pTexture;
-	HRESULT hr = m_pDevice->CreateTexture3D( &pConfig->m_State, pData, pTexture.GetAddressOf() );
+	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
+	HRESULT hr = m_pDevice->CreateTexture3D( &pConfig->m_State, pDataIn, pTexture.GetAddressOf() );
 
 	if ( pTexture )
 	{
@@ -691,7 +693,7 @@ ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, D3D11_S
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this, pSRVConfig, pRTVConfig, pUAVConfig ) );
+		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this) );
 
 		return( Proxy );
 	}

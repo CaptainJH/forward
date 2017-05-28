@@ -78,3 +78,47 @@ D3D11_TEXTURE3D_DESC Texture3dConfigDX11::GetTextureDesc()
 	return( m_State );
 }
 //--------------------------------------------------------------------------------
+bool Texture3dConfigDX11::IsShaderResource() const
+{
+	return (m_State.BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE;
+}
+//--------------------------------------------------------------------------------
+bool Texture3dConfigDX11::IsRenderTarget() const
+{
+	return (m_State.BindFlags & D3D11_BIND_RENDER_TARGET) == D3D11_BIND_RENDER_TARGET;
+}
+//--------------------------------------------------------------------------------
+void Texture3dConfigDX11::MakeShaderResource()
+{
+	m_State.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+}
+//--------------------------------------------------------------------------------
+void Texture3dConfigDX11::MakeRenderTarget()
+{
+	m_State.BindFlags = D3D11_BIND_RENDER_TARGET;
+}
+//--------------------------------------------------------------------------------
+ShaderResourceViewConfigDX11* Texture3dConfigDX11::CreateSRV()
+{
+	ShaderResourceViewConfigDX11* pResult = new ShaderResourceViewConfigDX11;
+	pResult->SetFormat(m_State.Format);
+	D3D11_TEX3D_SRV srv;
+	srv.MostDetailedMip = 0;
+	srv.MipLevels = 1;
+	pResult->SetTexture3D(srv);
+
+	return pResult;
+}
+//--------------------------------------------------------------------------------
+RenderTargetViewConfigDX11* Texture3dConfigDX11::CreateRTV()
+{
+	RenderTargetViewConfigDX11* pResult = new RenderTargetViewConfigDX11;
+	pResult->SetFormat(m_State.Format);
+	D3D11_TEX3D_RTV rtv;
+	//TODO
+	// not implement yet
+	rtv.MipSlice = 0;
+	pResult->SetTexture3D(rtv);
+
+	return pResult;
+}

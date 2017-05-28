@@ -178,21 +178,8 @@ void ShadowMapApp::BuildRenderTarget()
 
 	/// create depth buffer texture for spot light
 	texConfig.SetDepthBuffer(shadowTargetWidth, shadowTargetHeight);
-	texConfig.SetFormat(DXGI_FORMAT_R32_TYPELESS);
-	texConfig.SetBindFlags(D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
-	ShaderResourceViewConfigDX11 srvConfig;
-	srvConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
-	D3D11_TEX2D_SRV texSrv;
-	texSrv.MipLevels = 1;
-	texSrv.MostDetailedMip = 0;
-	srvConfig.SetTexture2D(texSrv);
-	DepthStencilViewConfigDX11 dsvConfig;
-	dsvConfig.SetFlags(0);
-	dsvConfig.SetFormat(DXGI_FORMAT_D32_FLOAT);
-	D3D11_TEX2D_DSV texDsv;
-	texDsv.MipSlice = 0;
-	dsvConfig.SetTexture2D(texDsv);
-	m_shadowMapDepthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0, &srvConfig, 0, 0, &dsvConfig);
+	texConfig.MakeDepthStencilAndShaderResource();
+	m_shadowMapDepthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	/// create render target buffer for CSM
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetWidth);
@@ -203,22 +190,9 @@ void ShadowMapApp::BuildRenderTarget()
 
 	/// create depth buffer texture for CSM
 	texConfig.SetDepthBuffer(shadowTargetWidth, shadowTargetWidth);
-	texConfig.SetFormat(DXGI_FORMAT_R32_TYPELESS);
-	texConfig.SetBindFlags(D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
+	texConfig.MakeDepthStencilAndShaderResource();
 	texConfig.SetArraySize(m_CSM.m_iTotalCascades);
-	texConfig.SetMiscFlags(0);
-	D3D11_TEX2D_ARRAY_SRV csmSrv;
-	csmSrv.ArraySize = m_CSM.m_iTotalCascades;
-	csmSrv.FirstArraySlice = 0;
-	csmSrv.MipLevels = 1;
-	csmSrv.MostDetailedMip = 0;
-	srvConfig.SetTexture2DArray(csmSrv);
-	D3D11_TEX2D_ARRAY_DSV csmDsv;
-	csmDsv.ArraySize = m_CSM.m_iTotalCascades;
-	csmDsv.FirstArraySlice = 0;
-	csmDsv.MipSlice = 0;
-	dsvConfig.SetTexture2DArray(csmDsv);
-	m_CSMDepthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0, &srvConfig, 0, 0, &dsvConfig);
+	m_CSMDepthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	m_CSM.Init(shadowTargetWidth);
 

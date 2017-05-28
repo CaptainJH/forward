@@ -3,9 +3,7 @@
 #include "TriangleIndices.h"
 #include "FileLoader.h"
 #include "ResourceSystem\Texture\Texture3dConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewConfigDX11.h"
 #include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
 
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
@@ -395,18 +393,10 @@ void SDFShadowDemo::LoadSDFBuffer()
 	texConfig.SetDepth(static_cast<u32>(m_sdfParams.z));
 	texConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
 	
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &m_sdf[0];
-	data.SysMemPitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x);
-	data.SysMemSlicePitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x * m_sdfParams.y);
+	Subresource data;
+	data.data = &m_sdf[0];
+	data.rowPitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x);
+	data.slicePitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x * m_sdfParams.y);
 
-	ShaderResourceViewConfigDX11 srvConfig;
-	srvConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
-	srvConfig.SetViewDimensions(D3D11_SRV_DIMENSION_TEXTURE3D);
-	D3D11_TEX3D_SRV srv;
-	srv.MostDetailedMip = 0;
-	srv.MipLevels = 1;
-	srvConfig.SetTexture3D(srv);
-
-	m_SDFTex3D = m_pRender->CreateTexture3D(&texConfig, &data, &srvConfig);
+	m_SDFTex3D = m_pRender->CreateTexture3D(&texConfig, &data);
 }

@@ -28,6 +28,8 @@ namespace forward
         void SetTexture2DArray( D3D11_TEX2D_ARRAY_DSV Texture2DArray );
         void SetTexture2DMS( D3D11_TEX2DMS_DSV state );
         void SetTexture2DMSArray( D3D11_TEX2DMS_ARRAY_DSV state );
+
+		DXGI_FORMAT GetFormat() const;
 		
 		D3D11_DEPTH_STENCIL_VIEW_DESC& GetDSVDesc();
 

@@ -14,13 +14,10 @@
 using namespace forward;
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, 
-                                        RendererDX11* pRenderer, 
-                                        ShaderResourceViewConfigDX11* pSRVConfig,
-                                        RenderTargetViewConfigDX11* pRTVConfig,
-                                        UnorderedAccessViewConfigDX11* pUAVConfig )
+                                        RendererDX11* pRenderer)
 {	    
     D3D11_BUFFER_DESC desc = pConfig->GetBufferDesc();
-    CommonConstructor( desc.BindFlags, ResourceID, pRenderer, pSRVConfig, pRTVConfig, pUAVConfig );	
+    CommonConstructor( desc.BindFlags, ResourceID, pRenderer, nullptr, nullptr, nullptr );	
 
     // Retain the renderer's configuration.  
 
@@ -29,13 +26,10 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig,
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, 
-                                     RendererDX11* pRenderer, 
-                                     ShaderResourceViewConfigDX11* pSRVConfig,
-                                     RenderTargetViewConfigDX11* pRTVConfig,
-                                     UnorderedAccessViewConfigDX11* pUAVConfig )
+                                     RendererDX11* pRenderer )
 {    
     D3D11_TEXTURE1D_DESC desc = pConfig->GetTextureDesc();
-    CommonConstructor( desc.BindFlags, ResourceID, pRenderer, pSRVConfig, pRTVConfig, pUAVConfig );	
+    CommonConstructor( desc.BindFlags, ResourceID, pRenderer, nullptr, nullptr, nullptr );	
 
     // Retain the renderer's configuration.  
 
@@ -44,13 +38,24 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConf
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, 
-                                     RendererDX11* pRenderer, 
-                                     ShaderResourceViewConfigDX11* pSRVConfig,
-                                     RenderTargetViewConfigDX11* pRTVConfig,
-                                     UnorderedAccessViewConfigDX11* pUAVConfig,
-                                     DepthStencilViewConfigDX11* pDSVConfig )
+                                     RendererDX11* pRenderer)
 {    
     D3D11_TEXTURE2D_DESC desc = pConfig->GetTextureDesc();
+	ShaderResourceViewConfigDX11* pSRVConfig = nullptr;
+	RenderTargetViewConfigDX11* pRTVConfig = nullptr;
+	UnorderedAccessViewConfigDX11* pUAVConfig = nullptr;
+	DepthStencilViewConfigDX11* pDSVConfig = nullptr;
+	if (pConfig->IsShaderResource())
+	{
+		pSRVConfig = pConfig->CreateSRV();
+	}
+	if (pConfig->IsDepthStencil())
+	{
+		pDSVConfig = pConfig->CreateDSV();
+
+		if (pConfig->IsShaderResource())
+			pSRVConfig->SetFormat(Texture2dConfigDX11::GetDepthSRVFormat(pDSVConfig->GetFormat()));
+	}
     CommonConstructor( desc.BindFlags, ResourceID, pRenderer, pSRVConfig, pRTVConfig, pUAVConfig, pDSVConfig );	
 
     // Retain the renderer's configuration.  
@@ -60,12 +65,21 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConf
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig,
-                                     RendererDX11* pRenderer, 
-                                     ShaderResourceViewConfigDX11* pSRVConfig,
-                                     RenderTargetViewConfigDX11* pRTVConfig,
-                                     UnorderedAccessViewConfigDX11* pUAVConfig )
+                                     RendererDX11* pRenderer)
 {
     D3D11_TEXTURE3D_DESC desc = pConfig->GetTextureDesc();
+	ShaderResourceViewConfigDX11* pSRVConfig = nullptr;
+	RenderTargetViewConfigDX11* pRTVConfig = nullptr;
+	UnorderedAccessViewConfigDX11* pUAVConfig = nullptr;
+	if (pConfig->IsShaderResource())
+	{
+		pSRVConfig = pConfig->CreateSRV();
+	}
+	if (pConfig->IsRenderTarget())
+	{
+		pRTVConfig = pConfig->CreateRTV();
+	}
+
     CommonConstructor( desc.BindFlags, ResourceID, pRenderer, pSRVConfig, pRTVConfig, pUAVConfig );	
 
     // Retain the renderer's configuration.
