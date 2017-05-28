@@ -173,7 +173,7 @@ void ShadowMapApp::BuildRenderTarget()
 	Texture2dConfigDX11 texConfig;
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetHeight);
 	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+	texConfig.MakeRenderTargetAndShaderResource();
 	m_shadowMapRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	/// create depth buffer texture for spot light
@@ -184,7 +184,7 @@ void ShadowMapApp::BuildRenderTarget()
 	/// create render target buffer for CSM
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetWidth);
 	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET);
+	texConfig.MakeRenderTarget();
 	texConfig.SetArraySize(m_CSM.m_iTotalCascades);
 	m_CSMRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
@@ -199,13 +199,13 @@ void ShadowMapApp::BuildRenderTarget()
 	/// create render target buffer VSM
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetHeight);
 	texConfig.SetFormat(DXGI_FORMAT_R32G32_FLOAT);
-	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+	texConfig.MakeRenderTargetAndShaderResource();
 	m_VSMRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	/// create render target buffer for blurring
 	texConfig.SetColorBuffer(static_cast<u32>(shadowTargetWidth * m_blurCoef), static_cast<u32>(shadowTargetHeight * m_blurCoef));
 	texConfig.SetFormat(DXGI_FORMAT_R32G32_FLOAT);
-	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+	texConfig.MakeRenderTargetAndShaderResource();
 	m_VSMBlurRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	m_shadowMapViewportID = m_pRender->CreateViewPort(shadowTargetWidth, shadowTargetHeight);

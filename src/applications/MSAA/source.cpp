@@ -255,7 +255,7 @@ void MSAA_Demo::BuildRenderTarget()
 	texConfig.SetColorBuffer(mClientWidth, mClientHeight);
 	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	texConfig.SetSampleDesc(samp);
-	texConfig.SetBindFlags(D3D11_BIND_RENDER_TARGET);
+	texConfig.MakeRenderTarget();
 	m_renderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	texConfig.SetDepthBuffer(mClientWidth, mClientHeight);
