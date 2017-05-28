@@ -48,6 +48,8 @@
 #include "DXGIAdapter.h"
 #include "DXGIOutput.h"
 
+#include "dx11Util.h"
+
 
 //#include "D3DEnumConversion.h"
 

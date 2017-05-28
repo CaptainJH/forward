@@ -16,6 +16,7 @@
 #include "Pipeline\PipelineManagerDX11.h"
 #include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ShaderDX11.h"
 #include "render.h"
+#include "dx11Util.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

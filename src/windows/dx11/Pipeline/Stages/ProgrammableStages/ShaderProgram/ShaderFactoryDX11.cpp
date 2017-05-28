@@ -10,6 +10,7 @@
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4239 )
 //--------------------------------------------------------------------------------
+#include <d3dCompiler.h>
 #include "PCH.h"
 #include "ShaderFactoryDX11.h"
 #include "Log.h"

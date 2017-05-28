@@ -11,7 +11,6 @@
 #endif
 
 
-#include <d3d11_2.h>
 #include <cassert>
 #include <algorithm>
 #include <string>
@@ -117,7 +116,6 @@ namespace forward
 		extern Vector4f LightSteelBlue;
 	}
 
-	D3D11_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
 
 }
 

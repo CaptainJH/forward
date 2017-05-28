@@ -20,6 +20,7 @@
 //#include "RenderEffectDX11.h"
 #include "ResourceSystem\ResourceProxyDX11.h"
 #include "ResourceSystem\ResourceDX11.h"
+#include "dx11Util.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
