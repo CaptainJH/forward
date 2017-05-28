@@ -37,21 +37,20 @@ namespace forward
 	public:
 
 		i32						m_iResource;
-		i32						m_iResourceSRV;
-		i32						m_iResourceRTV;
-		i32						m_iResourceDSV;
-		i32						m_iResourceUAV;
 
 		BufferConfigDX11*		        m_pBufferConfig;
 		Texture1dConfigDX11*	        m_pTexture1dConfig;
 		Texture2dConfigDX11*	        m_pTexture2dConfig;
 		Texture3dConfigDX11*	        m_pTexture3dConfig;
-        DepthStencilViewConfigDX11*     m_pDSVConfig;
-        ShaderResourceViewConfigDX11*   m_pSRVConfig;
-        RenderTargetViewConfigDX11*     m_pRTVConfig;
-        UnorderedAccessViewConfigDX11*  m_pUAVConfig;
 
 		friend class RendererDX11;
+		friend class PipelineManagerDX11;
+
+		// internal use
+		i32						m_iResourceSRV;
+		i32						m_iResourceRTV;
+		i32						m_iResourceDSV;
+		i32						m_iResourceUAV;
 
     protected: 
         
@@ -60,6 +59,11 @@ namespace forward
                                 RenderTargetViewConfigDX11* pRTVConfig,
                                 UnorderedAccessViewConfigDX11* pUAVConfig,
                                 DepthStencilViewConfigDX11* pDSVConfig = NULL );
+
+        DepthStencilViewConfigDX11*     m_pDSVConfig;
+        ShaderResourceViewConfigDX11*   m_pSRVConfig;
+        RenderTargetViewConfigDX11*     m_pRTVConfig;
+        UnorderedAccessViewConfigDX11*  m_pUAVConfig;
 	};
 
 	typedef std::shared_ptr<ResourceProxyDX11> ResourcePtr;
