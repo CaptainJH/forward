@@ -12,13 +12,10 @@ using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------
 using namespace forward;
-//--------------------------------------------------------------------------------
-RendererDX12* RendererDX12::m_spRenderer = nullptr;
+
 //--------------------------------------------------------------------------------
 RendererDX12::RendererDX12()
 {
-	if (m_spRenderer == nullptr)
-		m_spRenderer = this;
 }
 //--------------------------------------------------------------------------------
 RendererDX12::~RendererDX12()
@@ -27,7 +24,7 @@ RendererDX12::~RendererDX12()
 //--------------------------------------------------------------------------------
 RendererDX12* RendererDX12::Get()
 {
-	return(m_spRenderer);
+	return dynamic_cast<RendererDX12*>(m_spRenderer);
 }
 //--------------------------------------------------------------------------------
 D3D_FEATURE_LEVEL RendererDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*DriverType*/)

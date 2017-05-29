@@ -53,11 +53,11 @@ namespace forward
 	class SamplerStateConfigDX11;
 
 
-	class RendererDX11
+	class RendererDX11 : public Renderer
 	{
 	public:
 		RendererDX11();
-		~RendererDX11();
+		virtual ~RendererDX11();
 
 		// Access to the renderer.  There should only be a single instance
 		// of the renderer at any given time.
@@ -194,11 +194,6 @@ namespace forward
 		Microsoft::WRL::ComPtr<ID3D11Device>	m_pDevice;
 		Microsoft::WRL::ComPtr<ID3D11Debug>		m_pDebugger;
 		D3D_DRIVER_TYPE							m_driverType;
-
-		// Static renderer access - used for accessing the renderer when no reference
-		// is already available.
-
-		static RendererDX11*					m_spRenderer;
 
 		// In general, all resources and API objects are housed in expandable arrays
 		// wrapper objects.  The position within the array is used to provide fast

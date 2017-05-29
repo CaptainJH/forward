@@ -12,13 +12,15 @@
 
 #include "dx12Util.h"
 
+#include "render.h"
+
 namespace forward
 {
-    class RendererDX12
+    class RendererDX12 : public Renderer
     {
     public:
         RendererDX12();
-        ~RendererDX12();
+        virtual ~RendererDX12();
 
         // Access to the renderer.  There should only be a single instance
 		// of the renderer at any given time.
@@ -75,11 +77,6 @@ namespace forward
 		u32 m_RtvDescriptorSize			= 0;
 		u32 m_DsvDescriptorSize			= 0;
 		u32 m_CbvSrvUavDescriptorSize	= 0;
-
-		// Static renderer access - used for accessing the renderer when no reference
-		// is already available.
-
-		static RendererDX12*					m_spRenderer;
 
         i32							GetUnusedResourceIndex();
         //i32							StoreNewResource( ResourceDX12* pResource );

@@ -20,17 +20,17 @@ namespace forward
 	class ShaderResourceViewConfigDX11;
 	class UnorderedAccessViewConfigDX11;
 	class RenderTargetViewConfigDX11;
-	class RendererDX11;
+	class Renderer;
 
 	class ResourceProxyDX11
 	{
 	public:
 		ResourceProxyDX11();
 
-		ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, RendererDX11* pRenderer );
-		ResourceProxyDX11(i32 ResourceID, Texture1dConfigDX11* pConfig, RendererDX11* pRenderer);
-		ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, RendererDX11* pRenderer);
-		ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig, RendererDX11* pRenderer);
+		ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, Renderer* pRenderer );
+		ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, Renderer* pRenderer);
+		ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, Renderer* pRenderer);
+		ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig, Renderer* pRenderer);
 
 		virtual ~ResourceProxyDX11();
 
@@ -43,7 +43,7 @@ namespace forward
 		Texture2dConfigDX11*	        m_pTexture2dConfig;
 		Texture3dConfigDX11*	        m_pTexture3dConfig;
 
-		friend class RendererDX11;
+		friend class Renderer;
 		friend class PipelineManagerDX11;
 
 		// internal use
@@ -54,7 +54,7 @@ namespace forward
 
     protected: 
         
-        void CommonConstructor( u32 BindFlags, i32 ResourceID, RendererDX11* pRenderer, 
+        void CommonConstructor( u32 BindFlags, i32 ResourceID, Renderer* pRenderer, 
                                 ShaderResourceViewConfigDX11* pSRVConfig,
                                 RenderTargetViewConfigDX11* pRTVConfig,
                                 UnorderedAccessViewConfigDX11* pUAVConfig,

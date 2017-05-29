@@ -14,7 +14,7 @@
 using namespace forward;
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig, 
-                                        RendererDX11* pRenderer)
+                                        Renderer* pRenderer)
 {	    
     D3D11_BUFFER_DESC desc = pConfig->GetBufferDesc();
     CommonConstructor( desc.BindFlags, ResourceID, pRenderer, nullptr, nullptr, nullptr );	
@@ -26,7 +26,7 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, BufferConfigDX11* pConfig,
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConfig, 
-                                     RendererDX11* pRenderer )
+                                     Renderer* pRenderer )
 {    
     D3D11_TEXTURE1D_DESC desc = pConfig->GetTextureDesc();
     CommonConstructor( desc.BindFlags, ResourceID, pRenderer, nullptr, nullptr, nullptr );	
@@ -38,7 +38,7 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture1dConfigDX11* pConf
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConfig, 
-                                     RendererDX11* pRenderer)
+                                     Renderer* pRenderer)
 {    
     D3D11_TEXTURE2D_DESC desc = pConfig->GetTextureDesc();
 	ShaderResourceViewConfigDX11* pSRVConfig = nullptr;
@@ -65,7 +65,7 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConf
 }
 //--------------------------------------------------------------------------------
 ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture3dConfigDX11* pConfig,
-                                     RendererDX11* pRenderer)
+                                     Renderer* pRenderer)
 {
     D3D11_TEXTURE3D_DESC desc = pConfig->GetTextureDesc();
 	ShaderResourceViewConfigDX11* pSRVConfig = nullptr;
@@ -117,7 +117,7 @@ ResourceProxyDX11::~ResourceProxyDX11()
 	SAFE_DELETE( m_pDSVConfig );
 }
 //--------------------------------------------------------------------------------
-void ResourceProxyDX11::CommonConstructor( u32 BindFlags, i32 ResourceID, RendererDX11* pRenderer, 
+void ResourceProxyDX11::CommonConstructor( u32 BindFlags, i32 ResourceID, Renderer* pRenderer, 
                                         ShaderResourceViewConfigDX11* pSRVConfig, 
                                         RenderTargetViewConfigDX11* pRTVConfig, 
                                         UnorderedAccessViewConfigDX11* pUAVConfig, 
@@ -165,30 +165,32 @@ void ResourceProxyDX11::CommonConstructor( u32 BindFlags, i32 ResourceID, Render
         *m_pDSVConfig = *pDSVConfig;
     }
 
+	RendererDX11* pRendererDX11 = dynamic_cast<RendererDX11*>(pRenderer);
+
     // Depending on the bind flags used to create the resource, we create a set
     // of default views to be used.
 
     if ( ( BindFlags & D3D11_BIND_SHADER_RESOURCE ) == D3D11_BIND_SHADER_RESOURCE )
     {
         D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = pSRVConfig ? &pSRVConfig->GetSRVDesc() : nullptr;
-        m_iResourceSRV = pRenderer->CreateShaderResourceView( m_iResource, pDesc );
+        m_iResourceSRV = pRendererDX11->CreateShaderResourceView( m_iResource, pDesc );
     }
 
     if ( ( BindFlags & D3D11_BIND_RENDER_TARGET ) == D3D11_BIND_RENDER_TARGET )
     {
         D3D11_RENDER_TARGET_VIEW_DESC* pDesc = pRTVConfig ? &pRTVConfig->GetRTVDesc() : nullptr;
-        m_iResourceRTV = pRenderer->CreateRenderTargetView( m_iResource, pDesc );
+        m_iResourceRTV = pRendererDX11->CreateRenderTargetView( m_iResource, pDesc );
     }
 
     if ( ( BindFlags & D3D11_BIND_DEPTH_STENCIL ) == D3D11_BIND_DEPTH_STENCIL )
     {
         D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc = pDSVConfig ? &pDSVConfig->GetDSVDesc() : nullptr;
-        m_iResourceDSV = pRenderer->CreateDepthStencilView( m_iResource, pDesc );
+        m_iResourceDSV = pRendererDX11->CreateDepthStencilView( m_iResource, pDesc );
     }
 
     if ( ( BindFlags & D3D11_BIND_UNORDERED_ACCESS ) == D3D11_BIND_UNORDERED_ACCESS )
     {
         D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc = pUAVConfig ? &pUAVConfig->GetUAVDesc() : nullptr;
-        m_iResourceUAV = pRenderer->CreateUnorderedAccessView( m_iResource, pDesc );
+        m_iResourceUAV = pRendererDX11->CreateUnorderedAccessView( m_iResource, pDesc );
     }
 }

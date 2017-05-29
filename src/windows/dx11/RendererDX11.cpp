@@ -63,13 +63,8 @@ using Microsoft::WRL::ComPtr;
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-RendererDX11* RendererDX11::m_spRenderer = 0;
-//--------------------------------------------------------------------------------
 RendererDX11::RendererDX11()
 {
-	if ( m_spRenderer == 0 )
-		m_spRenderer = this;
-
 //	m_pDevice = 0;
 //	m_pDebugger = 0;
 	m_driverType = D3D_DRIVER_TYPE_NULL;
@@ -85,7 +80,7 @@ RendererDX11::~RendererDX11()
 //--------------------------------------------------------------------------------
 RendererDX11* RendererDX11::Get()
 {
-	return( m_spRenderer );
+	return dynamic_cast<RendererDX11*>( m_spRenderer );
 }
 //--------------------------------------------------------------------------------
 D3D_FEATURE_LEVEL RendererDX11::GetAvailableFeatureLevel( D3D_DRIVER_TYPE DriverType )
