@@ -27,6 +27,8 @@ namespace forward
 
 		static RendererDX12* Get();
 
+		virtual RendererAPI GetRendererAPI() const override { return DirectX12; }
+
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
 

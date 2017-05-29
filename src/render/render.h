@@ -8,6 +8,12 @@
 
 namespace forward
 {
+	enum RendererAPI
+	{
+		DirectX11,
+		DirectX12
+	};
+
 	// Subresource information.
 	struct Subresource
 	{
@@ -19,6 +25,9 @@ namespace forward
 
 	class Renderer
 	{
+	public:
+		virtual RendererAPI GetRendererAPI() const = 0;
+
 	protected:
 		Renderer();
 		virtual ~Renderer();
