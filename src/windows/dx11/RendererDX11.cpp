@@ -21,7 +21,7 @@
 #include "ResourceSystem/Texture/Texture1dConfigDX11.h"
 #include "ResourceSystem/Texture/Texture2dConfigDX11.h"
 #include "ResourceSystem/Texture/Texture3dConfigDX11.h"
-#include "ResourceSystem/Texture/SwapChainConfigDX11.h"
+#include "dxCommon/SwapChainConfigDX11.h"
 						
 #include "ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
 #include "ResourceSystem/ResourceView/RenderTargetViewDX11.h"
@@ -45,8 +45,8 @@
 
 #include "Pipeline/Executors/GeometryDX11.h"
 
-#include "DXGIAdapter.h"
-#include "DXGIOutput.h"
+#include "dxCommon/DXGIAdapter.h"
+#include "dxCommon/DXGIOutput.h"
 
 #include "dx11Util.h"
 
@@ -394,8 +394,8 @@ void RendererDX11::Shutdown()
 		delete pResource;
 
 	for ( auto pSwapChain : m_vSwapChains ) {
-		if ( pSwapChain->m_pSwapChain != nullptr ) {
-			pSwapChain->m_pSwapChain->SetFullscreenState( false, NULL );
+		if ( pSwapChain->GetSwapChain() != nullptr ) {
+			pSwapChain->GetSwapChain()->SetFullscreenState( false, NULL );
 		}
 		delete pSwapChain;
 	}
@@ -414,7 +414,7 @@ void RendererDX11::Present(HWND /*hWnd*/, i32 SwapChain, u32 SyncInterval, u32 P
 
 	if ( index < m_vSwapChains.size() ) {
 		SwapChainDX11* pSwapChain = m_vSwapChains[SwapChain];
-		HRESULT hr = pSwapChain->m_pSwapChain->Present( SyncInterval, PresentFlags );
+		HRESULT hr = pSwapChain->GetSwapChain()->Present( SyncInterval, PresentFlags );
 	}
 	else {
 		Log::Get().Write( L"Tried to present an invalid swap chain index!" );
@@ -438,7 +438,7 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
 	// Attempt to create the swap chain.
 
 	ComPtr<IDXGISwapChain> pSwapChain;
-	hr = pFactory->CreateSwapChain( m_pDevice.Get(), &pConfig->m_State, pSwapChain.GetAddressOf() );
+	hr = pFactory->CreateSwapChain( m_pDevice.Get(), &pConfig->GetSwapChainDesc(), pSwapChain.GetAddressOf() );
 
 
 	// Release the factory regardless of pass or fail.
@@ -974,10 +974,10 @@ void RendererDX11::ResizeSwapChain( i32 SID, u32 width, u32 height )
 
 	SwapChainDX11* pSwapChain = m_vSwapChains[index];
 
-	Texture2dDX11* pBackBuffer = GetTexture2DByIndex( pSwapChain->m_Resource->m_iResource );
+	Texture2dDX11* pBackBuffer = GetTexture2DByIndex( pSwapChain->GetResourcePtr()->m_iResource );
 	pBackBuffer->m_pTexture.Reset();
 
-	RenderTargetViewDX11& RTV = m_vRenderTargetViews[pSwapChain->m_Resource->m_iResourceRTV];
+	RenderTargetViewDX11& RTV = m_vRenderTargetViews[pSwapChain->GetResourcePtr()->m_iResourceRTV];
 	
 	// Get its description.
 	D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
@@ -989,14 +989,14 @@ void RendererDX11::ResizeSwapChain( i32 SID, u32 width, u32 height )
 	
 
 	// Resize the buffers.
-	HRESULT hr = pSwapChain->m_pSwapChain->ResizeBuffers( 2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 0 );
+	HRESULT hr = pSwapChain->GetSwapChain()->ResizeBuffers( 2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 0 );
 
 	if ( FAILED(hr) ) {
 		Log::Get().Write( L"Failed to resize buffers!" );
 	}
 
 	// Re-acquire the back buffer reference.
-	hr = pSwapChain->m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), 
+	hr = pSwapChain->GetSwapChain()->GetBuffer( 0, __uuidof( ID3D11Texture2D ), 
 		reinterpret_cast< void** >( pBackBuffer->m_pTexture.GetAddressOf() ) );
 
 	// Create the new one.
@@ -1376,7 +1376,7 @@ ResourcePtr RendererDX11::GetSwapChainResource( i32 ID )
 	u32 index = static_cast<u32>( ID );
 
 	if ( index < m_vSwapChains.size() )
-		return( m_vSwapChains[index]->m_Resource );
+		return( m_vSwapChains[index]->GetResourcePtr() );
 
 	Log::Get().Write( L"Tried to get an invalid swap buffer index texture ID!" );
 

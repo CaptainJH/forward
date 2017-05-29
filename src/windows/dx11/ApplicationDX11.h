@@ -19,7 +19,7 @@
 #endif
 #include <Windows.h>
 #include "PCH.h"
-#include "d3dUtil.h"
+#include "dxCommon/d3dUtil.h"
 #include "RendererDX11.h"
 #include "Timer.h"
 #include "FileSystem.h"

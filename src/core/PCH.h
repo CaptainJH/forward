@@ -15,7 +15,6 @@
 #include <chrono>
 
 #include "Types.h"
-#include "d3dUtil.h"
 
 #include <wrl.h>
 #define NOMINMAX

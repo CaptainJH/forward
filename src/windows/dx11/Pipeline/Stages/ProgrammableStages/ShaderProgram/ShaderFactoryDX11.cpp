@@ -14,7 +14,7 @@
 #include "PCH.h"
 #include "ShaderFactoryDX11.h"
 #include "Log.h"
-#include "d3dUtil.h"
+#include "dxCommon/d3dUtil.h"
 #include "FileSystem.h"
 #include "FileLoader.h"
 //--------------------------------------------------------------------------------

@@ -5,8 +5,8 @@
 
 #include "Log.h"
 
-#include "DXGIAdapter.h"
-#include "DXGIOutput.h"
+#include "dxCommon/DXGIAdapter.h"
+#include "dxCommon/DXGIOutput.h"
 
 
 using Microsoft::WRL::ComPtr;

@@ -5,7 +5,7 @@
 
 #include <d3d11_2.h>
 #include <wrl.h>
-#include "d3dUtil.h"
+#include "dxCommon/d3dUtil.h"
 
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DeviceContextComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Query> QueryComPtr;

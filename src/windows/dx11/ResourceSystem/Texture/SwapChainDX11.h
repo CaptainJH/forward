@@ -6,7 +6,7 @@
 #define SwapChainDX11_h
 //--------------------------------------------------------------------------------
 #include <wrl.h>
-#include <d3d11_2.h>
+#include <dxgi.h>
 #include "ResourceSystem\ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
@@ -18,12 +18,11 @@ namespace forward
 		virtual ~SwapChainDX11();
 
 		IDXGISwapChain* GetSwapChain();
+		ResourcePtr GetResourcePtr();
 
 	protected:
 		Microsoft::WRL::ComPtr<IDXGISwapChain>	m_pSwapChain;
 		ResourcePtr								m_Resource;
-
-		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------

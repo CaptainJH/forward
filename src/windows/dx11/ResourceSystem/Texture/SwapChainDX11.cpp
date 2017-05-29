@@ -18,3 +18,8 @@ IDXGISwapChain* SwapChainDX11::GetSwapChain()
 	return( m_pSwapChain.Get() );
 }
 //--------------------------------------------------------------------------------
+ResourcePtr SwapChainDX11::GetResourcePtr()
+{
+	return m_Resource;
+}
+//--------------------------------------------------------------------------------

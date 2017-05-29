@@ -5,7 +5,7 @@
 
 #include <d3d12.h>
 #include <wrl.h>
-#include "d3dUtil.h"
+#include "dxCommon/d3dUtil.h"
 
 typedef Microsoft::WRL::ComPtr<ID3D12Device> DeviceComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueComPtr;

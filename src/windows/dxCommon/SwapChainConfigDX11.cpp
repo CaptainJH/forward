@@ -117,7 +117,7 @@ void SwapChainConfigDX11::SetFlags( u32 Flags )
 	m_State.Flags = Flags;
 }
 //--------------------------------------------------------------------------------
-DXGI_SWAP_CHAIN_DESC SwapChainConfigDX11::GetSwapChainDesc()
+DXGI_SWAP_CHAIN_DESC& SwapChainConfigDX11::GetSwapChainDesc()
 {
 	return( m_State );
 }

@@ -6,7 +6,7 @@
 #define SwapChainConfigDX11_h
 //--------------------------------------------------------------------------------
 #include "Types.h"
-#include <d3d11_2.h>
+#include <dxgi.h>
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -36,12 +36,10 @@ namespace forward
 		void SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect );
 		void SetFlags( u32 Flags );
 
-		DXGI_SWAP_CHAIN_DESC GetSwapChainDesc();
+		DXGI_SWAP_CHAIN_DESC& GetSwapChainDesc();
 
 	protected:
 		DXGI_SWAP_CHAIN_DESC 		m_State;
-
-		friend class RendererDX11;
 	};
 };
 //--------------------------------------------------------------------------------
