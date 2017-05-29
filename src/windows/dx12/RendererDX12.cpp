@@ -8,7 +8,6 @@
 #include "dxCommon/DXGIAdapter.h"
 #include "dxCommon/DXGIOutput.h"
 
-
 using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------

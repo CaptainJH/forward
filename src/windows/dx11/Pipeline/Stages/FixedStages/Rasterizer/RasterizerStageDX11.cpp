@@ -9,9 +9,9 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-#include "RendererDX11.h"
+#include "dx11/RendererDX11.h"
 #include "RasterizerStageDX11.h"
-#include "ResourceSystem\StateObject\ViewPortDX11.h"
+#include "dx11/ResourceSystem/StateObject/ViewPortDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------

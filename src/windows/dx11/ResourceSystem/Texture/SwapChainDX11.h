@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------
 #include <wrl.h>
 #include <dxgi.h>
-#include "ResourceSystem\ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

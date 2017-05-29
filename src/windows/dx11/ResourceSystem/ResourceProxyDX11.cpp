@@ -1,14 +1,14 @@
 //--------------------------------------------------------------------------------
 #include "ResourceProxyDX11.h"
-#include "ResourceSystem/Buffer/BufferConfigDX11.h"
-#include "ResourceSystem/Texture/Texture1dConfigDX11.h"
-#include "ResourceSystem/Texture/Texture2dConfigDX11.h"
-#include "ResourceSystem/Texture/Texture3dConfigDX11.h"
-#include "ResourceSystem/ResourceView/DepthStencilViewConfigDX11.h"
-#include "ResourceSystem/ResourceView/ShaderResourceViewConfigDX11.h"
-#include "ResourceSystem/ResourceView/UnorderedAccessViewConfigDX11.h"
-#include "ResourceSystem/ResourceView/RenderTargetViewConfigDX11.h"
-#include "RendererDX11.h"
+#include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture1dConfigDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture2dConfigDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture3dConfigDX11.h"
+#include "dx11/ResourceSystem/ResourceView/DepthStencilViewConfigDX11.h"
+#include "dx11/ResourceSystem/ResourceView/ShaderResourceViewConfigDX11.h"
+#include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewConfigDX11.h"
+#include "dx11/ResourceSystem/ResourceView/RenderTargetViewConfigDX11.h"
+#include "dx11/RendererDX11.h"
 #include "dxCommon/d3dUtil.h"
 //--------------------------------------------------------------------------------
 using namespace forward;

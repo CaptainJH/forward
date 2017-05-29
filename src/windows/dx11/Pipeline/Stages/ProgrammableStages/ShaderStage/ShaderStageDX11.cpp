@@ -11,10 +11,10 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "ShaderStageDX11.h"
-#include "RendererDX11.h"
-#include "ResourceSystem/Buffer/ConstantBufferDX11.h"
-#include "ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
-#include "ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
+#include "dx11/RendererDX11.h"
+#include "dx11/ResourceSystem/Buffer/ConstantBufferDX11.h"
+#include "dx11/ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------

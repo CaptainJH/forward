@@ -11,8 +11,8 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "GeometryShaderStageDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\GeometryShaderDX11.h"
-#include "RendererDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/GeometryShaderDX11.h"
+#include "dx11/RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------

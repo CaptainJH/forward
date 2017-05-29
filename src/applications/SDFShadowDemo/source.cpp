@@ -1,9 +1,9 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#include "dx11/ApplicationDX11.h"
+#include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
 #include "FileLoader.h"
-#include "ResourceSystem\Texture\Texture3dConfigDX11.h"
-#include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture3dConfigDX11.h"
+#include "dx11/ResourceSystem/StateObject/SamplerStateConfigDX11.h"
 
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"

@@ -10,10 +10,10 @@
 
 //--------------------------------------------------------------------------------
 #include "OutputMergerStageDX11.h"
-#include "ResourceSystem\ResourceView\RenderTargetViewDX11.h"
-#include "ResourceSystem\ResourceView\DepthStencilViewDX11.h"
-#include "ResourceSystem\ResourceView\UnorderedAccessViewDX11.h"
-#include "RendererDX11.h"
+#include "dx11/ResourceSystem/ResourceView/RenderTargetViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/DepthStencilViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
+#include "dx11/RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------

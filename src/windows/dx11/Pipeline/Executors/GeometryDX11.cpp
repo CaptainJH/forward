@@ -11,11 +11,11 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "GeometryDX11.h"
-#include "ResourceSystem\Buffer\VertexBufferDX11.h"
-#include "ResourceSystem\Buffer\IndexBufferDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#include "dx11/ResourceSystem/Buffer/VertexBufferDX11.h"
+#include "dx11/ResourceSystem/Buffer/IndexBufferDX11.h"
+#include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "Log.h"
-#include "RendererDX11.h"
+#include "dx11/RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------

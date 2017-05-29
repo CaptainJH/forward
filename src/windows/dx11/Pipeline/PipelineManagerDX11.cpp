@@ -3,30 +3,23 @@
 //#include "PCH.h"
 #include "PipelineManagerDX11.h"
 #include "Log.h"
-#include "ResourceSystem\StateObject\ViewPortDX11.h"
+#include "dx11/ResourceSystem/StateObject/ViewPortDX11.h"
+#include "dx11/ResourceSystem/ResourceDX11.h"
+#include "dx11/ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/RenderTargetViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/DepthStencilViewDX11.h"
+#include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
+#include "dx11/Pipeline/Executors/GeometryDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/VertexShaderDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/HullShaderDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/DomainShaderDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/GeometryShaderDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/PixelShaderDX11.h"
+#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/ComputeShaderDX11.h"
 
+#include "dx11/ResourceSystem/Buffer/IndirectArgsBufferDX11.h"
 
-#include "ResourceSystem\ResourceDX11.h"
-
-#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
-#include "ResourceSystem\ResourceView\RenderTargetViewDX11.h"
-#include "ResourceSystem\ResourceView\DepthStencilViewDX11.h"
-#include "ResourceSystem\ResourceView\UnorderedAccessViewDX11.h"
-
-
-#include "Pipeline\Executors\GeometryDX11.h"
-
-
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\VertexShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\HullShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\DomainShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\GeometryShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\PixelShaderDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ComputeShaderDX11.h"
-
-#include "ResourceSystem\Buffer\IndirectArgsBufferDX11.h"
-
-#include "RendererDX11.h"
+#include "dx11/RendererDX11.h"
 
 #include <wincodec.h>
 

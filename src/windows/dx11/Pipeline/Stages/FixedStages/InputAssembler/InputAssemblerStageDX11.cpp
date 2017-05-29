@@ -11,9 +11,9 @@
 //--------------------------------------------------------------------------------
 //#include "RendererDX11.h"
 #include "InputAssemblerStageDX11.h"
-#include "ResourceSystem\Buffer\VertexBufferDX11.h"
-#include "ResourceSystem\Buffer\IndexBufferDX11.h"
-#include "RendererDX11.h"
+#include "dx11/ResourceSystem/Buffer/VertexBufferDX11.h"
+#include "dx11/ResourceSystem/Buffer/IndexBufferDX11.h"
+#include "dx11/RendererDX11.h"
 #include "Log.h"
 //--------------------------------------------------------------------------------
 using namespace forward;

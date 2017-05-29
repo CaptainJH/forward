@@ -15,7 +15,7 @@
 #ifndef OutputMergerStageDX11_h
 #define OutputMergerStageDX11_h
 //--------------------------------------------------------------------------------
-#include "ResourceSystem\ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 #include "OutputMergerStageStateDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward

@@ -17,13 +17,13 @@
 #define GeometryDX11_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ResourceSystem\ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 #include "VertexElementDX11.h"
 #include "TriangleIndices.h"
 #include "LineIndices.h"
 #include "PointIndices.h"
 #include "PipelineExecutorDX11.h"
-#include "Pipeline\Stages\FixedStages\InputAssembler\InputAssemblerStateDX11.h"
+#include "dx11/Pipeline/Stages/FixedStages/InputAssembler/InputAssemblerStateDX11.h"
 #include "PrimitiveTopology.h"
 //--------------------------------------------------------------------------------
 namespace forward

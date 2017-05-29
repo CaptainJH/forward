@@ -16,7 +16,7 @@
 #define StreamOutputStageDX11_h
 //--------------------------------------------------------------------------------
 #include <d3d11_2.h>
-#include "ResourceSystem\ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 #include "StreamOutputStageStateDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward

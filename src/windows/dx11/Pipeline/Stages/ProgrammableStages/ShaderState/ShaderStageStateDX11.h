@@ -16,7 +16,7 @@
 #define ShaderStageStateDX11_h
 //--------------------------------------------------------------------------------
 #include <d3d11_2.h>
-#include "ResourceSystem\ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
 //--------------------------------------------------------------------------------

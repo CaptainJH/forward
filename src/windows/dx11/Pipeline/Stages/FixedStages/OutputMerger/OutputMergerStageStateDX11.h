@@ -18,7 +18,7 @@
 #include <d3d11_2.h>
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
-#include "ResourceSystem/ResourceProxyDX11.h"
+#include "dx11/ResourceSystem/ResourceProxyDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
