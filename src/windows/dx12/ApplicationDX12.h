@@ -20,7 +20,7 @@
 #include <Windows.h>
 #include "PCH.h"
 #include "d3dUtil.h"
-//#include "RendererDX11.h"
+#include "RendererDX12.h"
 #include "Timer.h"
 #include "FileSystem.h"
 #include "Log.h"
@@ -86,13 +86,13 @@ namespace forward
 		Timer mTimer;
 		FileSystem mFileSystem;
 
-		//RendererDX11*	m_pRender;
+		RendererDX12*	m_pRender;
 		//ResourcePtr		m_RenderTarget;
 		//ResourcePtr		m_DepthTarget;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
-		//D3D_DRIVER_TYPE md3dDriverType;
+		D3D_DRIVER_TYPE md3dDriverType;
 		i32 mClientWidth;
 		i32 mClientHeight;
 		bool mEnable4xMsaa;

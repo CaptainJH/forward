@@ -29,7 +29,7 @@ MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 ApplicationDX12::ApplicationDX12(HINSTANCE hInstance, i32 width, i32 height)
 	: mhAppInst(hInstance),
 	mMainWndCaption(L"D3D12 Application"),
-	//md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
+	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
 	mClientWidth(width),
 	mClientHeight(height),
 	mEnable4xMsaa(false),
@@ -38,8 +38,8 @@ ApplicationDX12::ApplicationDX12(HINSTANCE hInstance, i32 width, i32 height)
 	mMinimized(false),
 	mMaximized(false),
 	mResizing(false),
-	m4xMsaaQuality(0)//,
-	//m_pRender(0)
+	m4xMsaaQuality(0),
+	m_pRender(nullptr)
 {
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
@@ -330,22 +330,22 @@ void ApplicationDX12::CalculateFrameStats()
 
 bool ApplicationDX12::ConfigureRendererComponents()
 {
-	//m_pRender = new RendererDX11;
+	m_pRender = new RendererDX12;
 
-	//if (!m_pRender->Initialize(md3dDriverType, D3D_FEATURE_LEVEL_11_0))
-	//{
-	//	Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
+	if (!m_pRender->Initialize(md3dDriverType, D3D_FEATURE_LEVEL_11_0))
+	{
+		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
 
-	//	if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
-	//	{
-	//		ShowWindow(MainWnd(), SW_HIDE);
-	//		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
-	//			mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
-	//		RequestTermination();
-	//		return false;
-	//	}
+		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
+		{
+			ShowWindow(MainWnd(), SW_HIDE);
+			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
+				mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+			RequestTermination();
+			return false;
+		}
 
-	//}
+	}
 
 	//// Create a swap chain for the window that we started out with.  This
 	//// demonstrates using a configuration object for fast and concise object
@@ -387,11 +387,11 @@ bool ApplicationDX12::ConfigureRendererComponents()
 }
 void ApplicationDX12::ShutdownRendererComponents()
 {
-	//if (m_pRender)
-	//{
-	//	m_pRender->Shutdown();
-	//	SAFE_DELETE(m_pRender);
-	//}
+	if (m_pRender)
+	{
+		m_pRender->Shutdown();
+		SAFE_DELETE(m_pRender);
+	}
 }
 
 void ApplicationDX12::RequestTermination()
