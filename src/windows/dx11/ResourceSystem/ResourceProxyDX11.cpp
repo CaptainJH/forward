@@ -54,7 +54,12 @@ ResourceProxyDX11::ResourceProxyDX11( i32 ResourceID, Texture2dConfigDX11* pConf
 		pDSVConfig = pConfig->CreateDSV();
 
 		if (pConfig->IsShaderResource())
-			pSRVConfig->SetFormat(Texture2dConfigDX11::GetDepthSRVFormat(pDSVConfig->GetFormat()));
+		{
+			DXGI_FORMAT format = static_cast<DXGI_FORMAT>(Texture2dConfigDX11::GetDepthSRVFormat(
+				static_cast<DataFormatType>(pDSVConfig->GetFormat())
+			));
+			pSRVConfig->SetFormat(format);
+		}
 	}
     CommonConstructor( desc.BindFlags, ResourceID, pRenderer, pSRVConfig, pRTVConfig, pUAVConfig, pDSVConfig );	
 
@@ -92,7 +97,6 @@ ResourceProxyDX11::ResourceProxyDX11()
 {
 	// Initialize all indices and pointers to a neutral state.
 
-	m_iResource = -1;
 	m_iResourceSRV = m_iResourceRTV = m_iResourceDSV = m_iResourceUAV = 0;
 
 	m_pBufferConfig = nullptr;

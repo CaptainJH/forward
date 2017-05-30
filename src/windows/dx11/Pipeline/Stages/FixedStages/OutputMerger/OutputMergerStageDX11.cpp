@@ -66,7 +66,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 
 		for ( i32 i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ ) 
 		{
-			ResourcePtr rtvPtr = DesiredState.RenderTargetResources.GetState(i);
+			auto rtvPtr = DesiredState.RenderTargetResources.GetState(i);
 			if (rtvPtr == nullptr)
 				continue;
 			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );

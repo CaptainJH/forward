@@ -1,24 +1,24 @@
 //--------------------------------------------------------------------------------
-#include "SwapChainDX11.h"
+#include "SwapChain.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChainDX11::SwapChainDX11( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource )
+SwapChain::SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtrBase resource )
 {
 	m_pSwapChain = pSwapChain;
 	m_Resource = resource;
 }
 //--------------------------------------------------------------------------------
-SwapChainDX11::~SwapChainDX11()
+SwapChain::~SwapChain()
 {
 }
 //--------------------------------------------------------------------------------
-IDXGISwapChain* SwapChainDX11::GetSwapChain()
+IDXGISwapChain* SwapChain::GetSwapChain()
 {
 	return( m_pSwapChain.Get() );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr SwapChainDX11::GetResourcePtr()
+ResourcePtrBase SwapChain::GetResourcePtr()
 {
 	return m_Resource;
 }

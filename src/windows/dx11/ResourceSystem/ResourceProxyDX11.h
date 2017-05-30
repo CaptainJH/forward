@@ -8,7 +8,7 @@
 #ifndef ResourceProxyDX11_h
 #define ResourceProxyDX11_h
 //--------------------------------------------------------------------------------
-#include "PCH.h"
+#include "render/ResourceSystem/ResourceProxy.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -22,7 +22,7 @@ namespace forward
 	class RenderTargetViewConfigDX11;
 	class Renderer;
 
-	class ResourceProxyDX11
+	class ResourceProxyDX11 : public ResourceProxy
 	{
 	public:
 		ResourceProxyDX11();
@@ -36,8 +36,6 @@ namespace forward
 
 	public:
 
-		i32						m_iResource;
-
 		BufferConfigDX11*		        m_pBufferConfig;
 		Texture1dConfigDX11*	        m_pTexture1dConfig;
 		Texture2dConfigDX11*	        m_pTexture2dConfig;
@@ -45,12 +43,6 @@ namespace forward
 
 		friend class Renderer;
 		friend class PipelineManagerDX11;
-
-		// internal use
-		i32						m_iResourceSRV;
-		i32						m_iResourceRTV;
-		i32						m_iResourceDSV;
-		i32						m_iResourceUAV;
 
     protected: 
         

@@ -172,7 +172,7 @@ void ShadowMapApp::BuildRenderTarget()
 
 	Texture2dConfigDX11 texConfig;
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetHeight);
-	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	texConfig.MakeRenderTargetAndShaderResource();
 	m_shadowMapRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
@@ -183,7 +183,7 @@ void ShadowMapApp::BuildRenderTarget()
 
 	/// create render target buffer for CSM
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetWidth);
-	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	texConfig.MakeRenderTarget();
 	texConfig.SetArraySize(m_CSM.m_iTotalCascades);
 	m_CSMRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
@@ -198,13 +198,13 @@ void ShadowMapApp::BuildRenderTarget()
 
 	/// create render target buffer VSM
 	texConfig.SetColorBuffer(shadowTargetWidth, shadowTargetHeight);
-	texConfig.SetFormat(DXGI_FORMAT_R32G32_FLOAT);
+	texConfig.SetFormat(DF_R32G32_FLOAT);
 	texConfig.MakeRenderTargetAndShaderResource();
 	m_VSMRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	/// create render target buffer for blurring
 	texConfig.SetColorBuffer(static_cast<u32>(shadowTargetWidth * m_blurCoef), static_cast<u32>(shadowTargetHeight * m_blurCoef));
-	texConfig.SetFormat(DXGI_FORMAT_R32G32_FLOAT);
+	texConfig.SetFormat(DF_R32G32_FLOAT);
 	texConfig.MakeRenderTargetAndShaderResource();
 	m_VSMBlurRenderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 

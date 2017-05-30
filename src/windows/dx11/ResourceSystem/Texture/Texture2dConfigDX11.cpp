@@ -80,14 +80,14 @@ void Texture2dConfigDX11::SetArraySize( u32 state )
 	m_State.ArraySize = state;
 }
 //--------------------------------------------------------------------------------
-void Texture2dConfigDX11::SetFormat( DXGI_FORMAT state )
+void Texture2dConfigDX11::SetFormat( DataFormatType state )
 {
-	m_State.Format = state;
+	m_State.Format = static_cast<DXGI_FORMAT>(state);
 }
 //--------------------------------------------------------------------------------
-DXGI_FORMAT Texture2dConfigDX11::GetFormat() const
+DataFormatType Texture2dConfigDX11::GetFormat() const
 {
-	return m_State.Format;
+	return static_cast<DataFormatType>(m_State.Format);
 }
 //--------------------------------------------------------------------------------
 void Texture2dConfigDX11::SetSampleDesc( DXGI_SAMPLE_DESC state )
@@ -218,52 +218,62 @@ DepthStencilViewConfigDX11* Texture2dConfigDX11::CreateDSV()
 	return pResult;
 }
 //--------------------------------------------------------------------------------
-DXGI_FORMAT Texture2dConfigDX11::GetDepthResourceFormat(DXGI_FORMAT depthFormat)
+DataFormatType Texture2dConfigDX11::GetDepthResourceFormat(DataFormatType depthFormat)
 {
 	if (depthFormat == DXGI_FORMAT_D16_UNORM)
 	{
-		return DXGI_FORMAT_R16_TYPELESS;
+		//return DXGI_FORMAT_R16_TYPELESS;
+		return DF_R16_TYPELESS;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D24_UNORM_S8_UINT)
 	{
-		return DXGI_FORMAT_R24G8_TYPELESS;
+		//return DXGI_FORMAT_R24G8_TYPELESS;
+		return DF_R24G8_TYPELESS;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D32_FLOAT)
 	{
-		return DXGI_FORMAT_R32_TYPELESS;
+		//return DXGI_FORMAT_R32_TYPELESS;
+		return DF_R32_TYPELESS;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
 	{
-		return DXGI_FORMAT_R32G8X24_TYPELESS;
+		//return DXGI_FORMAT_R32G8X24_TYPELESS;
+		return DF_R32G8X24_TYPELESS;
 	}
 
-	return DXGI_FORMAT_UNKNOWN;
+	//return DXGI_FORMAT_UNKNOWN;
+	return DF_UNKNOWN;
 }
 
-DXGI_FORMAT Texture2dConfigDX11::GetDepthSRVFormat(DXGI_FORMAT depthFormat)
+DataFormatType Texture2dConfigDX11::GetDepthSRVFormat(DataFormatType depthFormat)
 {
 	if (depthFormat == DXGI_FORMAT_D16_UNORM)
 	{
-		return DXGI_FORMAT_R16_UNORM;
+		//return DXGI_FORMAT_R16_UNORM;
+		return DF_R16_UNORM;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D24_UNORM_S8_UINT)
 	{
-		return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		//return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		return DF_R24_UNORM_X8_TYPELESS;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D32_FLOAT)
 	{
-		return DXGI_FORMAT_R32_FLOAT;
+		//return DXGI_FORMAT_R32_FLOAT;
+		return DF_R32_FLOAT;
 	}
 
 	if (depthFormat == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
 	{
-		return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+		//return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+		return DF_R32_FLOAT_X8X24_TYPELESS;
 	}
 
-	return DXGI_FORMAT_UNKNOWN;
+	//return DXGI_FORMAT_UNKNOWN;
+	return DF_UNKNOWN;
 }

@@ -1,18 +1,18 @@
 //--------------------------------------------------------------------------------
-#include "SwapChainConfigDX11.h"
+#include "SwapChainConfig.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChainConfigDX11::SwapChainConfigDX11()
+SwapChainConfig::SwapChainConfig()
 {
 	SetDefaults();
 }
 //--------------------------------------------------------------------------------
-SwapChainConfigDX11::~SwapChainConfigDX11()
+SwapChainConfig::~SwapChainConfig()
 {
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetDefaults()
+void SwapChainConfig::SetDefaults()
 {
 	// Set the state to the default configuration.  These are the D3D11 default
 	// values as well.
@@ -42,82 +42,82 @@ void SwapChainConfigDX11::SetDefaults()
 	m_State.Flags = 0; 
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetWidth( u32 width )
+void SwapChainConfig::SetWidth( u32 width )
 {
 	m_State.BufferDesc.Width = width;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetHeight( u32 height )
+void SwapChainConfig::SetHeight( u32 height )
 {
 	m_State.BufferDesc.Height = height;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetRefreshRateNumerator( u32 numerator )
+void SwapChainConfig::SetRefreshRateNumerator( u32 numerator )
 {
 	m_State.BufferDesc.RefreshRate.Numerator = numerator;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetRefreshRateDenominator( u32 denominator )
+void SwapChainConfig::SetRefreshRateDenominator( u32 denominator )
 {
 	m_State.BufferDesc.RefreshRate.Denominator = denominator;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetFormat( DXGI_FORMAT Format )
+void SwapChainConfig::SetFormat( DXGI_FORMAT Format )
 {
 	m_State.BufferDesc.Format = Format;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetScanlineOrder( DXGI_MODE_SCANLINE_ORDER ScanlineOrdering )
+void SwapChainConfig::SetScanlineOrder( DXGI_MODE_SCANLINE_ORDER ScanlineOrdering )
 {
 	m_State.BufferDesc.ScanlineOrdering = ScanlineOrdering;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetScaling( DXGI_MODE_SCALING Scaling )
+void SwapChainConfig::SetScaling( DXGI_MODE_SCALING Scaling )
 {
 	m_State.BufferDesc.Scaling = Scaling;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetBufferDesc( DXGI_MODE_DESC BufferDesc )
+void SwapChainConfig::SetBufferDesc( DXGI_MODE_DESC BufferDesc )
 {
 	m_State.BufferDesc = BufferDesc;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetSampleDesc( DXGI_SAMPLE_DESC SampleDesc )
+void SwapChainConfig::SetSampleDesc( DXGI_SAMPLE_DESC SampleDesc )
 {
 	m_State.SampleDesc = SampleDesc;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetBufferUsage( DXGI_USAGE BufferUsage )
+void SwapChainConfig::SetBufferUsage( DXGI_USAGE BufferUsage )
 {
 	m_State.BufferUsage = BufferUsage;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetBufferCount( u32 BufferCount )
+void SwapChainConfig::SetBufferCount( u32 BufferCount )
 {
 	m_State.BufferCount = BufferCount;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetOutputWindow( HWND OutputWindow )
+void SwapChainConfig::SetOutputWindow( HWND OutputWindow )
 {
 	m_State.OutputWindow = OutputWindow;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetWindowed( bool Windowed )
+void SwapChainConfig::SetWindowed( bool Windowed )
 {
 	m_State.Windowed = Windowed;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect )
+void SwapChainConfig::SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect )
 {
 	m_State.SwapEffect = SwapEffect;
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfigDX11::SetFlags( u32 Flags )
+void SwapChainConfig::SetFlags( u32 Flags )
 {
 	m_State.Flags = Flags;
 }
 //--------------------------------------------------------------------------------
-DXGI_SWAP_CHAIN_DESC& SwapChainConfigDX11::GetSwapChainDesc()
+DXGI_SWAP_CHAIN_DESC& SwapChainConfig::GetSwapChainDesc()
 {
 	return( m_State );
 }

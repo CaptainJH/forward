@@ -10,11 +10,11 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class SwapChainConfigDX11
+	class SwapChainConfig
 	{
 	public:
-		SwapChainConfigDX11();
-		virtual ~SwapChainConfigDX11();
+		SwapChainConfig();
+		virtual ~SwapChainConfig();
 
 		void SetDefaults();
 

@@ -253,18 +253,18 @@ void MSAA_Demo::BuildRenderTarget()
 
 	Texture2dConfigDX11 texConfig;
 	texConfig.SetColorBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	texConfig.SetSampleDesc(samp);
 	texConfig.MakeRenderTarget();
 	m_renderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	texConfig.SetDepthBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+	texConfig.SetFormat(DF_D24_UNORM_S8_UINT);
 	texConfig.SetSampleDesc(samp);
 	m_depthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	texConfig.SetColorBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	m_resolveTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
 	SamplerStateConfigDX11 sampConfig;

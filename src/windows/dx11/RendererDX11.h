@@ -31,14 +31,14 @@ namespace forward
 	class Texture2dDX11;
 	class Texture3dDX11;
 	class ResourceDX11;
-	class SwapChainDX11;
+	class SwapChain;
 	class ViewPortDX11;
 
 	class BufferConfigDX11;
 	class Texture1dConfigDX11;
 	class Texture2dConfigDX11;
 	class Texture3dConfigDX11;
-	class SwapChainConfigDX11;
+	class SwapChainConfig;
 
 	class GeometryDX11;
 
@@ -64,7 +64,7 @@ namespace forward
 
 		static RendererDX11* Get();
 
-		virtual RendererAPI GetRendererAPI() const override { return DirectX11; }
+		RendererAPI GetRendererAPI() const override { return DirectX11; }
 
 		// Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
@@ -90,7 +90,7 @@ namespace forward
 
 		// Allow the application to create swap chains
 
-		i32 CreateSwapChain( SwapChainConfigDX11* pConfig );// ResourceManagerDX11
+		i32 CreateSwapChain( SwapChainConfig* pConfig );// ResourceManagerDX11
 
 		// The create buffer method provides a way to create any of the buffer
 		// structures - vertex, index, and constant buffers.  These all utilize the
@@ -147,7 +147,7 @@ namespace forward
         i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
             const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 		
-		ResourcePtr GetSwapChainResource( i32 ID );
+		ResourcePtrBase GetSwapChainResource( i32 ID );
 
 		// This is an interim solution to get the resolution of the current
 		// adapter output resolution.
@@ -201,7 +201,7 @@ namespace forward
 		// wrapper objects.  The position within the array is used to provide fast
 		// random access to the renderer clients.
 
-		std::vector<SwapChainDX11*>				m_vSwapChains;
+		std::vector<SwapChain*>				m_vSwapChains;
 
 		// Resource allocation containers are stored in an expandable array, which
 		// provides fast random access with indices.
@@ -244,7 +244,7 @@ namespace forward
 		Texture1dDX11*				GetTexture1DByIndex( i32 rid );
 		Texture2dDX11*				GetTexture2DByIndex( i32 rid );
 		Texture3dDX11*				GetTexture3DByIndex( i32 rid );
-		SwapChainDX11*				GetSwapChainByIndex( i32 sid );
+		SwapChain*				GetSwapChainByIndex( i32 sid );
 
 		// Buffer resource accessors
 

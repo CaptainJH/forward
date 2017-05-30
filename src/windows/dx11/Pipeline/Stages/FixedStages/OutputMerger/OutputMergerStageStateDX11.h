@@ -38,7 +38,7 @@ namespace forward
 		TStateMonitor< i32 > BlendState;
 		TStateMonitor< i32 > DepthStencilState;
 		TStateMonitor< u32 > StencilRef;
-		TStateArrayMonitor< ResourcePtr, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetResources;
+		TStateArrayMonitor< ResourcePtrBase, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetResources;
 		TStateMonitor< ResourcePtr > DepthTargetResources;
 		TStateArrayMonitor< ResourcePtr, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessResources;
 		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;

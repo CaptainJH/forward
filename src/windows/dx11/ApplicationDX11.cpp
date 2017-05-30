@@ -3,7 +3,7 @@
 #include "ApplicationDX11.h"
 #include "Pipeline/PipelineManagerDX11.h"
 
-#include "dxCommon/SwapChainConfigDX11.h"
+#include "dxCommon/SwapChainConfig.h"
 #include "ResourceSystem/Texture/Texture2dConfigDX11.h"
 
 //--------------------------------------------------------------------------------
@@ -351,7 +351,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	// demonstrates using a configuration object for fast and concise object
 	// creation.
 
-	SwapChainConfigDX11 Config;
+	SwapChainConfig Config;
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());

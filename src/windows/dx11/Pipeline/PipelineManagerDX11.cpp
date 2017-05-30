@@ -572,7 +572,7 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 	for( u32 i = 0; i < viewCount; ++i )
 	{
 	    f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
-		ResourcePtr rtvPtr = OutputMergerStage.GetCurrentState().RenderTargetResources.GetState( i );
+		auto rtvPtr = OutputMergerStage.GetCurrentState().RenderTargetResources.GetState( i );
 		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );
 		pRenderTargetViews[i] = RTV.m_pRenderTargetView.Get(); 
 		if ( pRenderTargetViews[i] != nullptr ) {

@@ -14,14 +14,14 @@
 #include "ResourceSystem/Texture/Texture2dDX11.h"
 #include "ResourceSystem/Texture/Texture3dDX11.h"
 #include "ResourceSystem/ResourceDX11.h"
-#include "ResourceSystem/Texture/SwapChainDX11.h"
 #include "ResourceSystem/StateObject/ViewPortDX11.h"
 						
 #include "ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "ResourceSystem/Texture/Texture1dConfigDX11.h"
 #include "ResourceSystem/Texture/Texture2dConfigDX11.h"
 #include "ResourceSystem/Texture/Texture3dConfigDX11.h"
-#include "dxCommon/SwapChainConfigDX11.h"
+#include "dxCommon/SwapChainConfig.h"
+#include "dxCommon/SwapChain.h"
 						
 #include "ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
 #include "ResourceSystem/ResourceView/RenderTargetViewDX11.h"
@@ -408,7 +408,7 @@ void RendererDX11::Present(HWND /*hWnd*/, i32 SwapChain, u32 SyncInterval, u32 P
 	u32 index = static_cast<u32>( SwapChain );
 
 	if ( index < m_vSwapChains.size() ) {
-		SwapChainDX11* pSwapChain = m_vSwapChains[SwapChain];
+		auto pSwapChain = m_vSwapChains[SwapChain];
 		HRESULT hr = pSwapChain->GetSwapChain()->Present( SyncInterval, PresentFlags );
 	}
 	else {
@@ -416,7 +416,7 @@ void RendererDX11::Present(HWND /*hWnd*/, i32 SwapChain, u32 SyncInterval, u32 P
 	}
 }
 //--------------------------------------------------------------------------------
-i32 RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
+i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 {
 	// Attempt to create the DXGI Factory.
 
@@ -474,7 +474,7 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfigDX11* pConfig )
 	// The resource proxy can then be used later on by the application to get the
 	// RTV or texture ID if needed.
 
-	m_vSwapChains.push_back( new SwapChainDX11( pSwapChain, Proxy ) );
+	m_vSwapChains.push_back( new SwapChain( pSwapChain, Proxy ) );
 
 	return( m_vSwapChains.size() - 1 );
 }
@@ -654,7 +654,7 @@ ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, Subreso
 	if (pConfig->IsDepthStencil())
 	{
 		Texture2dConfigDX11 Config2 = *pConfig;
-		DXGI_FORMAT resourceFormat = Texture2dConfigDX11::GetDepthResourceFormat(pConfig->GetFormat());
+		auto resourceFormat = Texture2dConfigDX11::GetDepthResourceFormat(pConfig->GetFormat());
 		Config2.SetFormat(resourceFormat);
 		hr = m_pDevice->CreateTexture2D(&Config2.m_State, pDataIn, pTexture.GetAddressOf());
 	}
@@ -967,7 +967,7 @@ void RendererDX11::ResizeSwapChain( i32 SID, u32 width, u32 height )
 	// references to it.  In our case, this means to release the texture and 
 	// render target view that we maintain in the renderer.
 
-	SwapChainDX11* pSwapChain = m_vSwapChains[index];
+	SwapChain* pSwapChain = m_vSwapChains[index];
 
 	Texture2dDX11* pBackBuffer = GetTexture2DByIndex( pSwapChain->GetResourcePtr()->m_iResource );
 	pBackBuffer->m_pTexture.Reset();
@@ -1366,7 +1366,7 @@ i32 RendererDX11::CreateViewPort(const u32 width, const u32 height)
 	return( m_vViewPorts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::GetSwapChainResource( i32 ID )
+ResourcePtrBase RendererDX11::GetSwapChainResource( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1375,7 +1375,7 @@ ResourcePtr RendererDX11::GetSwapChainResource( i32 ID )
 
 	Log::Get().Write( L"Tried to get an invalid swap buffer index texture ID!" );
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourcePtrBase( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
 Vector2f RendererDX11::GetDesktopResolution()
@@ -1608,7 +1608,7 @@ Texture3dDX11* RendererDX11::GetTexture3DByIndex( i32 rid )
 	return( pResult );
 }
 //--------------------------------------------------------------------------------
-SwapChainDX11* RendererDX11::GetSwapChainByIndex( i32 sid )
+SwapChain* RendererDX11::GetSwapChainByIndex( i32 sid )
 {
 	return( m_vSwapChains[sid] );
 }
