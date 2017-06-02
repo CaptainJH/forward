@@ -56,7 +56,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	HelloWorld theApp(hInstance, 1200, 800);
+	HelloWorld theApp(hInstance, 800, 600);
 
 	if (!theApp.Init())
 		return 0;
@@ -76,7 +76,7 @@ void HelloWorld::DrawScene()
 	//m_pRender->pImmPipeline->ApplyPipelineResources();
 	//m_pRender->pImmPipeline->Draw(4, 0);
 
-	//m_pRender->Present(MainWnd(), 0);
+	m_pRender->Present(MainWnd(), 0);
 }
 
 bool HelloWorld::Init()

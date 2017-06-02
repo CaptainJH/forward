@@ -3,7 +3,7 @@
 #include "ApplicationDX12.h"
 //#include "Pipeline\PipelineManagerDX11.h"
 
-//#include "ResourceSystem\Texture\SwapChainConfigDX11.h"
+#include "dxCommon/SwapChainConfig.h"
 //#include "ResourceSystem\Texture\Texture2dConfigDX11.h"
 
 //--------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ LRESULT ApplicationDX12::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lPara
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (/*m_pRender && m_pRender->GetDevice()*/false)
+		if (m_pRender && m_pRender->GetDevice())
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -347,15 +347,18 @@ bool ApplicationDX12::ConfigureRendererComponents()
 
 	}
 
-	//// Create a swap chain for the window that we started out with.  This
-	//// demonstrates using a configuration object for fast and concise object
-	//// creation.
+	m_pRender->CreateCommandObjects();
+	m_pRender->CreateRtvAndDsvDescriptorHeaps();
 
-	//SwapChainConfigDX11 Config;
-	//Config.SetWidth(mClientWidth);
-	//Config.SetHeight(mClientHeight);
-	//Config.SetOutputWindow(MainWnd());
-	//auto swapChainId = m_pRender->CreateSwapChain(&Config);
+	// Create a swap chain for the window that we started out with.  This
+	// demonstrates using a configuration object for fast and concise object
+	// creation.
+
+	SwapChainConfig Config(m_pRender);
+	Config.SetWidth(mClientWidth);
+	Config.SetHeight(mClientHeight);
+	Config.SetOutputWindow(MainWnd());
+	/*auto swapChainId = */m_pRender->CreateSwapChain(&Config);
 
 	//// We'll keep a copy of the render target index to use in later examples.
 

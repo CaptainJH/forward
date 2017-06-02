@@ -8,6 +8,11 @@
 #include "dxCommon/DXGIAdapter.h"
 #include "dxCommon/DXGIOutput.h"
 
+#include "dxCommon/SwapChainConfig.h"
+#include "dxCommon/SwapChain.h"
+
+#include "d3dx12.h"
+
 using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------
@@ -94,8 +99,7 @@ bool RendererDX12::Initialize(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Feat
 
 	// Create a factory to enumerate all of the hardware in the system.
 
-	ComPtr<IDXGIFactory1> pFactory;
-	hr = CreateDXGIFactory1(__uuidof(IDXGIFactory), reinterpret_cast<void**>(pFactory.GetAddressOf()));
+	hr = CreateDXGIFactory1(IID_PPV_ARGS(&m_Factory));
 
 	// Enumerate all of the adapters in the current system.  This includes all
 	// adapters, even the ones that don't support the ID3D11Device interface.
@@ -103,7 +107,7 @@ bool RendererDX12::Initialize(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Feat
 	ComPtr<IDXGIAdapter1> pCurrentAdapter;
 	std::vector<DXGIAdapter> vAdapters;
 
-	while (pFactory->EnumAdapters1(static_cast<u32>(vAdapters.size()), pCurrentAdapter.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
+	while (m_Factory->EnumAdapters1(static_cast<u32>(vAdapters.size()), pCurrentAdapter.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
 	{
 		vAdapters.push_back(pCurrentAdapter);
 
@@ -195,6 +199,56 @@ void RendererDX12::Present(HWND /*hWnd*/, i32 /*SwapChain*/, u32 /*SyncInterval*
 	//{
 	//	Log::Get().Write(L"Tried to present an invalid swap chain index!");
 	//}
+
+
+	//==============================================================
+	// Reuse the memory associated with command recording.
+	// We can only reset when the associated command lists have finished execution on the GPU.
+	HR(m_DirectCmdListAlloc->Reset());
+
+	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+	// Reusing the command list reuses memory.
+	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
+
+	// Indicate a state transition on the resource usage.
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_CommandList->ResourceBarrier(1, &barrier);
+
+	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
+	m_CommandList->RSSetViewports(1, &mScreenViewport);
+	m_CommandList->RSSetScissorRects(1, &mScissorRect);
+
+	// Clear the back buffer and depth buffer.
+	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
+	m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
+	m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView();
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView();
+	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+
+	// Indicate a state transition on the resource usage.
+	barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	m_CommandList->ResourceBarrier(1, &barrier);
+
+	// Done recording commands.
+	HR(m_CommandList->Close());
+
+	// Add the command list to the queue for execution.
+	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
+	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// swap the back and front buffers
+	HR(m_SwapChain->Present(0, 0));
+	m_currentBackBuffer = (m_currentBackBuffer + 1) % SwapChainBufferCount;
+
+	// Wait until frame commands are complete.  This waiting is inefficient and is
+	// done for simplicity.  Later we will show how to organize our rendering code
+	// so we do not have to wait per frame.
+	FlushCommandQueue();
 }
 //--------------------------------------------------------------------------------
 ID3D12Device* RendererDX12::GetDevice()
@@ -218,3 +272,210 @@ i32	RendererDX12::GetUnusedResourceIndex()
 	// Return either an empty location, or -1 if none exist.
 	return(index);
 }
+//--------------------------------------------------------------------------------
+i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
+{
+	const auto Width = pConfig->GetSwapChainDesc().BufferDesc.Width;
+	const auto Height = pConfig->GetSwapChainDesc().BufferDesc.Height;
+
+	// Attempt to create the swap chain.
+	HR(m_Factory->CreateSwapChain(m_CommandQueue.Get(), &pConfig->GetSwapChainDesc(), m_SwapChain.GetAddressOf()));
+
+	m_currentBackBuffer = 0;
+
+	// Acquire the texture interface from the swap chain.
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (UINT i = 0; i < SwapChainBufferCount; i++)
+	{
+		HR(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
+		m_pDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+		rtvHeapHandle.Offset(1, m_RtvDescriptorSize);
+	}
+
+
+	// Create the depth/stencil buffer and view.
+	D3D12_RESOURCE_DESC depthStencilDesc;
+	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Alignment = 0;
+	depthStencilDesc.Width = Width;
+	depthStencilDesc.Height = Height;
+	depthStencilDesc.DepthOrArraySize = 1;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = pConfig->GetSwapChainDesc().SampleDesc.Count;
+	depthStencilDesc.SampleDesc.Quality = pConfig->GetSwapChainDesc().SampleDesc.Quality;
+	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE optClear;
+	optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+
+	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
+	HR(m_pDevice->CreateCommittedResource(
+		&properties,
+		D3D12_HEAP_FLAG_NONE,
+		&depthStencilDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&optClear,
+		IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())
+	));
+
+	// Create descriptor to mip level 0 of entire resource using the format of the resource.
+	m_pDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, DepthStencilView());
+
+	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
+
+	// Transition the resource from its initial state to be used as a depth buffer.
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	m_CommandList->ResourceBarrier(1, &barrier);
+
+
+	HR(m_CommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
+	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// Wait until resize is complete.
+	FlushCommandQueue();
+
+	// Update the viewport transform to cover the client area.
+	mScreenViewport.TopLeftX = 0;
+	mScreenViewport.TopLeftY = 0;
+	mScreenViewport.Width = static_cast<float>(Width);
+	mScreenViewport.Height = static_cast<float>(Height);
+	mScreenViewport.MinDepth = 0.0f;
+	mScreenViewport.MaxDepth = 1.0f;
+
+	mScissorRect = { 0, 0, static_cast<LONG>(Width), static_cast<LONG>(Height) };
+
+	//// Add the swap chain's back buffer texture and render target views to the internal data
+	//// structures to allow setting them later on.
+
+	//i32 ResourceID = StoreNewResource(new Texture2dDX11(pSwapChainBuffer));
+
+
+	//// If we get here, then we succeeded in creating our swap chain and it's constituent parts.
+	//// Now we create the wrapper object and store the result in our container.
+
+	//Texture2dConfigDX11 TextureConfig;
+	//pSwapChainBuffer->GetDesc(&TextureConfig.m_State);
+
+	//ResourcePtr Proxy(new ResourceProxyDX11(ResourceID, &TextureConfig, this));
+	// With the resource proxy created, create the swap chain wrapper and store it.
+	// The resource proxy can then be used later on by the application to get the
+	// RTV or texture ID if needed.
+
+	//m_vSwapChains.push_back(new SwapChain(pSwapChain, Proxy));
+
+	//return (i32)(m_vSwapChains.size() - 1);
+	return 0;
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::CreateCommandObjects()
+{
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	HR(m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.GetAddressOf())));
+
+	HR(m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+		IID_PPV_ARGS(m_DirectCmdListAlloc.GetAddressOf())));
+
+	HR(m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+		m_DirectCmdListAlloc.Get(),
+		nullptr,
+		IID_PPV_ARGS(m_CommandList.GetAddressOf())));
+
+	// Start off in a closed state.  This is because the first time we refer 
+	// to the command list we will Reset it, and it needs to be closed before
+	// calling Reset.
+	HR(m_CommandList->Close());
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::CreateRtvAndDsvDescriptorHeaps()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+	rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	rtvHeapDesc.NodeMask = 0;
+
+	auto hr = m_pDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(m_RtvHeap.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		Log::Get().Write(L"Create descriptor heap(RTV) failed!");
+	}
+
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	dsvHeapDesc.NodeMask = 0;
+
+	hr = m_pDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_DsvHeap.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		Log::Get().Write(L"Create descriptor heap(DSV) failed!");
+	}
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::FlushCommandQueue()
+{
+	// Advance the fence value to mark commands up to this fence point.
+	++m_CurrentFence;
+
+	// Add an instruction to the command queue to set a new fence point.  Because we 
+	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
+	// processing all the commands prior to this Signal().
+	HR(m_CommandQueue->Signal(m_pFence.Get(), m_CurrentFence));
+
+	// Wait until the GPU has completed commands up to this fence point.
+	if (m_pFence->GetCompletedValue() < m_CurrentFence)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+
+		// Fire event when GPU hits current fence.  
+		HR(m_pFence->SetEventOnCompletion(m_CurrentFence, eventHandle));
+
+		// Wait until the GPU hits current fence event is fired.
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::OnResize()
+{
+	FlushCommandQueue();
+
+	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
+
+	// Release the previous resources we will be recreating.
+	for (i32 i = 0; i < SwapChainBufferCount; ++i)
+	{
+		mSwapChainBuffer[i].Reset();
+	}
+	mDepthStencilBuffer.Reset();
+
+}
+//--------------------------------------------------------------------------------
+ID3D12Resource* RendererDX12::CurrentBackBuffer() const
+{
+	return mSwapChainBuffer[m_currentBackBuffer].Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView() const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		m_RtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		m_currentBackBuffer,
+		m_RtvDescriptorSize);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView() const
+{
+	return m_DsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+//--------------------------------------------------------------------------------

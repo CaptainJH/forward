@@ -351,7 +351,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	// demonstrates using a configuration object for fast and concise object
 	// creation.
 
-	SwapChainConfig Config;
+	SwapChainConfig Config(m_pRender);
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());

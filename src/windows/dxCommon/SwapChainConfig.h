@@ -10,13 +10,13 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
+	class Renderer;
+
 	class SwapChainConfig
 	{
 	public:
-		SwapChainConfig();
+		SwapChainConfig(const Renderer* pRender);
 		virtual ~SwapChainConfig();
-
-		void SetDefaults();
 
 		void SetWidth( u32 width );
 		void SetHeight( u32 height );
@@ -37,6 +37,10 @@ namespace forward
 		void SetFlags( u32 Flags );
 
 		DXGI_SWAP_CHAIN_DESC& GetSwapChainDesc();
+
+	private:
+		void SetDefaultsDX11();
+		void SetDefaultsDX12();
 
 	protected:
 		DXGI_SWAP_CHAIN_DESC 		m_State;

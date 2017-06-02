@@ -14,10 +14,18 @@
 
 #include "render.h"
 
+#include <dxgi1_4.h>
+
 namespace forward
 {
+	class SwapChainConfig;
+	class SwapChain;
+
+
     class RendererDX12 : public Renderer
     {
+		static const u32 SwapChainBufferCount = 2;
+
     public:
         RendererDX12();
         virtual ~RendererDX12();
@@ -51,9 +59,24 @@ namespace forward
 
 		void Present( HWND hWnd = 0, i32 SwapChain = -1, u32 SyncInterval = 0, u32 PresentFlags = 0 );
 
-		// Allow the application to create swap chains
+		i32 CreateSwapChain( SwapChainConfig* pConfig );
 
-		//i32 CreateSwapChain( SwapChainConfigDX11* pConfig );
+		void CreateCommandObjects();
+		void CreateRtvAndDsvDescriptorHeaps();
+
+		void FlushCommandQueue();
+		void OnResize();
+
+		//--------------------------------------------------------
+		ID3D12Resource* CurrentBackBuffer() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
+		i32 m_currentBackBuffer = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
+		Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
+		D3D12_VIEWPORT	mScreenViewport;
+		D3D12_RECT		mScissorRect;
+		//--------------------------------------------------------
 
 
         // Each programmable shader stage can be loaded from file, and stored in a list for
@@ -74,7 +97,23 @@ namespace forward
 		Microsoft::WRL::ComPtr<ID3D12Debug>		m_pDebugger = nullptr;
 		D3D_DRIVER_TYPE							m_driverType = D3D_DRIVER_TYPE_NULL;
 
-		FenceComPtr								m_pFence = nullptr;
+		// In general, all resources and API objects are housed in expandable arrays
+		// wrapper objects.  The position within the array is used to provide fast
+		// random access to the renderer clients.
+
+		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
+
+		Microsoft::WRL::ComPtr<IDXGIFactory4> m_Factory;
+
+		CommandQueueComPtr					m_CommandQueue;
+		CommandAllocatorComPtr				m_DirectCmdListAlloc;
+		CommandListComPtr					m_CommandList;
+
+		DescriptorHeapComPtr				m_RtvHeap;
+		DescriptorHeapComPtr				m_DsvHeap;
+
+		FenceComPtr							m_pFence = nullptr;
+		u32		m_CurrentFence = 0;
 
 		u32 m_RtvDescriptorSize			= 0;
 		u32 m_DsvDescriptorSize			= 0;

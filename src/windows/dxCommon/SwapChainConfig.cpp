@@ -1,18 +1,22 @@
 //--------------------------------------------------------------------------------
 #include "SwapChainConfig.h"
+#include "render/render.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChainConfig::SwapChainConfig()
+SwapChainConfig::SwapChainConfig(const Renderer* pRender)
 {
-	SetDefaults();
+	if (pRender->GetRendererAPI() == RendererAPI::DirectX11)
+		SetDefaultsDX11();
+	else if (pRender->GetRendererAPI() == RendererAPI::DirectX12)
+		SetDefaultsDX12();
 }
 //--------------------------------------------------------------------------------
 SwapChainConfig::~SwapChainConfig()
 {
 }
 //--------------------------------------------------------------------------------
-void SwapChainConfig::SetDefaults()
+void SwapChainConfig::SetDefaultsDX11()
 {
 	// Set the state to the default configuration.  These are the D3D11 default
 	// values as well.
@@ -40,6 +44,31 @@ void SwapChainConfig::SetDefaults()
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ee417025%28v=vs.85%29.aspx
 
 	m_State.Flags = 0; 
+}
+//--------------------------------------------------------------------------------
+void SwapChainConfig::SetDefaultsDX12()
+{
+	// Set the state to the default configuration.  These are the D3D11 default
+	// values as well.
+
+	m_State.BufferDesc.Width = 1;
+	m_State.BufferDesc.Height = 1;
+	m_State.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_State.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	m_State.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	m_State.BufferDesc.RefreshRate.Numerator = 60;
+	m_State.BufferDesc.RefreshRate.Denominator = 1;
+
+	m_State.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	m_State.SampleDesc.Count = 1;
+	m_State.SampleDesc.Quality = 0;
+
+	m_State.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	m_State.BufferCount = 2;
+	m_State.OutputWindow = 0;
+	m_State.Windowed = true;
+	m_State.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 }
 //--------------------------------------------------------------------------------
 void SwapChainConfig::SetWidth( u32 width )
