@@ -15,12 +15,13 @@
 #ifndef DomainShaderDX11_h
 #define DomainShaderDX11_h
 //--------------------------------------------------------------------------------
-#include "ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
+#include "dx11/dx11Util.h"
 //#include "PipelineManagerDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class DomainShaderDX11 : public ShaderDX11
+	class DomainShaderDX11 : public ShaderDX
 	{
 	public:
 		DomainShaderDX11( ID3D11DomainShader* pShader );

@@ -32,7 +32,7 @@ ShaderType GeometryStageDX11::GetType()
 void GeometryStageDX11::BindShaderProgram( ID3D11DeviceContext* pContext )
 {
 	RendererDX11* pRenderer = RendererDX11::Get();
-	ShaderDX11* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
+	ShaderDX* pShaderDX11 = pRenderer->GetShader( DesiredState.ShaderProgram.GetState() );
 
 	ID3D11GeometryShader* pShader = 0;
 	

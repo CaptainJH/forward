@@ -23,7 +23,8 @@
 #define ShaderDX11_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "dx11/dx11Util.h"
+#include "dxCommon/d3dUtil.h"
+#include <d3dCompiler.h>
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -48,11 +49,11 @@ namespace forward
 		COMPUTE_SHADER_MSK = 0x0020
 	};
 
-	class ShaderDX11
+	class ShaderDX
 	{
 	public:
-		ShaderDX11();
-		virtual ~ShaderDX11();
+		ShaderDX();
+		virtual ~ShaderDX();
 
 		virtual ShaderType GetType() = 0;
 		

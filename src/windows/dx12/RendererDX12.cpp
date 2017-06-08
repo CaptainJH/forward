@@ -324,7 +324,12 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	));
 
 	// Create descriptor to mip level 0 of entire resource using the format of the resource.
-	m_pDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, DepthStencilView());
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.Texture2D.MipSlice = 0;
+	m_pDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
 
 	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
@@ -479,3 +484,62 @@ D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView() const
 	return m_DsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 //--------------------------------------------------------------------------------
+void RendererDX12::BeginPresent(ID3D12PipelineState* pso)
+{
+	//==============================================================
+	// Reuse the memory associated with command recording.
+	// We can only reset when the associated command lists have finished execution on the GPU.
+	HR(m_DirectCmdListAlloc->Reset());
+
+	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+	// Reusing the command list reuses memory.
+	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), pso));
+
+	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
+	m_CommandList->RSSetViewports(1, &mScreenViewport);
+	m_CommandList->RSSetScissorRects(1, &mScissorRect);
+
+	// Indicate a state transition on the resource usage.
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_CommandList->ResourceBarrier(1, &barrier);
+
+	// Clear the back buffer and depth buffer.
+	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
+	m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
+	m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView();
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView();
+	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::EndPresent()
+{
+	// Indicate a state transition on the resource usage.
+	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	m_CommandList->ResourceBarrier(1, &barrier);
+
+	// Done recording commands.
+	HR(m_CommandList->Close());
+
+	// Add the command list to the queue for execution.
+	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
+	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// swap the back and front buffers
+	HR(m_SwapChain->Present(0, 0));
+	m_currentBackBuffer = (m_currentBackBuffer + 1) % SwapChainBufferCount;
+
+	// Wait until frame commands are complete.  This waiting is inefficient and is
+	// done for simplicity.  Later we will show how to organize our rendering code
+	// so we do not have to wait per frame.
+	FlushCommandQueue();
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::ResetCommandList()
+{
+	m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr);
+}

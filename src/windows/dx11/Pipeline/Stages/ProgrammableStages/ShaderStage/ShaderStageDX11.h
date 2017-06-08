@@ -15,7 +15,7 @@
 #ifndef ShaderStageDX11_h
 #define ShaderStageDX11_h
 //--------------------------------------------------------------------------------
-#include "dx11/Pipeline/Stages/ProgrammableStages/ShaderProgram/ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
 #include "dx11/Pipeline/Stages/ProgrammableStages/ShaderState/ShaderStageStateDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward

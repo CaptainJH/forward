@@ -15,12 +15,13 @@
 #ifndef GeometryShaderDX11_h
 #define GeometryShaderDX11_h
 //--------------------------------------------------------------------------------
-#include "ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
+#include "dx11/dx11Util.h"
 //#include "PipelineManagerDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class GeometryShaderDX11 : public ShaderDX11
+	class GeometryShaderDX11 : public ShaderDX
 	{
 	public:
 		GeometryShaderDX11( ID3D11GeometryShader* pShader );

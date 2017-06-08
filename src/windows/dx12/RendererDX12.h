@@ -67,6 +67,9 @@ namespace forward
 		void FlushCommandQueue();
 		void OnResize();
 
+		void BeginPresent(ID3D12PipelineState* pso);
+		void EndPresent();
+
 		//--------------------------------------------------------
 		ID3D12Resource* CurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
@@ -90,6 +93,10 @@ namespace forward
   //          const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 
         ID3D12Device* GetDevice();
+
+		ID3D12GraphicsCommandList* CommandList() { return m_CommandList.Get(); }
+		ID3D12CommandQueue* CommandQueue() { return m_CommandQueue.Get(); }
+		void ResetCommandList();
 
     protected:
     	// The main API interfaces used in the renderer.

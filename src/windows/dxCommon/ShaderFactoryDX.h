@@ -16,20 +16,20 @@
 #define ShaderFactoryDX11_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ShaderDX11.h"
+#include "ShaderDX.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class ShaderFactoryDX11
+	class ShaderFactoryDX
 	{
 	public:
-		~ShaderFactoryDX11();
+		~ShaderFactoryDX();
 
 		static ID3DBlob* GenerateShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
-            const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
+            const std::wstring& model, const D3D_SHADER_MACRO* pDefines = nullptr, bool enablelogging = true );
 
 	private:
-		ShaderFactoryDX11();
+		ShaderFactoryDX();
 	};
 
 };

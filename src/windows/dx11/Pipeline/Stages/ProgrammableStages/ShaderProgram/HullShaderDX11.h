@@ -15,12 +15,13 @@
 #ifndef HullShaderDX11_h
 #define HullShaderDX11_h
 //--------------------------------------------------------------------------------
-#include "ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
+#include "dx11/dx11Util.h"
 //#include "PipelineManagerDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class HullShaderDX11 : public ShaderDX11
+	class HullShaderDX11 : public ShaderDX
 	{
 	public:
 		HullShaderDX11( ID3D11HullShader* pShader );

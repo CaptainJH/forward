@@ -15,12 +15,13 @@
 #ifndef PixelShaderDX11_h
 #define PixelShaderDX11_h
 //--------------------------------------------------------------------------------
-#include "ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
+#include "dx11/dx11Util.h"
 //#include "PipelineManagerDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class PixelShaderDX11 : public ShaderDX11
+	class PixelShaderDX11 : public ShaderDX
 	{
 	public:
 		PixelShaderDX11( ID3D11PixelShader* pShader );

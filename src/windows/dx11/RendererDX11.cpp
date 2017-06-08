@@ -39,7 +39,7 @@
 #include "Pipeline/Stages/ProgrammableStages/ShaderProgram/GeometryShaderDX11.h"
 #include "Pipeline/Stages/ProgrammableStages/ShaderProgram/PixelShaderDX11.h"
 #include "Pipeline/Stages/ProgrammableStages/ShaderProgram/ComputeShaderDX11.h"
-#include "Pipeline/Stages/ProgrammableStages/ShaderProgram/ShaderFactoryDX11.h"
+#include "dxCommon/ShaderFactoryDX.h"
 //#include "ShaderReflectionDX11.h"
 //#include "ShaderReflectionFactoryDX11.h"
 
@@ -363,7 +363,7 @@ bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 void RendererDX11::Shutdown()
 {
 	// Print some details about the renderer's status at shutdown.
-	LogObjectPtrVector<ShaderDX11*>( m_vShaders );
+	LogObjectPtrVector<ShaderDX*>( m_vShaders );
 
 	SAFE_DELETE( pImmPipeline );
 
@@ -1032,7 +1032,7 @@ i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, con
 	
 	for ( u32 i = 0; i < m_vShaders.size(); i++ )
 	{
-		ShaderDX11* pShader = m_vShaders[i];
+		ShaderDX* pShader = m_vShaders[i];
 
 		if ( pShader->FileName.compare( filename ) == 0
 			&& pShader->Function.compare( function ) == 0
@@ -1047,7 +1047,7 @@ i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, con
 
 	ID3DBlob* pCompiledShader = NULL;
 
-	pCompiledShader = ShaderFactoryDX11::GenerateShader( type, filename, function, model, pDefines, enablelogging );
+	pCompiledShader = ShaderFactoryDX::GenerateShader( type, filename, function, model, pDefines, enablelogging );
 	//pCompiledShader = ShaderFactoryDX11::GeneratePrecompiledShader( filename, function, model );
 
 	if ( pCompiledShader == nullptr ) {
@@ -1056,7 +1056,7 @@ i32 RendererDX11::LoadShader( ShaderType type, const std::wstring& filename, con
 
 	// Create the shader wrapper to house all of the information about its interface.
 
-	ShaderDX11* pShaderWrapper = 0;
+	ShaderDX* pShaderWrapper = 0;
 
 	switch( type )
 	{
@@ -1472,7 +1472,7 @@ SamplerStateComPtr RendererDX11::GetSamplerState( i32 index )
 	return( m_vSamplerStates[index] );
 }
 //--------------------------------------------------------------------------------
-ShaderDX11* RendererDX11::GetShader( i32 ID )
+ShaderDX* RendererDX11::GetShader( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 

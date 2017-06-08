@@ -10,9 +10,8 @@
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4239 )
 //--------------------------------------------------------------------------------
-#include <d3dCompiler.h>
 #include "PCH.h"
-#include "ShaderFactoryDX11.h"
+#include "ShaderFactoryDX.h"
 #include "Log.h"
 #include "dxCommon/d3dUtil.h"
 #include "FileSystem.h"
@@ -20,15 +19,15 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ShaderFactoryDX11::ShaderFactoryDX11( )
+ShaderFactoryDX::ShaderFactoryDX( )
 {
 }
 //--------------------------------------------------------------------------------
-ShaderFactoryDX11::~ShaderFactoryDX11()
+ShaderFactoryDX::~ShaderFactoryDX()
 {
 }
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX11::GenerateShader( ShaderType /*type*/, const std::wstring& filename, const std::wstring& function,
+ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstring& filename, const std::wstring& function,
             const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 	HRESULT hr = S_OK;

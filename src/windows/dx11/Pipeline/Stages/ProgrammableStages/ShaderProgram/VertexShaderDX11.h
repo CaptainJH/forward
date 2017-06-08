@@ -15,12 +15,13 @@
 #ifndef VertexShaderDX11_h
 #define VertexShaderDX11_h
 //--------------------------------------------------------------------------------
-#include "ShaderDX11.h"
+#include "dxCommon/ShaderDX.h"
+#include "dx11/dx11Util.h"
 //#include "PipelineManagerDX11.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class VertexShaderDX11 : public ShaderDX11
+	class VertexShaderDX11 : public ShaderDX
 	{
 	public:
 		VertexShaderDX11( ID3D11VertexShader* pShader );

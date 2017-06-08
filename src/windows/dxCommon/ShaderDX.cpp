@@ -10,11 +10,11 @@
 
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "ShaderDX11.h"
+#include "ShaderDX.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ShaderDX11::ShaderDX11() :
+ShaderDX::ShaderDX() :
 	FileName(),
 	Function(),
 	ShaderModel(),
@@ -23,7 +23,7 @@ ShaderDX11::ShaderDX11() :
 {
 }
 //--------------------------------------------------------------------------------
-ShaderDX11::~ShaderDX11()
+ShaderDX::~ShaderDX()
 {
 	SAFE_RELEASE( m_pCompiledShader );
 	//SAFE_DELETE( m_pReflection );
@@ -39,7 +39,7 @@ ShaderDX11::~ShaderDX11()
 //	return( m_pReflection );
 //}
 //--------------------------------------------------------------------------------
-std::wstring ShaderDX11::ToString()
+std::wstring ShaderDX::ToString()
 {
 	std::wstringstream s;
 

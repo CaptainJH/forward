@@ -14,7 +14,7 @@
 
 #include "ResourceSystem\ResourceProxyDX11.h"
 #include "Pipeline\PipelineManagerDX11.h"
-#include "Pipeline\Stages\ProgrammableStages\ShaderProgram\ShaderDX11.h"
+#include "dxCommon\ShaderDX.h"
 #include "render.h"
 #include "dx11Util.h"
 //--------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ namespace forward
 		InputLayoutComPtr								GetInputLayout( i32 index );
 		SamplerStateComPtr								GetSamplerState( i32 index );
 
-		ShaderDX11*										GetShader( i32 index );
+		ShaderDX*										GetShader( i32 index );
 
 		// This method is here for allowing easy integration with other libraries
 		// which require access to the device.  Do not use this interface to create 
@@ -218,7 +218,7 @@ namespace forward
 
 		// The shader programs are stored in an expandable array of their base classes.
 
-		std::vector<ShaderDX11*>				m_vShaders;
+		std::vector<ShaderDX*>				m_vShaders;
 		
 		// These states are stored as shared pointers to the object.  This is the direction
 		// that the renderer is heading in - eventually references to the objects will be
