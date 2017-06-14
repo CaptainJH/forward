@@ -5,6 +5,8 @@
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
+#pragma warning(disable : 4238)
+
 using namespace forward;
 
 //--------------------------------------------------------------------------------
@@ -15,16 +17,21 @@ struct Vertex
 	Vector4f Color;
 };
 
-class HelloDX12 : public ApplicationDX12
+struct ObjectConstants
+{
+	Matrix4f WorldViewProj = Matrix4f::Identity();
+};
+
+class BasicGeometryDX12 : public ApplicationDX12
 {
 public:
-	HelloDX12(HINSTANCE hInstance, i32 width, i32 height)
+	BasicGeometryDX12(HINSTANCE hInstance, i32 width, i32 height)
 		: ApplicationDX12(hInstance, width, height)
 	{
-		mMainWndCaption = L"Hello DirectX12!";
+		mMainWndCaption = L"BasicGeometryDX12!";
 	}
 
-	~HelloDX12()
+	~BasicGeometryDX12()
 	{
 		Log::Get().Close();
 	}
@@ -39,13 +46,17 @@ protected:
 private:
 	void BuildShadersAndInputLayout();
 	void BuildGeometry();
+	void SetupPipeline();
 
 	void BuildDescriptorHeaps();
+	void BuildConstantBuffers();
 	void BuildRootSignature();
 	void BuildPSO();
 
 	RootSignatureComPtr m_rootSignature = nullptr;
 	DescriptorHeapComPtr m_cbvHeap = nullptr;
+
+	std::unique_ptr<UploadBuffer<ObjectConstants> > m_objectCB = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> m_vsByteCode = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> m_psByteCode = nullptr;
@@ -54,6 +65,10 @@ private:
 	PipelineStateComPtr m_pso = nullptr;
 
 	std::unique_ptr<MeshGeometry> m_geometry = nullptr;
+
+	Matrix4f m_worldMat;
+	Matrix4f m_viewMat;
+	Matrix4f m_projMat;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -64,7 +79,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	HelloDX12 theApp(hInstance, 800, 600);
+	BasicGeometryDX12 theApp(hInstance, 800, 600);
 
 	if (!theApp.Init())
 		return 0;
@@ -72,12 +87,19 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	return theApp.Run();
 }
 
-void HelloDX12::UpdateScene(f32 /*dt*/)
+void BasicGeometryDX12::UpdateScene(f32 /*dt*/)
 {
+	auto frames = (f32)mTimer.FrameCount() / 1000;
+	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
 }
 
-void HelloDX12::DrawScene()
+void BasicGeometryDX12::DrawScene()
 {
+	auto mat = m_worldMat * m_viewMat * m_projMat;
+	ObjectConstants constants;
+	constants.WorldViewProj = mat;
+	m_objectCB->CopyData(0, constants);
+
 	m_pRender->BeginPresent(m_pso.Get());
 
 	auto commandList = m_pRender->CommandList();
@@ -87,25 +109,39 @@ void HelloDX12::DrawScene()
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	auto vbv = m_geometry->VertexBufferView();
+	auto ibv = m_geometry->IndexBufferView();
 	commandList->IASetVertexBuffers(0, 1, &vbv);
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	commandList->IASetIndexBuffer(&ibv);
+	commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	commandList->DrawInstanced(4, 1, 0, 0);
+	commandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
 	m_pRender->EndPresent();
 }
 
-bool HelloDX12::Init()
+bool BasicGeometryDX12::Init()
 {
 	Log::Get().Open();
 	if (!ApplicationDX12::Init())
 		return false;
 
+	// init world matrix
+	m_worldMat = Matrix4f::Identity();
+	// build view matrix
+	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
+	Vector3f target; target.MakeZero();
+	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+	m_viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
+	//build projection matrix
+	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+
+
 	m_pRender->ResetCommandList();
 
 	BuildDescriptorHeaps();
+	BuildConstantBuffers();
 	BuildRootSignature();
 	BuildShadersAndInputLayout();
 	BuildGeometry();
@@ -122,11 +158,11 @@ bool HelloDX12::Init()
 	return true;
 }
 
-void HelloDX12::BuildShadersAndInputLayout()
+void BasicGeometryDX12::BuildShadersAndInputLayout()
 {
 	const std::wstring shaderfile = L"BasicShader.hlsl";
-	const std::wstring VSMain = L"VSMainQuad";
-	const std::wstring PSMain = L"PSMainQuad";
+	const std::wstring VSMain = L"VSMain";
+	const std::wstring PSMain = L"PSMain";
 
 	m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderfile, VSMain, std::wstring(L"vs_5_0"));
 	m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderfile, PSMain, std::wstring(L"ps_5_0"));
@@ -138,37 +174,71 @@ void HelloDX12::BuildShadersAndInputLayout()
 	};
 }
 
-void HelloDX12::OnResize()
+void BasicGeometryDX12::OnResize()
 {
 	ApplicationDX12::OnResize();
+	SetupPipeline();
 }
 
-void HelloDX12::BuildGeometry()
+void BasicGeometryDX12::BuildGeometry()
 {
-	// create the vertex buffer resource (this is usually done by GeometryDX11)
+	// create the vertex buffer resource 
 	{
 		/////////////
-		///build quad
+		///build box
 		/////////////
-		Vertex quadVertices[] =
+		Vertex boxVertices[] =
 		{
-			{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
-			{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
-			{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
-			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
+			{ Vector3f(-1.0f, -1.0f, -1.0f), Colors::White },
+			{ Vector3f(-1.0f, +1.0f, -1.0f), Colors::Black },
+			{ Vector3f(+1.0f, +1.0f, -1.0f), Colors::Red },
+			{ Vector3f(+1.0f, -1.0f, -1.0f), Colors::Green },
+			{ Vector3f(-1.0f, -1.0f, +1.0f), Colors::Blue },
+			{ Vector3f(-1.0f, +1.0f, +1.0f), Colors::Yellow },
+			{ Vector3f(+1.0f, +1.0f, +1.0f), Colors::Cyan },
+			{ Vector3f(+1.0f, -1.0f, +1.0f), Colors::Magenta}
 		};
 
-		const u32 vbByteSize = 4 * sizeof(Vertex);
+		u16 indices[] = 
+		{
+			0, 1, 2,
+			0, 2, 3,
+				   
+			4, 6, 5,
+			4, 7, 6,
+				   
+			4, 5, 1,
+			4, 1, 0,
+				   
+			3, 2, 6,
+			3, 6, 7,
+				   
+			1, 5, 6,
+			1, 6, 2,
+				   
+			4, 0, 3,
+			4, 3, 7,
+		};
+
+		const u32 vbByteSize = _countof(boxVertices) * sizeof(Vertex);
+		const u32 ibByteSize = _countof(indices) * sizeof(u16);
 		m_geometry = std::make_unique<MeshGeometry>();
-		m_geometry->Name = "screen";
+		m_geometry->Name = "box";
 
 		HR(D3DCreateBlob(vbByteSize, &m_geometry->VertexBufferCPU));
-		CopyMemory(m_geometry->VertexBufferCPU->GetBufferPointer(), quadVertices, vbByteSize);
+		CopyMemory(m_geometry->VertexBufferCPU->GetBufferPointer(), boxVertices, vbByteSize);
+		HR(D3DCreateBlob(ibByteSize, &m_geometry->IndexBufferCPU));
+		CopyMemory(m_geometry->IndexBufferCPU->GetBufferPointer(), indices, ibByteSize);
+
 		m_geometry->VertexBufferGPU = CreateDefaultBuffer(m_pRender->GetDevice(),
-			m_pRender->CommandList(), quadVertices, vbByteSize, m_geometry->VertexBufferUploader);
+			m_pRender->CommandList(), boxVertices, vbByteSize, m_geometry->VertexBufferUploader);
+		m_geometry->IndexBufferGPU = CreateDefaultBuffer(m_pRender->GetDevice(),
+			m_pRender->CommandList(), indices, ibByteSize, m_geometry->IndexBufferUploader);
 
 		m_geometry->VertexByteStride = sizeof(Vertex);
 		m_geometry->VertexBufferByteSize = vbByteSize;
+		m_geometry->IndexFormat = DXGI_FORMAT_R16_UINT;
+		m_geometry->IndexBufferByteSize = ibByteSize;
 		
 		SubmeshGeometry submesh;
 		submesh.IndexCount = 0;
@@ -179,7 +249,27 @@ void HelloDX12::BuildGeometry()
 	}
 }
 
-void HelloDX12::BuildDescriptorHeaps()
+void BasicGeometryDX12::SetupPipeline()
+{
+	//InputAssemblerStateDX11 iaState;
+	//iaState.PrimitiveTopology.SetState(PT_TRIANGLESTRIP);
+	//iaState.InputLayout.SetState(m_VertexLayout);
+	//iaState.VertexBuffers.SetState(0, m_pVertexBuffer->m_iResource);
+	//iaState.VertexBufferStrides.SetState(0, sizeof(Vertex));
+	//iaState.VertexBufferOffsets.SetState(0, 0);
+	//iaState.SetFeautureLevel(m_pRender->GetAvailableFeatureLevel(D3D_DRIVER_TYPE_UNKNOWN));
+	//m_pRender->pImmPipeline->InputAssemblerStage.DesiredState = iaState;
+
+	//ShaderStageStateDX11 vsState;
+	//vsState.ShaderProgram.SetState(m_vsID);
+	//m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
+
+	//ShaderStageStateDX11 psState;
+	//psState.ShaderProgram.SetState(m_psID);
+	//m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
+}
+
+void BasicGeometryDX12::BuildDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
 	cbvHeapDesc.NumDescriptors = 1;
@@ -189,7 +279,26 @@ void HelloDX12::BuildDescriptorHeaps()
 	HR(m_pRender->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
 }
 
-void HelloDX12::BuildRootSignature()
+void BasicGeometryDX12::BuildConstantBuffers()
+{
+	m_objectCB = std::make_unique<UploadBuffer<ObjectConstants> >(m_pRender->GetDevice(), 1, true);
+
+	u32 objCBByteSize = CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_objectCB->Resource()->GetGPUVirtualAddress();
+	// Offset to the ith object constant buffer in the buffer.
+	i32 boxCBufIndex = 0;
+	cbAddress += boxCBufIndex * objCBByteSize;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+	cbvDesc.BufferLocation = cbAddress;
+	cbvDesc.SizeInBytes = objCBByteSize;
+
+	m_pRender->GetDevice()->CreateConstantBufferView(&cbvDesc,
+		m_cbvHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void BasicGeometryDX12::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER slotRootParameter[1];
 
@@ -219,7 +328,7 @@ void HelloDX12::BuildRootSignature()
 		IID_PPV_ARGS(&m_rootSignature)));
 }
 
-void HelloDX12::BuildPSO()
+void BasicGeometryDX12::BuildPSO()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));

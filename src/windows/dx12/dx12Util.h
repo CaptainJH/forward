@@ -5,6 +5,7 @@
 
 #include <d3d12.h>
 #include <wrl.h>
+#include "dx12/d3dx12.h"
 #include "dxCommon/d3dUtil.h"
 #include <unordered_map>
 
@@ -39,6 +40,13 @@ namespace forward
 	D3D12_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
 
 	u32 CalcConstantBufferByteSize(u32 byteSize);
+
+	ResourceComPtr CreateDefaultBuffer(
+		ID3D12Device* device,
+		ID3D12GraphicsCommandList* cmdList,
+		const void* initData,
+		UINT64 byteSize,
+		ResourceComPtr& uploadBuffer);
 
 	// Defines a subrange of geometry in a MeshGeometry.  This is for when multiple
 	// geometries are stored in one vertex and index buffer.  It provides the offsets
