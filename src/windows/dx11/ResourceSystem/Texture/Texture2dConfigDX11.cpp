@@ -8,6 +8,29 @@ Texture2dConfigDX11::Texture2dConfigDX11()
 	SetDefaults();
 }
 //--------------------------------------------------------------------------------
+Texture2dConfigDX11::Texture2dConfigDX11(const Texture2dConfig& config)
+{
+	SetDefaults();
+
+	auto width = config.GetWidth();
+	auto height = config.GetHeight();
+	auto format = config.GetFormat();
+
+	m_State.Width = width;
+	m_State.Height = height;
+	m_State.Format = static_cast<DXGI_FORMAT>(format);
+
+	if (dynamic_cast<const TextureRTConfig*>(&config))
+	{
+		m_State.BindFlags |= D3D11_BIND_RENDER_TARGET;
+	}
+
+	if (dynamic_cast<const TextureDSConfig*>(&config))
+	{
+		m_State.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
+	}
+}
+//--------------------------------------------------------------------------------
 Texture2dConfigDX11::~Texture2dConfigDX11()
 {
 }

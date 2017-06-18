@@ -18,6 +18,8 @@ namespace forward
 		DepthStencilViewDX11( DepthStencilViewComPtr pView );
 		~DepthStencilViewDX11();
 
+		ID3D11DepthStencilView* GetDSV();
+
 	protected:
 		DepthStencilViewComPtr			m_pDepthStencilView;
 		

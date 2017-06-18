@@ -63,3 +63,13 @@ void Texture1dDX11::SetEvictionPriority( u32 EvictionPriority )
 		m_pTexture->SetEvictionPriority( EvictionPriority );
 }
 //--------------------------------------------------------------------------------
+void Texture1dDX11::CreateSRV()
+{
+	//TODO: not implement yet
+}
+//--------------------------------------------------------------------------------
+ID3D11ShaderResourceView* Texture1dDX11::GetSRV() const
+{
+	//TODO: not implement yet
+	return nullptr;
+}

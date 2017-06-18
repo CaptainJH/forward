@@ -3,6 +3,7 @@
 //***************************************************************************************
 #pragma once
 
+#include <memory>
 #include "Types.h"
 //--------------------------------------------------------------------------------
 namespace forward
@@ -20,10 +21,13 @@ namespace forward
 		RT_TEXTURE3D = 0x090000
 	};
 
+	class ResourceConfig;
+
 	class Resource
 	{
 	public:
 		Resource();
+		Resource(const std::string& name);
 
 		virtual ~Resource();
 
@@ -34,9 +38,18 @@ namespace forward
 
 		u32						GetInnerID();
 
+		const std::string&		Name() const;
+		void					SetName(const std::string& name);
+
 	protected:
 		static u32				s_usResourceUID;
 		u32						m_usInnerID;
+
+		std::string				m_name;
+
+		ResourceConfig*			m_pResourceConfig = nullptr;
 	};
+
+	typedef std::shared_ptr<Resource> Resource1Ptr;
 
 };

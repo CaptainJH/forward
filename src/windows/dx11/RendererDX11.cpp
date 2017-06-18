@@ -1846,3 +1846,168 @@ void LogObjectPtrVector( std::vector<T> objects )
 		Log::Get().Write( object->ToString() );
 }
 //--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subresource* pData)
+{
+	// Create the buffer with the specified configuration.
+	BufferComPtr pBuffer;
+	BufferConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateBuffer(&configDX11.m_State, &data, pBuffer.GetAddressOf());
+
+	if (pBuffer)
+	{
+		VertexBufferDX11* pVertexBuffer = new VertexBufferDX11(pBuffer);
+		pVertexBuffer->SetDesiredDescription(configDX11.m_State);
+		pVertexBuffer->SetResourceConfig(pConfig);
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+
+		i32 ResourceID = StoreNewResource(pVertexBuffer);
+		pVertexBuffer->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pVertexBuffer);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData)
+{
+	// Create the buffer with the specified configuration.
+
+	BufferComPtr pBuffer;
+	BufferConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateBuffer(&configDX11.m_State, &data, pBuffer.GetAddressOf());
+
+	if (pBuffer)
+	{
+		IndexBufferDX11* pIndexBuffer = new IndexBufferDX11(pBuffer);
+		pIndexBuffer->SetDesiredDescription(configDX11.m_State);
+		pIndexBuffer->SetResourceConfig(pConfig);
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+
+		i32 ResourceID = StoreNewResource(pIndexBuffer);
+		pIndexBuffer->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pIndexBuffer);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData)
+{
+	// Set the constant buffer flag in addition to any other flags that
+	// the user has set.
+
+	BufferComPtr pBuffer;
+	BufferConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateBuffer(&configDX11.m_State, &data, pBuffer.GetAddressOf());
+
+	if (pBuffer)
+	{
+		ConstantBufferDX11* pConstantBuffer = new ConstantBufferDX11(pBuffer);
+		pConstantBuffer->SetDesiredDescription(configDX11.m_State);
+		pConstantBuffer->SetResourceConfig(pConfig);
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+		i32 ResourceID = StoreNewResource(pConstantBuffer);
+		pConstantBuffer->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pConstantBuffer);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData)
+{
+	Texture1DComPtr pTexture;
+	Texture1dConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateTexture1D(&configDX11.m_State, &data, pTexture.GetAddressOf());
+
+	if (pTexture)
+	{
+		Texture1dDX11* pTex = new Texture1dDX11(pTexture);
+		pTex->SetDesiredDescription(configDX11.GetTextureDesc());
+		
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+		i32 ResourceID = StoreNewResource(pTex);
+		pTex->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pTex);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData)
+{
+	Texture2DComPtr pTexture;
+	Texture2dConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = S_OK;
+	if (configDX11.IsDepthStencil())
+	{
+		Texture2dConfigDX11 Config2 = *pConfig;
+		auto resourceFormat = Texture2dConfigDX11::GetDepthResourceFormat(pConfig->GetFormat());
+		Config2.SetFormat(resourceFormat);
+		hr = m_pDevice->CreateTexture2D(&Config2.m_State, &data, pTexture.GetAddressOf());
+	}
+	else
+		hr = m_pDevice->CreateTexture2D(&configDX11.m_State, &data, pTexture.GetAddressOf());
+
+	if (pTexture)
+	{
+		Texture2dDX11* pTex = new Texture2dDX11(pTexture, pConfig);
+		pTex->SetDesiredDescription(configDX11.GetTextureDesc());
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+		i32 ResourceID = StoreNewResource(pTex);
+		pTex->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pTex);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+Resource1Ptr RendererDX11::CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData)
+{
+	Texture3DComPtr pTexture;
+	Texture3dConfigDX11 configDX11 = *pConfig;
+	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateTexture3D(&configDX11.m_State, &data, pTexture.GetAddressOf());
+
+	if (pTexture)
+	{
+		Texture3dDX11* pTex = new Texture3dDX11(pTexture, pConfig);
+		pTex->SetDesiredDescription(configDX11.GetTextureDesc());
+
+		// Return an index with the lower 16 bits of index, and the upper
+		// 16 bits to identify the resource type.
+		i32 ResourceID = StoreNewResource(pTex);
+		pTex->SetResourceID(ResourceID);
+
+		return Resource1Ptr(pTex);
+	}
+
+	return nullptr;
+}
+//--------------------------------------------------------------------------------
+void RendererDX11::DeleteResource(Resource1Ptr ptr)
+{
+	ResourceDX11* ptrDX11 = dynamic_cast<ResourceDX11*>(ptr.get());
+	assert(ptrDX11);
+	DeleteResource(ptrDX11->GetResourceID());
+}

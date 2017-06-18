@@ -21,16 +21,22 @@ namespace forward
 		D3D11_TEXTURE1D_DESC		GetDesiredDescription();
 		void						SetDesiredDescription( D3D11_TEXTURE1D_DESC description );
 
-		virtual ResourceType				GetType();
-		virtual ID3D11Resource*				GetResource();
+		virtual ResourceType		GetType();
+		virtual ID3D11Resource*		GetResource();
 
-		virtual u32						GetEvictionPriority();
-		virtual void						SetEvictionPriority( u32 EvictionPriority );
+		virtual u32					GetEvictionPriority();
+		virtual void				SetEvictionPriority( u32 EvictionPriority );
+
+		ID3D11ShaderResourceView*	GetSRV() const;
 
 	protected:
+		i32												m_iResourceSRV = -1;
 		Microsoft::WRL::ComPtr<ID3D11Texture1D>			m_pTexture;
 		D3D11_TEXTURE1D_DESC							m_DesiredDesc;
 		D3D11_TEXTURE1D_DESC							m_ActualDesc;
+
+	protected:
+		void CreateSRV();
 
 		friend class RendererDX11;
 	};

@@ -6,6 +6,7 @@
 #define Texture1dConfigDX11_h
 //--------------------------------------------------------------------------------
 #include "Types.h"
+#include "dx11/ResourceSystem/ResourceDX11.h"
 #include <d3d11_2.h>
 //--------------------------------------------------------------------------------
 namespace forward
@@ -14,6 +15,7 @@ namespace forward
 	{
 	public:
 		Texture1dConfigDX11();
+		Texture1dConfigDX11(const Texture1dConfig& config);
 		virtual ~Texture1dConfigDX11();
 
 		void SetDefaults();

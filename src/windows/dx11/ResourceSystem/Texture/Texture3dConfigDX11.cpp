@@ -8,6 +8,21 @@ Texture3dConfigDX11::Texture3dConfigDX11()
 	SetDefaults();
 }
 //--------------------------------------------------------------------------------
+Texture3dConfigDX11::Texture3dConfigDX11(const Texture3dConfig& config)
+{
+	SetDefaults();
+
+	auto width = config.GetWidth();
+	auto height = config.GetHeight();
+	auto depth = config.GetDepth();
+	auto format = config.GetFormat();
+
+	m_State.Width = width;
+	m_State.Height = height;
+	m_State.Depth = depth;
+	m_State.Format = static_cast<DXGI_FORMAT>(format);
+}
+//--------------------------------------------------------------------------------
 Texture3dConfigDX11::~Texture3dConfigDX11()
 {
 }

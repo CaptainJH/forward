@@ -18,6 +18,24 @@ BufferConfigDX11::BufferConfigDX11()
 	SetDefaults();
 }
 //--------------------------------------------------------------------------------
+BufferConfigDX11::BufferConfigDX11(const BufferConfig& config)
+{
+	SetDefaults();
+
+	if (config.GetResourceType() == RT_CONSTANTBUFFER)
+	{
+		SetDefaultConstantBuffer(config.GetBufferSize(), false);
+	}
+	else if (config.GetResourceType() == RT_VERTEXBUFFER)
+	{
+		SetDefaultVertexBuffer(config.GetBufferSize(), false);
+	}
+	else if (config.GetResourceType() == RT_INDEXBUFFER)
+	{
+		SetDefaultIndexBuffer(config.GetBufferSize(), false);
+	}
+}
+//--------------------------------------------------------------------------------
 BufferConfigDX11::~BufferConfigDX11()
 {
 }

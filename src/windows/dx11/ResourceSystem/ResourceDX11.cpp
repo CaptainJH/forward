@@ -12,3 +12,12 @@ ResourceDX11::~ResourceDX11()
 {
 }
 //--------------------------------------------------------------------------------
+i32 ResourceDX11::GetResourceID() const
+{
+	return m_ResourceID;
+}
+//--------------------------------------------------------------------------------
+void ResourceDX11::SetResourceID(i32 id)
+{
+	m_ResourceID = id;
+}

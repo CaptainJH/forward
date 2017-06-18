@@ -24,6 +24,7 @@ namespace forward
 	{
 	public:
 		BufferConfigDX11();
+		BufferConfigDX11(const BufferConfig& config);
 		virtual ~BufferConfigDX11();
 
 		void SetDefaults();

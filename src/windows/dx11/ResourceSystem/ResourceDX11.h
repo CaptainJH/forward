@@ -23,7 +23,7 @@
 #define ResourceDX11_h
 
 #include "Types.h"
-#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/ResourceConfig.h"
 #include <d3d11_2.h>
 //--------------------------------------------------------------------------------
 namespace forward
@@ -37,6 +37,12 @@ namespace forward
 		virtual ~ResourceDX11();
 
 		virtual ID3D11Resource*				GetResource() = 0;
+
+		i32		GetResourceID() const;
+		void	SetResourceID(i32 id);
+
+	protected:
+		i32		m_ResourceID = -1;
 	};
 
 };

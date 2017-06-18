@@ -13,3 +13,7 @@ DepthStencilViewDX11::~DepthStencilViewDX11()
 {
 }
 //--------------------------------------------------------------------------------
+ID3D11DepthStencilView* DepthStencilViewDX11::GetDSV()
+{
+	return m_pDepthStencilView.Get();
+}
