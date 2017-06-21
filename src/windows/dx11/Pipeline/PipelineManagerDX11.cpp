@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "dx11/ResourceSystem/StateObject/ViewPortDX11.h"
 #include "dx11/ResourceSystem/ResourceDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture2dDX11.h"
 #include "dx11/ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
 #include "dx11/ResourceSystem/ResourceView/RenderTargetViewDX11.h"
 #include "dx11/ResourceSystem/ResourceView/DepthStencilViewDX11.h"
@@ -573,7 +574,8 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 	{
 	    f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 		auto rtvPtr = OutputMergerStage.GetCurrentState().RenderTargetResources.GetState( i );
-		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );
+		Texture2dDX11* texPtr = dynamic_cast<Texture2dDX11*>(rtvPtr.get());
+		RenderTargetViewDX11& RTV = RendererDX11::Get()->GetRenderTargetViewByIndex( texPtr->GetRTVID() );
 		pRenderTargetViews[i] = RTV.m_pRenderTargetView.Get(); 
 		if ( pRenderTargetViews[i] != nullptr ) {
 			m_pContext->ClearRenderTargetView( pRenderTargetViews[i], clearColours );
@@ -914,6 +916,16 @@ void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, u32 DstS
     ID3D11Resource* pSrcResource = RendererDX11::Get()->GetResourceByIndex(SrcID)->GetResource();
  
     m_pContext->ResolveSubresource( pDestResource, DstSubresource, pSrcResource, SrcSubresource, format );
+}
+//--------------------------------------------------------------------------------
+void PipelineManagerDX11::ResolveSubresource(ResourceDX11* DestResource, u32 DstSubresource,
+	ResourceDX11* SrcResource, u32 SrcSubresource,
+	DXGI_FORMAT format)
+{
+	ID3D11Resource* pDestResource = DestResource->GetResource();
+	ID3D11Resource* pSrcResource = SrcResource->GetResource();
+
+	m_pContext->ResolveSubresource(pDestResource, DstSubresource, pSrcResource, SrcSubresource, format);
 }
 //--------------------------------------------------------------------------------
 void PipelineManagerDX11::BeginEvent( std::wstring& name )

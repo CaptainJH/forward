@@ -20,9 +20,12 @@ Texture2dConfigDX11::Texture2dConfigDX11(const Texture2dConfig& config)
 	m_State.Height = height;
 	m_State.Format = static_cast<DXGI_FORMAT>(format);
 
+	m_State.SampleDesc.Count = config.GetSampCount();
+	m_State.SampleDesc.Quality = config.GetSampQuality();
+
 	if (dynamic_cast<const TextureRTConfig*>(&config))
 	{
-		m_State.BindFlags |= D3D11_BIND_RENDER_TARGET;
+		MakeRenderTarget();
 	}
 
 	if (dynamic_cast<const TextureDSConfig*>(&config))

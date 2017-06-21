@@ -17,7 +17,7 @@ Texture2dDX11::Texture2dDX11( Microsoft::WRL::ComPtr<ID3D11Texture2D> pTex )
 //--------------------------------------------------------------------------------
 Texture2dDX11::Texture2dDX11(Microsoft::WRL::ComPtr<ID3D11Texture2D> pTex, Texture2dConfig* pConfig)
 {
-	m_pResourceConfig = pConfig;
+	m_pResourceConfig = new Texture2dConfig(*pConfig);
 	m_pTexture = pTex;
 
 	ZeroMemory(&m_DesiredDesc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -142,24 +142,25 @@ void Texture2dDX11::CreateResourceViews(u32 BindFlags,
 	if ((BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = pSRVConfig ? &pSRVConfig->GetSRVDesc() : nullptr;
-		m_iResourceSRV = pRendererDX11->CreateShaderResourceView(m_ResourceID, pDesc);
+		m_iResourceSRV = pRendererDX11->CreateShaderResourceView(this, pDesc);
 	}
 
 	if ((BindFlags & D3D11_BIND_RENDER_TARGET) == D3D11_BIND_RENDER_TARGET)
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC* pDesc = pRTVConfig ? &pRTVConfig->GetRTVDesc() : nullptr;
-		m_iResourceRTV = pRendererDX11->CreateRenderTargetView(m_ResourceID, pDesc);
+		m_iResourceRTV = pRendererDX11->CreateRenderTargetView(this, pDesc);
 	}
 
 	if ((BindFlags & D3D11_BIND_DEPTH_STENCIL) == D3D11_BIND_DEPTH_STENCIL)
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc = pDSVConfig ? &pDSVConfig->GetDSVDesc() : nullptr;
-		m_iResourceDSV = pRendererDX11->CreateDepthStencilView(m_ResourceID, pDesc);
+		m_iResourceDSV = pRendererDX11->CreateDepthStencilView(this, pDesc);
 	}
 
 	if ((BindFlags & D3D11_BIND_UNORDERED_ACCESS) == D3D11_BIND_UNORDERED_ACCESS)
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc = pUAVConfig ? &pUAVConfig->GetUAVDesc() : nullptr;
+		//TODO: replace id with resource ptr
 		m_iResourceUAV = pRendererDX11->CreateUnorderedAccessView(m_ResourceID, pDesc);
 	}
 }

@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChain::SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtrBase resource )
+SwapChain::SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, Resource1Ptr resource )
 {
 	m_pSwapChain = pSwapChain;
 	m_Resource = resource;
@@ -18,7 +18,7 @@ IDXGISwapChain* SwapChain::GetSwapChain()
 	return( m_pSwapChain.Get() );
 }
 //--------------------------------------------------------------------------------
-ResourcePtrBase SwapChain::GetResourcePtr()
+Resource1Ptr SwapChain::GetResourcePtr()
 {
 	return m_Resource;
 }

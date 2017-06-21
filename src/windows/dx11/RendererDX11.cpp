@@ -385,9 +385,6 @@ void RendererDX11::Shutdown()
 	m_vDepthStencilViews.clear();
 	m_vUnorderedAccessViews.clear();
 
-	for ( auto pResource : m_vResources )
-		delete pResource;
-
 	for ( auto pSwapChain : m_vSwapChains ) {
 		if ( pSwapChain->GetSwapChain() != nullptr ) {
 			pSwapChain->GetSwapChain()->SetFullscreenState( false, NULL );
@@ -460,8 +457,13 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 	// Add the swap chain's back buffer texture and render target views to the internal data
 	// structures to allow setting them later on.
 
-	i32 ResourceID = StoreNewResource( new Texture2dDX11( pSwapChainBuffer ) );
-	
+	TextureRTConfig rtConfig;
+	rtConfig.SetWidth(pConfig->GetSwapChainDesc().BufferDesc.Width);
+	rtConfig.SetHeight(pConfig->GetSwapChainDesc().BufferDesc.Height);
+	rtConfig.SetFormat((DataFormatType)pConfig->GetSwapChainDesc().BufferDesc.Format);
+	auto rtResource = new Texture2dDX11(pSwapChainBuffer, &rtConfig);
+	i32 ResourceID = StoreNewResource( rtResource );
+	rtResource->SetResourceID(ResourceID);
 
 	// If we get here, then we succeeded in creating our swap chain and it's constituent parts.
 	// Now we create the wrapper object and store the result in our container.
@@ -469,12 +471,12 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 	Texture2dConfigDX11 TextureConfig;
 	pSwapChainBuffer->GetDesc( &TextureConfig.m_State );
 
-	ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) );
+	Resource1Ptr rtResourcePtr(rtResource);
 	// With the resource proxy created, create the swap chain wrapper and store it.
 	// The resource proxy can then be used later on by the application to get the
 	// RTV or texture ID if needed.
 
-	m_vSwapChains.push_back( new SwapChain( pSwapChain, Proxy ) );
+	m_vSwapChains.push_back( new SwapChain( pSwapChain, rtResourcePtr) );
 
 	return( m_vSwapChains.size() - 1 );
 }
@@ -703,22 +705,30 @@ i32 RendererDX11::CreateShaderResourceView( i32 ResourceID, D3D11_SHADER_RESOURC
 {
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
-	
-	if ( pResource ) {
+
+	return CreateShaderResourceView(pResource, pDesc);
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::CreateShaderResourceView(ResourceDX11* resource, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc)
+{
+	ID3D11Resource* pRawResource = 0;
+	ResourceDX11* pResource = resource;
+
+	if (pResource) {
 		pRawResource = pResource->GetResource();
 
-		if ( pRawResource ) {
+		if (pRawResource) {
 			ShaderResourceViewComPtr pView;
-			HRESULT hr = m_pDevice->CreateShaderResourceView( pRawResource, pDesc, pView.GetAddressOf() );
+			HRESULT hr = m_pDevice->CreateShaderResourceView(pRawResource, pDesc, pView.GetAddressOf());
 
-			if ( pView ) {
-				m_vShaderResourceViews.push_back( pView );
-				return( m_vShaderResourceViews.size() - 1 );
+			if (pView) {
+				m_vShaderResourceViews.push_back(pView);
+				return(m_vShaderResourceViews.size() - 1);
 			}
 		}
 	}
 
-	return( -1 );
+	return(-1);
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::CreateRenderTargetView( i32 ResourceID, D3D11_RENDER_TARGET_VIEW_DESC* pDesc )
@@ -726,21 +736,29 @@ i32 RendererDX11::CreateRenderTargetView( i32 ResourceID, D3D11_RENDER_TARGET_VI
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
 	
-	if ( pResource ) {
+	return CreateRenderTargetView(pResource, pDesc);
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::CreateRenderTargetView(ResourceDX11* resource, D3D11_RENDER_TARGET_VIEW_DESC* pDesc)
+{
+	ID3D11Resource* pRawResource = 0;
+	ResourceDX11* pResource = resource;
+
+	if (pResource) {
 		pRawResource = pResource->GetResource();
 
-		if ( pRawResource ) {
+		if (pRawResource) {
 			RenderTargetViewComPtr pView;
-			HRESULT hr = m_pDevice->CreateRenderTargetView( pRawResource, pDesc, pView.GetAddressOf() );
+			HRESULT hr = m_pDevice->CreateRenderTargetView(pRawResource, pDesc, pView.GetAddressOf());
 
-			if ( pView ) {
-				m_vRenderTargetViews.push_back( pView );
-				return( m_vRenderTargetViews.size() - 1 );
+			if (pView) {
+				m_vRenderTargetViews.push_back(pView);
+				return(m_vRenderTargetViews.size() - 1);
 			}
 		}
 	}
 
-	return( -1 );
+	return(-1);
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::CreateDepthStencilView( i32 ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc )
@@ -748,22 +766,30 @@ i32 RendererDX11::CreateDepthStencilView( i32 ResourceID, D3D11_DEPTH_STENCIL_VI
 	ID3D11Resource* pRawResource = 0;
 	ResourceDX11* pResource = GetResourceByIndex( ResourceID );
 	
-	if ( pResource ) {
+	return CreateDepthStencilView(pResource, pDesc);
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::CreateDepthStencilView(ResourceDX11* resource, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc)
+{
+	ID3D11Resource* pRawResource = 0;
+	ResourceDX11* pResource = resource;
+
+	if (pResource) {
 		pRawResource = pResource->GetResource();
 
-		if ( pRawResource ) {
+		if (pRawResource) {
 
 			DepthStencilViewComPtr pView;
-			HRESULT hr = m_pDevice->CreateDepthStencilView( pRawResource, pDesc, pView.GetAddressOf() );
+			HRESULT hr = m_pDevice->CreateDepthStencilView(pRawResource, pDesc, pView.GetAddressOf());
 
-			if ( pView ) {
-				m_vDepthStencilViews.push_back( pView );
-				return( m_vDepthStencilViews.size() - 1 );
+			if (pView) {
+				m_vDepthStencilViews.push_back(pView);
+				return(m_vDepthStencilViews.size() - 1);
 			}
 		}
 	}
 
-	return( -1 );
+	return(-1);
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::CreateUnorderedAccessView( i32 ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc )
@@ -969,10 +995,10 @@ void RendererDX11::ResizeSwapChain( i32 SID, u32 width, u32 height )
 
 	SwapChain* pSwapChain = m_vSwapChains[index];
 
-	Texture2dDX11* pBackBuffer = GetTexture2DByIndex( pSwapChain->GetResourcePtr()->m_iResource );
+	Texture2dDX11* pBackBuffer = dynamic_cast<Texture2dDX11*>(pSwapChain->GetResourcePtr().get());
 	pBackBuffer->m_pTexture.Reset();
 
-	RenderTargetViewDX11& RTV = m_vRenderTargetViews[pSwapChain->GetResourcePtr()->m_iResourceRTV];
+	RenderTargetViewDX11& RTV = m_vRenderTargetViews[pBackBuffer->GetRTVID()];
 	
 	// Get its description.
 	D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
@@ -1366,7 +1392,7 @@ i32 RendererDX11::CreateViewPort(const u32 width, const u32 height)
 	return( m_vViewPorts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtrBase RendererDX11::GetSwapChainResource( i32 ID )
+Resource1Ptr RendererDX11::GetSwapChainResource( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1375,7 +1401,7 @@ ResourcePtrBase RendererDX11::GetSwapChainResource( i32 ID )
 
 	Log::Get().Write( L"Tried to get an invalid swap buffer index texture ID!" );
 
-	return( ResourcePtrBase( new ResourceProxyDX11() ) );
+	return nullptr;
 }
 //--------------------------------------------------------------------------------
 Vector2f RendererDX11::GetDesktopResolution()
@@ -1954,17 +1980,19 @@ Resource1Ptr RendererDX11::CreateTexture2D(Texture2dConfig* pConfig, Subresource
 {
 	Texture2DComPtr pTexture;
 	Texture2dConfigDX11 configDX11 = *pConfig;
-	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
+	D3D11_SUBRESOURCE_DATA data;
+	if(pData)
+		data = ConvertSubResource(pData);
 	HRESULT hr = S_OK;
 	if (configDX11.IsDepthStencil())
 	{
 		Texture2dConfigDX11 Config2 = *pConfig;
 		auto resourceFormat = Texture2dConfigDX11::GetDepthResourceFormat(pConfig->GetFormat());
 		Config2.SetFormat(resourceFormat);
-		hr = m_pDevice->CreateTexture2D(&Config2.m_State, &data, pTexture.GetAddressOf());
+		hr = m_pDevice->CreateTexture2D(&Config2.m_State, pData ? &data : nullptr, pTexture.GetAddressOf());
 	}
 	else
-		hr = m_pDevice->CreateTexture2D(&configDX11.m_State, &data, pTexture.GetAddressOf());
+		hr = m_pDevice->CreateTexture2D(&configDX11.m_State, pData ? &data : nullptr, pTexture.GetAddressOf());
 
 	if (pTexture)
 	{

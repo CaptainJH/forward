@@ -63,6 +63,18 @@ namespace forward
 	class Texture2dConfig : public ResourceConfig
 	{
 	public:
+		Texture2dConfig() {}
+		Texture2dConfig(const Texture2dConfig& config)
+		{
+			m_width = config.m_width;
+			m_height = config.m_height;
+			m_arraySize = config.m_arraySize;
+			m_mipLevels = config.m_mipLevels;
+
+			m_sampCount = config.m_sampCount;
+			m_sampQuality = config.m_sampQuality;
+		}
+
 		ResourceType GetResourceType() const override { return RT_TEXTURE2D; }
 
 		void SetWidth(u32 state) { m_width = state; }
@@ -73,17 +85,28 @@ namespace forward
 		void SetArraySize(u32 state) { m_arraySize = state; }
 		bool IsTextureArray() const { return m_arraySize > 1; }
 
+		void SetSamp(u32 count, u32 quality) { m_sampCount = count; m_sampQuality = quality; }
+		u32 GetSampCount() const { return m_sampCount; }
+		u32 GetSampQuality() const { return m_sampQuality; }
+
 	protected:
 
 		u32		m_width = 0;
 		u32		m_height = 0;
 		u32		m_arraySize = 1;
 		u32		m_mipLevels = 0;
+
+		u32		m_sampCount = 1;
+		u32		m_sampQuality = 0;
 	};
 
 	class TextureRTConfig : public Texture2dConfig
 	{
 	public:
+		TextureRTConfig() {}
+		TextureRTConfig(const TextureRTConfig& config)
+			: Texture2dConfig(config)
+		{}
 	};
 
 	class TextureDSConfig : public Texture2dConfig
@@ -94,6 +117,16 @@ namespace forward
 	class Texture3dConfig : public ResourceConfig
 	{
 	public:
+		Texture3dConfig() {}
+		Texture3dConfig(const Texture3dConfig& config)
+		{
+			m_width = config.m_width;
+			m_height = config.m_height;
+			m_depth = config.m_depth;
+			m_arraySize = config.m_arraySize;
+			m_mipLevels = config.m_mipLevels;
+		}
+
 		ResourceType GetResourceType() const override { return RT_TEXTURE3D; }
 
 		void SetWidth(u32 state) { m_width = state; }

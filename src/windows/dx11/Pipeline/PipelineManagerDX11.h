@@ -161,6 +161,9 @@ namespace forward
         void ResolveSubresource ( ResourcePtr DestResource, u32 DstSubresource, 
                                     ResourcePtr SrcResource, u32 SrcSubresource,
                                     DXGI_FORMAT format );
+		void ResolveSubresource(ResourceDX11* DestResource, u32 DstSubresource,
+			ResourceDX11* SrcResource, u32 SrcSubresource,
+			DXGI_FORMAT format);
 
 		// Copy the internal counter variable from a UAV (either from Append/Consume 
 		// functionality, or directly a StructuredBuffer internal counter) to the specified

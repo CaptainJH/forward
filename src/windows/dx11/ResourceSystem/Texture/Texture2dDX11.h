@@ -32,6 +32,10 @@ namespace forward
 		ID3D11RenderTargetView*		GetRTV() const;
 		ID3D11DepthStencilView*		GetDSV() const;
 
+		i32	GetSRVID() const { return m_iResourceSRV; }
+		i32 GetRTVID() const { return m_iResourceRTV; }
+		i32 GetDSVID() const { return m_iResourceDSV; }
+
 	protected:
 		i32												m_iResourceSRV = -1;
 		i32												m_iResourceRTV = -1;

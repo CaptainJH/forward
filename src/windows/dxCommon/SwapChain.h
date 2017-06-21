@@ -7,22 +7,22 @@
 //--------------------------------------------------------------------------------
 #include <wrl.h>
 #include <dxgi.h>
-#include "render/ResourceSystem/ResourceProxy.h"
+#include "render/ResourceSystem/Resource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
 	class SwapChain
 	{
 	public:
-		explicit SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtrBase resource );
+		explicit SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, Resource1Ptr resource );
 		virtual ~SwapChain();
 
 		IDXGISwapChain* GetSwapChain();
-		ResourcePtrBase GetResourcePtr();
+		Resource1Ptr GetResourcePtr();
 
 	protected:
 		Microsoft::WRL::ComPtr<IDXGISwapChain>	m_pSwapChain;
-		ResourcePtrBase							m_Resource;
+		Resource1Ptr							m_Resource;
 	};
 };
 //--------------------------------------------------------------------------------

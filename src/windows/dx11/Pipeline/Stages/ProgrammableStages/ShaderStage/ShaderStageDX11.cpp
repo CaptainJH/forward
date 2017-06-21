@@ -15,6 +15,7 @@
 #include "dx11/ResourceSystem/Buffer/ConstantBufferDX11.h"
 #include "dx11/ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
 #include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture2dDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -109,10 +110,11 @@ bool ShaderStageDX11::extractShaderResourceViews(const u32 length, ID3D11ShaderR
 {
 	for (u32 i = 0; i < length; ++i)
 	{
-		ResourcePtr ptr = DesiredState.ShaderResources.GetState(i);
+		Resource1Ptr ptr = DesiredState.ShaderResources.GetState(i);
 		if (ptr == nullptr)
 			continue;
-		auto shaderViewID = ptr->m_iResourceSRV;
+		Texture2dDX11* texPtr = dynamic_cast<Texture2dDX11*>(ptr.get());
+		auto shaderViewID = texPtr->GetSRVID();
 		ShaderResourceViewDX11& srv = RendererDX11::Get()->GetShaderResourceViewByIndex(shaderViewID);
 		pResult[i] = static_cast<ID3D11ShaderResourceView*>(srv.GetSRV());
 	}

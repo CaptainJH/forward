@@ -14,6 +14,7 @@
 #include "dx11/ResourceSystem/ResourceView/DepthStencilViewDX11.h"
 #include "dx11/ResourceSystem/ResourceView/UnorderedAccessViewDX11.h"
 #include "dx11/RendererDX11.h"
+#include "dx11/ResourceSystem/Texture/Texture2dDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -69,7 +70,8 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			auto rtvPtr = DesiredState.RenderTargetResources.GetState(i);
 			if (rtvPtr == nullptr)
 				continue;
-			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( rtvPtr->m_iResourceRTV );
+			Texture2dDX11* texPtr = dynamic_cast<Texture2dDX11*>(rtvPtr.get());
+			RenderTargetViewDX11& rtv = pRenderer->GetRenderTargetViewByIndex( texPtr->GetRTVID() );
 			rtvs[i] = rtv.m_pRenderTargetView.Get();
 
 			if ( rtvs[i] != nullptr ) {

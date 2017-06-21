@@ -130,6 +130,10 @@ namespace forward
 		i32 CreateDepthStencilView( i32 ResourceID, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc );
 		i32 CreateUnorderedAccessView( i32 ResourceID, D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc );
 
+		i32 CreateShaderResourceView(ResourceDX11* resource, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc);
+		i32 CreateRenderTargetView(ResourceDX11* resource, D3D11_RENDER_TARGET_VIEW_DESC* pDesc);
+		i32 CreateDepthStencilView(ResourceDX11* resource, D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc);
+
 		// The input layout is required to exactly match the input signature of the first
 		// programmable stage that will receive the input assembler output.  This method is
 		// provided for creating an input layout and later indexing the value when setting
@@ -157,7 +161,7 @@ namespace forward
         i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
             const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 		
-		ResourcePtrBase GetSwapChainResource( i32 ID );
+		Resource1Ptr GetSwapChainResource( i32 ID );
 
 		// This is an interim solution to get the resolution of the current
 		// adapter output resolution.

@@ -8,6 +8,11 @@ Texture1dConfigDX11::Texture1dConfigDX11()
 	SetDefaults();
 }
 //--------------------------------------------------------------------------------
+Texture1dConfigDX11::Texture1dConfigDX11(const Texture1dConfig& /*config*/)
+{
+	SetDefaults();
+}
+//--------------------------------------------------------------------------------
 Texture1dConfigDX11::~Texture1dConfigDX11()
 {
 }

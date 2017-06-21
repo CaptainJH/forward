@@ -87,7 +87,7 @@ namespace forward
 		FileSystem mFileSystem;
 
 		RendererDX11*	m_pRender;
-		ResourcePtrBase	m_RenderTarget;
+		Resource1Ptr	m_RenderTarget;
 		ResourcePtr		m_DepthTarget;
 
 		// Derived class should set these in derived constructor to customize starting values.

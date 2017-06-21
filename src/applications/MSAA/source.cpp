@@ -77,9 +77,9 @@ private:
 	GeometryPtr m_pQuad;
 
 	i32 m_rsStateID;
-	ResourcePtr m_renderTargetTex;
+	Resource1Ptr m_renderTargetTex;
 	ResourcePtr m_depthTargetTex;
-	ResourcePtr m_resolveTex;
+	Resource1Ptr m_resolveTex;
 	i32 m_samplerID;
 
 	bool m_drawFrame;
@@ -163,7 +163,9 @@ void MSAA_Demo::DrawScene()
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 		m_pGeometry->Execute(m_pRender->pImmPipeline);
 
-		m_pRender->pImmPipeline->ResolveSubresource(m_resolveTex, 0, m_renderTargetTex, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+		ResourceDX11* resolveTex = dynamic_cast<ResourceDX11*>(m_resolveTex.get());
+		ResourceDX11* renderTarget = dynamic_cast<ResourceDX11*>(m_renderTargetTex.get());
+		m_pRender->pImmPipeline->ResolveSubresource(resolveTex, 0, renderTarget, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		// draw quad
 		m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
@@ -256,16 +258,26 @@ void MSAA_Demo::BuildRenderTarget()
 	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	texConfig.SetSampleDesc(samp);
 	texConfig.MakeRenderTarget();
-	m_renderTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
+
+	TextureRTConfig rtConfig;
+	rtConfig.SetWidth(mClientWidth);
+	rtConfig.SetHeight(mClientHeight);
+	rtConfig.SetFormat(DF_R8G8B8A8_UNORM);
+	rtConfig.SetSamp(8, 0);
+	m_renderTargetTex = m_pRender->CreateTexture2D(&rtConfig, 0);
 
 	texConfig.SetDepthBuffer(mClientWidth, mClientHeight);
 	texConfig.SetFormat(DF_D24_UNORM_S8_UINT);
 	texConfig.SetSampleDesc(samp);
 	m_depthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
 
-	texConfig.SetColorBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
-	m_resolveTex = m_pRender->CreateTexture2D(&texConfig, 0);
+	//texConfig.SetColorBuffer(mClientWidth, mClientHeight);
+	//texConfig.SetFormat(DF_R8G8B8A8_UNORM);
+	Texture2dConfig texConfig2;
+	texConfig2.SetWidth(mClientWidth);
+	texConfig2.SetHeight(mClientHeight);
+	texConfig2.SetFormat(DF_R8G8B8A8_UNORM);
+	m_resolveTex = m_pRender->CreateTexture2D(&texConfig2, 0);
 
 	SamplerStateConfigDX11 sampConfig;
 	m_samplerID = m_pRender->CreateSamplerState(&sampConfig);
