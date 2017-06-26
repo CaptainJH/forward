@@ -92,10 +92,11 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			}
 		}
 
-		ResourcePtr dsvPtr = DesiredState.DepthTargetResources.GetState();
+		Resource1Ptr dsvPtr = DesiredState.DepthTargetResources.GetState();
 		if (dsvPtr != nullptr)
 		{
-			DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex(dsvPtr->m_iResourceDSV);
+			Texture2dDX11* pTex = dynamic_cast<Texture2dDX11*>(dsvPtr.get());
+			DepthStencilViewDX11& DSV = pRenderer->GetDepthStencilViewByIndex(pTex->GetDSVID());
 			dsv = DSV.m_pDepthStencilView.Get();
 		}
 

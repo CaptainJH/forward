@@ -30,7 +30,7 @@ Texture2dConfigDX11::Texture2dConfigDX11(const Texture2dConfig& config)
 
 	if (dynamic_cast<const TextureDSConfig*>(&config))
 	{
-		m_State.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
+		MakeDepthStencil();
 	}
 }
 //--------------------------------------------------------------------------------

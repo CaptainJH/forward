@@ -586,8 +586,9 @@ void PipelineManagerDX11::ClearBuffers( Vector4f color, f32 depth, u32 stencil )
 
 	if ( OutputMergerStage.GetCurrentState().DepthTargetResources.GetState() != nullptr )
 	{
-		ResourcePtr dsvPtr = OutputMergerStage.GetCurrentState().DepthTargetResources.GetState();
-		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( dsvPtr->m_iResourceDSV );
+		auto dsvPtr = OutputMergerStage.GetCurrentState().DepthTargetResources.GetState();
+		Texture2dDX11 *pTex = dynamic_cast<Texture2dDX11*>(dsvPtr.get());
+		DepthStencilViewDX11 DSV = RendererDX11::Get()->GetDepthStencilViewByIndex( pTex->GetDSVID() );
 		pDepthStencilView = DSV.m_pDepthStencilView.Get();
 		if ( pDepthStencilView != nullptr ) {
 			m_pContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH, depth, static_cast<u8>(stencil) );

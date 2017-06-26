@@ -114,7 +114,7 @@ bool ApplicationDX11::Init()
 void ApplicationDX11::OnResize()
 {
 	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
-	m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
+	//m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
 
 	m_pRender->pImmPipeline->ClearRenderTargets();
 	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
@@ -364,8 +364,12 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	// Next we create a depth buffer for use in the traditional rendering
 	// pipeline.
 
-	Texture2dConfigDX11 DepthConfig;
-	DepthConfig.SetDepthBuffer(mClientWidth, mClientHeight);
+	//Texture2dConfigDX11 DepthConfig;
+	//DepthConfig.SetDepthBuffer(mClientWidth, mClientHeight);
+	TextureDSConfig DepthConfig;
+	DepthConfig.SetWidth(mClientWidth);
+	DepthConfig.SetHeight(mClientHeight);
+	DepthConfig.SetFormat(DF_D32_FLOAT);
 	m_DepthTarget = m_pRender->CreateTexture2D(&DepthConfig, 0);
 
 	// Bind the swap chain render target and the depth buffer for use in 

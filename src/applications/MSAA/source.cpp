@@ -78,7 +78,7 @@ private:
 
 	i32 m_rsStateID;
 	Resource1Ptr m_renderTargetTex;
-	ResourcePtr m_depthTargetTex;
+	Resource1Ptr m_depthTargetTex;
 	Resource1Ptr m_resolveTex;
 	i32 m_samplerID;
 
@@ -253,12 +253,6 @@ void MSAA_Demo::BuildRenderTarget()
 	samp.Count = 8;
 	samp.Quality = 0;
 
-	Texture2dConfigDX11 texConfig;
-	texConfig.SetColorBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DF_R8G8B8A8_UNORM);
-	texConfig.SetSampleDesc(samp);
-	texConfig.MakeRenderTarget();
-
 	TextureRTConfig rtConfig;
 	rtConfig.SetWidth(mClientWidth);
 	rtConfig.SetHeight(mClientHeight);
@@ -266,13 +260,13 @@ void MSAA_Demo::BuildRenderTarget()
 	rtConfig.SetSamp(8, 0);
 	m_renderTargetTex = m_pRender->CreateTexture2D(&rtConfig, 0);
 
-	texConfig.SetDepthBuffer(mClientWidth, mClientHeight);
-	texConfig.SetFormat(DF_D24_UNORM_S8_UINT);
-	texConfig.SetSampleDesc(samp);
-	m_depthTargetTex = m_pRender->CreateTexture2D(&texConfig, 0);
+	TextureDSConfig dsConfig;
+	dsConfig.SetWidth(mClientWidth);
+	dsConfig.SetHeight(mClientHeight);
+	dsConfig.SetFormat(DF_D24_UNORM_S8_UINT);
+	dsConfig.SetSamp(8, 0);
+	m_depthTargetTex = m_pRender->CreateTexture2D(&dsConfig, 0);
 
-	//texConfig.SetColorBuffer(mClientWidth, mClientHeight);
-	//texConfig.SetFormat(DF_R8G8B8A8_UNORM);
 	Texture2dConfig texConfig2;
 	texConfig2.SetWidth(mClientWidth);
 	texConfig2.SetHeight(mClientHeight);

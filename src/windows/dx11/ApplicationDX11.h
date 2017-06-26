@@ -88,7 +88,7 @@ namespace forward
 
 		RendererDX11*	m_pRender;
 		Resource1Ptr	m_RenderTarget;
-		ResourcePtr		m_DepthTarget;
+		Resource1Ptr	m_DepthTarget;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
