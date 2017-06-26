@@ -967,7 +967,7 @@ bool PipelineManagerDX11::UpdateBufferResource(ResourceProxyPtr pResource, void*
 	return true;
 }
 //--------------------------------------------------------------------------------
-bool PipelineManagerDX11::UpdateBufferResource(Resource1Ptr pResource, void* pdata, u32 size)
+bool PipelineManagerDX11::UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size)
 {
 	auto resourceID = dynamic_cast<ResourceDX11*>(pResource.get())->GetResourceID();
 	auto pDstResource = MapResource(resourceID, 0, D3D11_MAP_WRITE_DISCARD, 0);

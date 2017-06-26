@@ -54,7 +54,7 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	Resource1Ptr m_constantBuffer;
+	ResourcePtr m_constantBuffer;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,

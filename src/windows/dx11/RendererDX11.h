@@ -107,15 +107,15 @@ namespace forward
 		ResourceProxyPtr CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData );
 		ResourceProxyPtr CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData );
 
-		Resource1Ptr CreateVertexBuffer( VertexBufferConfig* pConfig, Subresource* pData) override;
-		Resource1Ptr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData) override;
-		Resource1Ptr CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateVertexBuffer( VertexBufferConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData) override;
 
-		Resource1Ptr CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData) override;
-		Resource1Ptr CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData) override;
-		Resource1Ptr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData) override;
 
-		void DeleteResource(Resource1Ptr ptr) override;
+		void DeleteResource(ResourcePtr ptr) override;
 
 		void DeleteResource( ResourceProxyPtr ptr );
 		void DeleteResource( i32 index );
@@ -161,7 +161,7 @@ namespace forward
         i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
             const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 		
-		Resource1Ptr GetSwapChainResource( i32 ID );
+		ResourcePtr GetSwapChainResource( i32 ID );
 
 		// This is an interim solution to get the resolution of the current
 		// adapter output resolution.

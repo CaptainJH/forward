@@ -139,7 +139,7 @@ namespace forward
 		void ClearBuffers( Vector4f color, f32 depth = 1.0f, u32 stencil = 0 );
 
 		bool UpdateBufferResource(ResourceProxyPtr pResource, void* pdata, u32 size);
-		bool UpdateBufferResource(Resource1Ptr pResource, void* pdata, u32 size);
+		bool UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size);
 
 
 		// This is an alternative method to mapping for updating resources.  In certain 

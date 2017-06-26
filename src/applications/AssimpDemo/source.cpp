@@ -57,7 +57,7 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	Resource1Ptr m_constantBuffer;
+	ResourcePtr m_constantBuffer;
 
 	std::vector<GeometryPtr> m_vGeoms;
 	std::vector<Matrix4f> m_vMats;

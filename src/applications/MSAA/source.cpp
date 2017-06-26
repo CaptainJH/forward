@@ -72,14 +72,14 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	Resource1Ptr m_constantBuffer;
+	ResourcePtr m_constantBuffer;
 
 	GeometryPtr m_pQuad;
 
 	i32 m_rsStateID;
-	Resource1Ptr m_renderTargetTex;
-	Resource1Ptr m_depthTargetTex;
-	Resource1Ptr m_resolveTex;
+	ResourcePtr m_renderTargetTex;
+	ResourcePtr m_depthTargetTex;
+	ResourcePtr m_resolveTex;
 	i32 m_samplerID;
 
 	bool m_drawFrame;

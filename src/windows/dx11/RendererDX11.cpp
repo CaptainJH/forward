@@ -471,7 +471,7 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 	Texture2dConfigDX11 TextureConfig;
 	pSwapChainBuffer->GetDesc( &TextureConfig.m_State );
 
-	Resource1Ptr rtResourceProxyPtr(rtResource);
+	ResourcePtr rtResourceProxyPtr(rtResource);
 	// With the resource proxy created, create the swap chain wrapper and store it.
 	// The resource proxy can then be used later on by the application to get the
 	// RTV or texture ID if needed.
@@ -1392,7 +1392,7 @@ i32 RendererDX11::CreateViewPort(const u32 width, const u32 height)
 	return( m_vViewPorts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::GetSwapChainResource( i32 ID )
+ResourcePtr RendererDX11::GetSwapChainResource( i32 ID )
 {
 	u32 index = static_cast<u32>( ID );
 
@@ -1872,7 +1872,7 @@ void LogObjectPtrVector( std::vector<T> objects )
 		Log::Get().Write( object->ToString() );
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subresource* pData)
 {
 	// Create the buffer with the specified configuration.
 	BufferComPtr pBuffer;
@@ -1892,13 +1892,13 @@ Resource1Ptr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subre
 		i32 ResourceID = StoreNewResource(pVertexBuffer);
 		pVertexBuffer->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pVertexBuffer);
+		return ResourcePtr(pVertexBuffer);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData)
 {
 	// Create the buffer with the specified configuration.
 
@@ -1919,13 +1919,13 @@ Resource1Ptr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subreso
 		i32 ResourceID = StoreNewResource(pIndexBuffer);
 		pIndexBuffer->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pIndexBuffer);
+		return ResourcePtr(pIndexBuffer);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData)
 {
 	// Set the constant buffer flag in addition to any other flags that
 	// the user has set.
@@ -1948,13 +1948,13 @@ Resource1Ptr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, S
 		i32 ResourceID = StoreNewResource(pConstantBuffer);
 		pConstantBuffer->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pConstantBuffer);
+		return ResourcePtr(pConstantBuffer);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData)
 {
 	Texture1DComPtr pTexture;
 	Texture1dConfigDX11 configDX11 = *pConfig;
@@ -1972,13 +1972,13 @@ Resource1Ptr RendererDX11::CreateTexture1D(Texture1dConfig* pConfig, Subresource
 		i32 ResourceID = StoreNewResource(pTex);
 		pTex->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pTex);
+		return ResourcePtr(pTex);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData)
 {
 	Texture2DComPtr pTexture;
 	Texture2dConfigDX11 configDX11 = *pConfig;
@@ -2006,13 +2006,13 @@ Resource1Ptr RendererDX11::CreateTexture2D(Texture2dConfig* pConfig, Subresource
 		i32 ResourceID = StoreNewResource(pTex);
 		pTex->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pTex);
+		return ResourcePtr(pTex);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-Resource1Ptr RendererDX11::CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData)
+ResourcePtr RendererDX11::CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData)
 {
 	Texture3DComPtr pTexture;
 	Texture3dConfigDX11 configDX11 = *pConfig;
@@ -2029,13 +2029,13 @@ Resource1Ptr RendererDX11::CreateTexture3D(Texture3dConfig* pConfig, Subresource
 		i32 ResourceID = StoreNewResource(pTex);
 		pTex->SetResourceID(ResourceID);
 
-		return Resource1Ptr(pTex);
+		return ResourcePtr(pTex);
 	}
 
 	return nullptr;
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::DeleteResource(Resource1Ptr ptr)
+void RendererDX11::DeleteResource(ResourcePtr ptr)
 {
 	ResourceDX11* ptrDX11 = dynamic_cast<ResourceDX11*>(ptr.get());
 	assert(ptrDX11);

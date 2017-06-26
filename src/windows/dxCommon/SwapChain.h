@@ -14,15 +14,15 @@ namespace forward
 	class SwapChain
 	{
 	public:
-		explicit SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, Resource1Ptr resource );
+		explicit SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource );
 		virtual ~SwapChain();
 
 		IDXGISwapChain* GetSwapChain();
-		Resource1Ptr GetResourcePtr();
+		ResourcePtr GetResourcePtr();
 
 	protected:
 		Microsoft::WRL::ComPtr<IDXGISwapChain>	m_pSwapChain;
-		Resource1Ptr							m_Resource;
+		ResourcePtr							m_Resource;
 	};
 };
 //--------------------------------------------------------------------------------

@@ -50,6 +50,6 @@ namespace forward
 		ResourceConfig*			m_pResourceConfig = nullptr;
 	};
 
-	typedef std::shared_ptr<Resource> Resource1Ptr;
+	typedef std::shared_ptr<Resource> ResourcePtr;
 
 };

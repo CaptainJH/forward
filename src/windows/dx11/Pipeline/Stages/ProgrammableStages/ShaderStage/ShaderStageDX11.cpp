@@ -95,7 +95,7 @@ bool ShaderStageDX11::extractConstantBuffers(const u32 length, ID3D11Buffer** pR
 {
 	for (u32 i = 0; i < length; ++i)
 	{
-		Resource1Ptr ptr = DesiredState.ConstantBuffers.GetState(i);
+		ResourcePtr ptr = DesiredState.ConstantBuffers.GetState(i);
 		if (ptr == nullptr)
 			continue;
 		ResourceDX11* resourceDX11 = dynamic_cast<ResourceDX11*>(ptr.get());
@@ -109,7 +109,7 @@ bool ShaderStageDX11::extractShaderResourceViews(const u32 length, ID3D11ShaderR
 {
 	for (u32 i = 0; i < length; ++i)
 	{
-		Resource1Ptr ptr = DesiredState.ShaderResources.GetState(i);
+		ResourcePtr ptr = DesiredState.ShaderResources.GetState(i);
 		if (ptr == nullptr)
 			continue;
 		Texture2dDX11* texPtr = dynamic_cast<Texture2dDX11*>(ptr.get());

@@ -92,7 +92,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 			}
 		}
 
-		Resource1Ptr dsvPtr = DesiredState.DepthTargetResources.GetState();
+		ResourcePtr dsvPtr = DesiredState.DepthTargetResources.GetState();
 		if (dsvPtr != nullptr)
 		{
 			Texture2dDX11* pTex = dynamic_cast<Texture2dDX11*>(dsvPtr.get());

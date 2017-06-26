@@ -38,9 +38,9 @@ namespace forward
 		void ResetUpdateFlags( );
 
 		TStateMonitor< i32 > ShaderProgram;
-		TStateArrayMonitor< Resource1Ptr, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT >  ConstantBuffers;
+		TStateArrayMonitor< ResourcePtr, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT >  ConstantBuffers;
 		TStateArrayMonitor< ID3D11SamplerState*, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT > SamplerStates;
-		TStateArrayMonitor< Resource1Ptr, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT > ShaderResources;
+		TStateArrayMonitor< ResourcePtr, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT > ShaderResources;
 		TStateArrayMonitor< ResourceProxyPtr, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessResources;
 		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;
 
