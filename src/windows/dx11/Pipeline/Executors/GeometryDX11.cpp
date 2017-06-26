@@ -41,19 +41,16 @@ void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 {
 	pPipeline->InputAssemblerStage.ClearDesiredState();
 
-	ResourceDX11* pVB = dynamic_cast<ResourceDX11*>(m_VB.get());
-	ResourceDX11* pIB = dynamic_cast<ResourceDX11*>(m_IB.get());
-
 	// Set the Input Assembler state, then perform the draw call.
 	i32 layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
 	pPipeline->InputAssemblerStage.DesiredState.InputLayout.SetState( layout );
 	pPipeline->InputAssemblerStage.DesiredState.PrimitiveTopology.SetState( m_ePrimType );
 
-	pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, pVB->GetResourceID() );
+	pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, m_VB );
 	pPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState( 0, m_iVertexSize );
 	pPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState( 0, 0 );
 
-	pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( pIB->GetResourceID() );
+	pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( m_IB );
 	pPipeline->InputAssemblerStage.DesiredState.IndexBufferFormat.SetState( DF_R32_UINT );
 	
 	pPipeline->ApplyInputResources();

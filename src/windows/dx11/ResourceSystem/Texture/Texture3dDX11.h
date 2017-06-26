@@ -30,6 +30,8 @@ namespace forward
 
 		ID3D11ShaderResourceView*	GetSRV() const;
 
+		i32 GetSRVID() const { return m_iResourceSRV; }
+
 	protected:
 		i32											m_iResourceSRV = -1;
 		Microsoft::WRL::ComPtr<ID3D11Texture3D>		m_pTexture;

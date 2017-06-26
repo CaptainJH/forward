@@ -69,9 +69,9 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	ResourceProxyPtr m_constantBuffer;
+	ResourcePtr m_constantBuffer;
 
-	ResourceProxyPtr m_SDFTex3D;
+	ResourcePtr m_SDFTex3D;
 
 	std::vector<f32> m_sdf;
 	Vector4f m_sdfParams;
@@ -174,8 +174,8 @@ bool SDFShadowDemo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	LoadSDFBuffer();
@@ -386,12 +386,11 @@ void SDFShadowDemo::LoadSDFBuffer()
 		m_sdf.push_back(value);
 	}
 
-	Texture3dConfigDX11 texConfig;
-	texConfig.SetDefaults();
+	Texture3dConfig texConfig;
 	texConfig.SetWidth(static_cast<u32>(m_sdfParams.x));
 	texConfig.SetHeight(static_cast<u32>(m_sdfParams.y));
 	texConfig.SetDepth(static_cast<u32>(m_sdfParams.z));
-	texConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
+	texConfig.SetFormat(DF_R32_FLOAT);
 	
 	Subresource data;
 	data.data = &m_sdf[0];

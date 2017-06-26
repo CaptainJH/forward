@@ -78,12 +78,10 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 
 		for ( u32 i = 0; i < DesiredState.GetAvailableSlotCount(); i++ )
 		{
-			i32 index = DesiredState.VertexBuffers.GetState( i );
+			ResourceDX11* pResource = dynamic_cast<ResourceDX11*>(DesiredState.VertexBuffers.GetState(i).get());
 
-			VertexBufferDX11* pBuffer = pRenderer->GetVertexBufferByIndex( index );
-
-			if ( pBuffer ) {
-				Buffers[i] = static_cast<ID3D11Buffer*>( pBuffer->GetResource() );
+			if (pResource) {
+				Buffers[i] = static_cast<ID3D11Buffer*>(pResource->GetResource() );
 			} else {
 				Buffers[i] = 0;
 			}
@@ -104,16 +102,14 @@ void InputAssemblerStageDX11::ApplyDesiredState( ID3D11DeviceContext* pContext )
 			DesiredState.VertexBufferOffsets.GetSlotLocation( startSlot ) );
 	}
 
-	if ( DesiredState.IndexBuffer.IsUpdateNeeded() ) {
-	
-		i32 index = DesiredState.IndexBuffer.GetState();
-
-		IndexBufferDX11* pBuffer = pRenderer->GetIndexBufferByIndex( index );
+	if ( DesiredState.IndexBuffer.IsUpdateNeeded() ) 
+	{
+		ResourceDX11* pResource = dynamic_cast<ResourceDX11*>(DesiredState.IndexBuffer.GetState().get());
 
 		DXGI_FORMAT dataFormat = static_cast<DXGI_FORMAT>(DesiredState.IndexBufferFormat.GetState());
-		if ( pBuffer ) 
+		if (pResource)
 		{
-			ID3D11Buffer* pIndexBuffer = reinterpret_cast<ID3D11Buffer*>( pBuffer->GetResource() );
+			ID3D11Buffer* pIndexBuffer = reinterpret_cast<ID3D11Buffer*>(pResource->GetResource() );
 			pContext->IASetIndexBuffer( pIndexBuffer, dataFormat, 0 );
 		} 
 		else 

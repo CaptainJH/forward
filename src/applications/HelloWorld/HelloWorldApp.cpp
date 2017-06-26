@@ -156,12 +156,10 @@ void HelloWorld::BuildGeometry()
 
 void HelloWorld::SetupPipeline()
 {
-	ResourceDX11* pVB = dynamic_cast<ResourceDX11*>(m_pVertexBuffer.get());
-
 	InputAssemblerStateDX11 iaState;
 	iaState.PrimitiveTopology.SetState(PT_TRIANGLESTRIP);
 	iaState.InputLayout.SetState(m_VertexLayout);
-	iaState.VertexBuffers.SetState(0, pVB->GetResourceID());
+	iaState.VertexBuffers.SetState(0, m_pVertexBuffer);
 	iaState.VertexBufferStrides.SetState(0, sizeof(Vertex));
 	iaState.VertexBufferOffsets.SetState(0, 0);
 	iaState.SetFeautureLevel(m_pRender->GetAvailableFeatureLevel(D3D_DRIVER_TYPE_UNKNOWN));

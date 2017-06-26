@@ -102,6 +102,6 @@ void Texture3dDX11::CreateSRV(u32 BindFlags, ShaderResourceViewConfigDX11* pSRVC
 	if ((BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = pSRVConfig ? &pSRVConfig->GetSRVDesc() : nullptr;
-		m_iResourceSRV = pRendererDX11->CreateShaderResourceView(m_ResourceID, pDesc);
+		m_iResourceSRV = pRendererDX11->CreateShaderResourceView(this, pDesc);
 	}
 }
