@@ -1,6 +1,7 @@
 #include "dx11/ApplicationDX11.h"
 #include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
+#include "render/ResourceSystem/ResourceConfig.h"
 
 #include "GeometryLoader.h"
 
@@ -56,7 +57,7 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	ResourcePtr m_constantBuffer;
+	Resource1Ptr m_constantBuffer;
 
 	std::vector<GeometryPtr> m_vGeoms;
 	std::vector<Matrix4f> m_vMats;
@@ -116,8 +117,10 @@ bool AssimpDemo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	//BufferConfigDX11 cbConfig;
+	//cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	BuildShaders();

@@ -965,4 +965,13 @@ bool PipelineManagerDX11::UpdateBufferResource(ResourcePtr pResource, void* pdat
 	UnMapResource(pResource, 0);
 	return true;
 }
+//--------------------------------------------------------------------------------
+bool PipelineManagerDX11::UpdateBufferResource(Resource1Ptr pResource, void* pdata, u32 size)
+{
+	auto resourceID = dynamic_cast<ResourceDX11*>(pResource.get())->GetResourceID();
+	auto pDstResource = MapResource(resourceID, 0, D3D11_MAP_WRITE_DISCARD, 0);
+	memcpy(pDstResource.pData, pdata, size);
+	UnMapResource(resourceID, 0);
+	return true;
+}
 

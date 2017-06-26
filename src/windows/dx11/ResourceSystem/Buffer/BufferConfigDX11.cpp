@@ -24,7 +24,7 @@ BufferConfigDX11::BufferConfigDX11(const BufferConfig& config)
 
 	if (config.GetResourceType() == RT_CONSTANTBUFFER)
 	{
-		SetDefaultConstantBuffer(config.GetBufferSize(), false);
+		SetDefaultConstantBuffer(config.GetBufferSize(), true);
 	}
 	else if (config.GetResourceType() == RT_VERTEXBUFFER)
 	{

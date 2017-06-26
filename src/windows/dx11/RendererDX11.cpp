@@ -1932,8 +1932,10 @@ Resource1Ptr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, S
 
 	BufferComPtr pBuffer;
 	BufferConfigDX11 configDX11 = *pConfig;
-	D3D11_SUBRESOURCE_DATA data = ConvertSubResource(pData);
-	HRESULT hr = m_pDevice->CreateBuffer(&configDX11.m_State, &data, pBuffer.GetAddressOf());
+	D3D11_SUBRESOURCE_DATA data;
+	if(pData)
+		data = ConvertSubResource(pData);
+	HRESULT hr = m_pDevice->CreateBuffer(&configDX11.m_State, pData ? &data : nullptr, pBuffer.GetAddressOf());
 
 	if (pBuffer)
 	{

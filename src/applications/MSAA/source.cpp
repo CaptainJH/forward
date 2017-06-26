@@ -72,7 +72,7 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	ResourcePtr m_constantBuffer;
+	Resource1Ptr m_constantBuffer;
 
 	GeometryPtr m_pQuad;
 
@@ -214,8 +214,8 @@ bool MSAA_Demo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	//create new rasterizer state

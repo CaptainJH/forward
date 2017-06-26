@@ -95,12 +95,11 @@ bool ShaderStageDX11::extractConstantBuffers(const u32 length, ID3D11Buffer** pR
 {
 	for (u32 i = 0; i < length; ++i)
 	{
-		ResourcePtr ptr = DesiredState.ConstantBuffers.GetState(i);
+		Resource1Ptr ptr = DesiredState.ConstantBuffers.GetState(i);
 		if (ptr == nullptr)
 			continue;
-		auto bufferID = ptr->m_iResource;
-		ConstantBufferDX11* pBuffer = RendererDX11::Get()->GetConstantBufferByIndex(bufferID);
-		pResult[i] = static_cast<ID3D11Buffer*>(pBuffer->GetResource());
+		ResourceDX11* resourceDX11 = dynamic_cast<ResourceDX11*>(ptr.get());
+		pResult[i] = static_cast<ID3D11Buffer*>(resourceDX11->GetResource());
 	}
 
 	return true;
