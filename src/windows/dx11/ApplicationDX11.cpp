@@ -114,6 +114,7 @@ bool ApplicationDX11::Init()
 void ApplicationDX11::OnResize()
 {
 	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
+	// TODO: ResizeTexture should accept Resource
 	//m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
 
 	m_pRender->pImmPipeline->ClearRenderTargets();

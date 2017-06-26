@@ -42,8 +42,7 @@ private:
 	i32 m_vsID;
 	i32 m_psID;
 
-	ResourceProxyPtr m_pVertexBuffer;
-	ResourceProxyPtr m_pIndexBuffer;
+	ResourcePtr m_pVertexBuffer;
 	i32 m_VertexLayout;
 };
 
@@ -125,10 +124,10 @@ void HelloWorld::BuildGeometry()
 		data.rowPitch = 0;
 		data.slicePitch = 0;
 
-		BufferConfigDX11 vbConfig;
-		vbConfig.SetDefaultVertexBuffer(4 * sizeof(Vertex), false);
+		VertexBufferConfig vbConfig;
+		vbConfig.SetBufferSize(4 * sizeof(Vertex));
 		m_pVertexBuffer = m_pRender->CreateVertexBuffer(&vbConfig, &data);
-		if (m_pVertexBuffer->m_iResource == -1)
+		if (dynamic_cast<ResourceDX11*>(m_pVertexBuffer.get())->GetResourceID() == -1)
 		{
 			Log::Get().Write(L"Failed to create vertex buffer");
 			assert(false);
@@ -157,10 +156,12 @@ void HelloWorld::BuildGeometry()
 
 void HelloWorld::SetupPipeline()
 {
+	ResourceDX11* pVB = dynamic_cast<ResourceDX11*>(m_pVertexBuffer.get());
+
 	InputAssemblerStateDX11 iaState;
 	iaState.PrimitiveTopology.SetState(PT_TRIANGLESTRIP);
 	iaState.InputLayout.SetState(m_VertexLayout);
-	iaState.VertexBuffers.SetState(0, m_pVertexBuffer->m_iResource);
+	iaState.VertexBuffers.SetState(0, pVB->GetResourceID());
 	iaState.VertexBufferStrides.SetState(0, sizeof(Vertex));
 	iaState.VertexBufferOffsets.SetState(0, 0);
 	iaState.SetFeautureLevel(m_pRender->GetAvailableFeatureLevel(D3D_DRIVER_TYPE_UNKNOWN));

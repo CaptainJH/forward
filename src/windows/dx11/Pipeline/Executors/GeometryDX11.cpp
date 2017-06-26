@@ -41,16 +41,19 @@ void GeometryDX11::Execute( PipelineManagerDX11* pPipeline )
 {
 	pPipeline->InputAssemblerStage.ClearDesiredState();
 
+	ResourceDX11* pVB = dynamic_cast<ResourceDX11*>(m_VB.get());
+	ResourceDX11* pIB = dynamic_cast<ResourceDX11*>(m_IB.get());
+
 	// Set the Input Assembler state, then perform the draw call.
 	i32 layout = GetInputLayout( pPipeline->ShaderStages[VERTEX_SHADER]->DesiredState.ShaderProgram.GetState() );
 	pPipeline->InputAssemblerStage.DesiredState.InputLayout.SetState( layout );
 	pPipeline->InputAssemblerStage.DesiredState.PrimitiveTopology.SetState( m_ePrimType );
 
-	pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, m_VB->m_iResource );
+	pPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState( 0, pVB->GetResourceID() );
 	pPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState( 0, m_iVertexSize );
 	pPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState( 0, 0 );
 
-	pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( m_IB->m_iResource );
+	pPipeline->InputAssemblerStage.DesiredState.IndexBuffer.SetState( pIB->GetResourceID() );
 	pPipeline->InputAssemblerStage.DesiredState.IndexBufferFormat.SetState( DF_R32_UINT );
 	
 	pPipeline->ApplyInputResources();
@@ -372,8 +375,8 @@ void GeometryDX11::LoadToBuffers()
 		data.rowPitch = 0;
 		data.slicePitch = 0;
 
-		BufferConfigDX11 vbuffer;
-		vbuffer.SetDefaultVertexBuffer( vertices_length, false );
+		VertexBufferConfig vbuffer;
+		vbuffer.SetBufferSize(vertices_length);
 		m_VB = RendererDX11::Get()->CreateVertexBuffer( &vbuffer, &data );
 
 		delete [] pBytes; 
@@ -381,13 +384,13 @@ void GeometryDX11::LoadToBuffers()
 	
 	// Load the index buffer by calculating the required size
 	// based on the number of indices.
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = reinterpret_cast<void*>( &m_vIndices[0] );
-	data.SysMemPitch = 0;
-	data.SysMemSlicePitch = 0;
+	Subresource data;
+	data.data = reinterpret_cast<void*>( &m_vIndices[0] );
+	data.rowPitch = 0;
+	data.slicePitch = 0;
 	
-	BufferConfigDX11 ibuffer;
-	ibuffer.SetDefaultIndexBuffer( sizeof( u32 ) * GetIndexCount(), false );
+	IndexBufferConfig ibuffer;
+	ibuffer.SetBufferSize(sizeof(u32) * GetIndexCount());
 	m_IB = RendererDX11::Get()->CreateIndexBuffer( &ibuffer, &data );
 }
 //--------------------------------------------------------------------------------
