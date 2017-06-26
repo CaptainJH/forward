@@ -138,7 +138,7 @@ namespace forward
 
 		void ClearBuffers( Vector4f color, f32 depth = 1.0f, u32 stencil = 0 );
 
-		bool UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size);
+		bool UpdateBufferResource(ResourceProxyPtr pResource, void* pdata, u32 size);
 		bool UpdateBufferResource(Resource1Ptr pResource, void* pdata, u32 size);
 
 
@@ -152,15 +152,15 @@ namespace forward
 		// Copy from one resource to another resource.  Check the documentation for restrictions
 		// if you get errors when performing the copying.
 
-		void CopySubresourceRegion( ResourcePtr DestResource, u32 DstSubresource, u32 DstX, u32 DstY, u32 DstZ,
-			ResourcePtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox );
+		void CopySubresourceRegion( ResourceProxyPtr DestResource, u32 DstSubresource, u32 DstX, u32 DstY, u32 DstZ,
+			ResourceProxyPtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox );
 
-		void CopyResource( ResourcePtr DestResource, ResourcePtr SrcResource );
+		void CopyResource( ResourceProxyPtr DestResource, ResourceProxyPtr SrcResource );
 
         // Resolve a subresource from a MSAA texture to a non-MSAA texture.
         
-        void ResolveSubresource ( ResourcePtr DestResource, u32 DstSubresource, 
-                                    ResourcePtr SrcResource, u32 SrcSubresource,
+        void ResolveSubresource ( ResourceProxyPtr DestResource, u32 DstSubresource, 
+                                    ResourceProxyPtr SrcResource, u32 SrcSubresource,
                                     DXGI_FORMAT format );
 		void ResolveSubresource(ResourceDX11* DestResource, u32 DstSubresource,
 			ResourceDX11* SrcResource, u32 SrcSubresource,
@@ -170,7 +170,7 @@ namespace forward
 		// functionality, or directly a StructuredBuffer internal counter) to the specified
 		// output buffer.
 
-		void CopyStructureCount( ResourcePtr dest, u32 offset, ResourcePtr uav );
+		void CopyStructureCount( ResourceProxyPtr dest, u32 offset, ResourceProxyPtr uav );
 
 
 
@@ -233,8 +233,8 @@ namespace forward
 		D3D11_MAPPED_SUBRESOURCE	MapResource(i32 index, u32 subresource, D3D11_MAP actions, u32 flags);
 		void						UnMapResource(i32 index, u32 subresource);
 
-		D3D11_MAPPED_SUBRESOURCE	MapResource(ResourcePtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags);
-		void						UnMapResource(ResourcePtr pGlyphResource, u32 subresource);
+		D3D11_MAPPED_SUBRESOURCE	MapResource(ResourceProxyPtr pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags);
+		void						UnMapResource(ResourceProxyPtr pGlyphResource, u32 subresource);
 
 		D3D11_MAPPED_SUBRESOURCE	MapResource(ResourceDX11* pGlyphResource, u32 subresource, D3D11_MAP actions, u32 flags);
 		void						UnMapResource(ResourceDX11* pGlyphResource, u32 subresource);

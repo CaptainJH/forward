@@ -582,7 +582,7 @@ void ShadowMapApp::renderShadowTarget(const Matrix4f& ViewLight)
 	renderCSMShadowMap();
 }
 
-void ShadowMapApp::blurShadowRenderTarget(ResourcePtr ptr)
+void ShadowMapApp::blurShadowRenderTarget(ResourceProxyPtr ptr)
 {
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
 	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, m_blurViewportID);

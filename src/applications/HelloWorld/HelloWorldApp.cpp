@@ -42,8 +42,8 @@ private:
 	i32 m_vsID;
 	i32 m_psID;
 
-	ResourcePtr m_pVertexBuffer;
-	ResourcePtr m_pIndexBuffer;
+	ResourceProxyPtr m_pVertexBuffer;
+	ResourceProxyPtr m_pIndexBuffer;
 	i32 m_VertexLayout;
 };
 

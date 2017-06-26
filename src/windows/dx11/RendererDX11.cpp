@@ -471,17 +471,17 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 	Texture2dConfigDX11 TextureConfig;
 	pSwapChainBuffer->GetDesc( &TextureConfig.m_State );
 
-	Resource1Ptr rtResourcePtr(rtResource);
+	Resource1Ptr rtResourceProxyPtr(rtResource);
 	// With the resource proxy created, create the swap chain wrapper and store it.
 	// The resource proxy can then be used later on by the application to get the
 	// RTV or texture ID if needed.
 
-	m_vSwapChains.push_back( new SwapChain( pSwapChain, rtResourcePtr) );
+	m_vSwapChains.push_back( new SwapChain( pSwapChain, rtResourceProxyPtr) );
 
 	return( m_vSwapChains.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData )
+ResourceProxyPtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData )
 {
 	// Create the buffer with the specified configuration.
 	BufferComPtr pBuffer;
@@ -497,15 +497,15 @@ ResourcePtr RendererDX11::CreateVertexBuffer( BufferConfigDX11* pConfig, Subreso
 		// 16 bits to identify the resource type.
 
 		i32 ResourceID = StoreNewResource( pVertexBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
+ResourceProxyPtr RendererDX11::CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
 {
 	// Create the buffer with the specified configuration.
 
@@ -521,15 +521,15 @@ ResourcePtr RendererDX11::CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_S
 		// 16 bits to identify the resource type.
 
 		i32 ResourceID = StoreNewResource( pIndexBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
+ResourceProxyPtr RendererDX11::CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
 {
 	// Create the buffer with the specified configuration.
 
@@ -545,15 +545,15 @@ ResourcePtr RendererDX11::CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3
 		// 16 bits to identify the resource type.
 
 		i32 ResourceID = StoreNewResource( pStructuredBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
+ResourceProxyPtr RendererDX11::CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
 {
 	// Create the buffer with the specified configuration.
 
@@ -569,15 +569,15 @@ ResourcePtr RendererDX11::CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D
 		// 16 bits to identify the resource type.
 
 		i32 ResourceID = StoreNewResource( pByteAddressBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateIndirectArgsBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
+ResourceProxyPtr RendererDX11::CreateIndirectArgsBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData )
 {
 	// Create the buffer with the specified configuration.
 
@@ -593,15 +593,15 @@ ResourcePtr RendererDX11::CreateIndirectArgsBuffer( BufferConfigDX11* pConfig,  
 		// 16 bits to identify the resource type.
 
 		i32 ResourceID = StoreNewResource( pIndirectArgsBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData, bool bAutoUpdate )
+ResourceProxyPtr RendererDX11::CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData, bool bAutoUpdate )
 {
 	// Set the constant buffer flag in addition to any other flags that
 	// the user has set.
@@ -618,15 +618,15 @@ ResourcePtr RendererDX11::CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D1
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pConstantBuffer );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData )
+ResourceProxyPtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData )
 {
 	Texture1DComPtr pTexture;
 	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
@@ -640,15 +640,15 @@ ResourcePtr RendererDX11::CreateTexture1D( Texture1dConfigDX11* pConfig, Subreso
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData )
+ResourceProxyPtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData )
 {
 	Texture2DComPtr pTexture;
 	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
@@ -671,15 +671,15 @@ ResourcePtr RendererDX11::CreateTexture2D( Texture2dConfigDX11* pConfig, Subreso
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this ) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData)
+ResourceProxyPtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData)
 {
 	Texture3DComPtr pTexture;
 	D3D11_SUBRESOURCE_DATA* pDataIn = reinterpret_cast<D3D11_SUBRESOURCE_DATA*>(pData);
@@ -693,12 +693,12 @@ ResourcePtr RendererDX11::CreateTexture3D( Texture3dConfigDX11* pConfig, Subreso
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
 		i32 ResourceID = StoreNewResource( pTex );
-		ResourcePtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this) );
+		ResourceProxyPtr Proxy( new ResourceProxyDX11( ResourceID, pConfig, this) );
 
 		return( Proxy );
 	}
 
-	return( ResourcePtr( new ResourceProxyDX11() ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::CreateShaderResourceView( i32 ResourceID, D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc )
@@ -814,7 +814,7 @@ i32 RendererDX11::CreateUnorderedAccessView( i32 ResourceID, D3D11_UNORDERED_ACC
 	return( -1 );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::ResizeTexture( ResourcePtr texture, u32 width, u32 height )
+void RendererDX11::ResizeTexture( ResourceProxyPtr texture, u32 width, u32 height )
 {
 	// For the texture, and then for each associated resource view create the new
 	// sized versions.  Afterwards, release the old versions and replace them with
@@ -1235,7 +1235,7 @@ i32 RendererDX11::CreateInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& elem
 	return( m_vInputLayouts.size() - 1 );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
+ResourceProxyPtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 {
 	ComPtr<ID3D11Resource> pResource;
 
@@ -1285,7 +1285,7 @@ ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 	if ( FAILED( hr ) )
 	{
 		Log::Get().Write( L"Failed to load texture from file!" );
-		return( ResourcePtr( new ResourceProxyDX11() ) );
+		return( ResourceProxyPtr( new ResourceProxyDX11() ) );
 	}
 
 	ComPtr<ID3D11Texture2D> pTexture;
@@ -1296,10 +1296,10 @@ ResourcePtr RendererDX11::LoadTexture( std::wstring filename, bool /*sRGB*/ )
 	Texture2dConfigDX11 TextureConfig;
 	pTexture->GetDesc( &TextureConfig.m_State );
 
-	return( ResourcePtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
+	return( ResourceProxyPtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
 }
 //--------------------------------------------------------------------------------
-ResourcePtr RendererDX11::LoadTexture( ID3D11Texture2D* pTexture )
+ResourceProxyPtr RendererDX11::LoadTexture( ID3D11Texture2D* pTexture )
 {
 	// Add a reference to the texture to ensure it doesn't get destroyed while we 
 	// are using it.
@@ -1314,7 +1314,7 @@ ResourcePtr RendererDX11::LoadTexture( ID3D11Texture2D* pTexture )
     Texture2dConfigDX11 TextureConfig;
     pTexture->GetDesc( &TextureConfig.m_State );
 
-    return( ResourcePtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
+    return( ResourceProxyPtr( new ResourceProxyDX11( ResourceID, &TextureConfig, this ) ) );
 }
 //--------------------------------------------------------------------------------
 i32 RendererDX11::CreateBlendState( BlendStateConfigDX11* pConfig )
@@ -1833,7 +1833,7 @@ i32	RendererDX11::StoreNewResource( ResourceDX11* pResource )
 	return( index );
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::DeleteResource( ResourcePtr ptr )
+void RendererDX11::DeleteResource( ResourceProxyPtr ptr )
 {
 	// This is a convenience method that just passes the resource index to
 	// the delete function.

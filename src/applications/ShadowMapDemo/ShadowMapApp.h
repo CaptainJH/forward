@@ -83,7 +83,7 @@ private:
 	void renderSpotLightShadowMap(const Matrix4f& mat);
 	void renderCSMShadowMap();
 
-	void blurShadowRenderTarget(ResourcePtr ptr);
+	void blurShadowRenderTarget(ResourceProxyPtr ptr);
 
 	i32 m_vsID;
 	i32 m_psID;
@@ -103,14 +103,14 @@ private:
 	GeometryPtr m_pFloor;
 	GeometryPtr m_pQuad;
 	Matrix4f m_worldMat;
-	ResourcePtr m_constantBuffer;
+	ResourceProxyPtr m_constantBuffer;
 
-	ResourcePtr m_shadowMapRenderTargetTex;
-	ResourcePtr m_shadowMapDepthTargetTex;
-	ResourcePtr m_CSMRenderTargetTex;
-	ResourcePtr m_CSMDepthTargetTex;
-	ResourcePtr m_VSMRenderTargetTex;
-	ResourcePtr m_VSMBlurRenderTargetTex;
+	ResourceProxyPtr m_shadowMapRenderTargetTex;
+	ResourceProxyPtr m_shadowMapDepthTargetTex;
+	ResourceProxyPtr m_CSMRenderTargetTex;
+	ResourceProxyPtr m_CSMDepthTargetTex;
+	ResourceProxyPtr m_VSMRenderTargetTex;
+	ResourceProxyPtr m_VSMBlurRenderTargetTex;
 	i32 m_samplerID;
 	i32 m_pcfSamplerID;
 

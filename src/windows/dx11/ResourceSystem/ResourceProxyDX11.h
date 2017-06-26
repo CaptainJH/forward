@@ -58,7 +58,7 @@ namespace forward
         UnorderedAccessViewConfigDX11*  m_pUAVConfig;
 	};
 
-	typedef std::shared_ptr<ResourceProxyDX11> ResourcePtr;
+	typedef std::shared_ptr<ResourceProxyDX11> ResourceProxyPtr;
 };
 //--------------------------------------------------------------------------------
 #endif // ResourceProxyDX11_h

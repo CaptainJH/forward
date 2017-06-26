@@ -30,5 +30,4 @@ namespace forward
 		i32	m_iResource;
 	};
 
-	typedef std::shared_ptr<ResourceProxy> ResourcePtrBase;
 };

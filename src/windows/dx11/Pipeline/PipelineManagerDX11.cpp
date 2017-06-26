@@ -535,7 +535,7 @@ void PipelineManagerDX11::DrawInstancedIndirect( ID3D11Buffer* argsBuffer, u32 o
 //	m_pContext->Dispatch( x, y, z );
 //}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopyStructureCount( ResourcePtr dest, u32 offset, ResourcePtr uav )
+void PipelineManagerDX11::CopyStructureCount( ResourceProxyPtr dest, u32 offset, ResourceProxyPtr uav )
 {
 	i32 id = dest->m_iResource;
 
@@ -642,7 +642,7 @@ void PipelineManagerDX11::UnMapResource( i32 rid, u32 subresource )
 	UnMapResource( pGlyphResource, subresource );
 }
 //--------------------------------------------------------------------------------
-D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource, u32 subresource, D3D11_MAP actions, u32 flags )
+D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourceProxyPtr pResource, u32 subresource, D3D11_MAP actions, u32 flags )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -651,7 +651,7 @@ D3D11_MAPPED_SUBRESOURCE PipelineManagerDX11::MapResource( ResourcePtr pResource
 	return( MapResource( pGlyphResource, subresource, actions, flags ) );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::UnMapResource( ResourcePtr pResource, u32 subresource )
+void PipelineManagerDX11::UnMapResource( ResourceProxyPtr pResource, u32 subresource )
 {
 	// Acquire the engine's resource wrapper.
 	ResourceDX11* pGlyphResource = 0; 
@@ -810,8 +810,8 @@ void PipelineManagerDX11::SaveTextureScreenShot( i32 index, std::wstring filenam
 	}
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, u32 DstSubresource, 
-	u32 DstX, u32 DstY, u32 DstZ, ResourcePtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox )
+void PipelineManagerDX11::CopySubresourceRegion( ResourceProxyPtr DestResource, u32 DstSubresource, 
+	u32 DstX, u32 DstY, u32 DstZ, ResourceProxyPtr SrcResource, u32 SrcSubresource, D3D11_BOX* pSrcBox )
 {
 	ID3D11Resource* pDestResource = RendererDX11::Get()->GetResourceByIndex(DestResource->m_iResource)->GetResource();
 	ID3D11Resource* pSrcResource = RendererDX11::Get()->GetResourceByIndex(SrcResource->m_iResource)->GetResource();
@@ -820,7 +820,7 @@ void PipelineManagerDX11::CopySubresourceRegion( ResourcePtr DestResource, u32 D
 		pSrcResource, SrcSubresource, pSrcBox );
 }
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::CopyResource( ResourcePtr DestResource, ResourcePtr SrcResource )
+void PipelineManagerDX11::CopyResource( ResourceProxyPtr DestResource, ResourceProxyPtr SrcResource )
 {
 	ID3D11Resource* pDestResource = RendererDX11::Get()->GetResourceByIndex(DestResource->m_iResource)->GetResource();
 	ID3D11Resource* pSrcResource = RendererDX11::Get()->GetResourceByIndex(SrcResource->m_iResource)->GetResource();
@@ -906,8 +906,8 @@ void PipelineManagerDX11::CopyResource( ResourcePtr DestResource, ResourcePtr Sr
 //	ComputeShaderStage.ClearDesiredState();
 //}
 //--------------------------------------------------------------------------------
-void PipelineManagerDX11::ResolveSubresource( ResourcePtr DestResource, u32 DstSubresource, 
-                                              ResourcePtr SrcResource, u32 SrcSubresource, 
+void PipelineManagerDX11::ResolveSubresource( ResourceProxyPtr DestResource, u32 DstSubresource, 
+                                              ResourceProxyPtr SrcResource, u32 SrcSubresource, 
                                               DXGI_FORMAT format )
 {
     i32 DestID = DestResource->m_iResource;
@@ -959,7 +959,7 @@ ID3D11DeviceContext* PipelineManagerDX11::GetDeviceContext()
 	return( m_pContext.Get() );
 }
 //--------------------------------------------------------------------------------
-bool PipelineManagerDX11::UpdateBufferResource(ResourcePtr pResource, void* pdata, u32 size)
+bool PipelineManagerDX11::UpdateBufferResource(ResourceProxyPtr pResource, void* pdata, u32 size)
 {
 	auto pDstResource = MapResource(pResource, 0, D3D11_MAP_WRITE_DISCARD, 0);
 	memcpy(pDstResource.pData, pdata, size);

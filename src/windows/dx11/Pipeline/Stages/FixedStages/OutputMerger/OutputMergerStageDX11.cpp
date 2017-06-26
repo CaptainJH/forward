@@ -81,7 +81,7 @@ void OutputMergerStageDX11::ApplyDesiredRenderTargetStates( ID3D11DeviceContext*
 
 		for ( i32 i = 0; i < D3D11_PS_CS_UAV_REGISTER_COUNT; i++ ) 
 		{
-			ResourcePtr uavPtr = DesiredState.UnorderedAccessResources.GetState(i);
+			ResourceProxyPtr uavPtr = DesiredState.UnorderedAccessResources.GetState(i);
 			if (uavPtr == nullptr)
 				continue;
 			UnorderedAccessViewDX11& uav = pRenderer->GetUnorderedAccessViewByIndex( uavPtr->m_iResourceUAV );

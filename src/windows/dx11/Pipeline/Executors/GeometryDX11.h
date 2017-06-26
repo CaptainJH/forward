@@ -76,8 +76,8 @@ namespace forward
 		std::vector<VertexElementDX11*>		m_vElements;
 		std::vector<u32>					m_vIndices;
 		
-		ResourcePtr m_VB;
-		ResourcePtr m_IB;
+		ResourceProxyPtr m_VB;
+		ResourceProxyPtr m_IB;
 
 		// The size 
 		i32 m_iVertexSize;

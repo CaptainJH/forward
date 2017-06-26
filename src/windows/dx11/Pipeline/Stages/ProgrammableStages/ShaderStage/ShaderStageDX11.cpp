@@ -125,7 +125,7 @@ bool ShaderStageDX11::extractUnorderAccessResourceViews(const u32 length, ID3D11
 {
 	for (u32 i = 0; i < length; ++i)
 	{
-		ResourcePtr ptr = DesiredState.UnorderedAccessResources.GetState(i);
+		ResourceProxyPtr ptr = DesiredState.UnorderedAccessResources.GetState(i);
 		if (ptr == nullptr)
 			continue;
 		auto unorderViewID = ptr->m_iResourceUAV;

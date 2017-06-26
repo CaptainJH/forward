@@ -96,16 +96,16 @@ namespace forward
 		// structures - vertex, index, and constant buffers.  These all utilize the
 		// same ID3D11Buffer interface, and only vary with a flag in the description.
 
-		ResourcePtr CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData );
-		ResourcePtr CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
-		ResourcePtr CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData, bool bAutoUpdate = true );
-		ResourcePtr CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
-		ResourcePtr CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
-		ResourcePtr CreateIndirectArgsBuffer( BufferConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData );
+		ResourceProxyPtr CreateVertexBuffer( BufferConfigDX11* pConfig, Subresource* pData );
+		ResourceProxyPtr CreateIndexBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
+		ResourceProxyPtr CreateConstantBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData, bool bAutoUpdate = true );
+		ResourceProxyPtr CreateStructuredBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
+		ResourceProxyPtr CreateByteAddressBuffer( BufferConfigDX11* pConfig,  D3D11_SUBRESOURCE_DATA* pData );
+		ResourceProxyPtr CreateIndirectArgsBuffer( BufferConfigDX11* pConfig, D3D11_SUBRESOURCE_DATA* pData );
 
-		ResourcePtr CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData );
-		ResourcePtr CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData );
-		ResourcePtr CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData );
+		ResourceProxyPtr CreateTexture1D( Texture1dConfigDX11* pConfig, Subresource* pData );
+		ResourceProxyPtr CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData );
+		ResourceProxyPtr CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData );
 
 		Resource1Ptr CreateVertexBuffer( VertexBufferConfig* pConfig, Subresource* pData) override;
 		Resource1Ptr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData) override;
@@ -117,7 +117,7 @@ namespace forward
 
 		void DeleteResource(Resource1Ptr ptr) override;
 
-		void DeleteResource( ResourcePtr ptr );
+		void DeleteResource( ResourceProxyPtr ptr );
 		void DeleteResource( i32 index );
 
 		// The resources created in the above function calls can only be accessed by
@@ -168,17 +168,17 @@ namespace forward
 
 		Vector2f GetDesktopResolution();
 
-		ResourcePtr LoadTexture( std::wstring filename, bool sRGB = false );
+		ResourceProxyPtr LoadTexture( std::wstring filename, bool sRGB = false );
 		
 		// NOTE: This method is likely to be removed in the near future, since there should not
 		//       be any situations where there is a raw texture pointer being given to the renderer!
-		ResourcePtr LoadTexture( ID3D11Texture2D* pTexture );
+		ResourceProxyPtr LoadTexture( ID3D11Texture2D* pTexture );
 
 		// These methods are used to take an existing texture resource and to resize it.  This
 		// will recreate the texture and its associated views with the exact same configuration
 		// except that the size will be updated.
 
-		void ResizeTexture( ResourcePtr texture, u32 width, u32 height );
+		void ResizeTexture( ResourceProxyPtr texture, u32 width, u32 height );
 		void ResizeTextureSRV( i32 RID, i32 SRVID, u32 width, u32 height );
 		void ResizeTextureRTV( i32 RID, i32 RTVID, u32 width, u32 height );
 		void ResizeTextureDSV( i32 RID, i32 DSVID, u32 width, u32 height );

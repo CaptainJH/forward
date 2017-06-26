@@ -69,9 +69,9 @@ private:
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	ResourcePtr m_constantBuffer;
+	ResourceProxyPtr m_constantBuffer;
 
-	ResourcePtr m_SDFTex3D;
+	ResourceProxyPtr m_SDFTex3D;
 
 	std::vector<f32> m_sdf;
 	Vector4f m_sdfParams;
