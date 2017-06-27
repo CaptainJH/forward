@@ -48,8 +48,6 @@ namespace forward
 		virtual u32						GetEvictionPriority();
 		virtual void						SetEvictionPriority( u32 EvictionPriority );
 
-		void						SetResourceConfig(ResourceConfig* pConfig) { m_pResourceConfig = pConfig; }
-
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_pBuffer;
 		D3D11_BUFFER_DESC							m_DesiredDesc;

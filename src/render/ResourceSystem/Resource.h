@@ -3,8 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include <memory>
-#include "Types.h"
+#include "PCH.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -40,6 +39,8 @@ namespace forward
 
 		const std::string&		Name() const;
 		void					SetName(const std::string& name);
+
+		void					SetResourceConfig(ResourceConfig* pConfig);
 
 	protected:
 		static u32				s_usResourceUID;

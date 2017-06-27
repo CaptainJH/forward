@@ -12,7 +12,7 @@ namespace forward
 	class VertexBufferDX11 : public BufferDX11
 	{
 	public:
-		VertexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer );
+		VertexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer, VertexBufferConfig* pConfig = nullptr );
 		virtual ~VertexBufferDX11();
 
 		virtual ResourceType				GetType();

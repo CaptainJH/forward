@@ -3,9 +3,14 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-VertexBufferDX11::VertexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer )
+VertexBufferDX11::VertexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer, VertexBufferConfig* pConfig )
 {
 	m_pBuffer = pBuffer;
+
+	if (pConfig)
+	{
+		m_pResourceConfig = new VertexBufferConfig(*pConfig);
+	}
 }
 //--------------------------------------------------------------------------------
 VertexBufferDX11::~VertexBufferDX11()

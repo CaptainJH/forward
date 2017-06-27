@@ -15,6 +15,7 @@ namespace forward
 	public:
 
 		virtual ResourceType GetResourceType() const = 0;
+		virtual ~ResourceConfig() {}
 
 		void SetFormat(DataFormatType state) { m_format = state; }
 		DataFormatType GetFormat() const { return m_format; }

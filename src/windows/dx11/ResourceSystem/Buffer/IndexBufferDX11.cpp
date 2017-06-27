@@ -3,9 +3,14 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-IndexBufferDX11::IndexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer )
+IndexBufferDX11::IndexBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer, IndexBufferConfig* pConfig )
 {
 	m_pBuffer = pBuffer;
+
+	if(pConfig)
+	{
+		m_pResourceConfig = new IndexBufferConfig(*pConfig);
+	}
 }
 //--------------------------------------------------------------------------------
 IndexBufferDX11::~IndexBufferDX11()

@@ -1882,9 +1882,8 @@ ResourcePtr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subres
 
 	if (pBuffer)
 	{
-		VertexBufferDX11* pVertexBuffer = new VertexBufferDX11(pBuffer);
+		VertexBufferDX11* pVertexBuffer = new VertexBufferDX11(pBuffer, pConfig);
 		pVertexBuffer->SetDesiredDescription(configDX11.m_State);
-		pVertexBuffer->SetResourceConfig(pConfig);
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
@@ -1909,9 +1908,8 @@ ResourcePtr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subresou
 
 	if (pBuffer)
 	{
-		IndexBufferDX11* pIndexBuffer = new IndexBufferDX11(pBuffer);
+		IndexBufferDX11* pIndexBuffer = new IndexBufferDX11(pBuffer, pConfig);
 		pIndexBuffer->SetDesiredDescription(configDX11.m_State);
-		pIndexBuffer->SetResourceConfig(pConfig);
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.
@@ -1939,9 +1937,8 @@ ResourcePtr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, Su
 
 	if (pBuffer)
 	{
-		ConstantBufferDX11* pConstantBuffer = new ConstantBufferDX11(pBuffer);
+		ConstantBufferDX11* pConstantBuffer = new ConstantBufferDX11(pBuffer, pConfig);
 		pConstantBuffer->SetDesiredDescription(configDX11.m_State);
-		pConstantBuffer->SetResourceConfig(pConfig);
 
 		// Return an index with the lower 16 bits of index, and the upper
 		// 16 bits to identify the resource type.

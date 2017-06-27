@@ -35,7 +35,7 @@ namespace forward
 	class ConstantBufferDX11 : public BufferDX11
 	{
 	public:
-		ConstantBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer );
+		ConstantBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer, ConstantBufferConfig* pConfig = nullptr );
 		virtual ~ConstantBufferDX11();
 
 		virtual ResourceType				GetType( );
