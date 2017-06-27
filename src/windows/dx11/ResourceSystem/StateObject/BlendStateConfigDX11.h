@@ -6,6 +6,7 @@
 #define BlendStateConfigDX11_h
 //--------------------------------------------------------------------------------
 #include <d3d11_2.h>
+#include "render/FrameGraph/PipelineStateObjects.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -13,6 +14,7 @@ namespace forward
 	{
 	public:
 		BlendStateConfigDX11();
+		BlendStateConfigDX11(const BlendState& blendState);
 		~BlendStateConfigDX11();
 
 		void SetDefaults();
@@ -23,7 +25,10 @@ namespace forward
 	protected:
 		D3D11_BLEND_DESC m_state;
 
-		//friend RendererDX11;
+	private:
+		// Conversions from GTEngine values to DX11 values.
+		static D3D11_BLEND const msMode[];
+		static D3D11_BLEND_OP const msOperation[];
 	};
 };
 //--------------------------------------------------------------------------------

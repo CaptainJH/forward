@@ -7,6 +7,7 @@
 #define RasterizerStateConfigDX11_h
 //--------------------------------------------------------------------------------
 #include <d3d11_2.h>
+#include "render/FrameGraph/PipelineStateObjects.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -14,6 +15,7 @@ namespace forward
 	{
 	public:
 		RasterizerStateConfigDX11();
+		RasterizerStateConfigDX11(const RasterizerState& rasterizerState);
 		~RasterizerStateConfigDX11();
 
 		void SetDefaults();
@@ -24,7 +26,10 @@ namespace forward
 	protected:
 		D3D11_RASTERIZER_DESC m_state;
 
-		//friend RendererDX11;
+	private:
+		// Conversions from GTEngine values to DX11 values.
+		static D3D11_FILL_MODE const msFillMode[];
+		static D3D11_CULL_MODE const msCullMode[];
 	};
 };
 //--------------------------------------------------------------------------------

@@ -38,3 +38,32 @@ D3D11_RASTERIZER_DESC& RasterizerStateConfigDX11::GetDesc()
 {
 	return m_state;
 }
+//--------------------------------------------------------------------------------
+RasterizerStateConfigDX11::RasterizerStateConfigDX11(const RasterizerState& rasterizerState)
+{
+	// Specify the rasterizer state description.
+	D3D11_RASTERIZER_DESC desc;
+	desc.FillMode = msFillMode[rasterizerState.fillMode];
+	desc.CullMode = msCullMode[rasterizerState.cullMode];
+	desc.FrontCounterClockwise = (rasterizerState.frontCCW ? TRUE : FALSE);
+	desc.DepthBias = rasterizerState.depthBias;
+	desc.DepthBiasClamp = rasterizerState.depthBiasClamp;
+	desc.SlopeScaledDepthBias = rasterizerState.slopeScaledDepthBias;
+	desc.DepthClipEnable = (rasterizerState.enableDepthClip ? TRUE : FALSE);
+	desc.ScissorEnable = (rasterizerState.enableScissor ? TRUE : FALSE);
+	desc.MultisampleEnable = (rasterizerState.enableMultisample ? TRUE : FALSE);
+	desc.AntialiasedLineEnable = (rasterizerState.enableAntialiasedLine ? TRUE : FALSE);
+}
+//--------------------------------------------------------------------------------
+D3D11_FILL_MODE const RasterizerStateConfigDX11::msFillMode[] =
+{
+	D3D11_FILL_SOLID,
+	D3D11_FILL_WIREFRAME
+};
+
+D3D11_CULL_MODE const RasterizerStateConfigDX11::msCullMode[] =
+{
+	D3D11_CULL_NONE,
+	D3D11_CULL_FRONT,
+	D3D11_CULL_BACK
+};
