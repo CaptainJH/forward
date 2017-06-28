@@ -23,6 +23,8 @@ namespace forward
 		u32 slicePitch;
 	};
 
+	class RenderPass;
+
 
 	class Renderer
 	{
@@ -38,6 +40,8 @@ namespace forward
 		virtual ResourcePtr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData) = 0;
 
 		virtual void DeleteResource(ResourcePtr ptr) = 0;
+
+		virtual void DrawRenderPass(RenderPass& pass) = 0;
 
 	protected:
 		Renderer();

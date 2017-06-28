@@ -21,6 +21,6 @@ namespace forward
 		void			SetResource(ResourcePtr resouce);
 
 	protected:
-		ResourcePtr m_resource = nullptr;
+		ResourcePtr		m_resource = nullptr;
 	};
 }

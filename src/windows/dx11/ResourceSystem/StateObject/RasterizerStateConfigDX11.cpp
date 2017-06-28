@@ -67,3 +67,8 @@ D3D11_CULL_MODE const RasterizerStateConfigDX11::msCullMode[] =
 	D3D11_CULL_FRONT,
 	D3D11_CULL_BACK
 };
+//--------------------------------------------------------------------------------
+bool RasterizerStateConfigDX11::operator==(const RasterizerStateConfigDX11& rhs) const
+{
+	return !memcmp(&m_state, &rhs.m_state, sizeof(D3D11_RASTERIZER_DESC));
+}

@@ -10,6 +10,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#------DirectX 12 apps -----------
 	add_subdirectory(HelloDX12)
 	add_subdirectory(BasicGeometryDX12)
+	#------FrameGraph apps -----------
+	add_subdirectory(BasicGeometryFrameGraph)
 endif()
 
 add_subdirectory(CmdApp)

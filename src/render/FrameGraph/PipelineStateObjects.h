@@ -175,5 +175,8 @@ namespace forward
 		DepthStencilState		m_depthStencilState;
 		RasterizerState			m_rasterizerState;
 
+		std::string				m_vertexShader;
+		std::string				m_pixelShader;
+
 	};
 }

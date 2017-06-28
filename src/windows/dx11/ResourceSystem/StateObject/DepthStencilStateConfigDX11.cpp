@@ -96,3 +96,8 @@ D3D11_STENCIL_OP const DepthStencilStateConfigDX11::msOperation[] =
 	D3D11_STENCIL_OP_INCR,
 	D3D11_STENCIL_OP_DECR
 };
+//--------------------------------------------------------------------------------
+bool DepthStencilStateConfigDX11::operator==(const DepthStencilStateConfigDX11& rhs) const
+{
+	return !memcmp(&m_state, &rhs.m_state, sizeof(D3D11_DEPTH_STENCIL_DESC));
+}

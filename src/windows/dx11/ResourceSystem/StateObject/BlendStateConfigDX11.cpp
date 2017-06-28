@@ -93,3 +93,8 @@ D3D11_BLEND_OP const BlendStateConfigDX11::msOperation[] =
 	D3D11_BLEND_OP_MIN,
 	D3D11_BLEND_OP_MAX
 };
+//--------------------------------------------------------------------------------
+bool BlendStateConfigDX11::operator==(const BlendStateConfigDX11& rhs) const
+{
+	return !memcmp(&m_state, &rhs.m_state, sizeof(D3D11_BLEND_DESC));
+}

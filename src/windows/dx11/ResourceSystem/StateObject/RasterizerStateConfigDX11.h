@@ -23,6 +23,8 @@ namespace forward
 		const D3D11_RASTERIZER_DESC& GetDesc() const;
 		D3D11_RASTERIZER_DESC& GetDesc();
 
+		bool operator==(const RasterizerStateConfigDX11& rhs) const;
+
 	protected:
 		D3D11_RASTERIZER_DESC m_state;
 

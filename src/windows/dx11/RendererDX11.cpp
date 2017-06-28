@@ -464,6 +464,7 @@ i32 RendererDX11::CreateSwapChain( SwapChainConfig* pConfig )
 	auto rtResource = new Texture2dDX11(pSwapChainBuffer, &rtConfig);
 	i32 ResourceID = StoreNewResource( rtResource );
 	rtResource->SetResourceID(ResourceID);
+	rtResource->SetName("RenderTarget");
 
 	// If we get here, then we succeeded in creating our swap chain and it's constituent parts.
 	// Now we create the wrapper object and store the result in our container.
@@ -2037,4 +2038,145 @@ void RendererDX11::DeleteResource(ResourcePtr ptr)
 	ResourceDX11* ptrDX11 = dynamic_cast<ResourceDX11*>(ptr.get());
 	assert(ptrDX11);
 	DeleteResource(ptrDX11->GetResourceID());
+}
+//--------------------------------------------------------------------------------
+void RendererDX11::DrawRenderPass(RenderPass& pass)
+{
+	// resources
+	for (auto& res : pass.GetFrameGraphResources())
+	{
+		if (LinkResource(res))
+		{
+			if (res.GetType() == RT_VERTEXBUFFER)
+			{
+
+			}
+			else if (res.GetType() == RT_INDEXBUFFER)
+			{
+
+			}
+			else if (res.GetType() == RT_CONSTANTBUFFER)
+			{
+
+			}
+			else if (res.GetType() == RT_TEXTURE2D)
+			{
+
+			}
+		}
+
+	}
+
+	// PSO
+	auto vsID = GetShaderIndex(pass.GetPSO().m_vertexShader);
+	auto psID = GetShaderIndex(pass.GetPSO().m_pixelShader);
+	pImmPipeline->VertexShaderStage.DesiredState.ShaderProgram.SetState(vsID);
+	pImmPipeline->PixelShaderStage.DesiredState.ShaderProgram.SetState(psID);
+
+	auto rsID = GetRasterizerStateIndex(pass.GetPSO().m_rasterizerState);
+	if(rsID > 0)
+		pImmPipeline->RasterizerStage.DesiredState.RasterizerState.SetState(rsID);
+
+	auto blendID = GetBlendStateIndex(pass.GetPSO().m_blendState);
+	if (blendID > 0)
+		pImmPipeline->OutputMergerStage.DesiredState.BlendState.SetState(blendID);
+
+	auto dsID = GetDepthStateIndex(pass.GetPSO().m_depthStencilState);
+	if (dsID > 0)
+		pImmPipeline->OutputMergerStage.DesiredState.DepthStencilState.SetState(dsID);
+	
+
+	pImmPipeline->ApplyPipelineResources();
+	pImmPipeline->ApplyInputResources();
+
+	pass.Execute();
+}
+//--------------------------------------------------------------------------------
+bool RendererDX11::LinkResource(FrameGraphResource& fgRes)
+{
+	for (auto res : m_vResources)
+	{
+		if (res->Name() == fgRes.Name())
+		{
+			fgRes.SetResource(ResourcePtr(res));
+			return true;
+		}
+	}
+
+	return false;
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::GetBlendStateIndex(BlendState& blendState) const
+{
+	for (auto i = 0; i < m_vBlendStates.size(); ++i)
+	{
+		auto ptr = m_vBlendStates[i];
+
+		D3D11_BLEND_DESC desc;
+		ptr->GetDesc(&desc);
+
+		BlendStateConfigDX11 stateDX11_rhs;
+		stateDX11_rhs.GetDesc() = desc;
+
+		BlendStateConfigDX11 stateDX11_lhs(blendState);
+
+		if (stateDX11_lhs == stateDX11_rhs)
+			return i;
+	}
+	return -1;
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::GetDepthStateIndex(DepthStencilState& dsState) const
+{
+	for (auto i = 0; i < m_vDepthStencilStates.size(); ++i)
+	{
+		auto ptr = m_vDepthStencilStates[i];
+
+		D3D11_DEPTH_STENCIL_DESC desc;
+		ptr->GetDesc(&desc);
+
+		DepthStencilStateConfigDX11 stateDX11_rhs;
+		stateDX11_rhs.GetDesc() = desc;
+
+		DepthStencilStateConfigDX11 stateDX11_lhs(dsState);
+
+		if (stateDX11_lhs == stateDX11_rhs)
+			return i;
+	}
+
+	return -1;
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::GetRasterizerStateIndex(RasterizerState& rsState) const
+{
+	for (auto i = 0; i < m_vRasterizerStates.size(); ++i)
+	{
+		auto ptr = m_vRasterizerStates[i];
+		
+		D3D11_RASTERIZER_DESC desc;
+		ptr->GetDesc(&desc);
+
+		RasterizerStateConfigDX11 stateDX11_rhs;
+		stateDX11_rhs.GetDesc() = desc;
+
+		RasterizerStateConfigDX11 stateDX11_lhs(rsState);
+
+		if (stateDX11_lhs == stateDX11_rhs)
+			return i;
+	}
+
+	return -1;
+}
+//--------------------------------------------------------------------------------
+i32 RendererDX11::GetShaderIndex(const std::string& name) const
+{
+	for (auto i = 0; i < m_vShaders.size(); ++i)
+	{
+		auto shader = m_vShaders[i];
+		const std::string shaderFunction = TextHelper::ToAscii(shader->Function);
+		if (shaderFunction == name)
+			return i;
+	}
+
+	return -1;
 }

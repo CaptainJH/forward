@@ -22,6 +22,8 @@ namespace forward
 		const D3D11_BLEND_DESC& GetDesc() const;
 		D3D11_BLEND_DESC& GetDesc();
 
+		bool operator==(const BlendStateConfigDX11& rhs) const;
+
 	protected:
 		D3D11_BLEND_DESC m_state;
 

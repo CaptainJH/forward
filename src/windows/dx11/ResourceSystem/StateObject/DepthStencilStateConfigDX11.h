@@ -23,6 +23,8 @@ namespace forward
 		const D3D11_DEPTH_STENCIL_DESC& GetDesc() const;
 		D3D11_DEPTH_STENCIL_DESC& GetDesc();
 
+		bool operator==(const DepthStencilStateConfigDX11& rhs) const;
+
 	protected:
 		D3D11_DEPTH_STENCIL_DESC m_state;
 

@@ -17,6 +17,7 @@
 #include "dxCommon\ShaderDX.h"
 #include "render.h"
 #include "dx11Util.h"
+#include "render/FrameGraph/FrameGraph.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -204,6 +205,9 @@ namespace forward
 
 		ID3D11Device* GetDevice();
 
+		// FrameGraph related APIs
+		void DrawRenderPass(RenderPass& pass) override;
+
 	protected:
 
 		// The main API interfaces used in the renderer.
@@ -281,6 +285,12 @@ namespace forward
 
 		i32							GetUnusedResourceIndex();
 		i32							StoreNewResource( ResourceDX11* pResource );
+
+		bool						LinkResource(FrameGraphResource& fgRes);
+		i32							GetShaderIndex(const std::string& name) const;
+		i32							GetBlendStateIndex(BlendState& blendState) const;
+		i32							GetDepthStateIndex(DepthStencilState& dsState) const;
+		i32							GetRasterizerStateIndex(RasterizerState& rsState) const;
 
 		D3D_FEATURE_LEVEL			m_FeatureLevel;
 

@@ -372,6 +372,7 @@ bool ApplicationDX11::ConfigureRendererComponents()
 	DepthConfig.SetHeight(mClientHeight);
 	DepthConfig.SetFormat(DF_D32_FLOAT);
 	m_DepthTarget = m_pRender->CreateTexture2D(&DepthConfig, 0);
+	m_DepthTarget->SetName("DepthStencilTarget");
 
 	// Bind the swap chain render target and the depth buffer for use in 
 	// rendering.  
