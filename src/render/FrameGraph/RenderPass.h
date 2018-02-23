@@ -14,14 +14,11 @@ namespace forward
 		virtual void Execute() = 0;
 
 		PipelineStateObject& GetPSO();
-		std::vector<FrameGraphResource>& GetFrameGraphResources();
 
 		virtual void Reset();
-		void AddFrameGraphResource(const std::string& name);
 
 	protected:
-		PipelineStateObject					m_pso;
-		std::vector<FrameGraphResource>		m_resources;
-
+		PipelineStateObject				m_pso;
+		std::vector<RenderPass*>		m_nextPasses;
 	};
 }

@@ -2049,7 +2049,10 @@ void RendererDX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (res.GetType() == RT_VERTEXBUFFER)
 			{
-
+				pImmPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState(0, res.GetResource());
+				pImmPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState(0, 0);
+				//pImmPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState(0, )
+				
 			}
 			else if (res.GetType() == RT_INDEXBUFFER)
 			{
@@ -2057,7 +2060,8 @@ void RendererDX11::DrawRenderPass(RenderPass& pass)
 			}
 			else if (res.GetType() == RT_CONSTANTBUFFER)
 			{
-
+				pImmPipeline->VertexShaderStage.DesiredState.ConstantBuffers.SetState(0, res.GetResource());
+				pImmPipeline->PixelShaderStage.DesiredState.ConstantBuffers.SetState(0, res.GetResource());
 			}
 			else if (res.GetType() == RT_TEXTURE2D)
 			{

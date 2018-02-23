@@ -19,6 +19,7 @@ namespace forward
 		void			SetEvictionPriority(u32 EvictionPriority) override;
 
 		void			SetResource(ResourcePtr resouce);
+		ResourcePtr		GetResource();
 
 	protected:
 		ResourcePtr		m_resource = nullptr;

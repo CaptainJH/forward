@@ -1,5 +1,5 @@
 #pragma once
-
+#include "PCH.h"
 
 namespace forward
 {
@@ -126,4 +126,83 @@ namespace forward
 		DF_B4G4R4A4_UNORM,
 		DF_NUM_FORMATS
 	};
+
+	class DataFormat
+	{
+	public:
+		// All data formats are known at compile time.  This class provides
+		// queries for format information given the type.
+
+		// A string version of the DF_* enumeration.
+		inline static std::string const& GetName(DataFormatType type);
+
+		// The number of bytes per struct.
+		inline static unsigned int GetNumBytesPerStruct(DataFormatType type);
+
+		// The number of channels per struct.
+		inline static unsigned int GetNumChannels(DataFormatType type);
+
+		// The type of the channel.
+		//inline static DFChannelType GetChannelType(DataFormatType type);
+
+		// The conversion semantics for the channel.  When true, signed integers
+		// are converted to floats in [-1,1] and unsigned integers are converted
+		// to floats in [0,1].  When false, integer data is converted directly to
+		// floats.
+		inline static bool ConvertChannel(DataFormatType type);
+
+		// Not all DX11 formats are currently supported.
+		inline static bool IsSupported(DataFormatType type);
+
+		// The struct has a depth format.
+		static bool IsDepth(DataFormatType type);
+
+	private:
+		// Texel information.
+		static std::string const msName[DF_NUM_FORMATS];
+		static unsigned int const msNumBytesPerStruct[DF_NUM_FORMATS];
+		static unsigned int const msNumChannels[DF_NUM_FORMATS];
+		//static DFChannelType const msChannelType[DF_NUM_FORMATS];
+		static bool const msConvertChannel[DF_NUM_FORMATS];
+		static bool const msSupported[DF_NUM_FORMATS];
+	};
+
+
+	inline std::string const& DataFormat::GetName(DataFormatType type)
+	{
+		return msName[type];
+	}
+
+	inline unsigned int DataFormat::GetNumBytesPerStruct(DataFormatType type)
+	{
+		return msNumBytesPerStruct[type];
+	}
+
+	inline unsigned int DataFormat::GetNumChannels(DataFormatType type)
+	{
+		return msNumChannels[type];
+	}
+
+	//inline DFChannelType DataFormat::GetChannelType(DataFormatType type)
+	//{
+	//	return msChannelType[type];
+	//}
+
+	inline bool DataFormat::ConvertChannel(DataFormatType type)
+	{
+		return msConvertChannel[type];
+	}
+
+	inline bool DataFormat::IsSupported(DataFormatType type)
+	{
+		return msSupported[type];
+	}
+
+	inline bool DataFormat::IsDepth(DataFormatType type)
+	{
+		return type == DF_D32_FLOAT_S8X24_UINT
+			|| type == DF_D32_FLOAT
+			|| type == DF_D24_UNORM_S8_UINT
+			|| type == DF_D16_UNORM;
+	}
 }

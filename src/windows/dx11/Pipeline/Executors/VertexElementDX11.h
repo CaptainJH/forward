@@ -76,7 +76,7 @@ namespace forward
 		u32							m_uiInstanceDataStepRate;
 
 	protected:
-		VertexElementDX11();
+		VertexElementDX11() = delete;
 
 		f32*							m_pfData;
 		i32								m_iTuple;

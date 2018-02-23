@@ -3,6 +3,9 @@
 //***************************************************************************************
 #pragma once
 #include "Vector4f.h"
+#include "FrameGraphResource.h"
+#include "PrimitiveTopology.h"
+#include "VertexFormat.h"
 
 namespace forward
 {
@@ -168,15 +171,60 @@ namespace forward
 		bool enableAntialiasedLine;     // default: false
 	};
 
+	struct PipelineStageState
+	{
+		PipelineStageState()
+		{}
+	};
+
+	struct InputAssemblerStageState : public PipelineStageState
+	{
+		PrimitiveTopologyType	m_topologyType;
+		FrameGraphResource		m_indexBuffer;
+		std::vector<FrameGraphResource> m_vertexBuffers;
+		VertexFormat			m_vertexLayout;
+	};
+
+	struct OutputMergerStageState : public PipelineStageState
+	{
+		BlendState			m_blendState;
+		DepthStencilState	m_dsState;
+
+		FrameGraphResource	m_depthStencilResource;
+		std::vector<FrameGraphResource> m_renderTargetResources;
+
+	};
+
+	struct RECT
+	{
+		i32 left;
+		i32 top;
+		i32	width;
+		i32 height;
+	};
+
+	struct RasterizerStageState : public PipelineStageState
+	{
+		RasterizerState	m_rsState;
+		std::vector<RECT> m_viewports;
+		std::vector<RECT> m_scissorRects;
+	};
+
+	struct ShaderStageState : public PipelineStageState
+	{
+		FrameGraphResource m_shader;
+		std::vector<FrameGraphResource> m_constantBuffers;
+		std::vector<FrameGraphResource> m_shaderResources;
+	};
+
 
 	struct PipelineStateObject
 	{
-		BlendState				m_blendState;
-		DepthStencilState		m_depthStencilState;
-		RasterizerState			m_rasterizerState;
+		InputAssemblerStageState	m_IAState;
+		RasterizerStageState		m_RSState;
+		OutputMergerStageState		m_OMState;
 
-		std::string				m_vertexShader;
-		std::string				m_pixelShader;
-
+		ShaderStageState			m_VSState;
+		ShaderStageState			m_PSState;
 	};
 }

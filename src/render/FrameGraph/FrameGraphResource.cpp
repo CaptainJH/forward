@@ -29,3 +29,8 @@ void FrameGraphResource::SetResource(ResourcePtr resource)
 {
 	m_resource = resource;
 }
+
+ResourcePtr FrameGraphResource::GetResource()
+{
+	return m_resource;
+}

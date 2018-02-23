@@ -297,7 +297,7 @@ bool ApplicationDX11::InitMainWindow()
 	}
 
 	// Compute window rectangle dimensions based on requested client area dimensions.
-	RECT R = { 0, 0, mClientWidth, mClientHeight };
+	::RECT R = { 0, 0, mClientWidth, mClientHeight };
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 	i32 width = R.right - R.left;
 	i32 height = R.bottom - R.top;
