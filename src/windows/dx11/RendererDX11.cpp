@@ -2040,62 +2040,6 @@ void RendererDX11::DeleteResource(ResourcePtr ptr)
 	DeleteResource(ptrDX11->GetResourceID());
 }
 //--------------------------------------------------------------------------------
-void RendererDX11::DrawRenderPass(RenderPass& pass)
-{
-	// resources
-	for (auto& res : pass.GetFrameGraphResources())
-	{
-		if (LinkResource(res))
-		{
-			if (res.GetType() == RT_VERTEXBUFFER)
-			{
-				pImmPipeline->InputAssemblerStage.DesiredState.VertexBuffers.SetState(0, res.GetResource());
-				pImmPipeline->InputAssemblerStage.DesiredState.VertexBufferOffsets.SetState(0, 0);
-				//pImmPipeline->InputAssemblerStage.DesiredState.VertexBufferStrides.SetState(0, )
-				
-			}
-			else if (res.GetType() == RT_INDEXBUFFER)
-			{
-
-			}
-			else if (res.GetType() == RT_CONSTANTBUFFER)
-			{
-				pImmPipeline->VertexShaderStage.DesiredState.ConstantBuffers.SetState(0, res.GetResource());
-				pImmPipeline->PixelShaderStage.DesiredState.ConstantBuffers.SetState(0, res.GetResource());
-			}
-			else if (res.GetType() == RT_TEXTURE2D)
-			{
-
-			}
-		}
-
-	}
-
-	// PSO
-	auto vsID = GetShaderIndex(pass.GetPSO().m_vertexShader);
-	auto psID = GetShaderIndex(pass.GetPSO().m_pixelShader);
-	pImmPipeline->VertexShaderStage.DesiredState.ShaderProgram.SetState(vsID);
-	pImmPipeline->PixelShaderStage.DesiredState.ShaderProgram.SetState(psID);
-
-	auto rsID = GetRasterizerStateIndex(pass.GetPSO().m_rasterizerState);
-	if(rsID > 0)
-		pImmPipeline->RasterizerStage.DesiredState.RasterizerState.SetState(rsID);
-
-	auto blendID = GetBlendStateIndex(pass.GetPSO().m_blendState);
-	if (blendID > 0)
-		pImmPipeline->OutputMergerStage.DesiredState.BlendState.SetState(blendID);
-
-	auto dsID = GetDepthStateIndex(pass.GetPSO().m_depthStencilState);
-	if (dsID > 0)
-		pImmPipeline->OutputMergerStage.DesiredState.DepthStencilState.SetState(dsID);
-	
-
-	pImmPipeline->ApplyPipelineResources();
-	pImmPipeline->ApplyInputResources();
-
-	pass.Execute();
-}
-//--------------------------------------------------------------------------------
 bool RendererDX11::LinkResource(FrameGraphResource& fgRes)
 {
 	for (auto res : m_vResources)

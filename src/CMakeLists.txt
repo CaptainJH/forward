@@ -66,3 +66,10 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_subdirectory(osx)
 endif()
 
+find_source_files(forward_COMMON_SOURCE_FILES ${forward_source_root})
+remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/applications")
+remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/windows")
+set_source_groups("${forward_COMMON_SOURCE_FILES}")
+
+add_library(libForward STATIC ${forward_COMMON_SOURCE_FILES})
+

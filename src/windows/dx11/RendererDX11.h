@@ -206,7 +206,7 @@ namespace forward
 		ID3D11Device* GetDevice();
 
 		// FrameGraph related APIs
-		void DrawRenderPass(RenderPass& pass) override;
+		void DrawRenderPass(RenderPass& /*pass*/) override {}
 
 	protected:
 
