@@ -1,5 +1,5 @@
-#include "dx11/ApplicationDX11.h"
-#include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "dx11_Hieroglyph/ApplicationDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 
 using namespace forward;
 

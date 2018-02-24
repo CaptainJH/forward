@@ -1,7 +1,7 @@
 #include "Log.h"
 #include "GeometryLoader.h"
 #include "FileSystem.h"
-#include "dx11/ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
