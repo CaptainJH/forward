@@ -8,7 +8,7 @@
 #ifndef ResourceProxyDX11_h
 #define ResourceProxyDX11_h
 //--------------------------------------------------------------------------------
-#include "render/ResourceSystem/ResourceProxy.h"
+#include "ResourceProxy.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

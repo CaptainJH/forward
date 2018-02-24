@@ -1883,7 +1883,7 @@ ResourcePtr RendererDX11::CreateVertexBuffer(VertexBufferConfig* pConfig, Subres
 
 	if (pBuffer)
 	{
-		VertexBufferDX11* pVertexBuffer = new VertexBufferDX11(pBuffer, pConfig);
+		VertexBufferDX11* pVertexBuffer = new VertexBufferDX11(pBuffer);
 		pVertexBuffer->SetDesiredDescription(configDX11.m_State);
 
 		// Return an index with the lower 16 bits of index, and the upper
@@ -1909,7 +1909,7 @@ ResourcePtr RendererDX11::CreateIndexBuffer(IndexBufferConfig* pConfig, Subresou
 
 	if (pBuffer)
 	{
-		IndexBufferDX11* pIndexBuffer = new IndexBufferDX11(pBuffer, pConfig);
+		IndexBufferDX11* pIndexBuffer = new IndexBufferDX11(pBuffer);
 		pIndexBuffer->SetDesiredDescription(configDX11.m_State);
 
 		// Return an index with the lower 16 bits of index, and the upper
@@ -1938,7 +1938,7 @@ ResourcePtr RendererDX11::CreateConstantBuffer(ConstantBufferConfig* pConfig, Su
 
 	if (pBuffer)
 	{
-		ConstantBufferDX11* pConstantBuffer = new ConstantBufferDX11(pBuffer, pConfig);
+		ConstantBufferDX11* pConstantBuffer = new ConstantBufferDX11(pBuffer);
 		pConstantBuffer->SetDesiredDescription(configDX11.m_State);
 
 		// Return an index with the lower 16 bits of index, and the upper

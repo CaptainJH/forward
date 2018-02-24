@@ -25,7 +25,6 @@ Resource::Resource(const std::string& name)
 //--------------------------------------------------------------------------------
 Resource::~Resource()
 {
-	SAFE_DELETE(m_pResourceConfig);
 }
 //--------------------------------------------------------------------------------
 u32 Resource::GetInnerID()
@@ -41,9 +40,4 @@ const std::string& Resource::Name() const
 void Resource::SetName(const std::string& name)
 {
 	m_name = name;
-}
-//--------------------------------------------------------------------------------
-void Resource::SetResourceConfig(ResourceConfig* pConfig) 
-{ 
-	m_pResourceConfig = pConfig; 
 }

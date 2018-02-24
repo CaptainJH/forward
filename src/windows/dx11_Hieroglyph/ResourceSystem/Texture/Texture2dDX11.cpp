@@ -17,7 +17,6 @@ Texture2dDX11::Texture2dDX11( Microsoft::WRL::ComPtr<ID3D11Texture2D> pTex )
 //--------------------------------------------------------------------------------
 Texture2dDX11::Texture2dDX11(Microsoft::WRL::ComPtr<ID3D11Texture2D> pTex, Texture2dConfig* pConfig)
 {
-	m_pResourceConfig = new Texture2dConfig(*pConfig);
 	m_pTexture = pTex;
 
 	ZeroMemory(&m_DesiredDesc, sizeof(D3D11_TEXTURE2D_DESC));

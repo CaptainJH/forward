@@ -9,15 +9,10 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ConstantBufferDX11::ConstantBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer, ConstantBufferConfig* pConfig )
+ConstantBufferDX11::ConstantBufferDX11( Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer)
 {
 	m_pBuffer = pBuffer;
 	m_bAutoUpdate = true;
-
-	if (pConfig)
-	{
-		m_pResourceConfig = new ConstantBufferConfig(*pConfig);
-	}
 }
 //--------------------------------------------------------------------------------
 ConstantBufferDX11::~ConstantBufferDX11()

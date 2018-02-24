@@ -15,7 +15,6 @@ Texture3dDX11::Texture3dDX11( Microsoft::WRL::ComPtr<ID3D11Texture3D> pTex )
 //--------------------------------------------------------------------------------
 Texture3dDX11::Texture3dDX11(Microsoft::WRL::ComPtr<ID3D11Texture3D> pTex, Texture3dConfig* pConfig)
 {
-	m_pResourceConfig = new Texture3dConfig(*pConfig);
 	m_pTexture = pTex;
 
 	ZeroMemory(&m_DesiredDesc, sizeof(D3D11_TEXTURE3D_DESC));
