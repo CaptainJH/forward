@@ -3,7 +3,8 @@
 //***************************************************************************************
 #pragma once
 #include "Vector4f.h"
-#include "FrameGraphResource.h"
+#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "PrimitiveTopology.h"
 #include "VertexFormat.h"
 
@@ -180,8 +181,8 @@ namespace forward
 	struct InputAssemblerStageState : public PipelineStageState
 	{
 		PrimitiveTopologyType	m_topologyType;
-		FrameGraphResource		m_indexBuffer;
-		std::vector<FrameGraphResource> m_vertexBuffers;
+		FrameGraphIndexBuffer	m_indexBuffer;
+		std::vector<FrameGraphVertexBuffer> m_vertexBuffers;
 		VertexFormat			m_vertexLayout;
 	};
 
@@ -190,8 +191,8 @@ namespace forward
 		BlendState			m_blendState;
 		DepthStencilState	m_dsState;
 
-		FrameGraphResource	m_depthStencilResource;
-		std::vector<FrameGraphResource> m_renderTargetResources;
+		FrameGraphTexture2D	m_depthStencilResource;
+		std::vector<FrameGraphTexture2D> m_renderTargetResources;
 
 	};
 
@@ -212,9 +213,9 @@ namespace forward
 
 	struct ShaderStageState : public PipelineStageState
 	{
-		FrameGraphResource m_shader;
-		std::vector<FrameGraphResource> m_constantBuffers;
-		std::vector<FrameGraphResource> m_shaderResources;
+		//FrameGraphResource m_shader;
+		std::vector<FrameGraphConstantBuffer> m_constantBuffers;
+		std::vector<FrameGraphTexture2D> m_shaderResources;
 	};
 
 

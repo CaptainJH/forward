@@ -3,7 +3,6 @@
 //***************************************************************************************
 #pragma once
 #include "PipelineStateObjects.h"
-#include "FrameGraphResource.h"
 
 namespace forward
 {
