@@ -20,7 +20,7 @@
 #include "TStateArrayMonitor.h"
 #include "PrimitiveTopology.h"
 #include "DataFormat.h"
-#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

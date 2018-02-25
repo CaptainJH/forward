@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------
 #include <wrl.h>
 #include <dxgi.h>
-#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

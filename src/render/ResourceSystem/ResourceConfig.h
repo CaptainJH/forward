@@ -5,7 +5,7 @@
 
 
 #include "Types.h"
-#include "Resource.h"
+#include "DeviceResource.h"
 #include "DataFormat.h"
 //--------------------------------------------------------------------------------
 namespace forward

@@ -20,13 +20,13 @@ namespace forward
 		RT_TEXTURE3D = 0x090000
 	};
 
-	class Resource
+	class DeviceResource
 	{
 	public:
-		Resource();
-		Resource(const std::string& name);
+		DeviceResource();
+		DeviceResource(const std::string& name);
 
-		virtual ~Resource();
+		virtual ~DeviceResource();
 
 		virtual ResourceType	GetType() = 0;
 
@@ -45,6 +45,6 @@ namespace forward
 		std::string				m_name;
 	};
 
-	typedef std::shared_ptr<Resource> ResourcePtr;
+	typedef std::shared_ptr<DeviceResource> ResourcePtr;
 
 };

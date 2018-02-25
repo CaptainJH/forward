@@ -29,7 +29,7 @@
 namespace forward
 {
 
-	class ResourceDX11 : public Resource
+	class ResourceDX11 : public DeviceResource
 	{
 	public:
 		ResourceDX11();

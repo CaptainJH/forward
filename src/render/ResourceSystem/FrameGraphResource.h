@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/DeviceResource.h"
 
 namespace forward
 {

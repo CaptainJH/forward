@@ -2,42 +2,42 @@
 // Resource.h by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 //--------------------------------------------------------------------------------
-#include "Resource.h"
+#include "DeviceResource.h"
 #include "ResourceConfig.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-u32 Resource::s_usResourceUID = 0;
+u32 DeviceResource::s_usResourceUID = 0;
 //--------------------------------------------------------------------------------
-Resource::Resource( )
+DeviceResource::DeviceResource( )
 {
 	m_name = "";
 	m_usInnerID = s_usResourceUID;
 	s_usResourceUID++;
 }
 //--------------------------------------------------------------------------------
-Resource::Resource(const std::string& name)
+DeviceResource::DeviceResource(const std::string& name)
 	: m_name(name)
 {
 	m_usInnerID = s_usResourceUID;
 	s_usResourceUID++;
 }
 //--------------------------------------------------------------------------------
-Resource::~Resource()
+DeviceResource::~DeviceResource()
 {
 }
 //--------------------------------------------------------------------------------
-u32 Resource::GetInnerID()
+u32 DeviceResource::GetInnerID()
 {
 	return( m_usInnerID );
 }
 //--------------------------------------------------------------------------------
-const std::string& Resource::Name() const
+const std::string& DeviceResource::Name() const
 {
 	return m_name;
 }
 //--------------------------------------------------------------------------------
-void Resource::SetName(const std::string& name)
+void DeviceResource::SetName(const std::string& name)
 {
 	m_name = name;
 }

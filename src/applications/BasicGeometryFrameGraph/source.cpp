@@ -1,4 +1,4 @@
-#include "dx11/ApplicationDX11.h"
+#include "dx11_Hieroglyph/ApplicationDX11.h"
 #include "TriangleIndices.h"
 #include "render/FrameGraph/FrameGraph.h"
 
@@ -248,13 +248,13 @@ void BasicGeometryFrameGraph::BuildFrameGraph()
 
 	m_renderPass.Reset();
 
-	m_renderPass.AddFrameGraphResource("RenderTarget");
-	m_renderPass.AddFrameGraphResource("BoxVB");
-	m_renderPass.AddFrameGraphResource("BoxIB");
-	m_renderPass.AddFrameGraphResource("BoxCB");
+	//m_renderPass.AddFrameGraphResource("RenderTarget");
+	//m_renderPass.AddFrameGraphResource("BoxVB");
+	//m_renderPass.AddFrameGraphResource("BoxIB");
+	//m_renderPass.AddFrameGraphResource("BoxCB");
 
-	m_renderPass.GetPSO().m_vertexShader = "VSMain";
-	m_renderPass.GetPSO().m_pixelShader = "PSMain";
+	//m_renderPass.GetPSO().m_vertexShader = "VSMain";
+	//m_renderPass.GetPSO().m_pixelShader = "PSMain";
 
 }
 

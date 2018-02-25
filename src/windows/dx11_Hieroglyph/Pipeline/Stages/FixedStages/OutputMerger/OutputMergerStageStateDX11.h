@@ -19,7 +19,7 @@
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
 #include "dx11_Hieroglyph/ResourceSystem/ResourceProxyDX11.h"
-#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
