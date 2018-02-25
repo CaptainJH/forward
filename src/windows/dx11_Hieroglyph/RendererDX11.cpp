@@ -2046,7 +2046,7 @@ bool RendererDX11::LinkResource(FrameGraphResource& fgRes)
 	{
 		if (res->Name() == fgRes.Name())
 		{
-			fgRes.SetResource(ResourcePtr(res));
+			//fgRes.SetResource(ResourcePtr(res));
 			return true;
 		}
 	}

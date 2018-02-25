@@ -5,6 +5,7 @@
 
 
 #include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/PrimitiveTopology.h"
 
 namespace forward
 {
@@ -14,11 +15,18 @@ namespace forward
 		FrameGraphBuffer(const std::string& name);
 	};
 
+	/////////////////////////////////////////////////////////
+
 	class FrameGraphIndexBuffer : public FrameGraphBuffer
 	{
 	public:
-		FrameGraphIndexBuffer(const std::string& name);
+		FrameGraphIndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count);
 		ResourceType GetResourceType() const override;
+
+		PrimitiveTopologyType GetPrimitiveType() const;
+
+	protected:
+		PrimitiveTopologyType m_primitiveType;
 	};
 
 	class FrameGraphVertexBuffer : public FrameGraphBuffer

@@ -3,11 +3,12 @@
 //***************************************************************************************
 #pragma once
 
+#include "render/FrameGraph/FrameGraphObject.h"
 #include "render/ResourceSystem/DeviceResource.h"
 
 namespace forward
 {
-	class FrameGraphResource
+	class FrameGraphResource : public FrameGraphObject
 	{
 	public:
 		FrameGraphResource();
@@ -16,10 +17,7 @@ namespace forward
 
 		virtual ResourceType GetResourceType() const = 0;
 
-		void			SetResource(ResourcePtr resouce);
-		ResourcePtr		GetResource();
-
-		const std::string& Name() const;
+		DeviceResource*		GetResource();
 
 		// Create or destroy the system-memory storage associated with the
 		// resource.  A resource does not necessarily require system memory
@@ -35,8 +33,6 @@ namespace forward
 		void Initialize(u32 numElements, u32 elementSize);
 
 	protected:
-		ResourcePtr		m_resource = nullptr;
-		std::string		m_name;
 
 		u32		m_numElements;
 		u32		m_elementSize;

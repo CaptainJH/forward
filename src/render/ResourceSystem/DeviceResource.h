@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "PCH.h"
+#include "DeviceObject.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -20,11 +20,10 @@ namespace forward
 		RT_TEXTURE3D = 0x090000
 	};
 
-	class DeviceResource
+	class DeviceResource : public DeviceObject
 	{
 	public:
 		DeviceResource();
-		DeviceResource(const std::string& name);
 
 		virtual ~DeviceResource();
 
@@ -35,14 +34,9 @@ namespace forward
 
 		u32						GetInnerID();
 
-		const std::string&		Name() const;
-		void					SetName(const std::string& name);
-
 	protected:
 		static u32				s_usResourceUID;
 		u32						m_usInnerID;
-
-		std::string				m_name;
 	};
 
 	typedef std::shared_ptr<DeviceResource> ResourcePtr;

@@ -21,19 +21,9 @@ FrameGraphResource::FrameGraphResource(const std::string& name)
 	m_name = name;
 }
 
-void FrameGraphResource::SetResource(ResourcePtr resource)
+DeviceResource* FrameGraphResource::GetResource()
 {
-	m_resource = resource;
-}
-
-ResourcePtr FrameGraphResource::GetResource()
-{
-	return m_resource;
-}
-
-const std::string& FrameGraphResource::Name() const
-{
-	return m_name;
+	return static_cast<DeviceResource*>(m_deviceObjectPtr);
 }
 
 FrameGraphResource::~FrameGraphResource()
