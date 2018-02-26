@@ -243,7 +243,7 @@ const u32 DataFormat::msNumBytesPerStruct[DF_NUM_FORMATS] =
 		0   // DF_B4G4R4A4_UNORM
 };
 
-unsigned int const DataFormat::msNumChannels[DF_NUM_FORMATS] =
+u32 const DataFormat::msNumChannels[DF_NUM_FORMATS] =
 {
 	0,  // DF_UNKNOWN
 	4,  // DF_R32G32B32A32_TYPELESS

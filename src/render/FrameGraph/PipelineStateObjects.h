@@ -5,12 +5,19 @@
 #include "Vector4f.h"
 #include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ShaderSystem/FrameGraphShader.h"
 #include "PrimitiveTopology.h"
 #include "VertexFormat.h"
 
 namespace forward
 {
-	class BlendState
+	class FrameGraphDrawingState : public FrameGraphObject
+	{
+	public:
+		FrameGraphDrawingState(const std::string& name, FrameGraphObjectType type);
+	};
+
+	class BlendState : public FrameGraphDrawingState
 	{
 	public:
 		enum Mode
@@ -80,7 +87,7 @@ namespace forward
 
 
 
-	class DepthStencilState
+	class DepthStencilState : public FrameGraphDrawingState
 	{
 	public:
 		enum WriteMask
@@ -139,7 +146,7 @@ namespace forward
 
 
 
-	class RasterizerState
+	class RasterizerState : public FrameGraphDrawingState
 	{
 	public:
 		enum FillMode
@@ -213,7 +220,7 @@ namespace forward
 
 	struct ShaderStageState : public PipelineStageState
 	{
-		//FrameGraphResource m_shader;
+		FrameGraphShader*	m_shader;
 		std::vector<FrameGraphConstantBuffer*> m_constantBuffers;
 		std::vector<FrameGraphTexture2D*> m_shaderResources;
 	};

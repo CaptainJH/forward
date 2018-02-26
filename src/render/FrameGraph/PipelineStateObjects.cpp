@@ -5,8 +5,15 @@
 
 using namespace forward;
 
+FrameGraphDrawingState::FrameGraphDrawingState(const std::string& name, FrameGraphObjectType type)
+{
+	m_name = name;
+	m_type = type;
+}
+
 BlendState::BlendState()
 	:
+	FrameGraphDrawingState("", FGOT_BLEND_STATE),
 	enableAlphaToCoverage(false),
 	enableIndependentBlend(false),
 	blendColor({ 0.0f, 0.0f, 0.0f, 0.0f }),
@@ -28,6 +35,7 @@ BlendState::BlendState()
 
 DepthStencilState::DepthStencilState()
 	:
+	FrameGraphDrawingState("", FGOT_DEPTH_STENCIL_STATE),
 	depthEnable(true),
 	writeMask(MASK_ALL),
 	comparison(LESS_EQUAL),
@@ -49,6 +57,7 @@ DepthStencilState::DepthStencilState()
 
 RasterizerState::RasterizerState()
 	:
+	FrameGraphDrawingState("", FGOT_RASTERIZER_STATE),
 	fillMode(FILL_SOLID),
 	cullMode(CULL_BACK),
 	frontCCW(true),

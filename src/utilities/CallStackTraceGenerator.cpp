@@ -24,7 +24,7 @@ std::vector<std::string> CallStackTraceGenerator::GetTrace()
     const int kMaxCallers = 62; 
 
     void         * callers_stack[ kMaxCallers ];
-    unsigned short frames;
+    u16				frames;
     SYMBOL_INFO  * symbol;
     HANDLE         process;
     process = GetCurrentProcess();
@@ -34,7 +34,7 @@ std::vector<std::string> CallStackTraceGenerator::GetTrace()
     symbol->MaxNameLen   = 255;
     symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
 
-    for( unsigned int i = 1;  i < frames;  i++ )
+    for( auto i = 1;  i < frames;  i++ )
     {
 		std::stringstream out;
         SymFromAddr( process, ( DWORD64 )( callers_stack[ i ] ), 0, symbol );

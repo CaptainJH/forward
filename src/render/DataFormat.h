@@ -137,10 +137,10 @@ namespace forward
 		inline static std::string const& GetName(DataFormatType type);
 
 		// The number of bytes per struct.
-		inline static unsigned int GetNumBytesPerStruct(DataFormatType type);
+		inline static u32 GetNumBytesPerStruct(DataFormatType type);
 
 		// The number of channels per struct.
-		inline static unsigned int GetNumChannels(DataFormatType type);
+		inline static u32 GetNumChannels(DataFormatType type);
 
 		// The type of the channel.
 		//inline static DFChannelType GetChannelType(DataFormatType type);
@@ -160,8 +160,8 @@ namespace forward
 	private:
 		// Texel information.
 		static std::string const msName[DF_NUM_FORMATS];
-		static unsigned int const msNumBytesPerStruct[DF_NUM_FORMATS];
-		static unsigned int const msNumChannels[DF_NUM_FORMATS];
+		static u32 const msNumBytesPerStruct[DF_NUM_FORMATS];
+		static u32 const msNumChannels[DF_NUM_FORMATS];
 		//static DFChannelType const msChannelType[DF_NUM_FORMATS];
 		static bool const msConvertChannel[DF_NUM_FORMATS];
 		static bool const msSupported[DF_NUM_FORMATS];
@@ -173,12 +173,12 @@ namespace forward
 		return msName[type];
 	}
 
-	inline unsigned int DataFormat::GetNumBytesPerStruct(DataFormatType type)
+	inline u32 DataFormat::GetNumBytesPerStruct(DataFormatType type)
 	{
 		return msNumBytesPerStruct[type];
 	}
 
-	inline unsigned int DataFormat::GetNumChannels(DataFormatType type)
+	inline u32 DataFormat::GetNumChannels(DataFormatType type)
 	{
 		return msNumChannels[type];
 	}
