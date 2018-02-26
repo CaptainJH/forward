@@ -35,6 +35,7 @@ namespace forward
 	protected:
 
 		u32		m_numElements;
+		u32		m_numActiveElements;
 		u32		m_elementSize;
 		u32		m_numBytes;
 		std::vector<i8> m_storage;

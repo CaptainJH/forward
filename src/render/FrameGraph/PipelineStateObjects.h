@@ -181,8 +181,8 @@ namespace forward
 	struct InputAssemblerStageState : public PipelineStageState
 	{
 		PrimitiveTopologyType	m_topologyType;
-		FrameGraphIndexBuffer	m_indexBuffer;
-		std::vector<FrameGraphVertexBuffer> m_vertexBuffers;
+		FrameGraphIndexBuffer*	m_indexBuffer;
+		std::vector<FrameGraphVertexBuffer*> m_vertexBuffers;
 		VertexFormat			m_vertexLayout;
 	};
 
@@ -191,8 +191,8 @@ namespace forward
 		BlendState			m_blendState;
 		DepthStencilState	m_dsState;
 
-		FrameGraphTexture2D	m_depthStencilResource;
-		std::vector<FrameGraphTexture2D> m_renderTargetResources;
+		FrameGraphTexture2D*	m_depthStencilResource;
+		std::vector<FrameGraphTexture2D*> m_renderTargetResources;
 
 	};
 
@@ -214,8 +214,8 @@ namespace forward
 	struct ShaderStageState : public PipelineStageState
 	{
 		//FrameGraphResource m_shader;
-		std::vector<FrameGraphConstantBuffer> m_constantBuffers;
-		std::vector<FrameGraphTexture2D> m_shaderResources;
+		std::vector<FrameGraphConstantBuffer*> m_constantBuffers;
+		std::vector<FrameGraphTexture2D*> m_shaderResources;
 	};
 
 

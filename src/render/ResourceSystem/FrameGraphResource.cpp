@@ -10,6 +10,7 @@ FrameGraphResource::FrameGraphResource()
 	, m_numBytes(0)
 	, m_numElements(0)
 	, m_elementSize(0)
+	, m_numActiveElements(0)
 {}
 
 FrameGraphResource::FrameGraphResource(const std::string& name)
@@ -17,6 +18,7 @@ FrameGraphResource::FrameGraphResource(const std::string& name)
 	, m_numBytes(0)
 	, m_numElements(0)
 	, m_elementSize(0)
+	, m_numActiveElements(0)
 {
 	m_name = name;
 }
