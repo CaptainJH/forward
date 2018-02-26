@@ -6,10 +6,18 @@
 
 using namespace forward;
 
+//--------------------------------------------------------------------------------
+u32 DeviceObject::s_usResourceUID = 0;
+//--------------------------------------------------------------------------------
+DeviceObject::DeviceObject()
+{
+	m_usInnerID = s_usResourceUID;
+	s_usResourceUID++;
+}
+//--------------------------------------------------------------------------------
 DeviceObject::~DeviceObject()
 {
 }
-
 //--------------------------------------------------------------------------------
 const std::string& DeviceObject::Name() const
 {
@@ -19,4 +27,9 @@ const std::string& DeviceObject::Name() const
 void DeviceObject::SetName(const std::string& name)
 {
 	m_name = name;
+}
+//--------------------------------------------------------------------------------
+u32 DeviceObject::GetInnerID()
+{
+	return m_usInnerID;
 }

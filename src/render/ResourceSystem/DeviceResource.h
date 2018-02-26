@@ -31,12 +31,6 @@ namespace forward
 
 		virtual u32				GetEvictionPriority() = 0;
 		virtual void			SetEvictionPriority( u32 EvictionPriority ) = 0;
-
-		u32						GetInnerID();
-
-	protected:
-		static u32				s_usResourceUID;
-		u32						m_usInnerID;
 	};
 
 	typedef std::shared_ptr<DeviceResource> ResourcePtr;
