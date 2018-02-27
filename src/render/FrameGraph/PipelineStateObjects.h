@@ -2,10 +2,12 @@
 // PipelineStateObject.h by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #pragma once
+#include <array>
 #include "Vector4f.h"
 #include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/RendererCapability.h"
 #include "PrimitiveTopology.h"
 #include "VertexFormat.h"
 
@@ -189,7 +191,7 @@ namespace forward
 	{
 		PrimitiveTopologyType	m_topologyType;
 		FrameGraphIndexBuffer*	m_indexBuffer;
-		std::vector<FrameGraphVertexBuffer*> m_vertexBuffers;
+		std::array<FrameGraphVertexBuffer*, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers;
 		VertexFormat			m_vertexLayout;
 	};
 
@@ -199,8 +201,7 @@ namespace forward
 		DepthStencilState	m_dsState;
 
 		FrameGraphTexture2D*	m_depthStencilResource;
-		std::vector<FrameGraphTexture2D*> m_renderTargetResources;
-
+		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources;
 	};
 
 	struct RECT
@@ -214,15 +215,17 @@ namespace forward
 	struct RasterizerStageState : public PipelineStageState
 	{
 		RasterizerState	m_rsState;
-		std::vector<RECT> m_viewports;
-		std::vector<RECT> m_scissorRects;
+
+		std::array<RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_viewports;
+		std::array<RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_scissorRects;
 	};
 
 	struct ShaderStageState : public PipelineStageState
 	{
 		FrameGraphShader*	m_shader;
-		std::vector<FrameGraphConstantBuffer*> m_constantBuffers;
-		std::vector<FrameGraphTexture2D*> m_shaderResources;
+
+		std::array<FrameGraphConstantBuffer*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers;
+		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources;
 	};
 
 

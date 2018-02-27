@@ -3,8 +3,6 @@
 
 namespace forward
 {
-	#define IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT 32
-
 	enum PrimitiveTopologyType
 	{
 		PT_UNDEFINED ,

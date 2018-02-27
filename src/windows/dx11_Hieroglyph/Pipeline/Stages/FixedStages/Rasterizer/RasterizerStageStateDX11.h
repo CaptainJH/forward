@@ -18,6 +18,7 @@
 #include <d3d11_2.h>
 #include "TStateMonitor.h"
 #include "TStateArrayMonitor.h"
+#include "RendererCapability.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -34,9 +35,9 @@ namespace forward
 
 		TStateMonitor< i32 > RasterizerState;
 		TStateMonitor< i32 > ViewportCount;
-		TStateArrayMonitor< i32, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE > Viewports;
+		TStateArrayMonitor< i32, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE > Viewports;
 		TStateMonitor< i32 > ScissorRectCount;
-		TStateArrayMonitor< D3D11_RECT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE > ScissorRects;
+		TStateArrayMonitor< D3D11_RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE > ScissorRects;
 
 	protected:
 

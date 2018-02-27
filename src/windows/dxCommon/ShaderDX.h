@@ -57,7 +57,8 @@ namespace forward
 		virtual ~ShaderDX();
 
 		virtual ShaderType GetType() = 0;
-		
+
+		ID3DBlob*	GetCompiledCode();	
 
 		//void SetReflection( ShaderReflectionDX11* pReflection );
 		//ShaderReflectionDX11* GetReflection( );

@@ -20,6 +20,7 @@
 #include "TStateArrayMonitor.h"
 #include "PrimitiveTopology.h"
 #include "DataFormat.h"
+#include "RendererCapability.h"
 #include "render/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
@@ -39,9 +40,9 @@ namespace forward
 
 		TStateMonitor< ResourcePtr > IndexBuffer;
 		TStateMonitor< DataFormatType > IndexBufferFormat;
-		TStateArrayMonitor< ResourcePtr, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
-		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
-		TStateArrayMonitor< u32, IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
+		TStateArrayMonitor< ResourcePtr, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBuffers;
+		TStateArrayMonitor< u32, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferStrides;
+		TStateArrayMonitor< u32, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT > VertexBufferOffsets;
 		TStateMonitor< i32 > InputLayout;
 		TStateMonitor< PrimitiveTopologyType > PrimitiveTopology;
 

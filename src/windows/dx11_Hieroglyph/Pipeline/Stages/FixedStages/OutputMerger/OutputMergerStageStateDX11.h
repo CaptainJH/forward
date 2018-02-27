@@ -20,6 +20,7 @@
 #include "TStateArrayMonitor.h"
 #include "dx11_Hieroglyph/ResourceSystem/ResourceProxyDX11.h"
 #include "render/ResourceSystem/DeviceResource.h"
+#include "RendererCapability.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -39,7 +40,7 @@ namespace forward
 		TStateMonitor< i32 > BlendState;
 		TStateMonitor< i32 > DepthStencilState;
 		TStateMonitor< u32 > StencilRef;
-		TStateArrayMonitor< ResourcePtr, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetResources;
+		TStateArrayMonitor< ResourcePtr, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT > RenderTargetResources;
 		TStateMonitor< ResourcePtr > DepthTargetResources;
 		TStateArrayMonitor< ResourceProxyPtr, D3D11_PS_CS_UAV_REGISTER_COUNT > UnorderedAccessResources;
 		TStateArrayMonitor< u32, D3D11_PS_CS_UAV_REGISTER_COUNT > UAVInitialCounts;

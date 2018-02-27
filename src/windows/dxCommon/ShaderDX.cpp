@@ -48,3 +48,7 @@ std::wstring ShaderDX::ToString()
 	return( s.str() );
 }
 //--------------------------------------------------------------------------------
+ID3DBlob* ShaderDX::GetCompiledCode()
+{
+	return m_pCompiledShader;
+}
