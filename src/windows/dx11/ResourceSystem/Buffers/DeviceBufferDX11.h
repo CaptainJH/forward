@@ -23,8 +23,8 @@ namespace forward
 		u32						GetMiscFlags();
 		u32						GetStructureByteStride();
 
-		void					CopyCPUToGPU(u8* srcData, u32 srcDataSize);
-		void					CopyGPUToCPU(u8* dstData, u32 dstDataSize);
+		void					CopyCPUToGPU(u8* srcData, u32 srcDataSize) override;
+		void					CopyGPUToCPU(u8* dstData, u32 dstDataSize) override;
 
 	protected:
 		D3D11_BUFFER_DESC		m_actualDesc;

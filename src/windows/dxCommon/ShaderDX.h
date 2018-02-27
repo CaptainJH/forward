@@ -25,6 +25,7 @@
 #include "PCH.h"
 #include "dxCommon/d3dUtil.h"
 #include <d3dCompiler.h>
+#include "render/ResourceSystem/DeviceObject.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -49,7 +50,7 @@ namespace forward
 		COMPUTE_SHADER_MSK = 0x0020
 	};
 
-	class ShaderDX
+	class ShaderDX : public DeviceObject
 	{
 	public:
 		ShaderDX();
