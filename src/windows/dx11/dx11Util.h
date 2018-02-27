@@ -11,6 +11,7 @@ typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DeviceContextComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Query> QueryComPtr;
 
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceChild> DeviceObjComPtr;
+typedef Microsoft::WRL::ComPtr<ID3D11Resource> DeviceResComPtr;
 
 typedef Microsoft::WRL::ComPtr<ID3D11Buffer> BufferComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Texture1D> Texture1DComPtr;
