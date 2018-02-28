@@ -4,14 +4,19 @@
 #pragma once
 
 #include "DeviceDrawingStateDX11.h"
+#include "render/FrameGraph/PipelineStateObjects.h"
 
 namespace forward
 {
 	class DeviceBlendStateDX11 : public DeviceDrawingStateDX11
 	{
 	public:
+		DeviceBlendStateDX11(ID3D11Device* device, BlendState* blendState);
+		virtual ~DeviceBlendStateDX11();
 
 		ID3D11BlendState* GetBlendState();
+
+		void Bind(ID3D11DeviceContext* deviceContext);
 
 	protected:
 

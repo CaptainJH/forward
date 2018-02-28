@@ -29,6 +29,8 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
+	class FrameGraphObject;
+
 	enum ShaderType
 	{
 		VERTEX_SHADER = 0,
@@ -53,7 +55,9 @@ namespace forward
 	class ShaderDX : public DeviceObject
 	{
 	public:
+		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
 		ShaderDX();
+		ShaderDX(forward::FrameGraphObject* obj);
 		virtual ~ShaderDX();
 
 		virtual ShaderType GetType() = 0;

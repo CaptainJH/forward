@@ -14,12 +14,23 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ShaderDX::ShaderDX() :
-	FileName(),
-	Function(),
-	ShaderModel(),
-	ShaderText(),
-	m_pCompiledShader( nullptr )
+ShaderDX::ShaderDX(forward::FrameGraphObject* obj)
+	: DeviceObject(obj)
+	, FileName()
+	, Function()
+	, ShaderModel()
+	, ShaderText()
+	, m_pCompiledShader(nullptr)
+{
+}
+
+ShaderDX::ShaderDX() 
+	: DeviceObject(nullptr)
+	, FileName()
+	, Function()
+	, ShaderModel()
+	, ShaderText()
+	, m_pCompiledShader( nullptr )
 {
 }
 //--------------------------------------------------------------------------------

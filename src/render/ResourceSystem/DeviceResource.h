@@ -7,6 +7,8 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
+	class FrameGraphObject;
+
 	enum ResourceType
 	{
 		RT_VERTEXBUFFER = 0x010000,
@@ -23,7 +25,9 @@ namespace forward
 	class DeviceResource : public DeviceObject
 	{
 	public:
+		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
 		DeviceResource();
+		DeviceResource(forward::FrameGraphObject* obj);
 
 		virtual ~DeviceResource();
 

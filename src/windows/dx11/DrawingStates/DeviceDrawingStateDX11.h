@@ -11,6 +11,7 @@ namespace forward
 	class DeviceDrawingStateDX11 : public DeviceObject
 	{
 	public:
+		DeviceDrawingStateDX11(forward::FrameGraphObject* obj);
 
 		DeviceObjComPtr		GetDeviceObject();
 

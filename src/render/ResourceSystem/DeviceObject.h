@@ -7,10 +7,12 @@
 
 namespace forward
 {
+	class FrameGraphObject;
+
 	class DeviceObject
 	{
 	public:
-		DeviceObject();
+		DeviceObject(forward::FrameGraphObject* obj);
 		virtual ~DeviceObject();
 
 		const std::string&		Name() const;
@@ -18,8 +20,11 @@ namespace forward
 
 		u32						GetInnerID();
 
+		forward::FrameGraphObject*		FrameGraphObject();
+
 	protected:
 		std::string				m_name;
+		forward::FrameGraphObject*		m_frameGraphObjPtr = nullptr;
 
 		static u32				s_usResourceUID;
 		u32						m_usInnerID;

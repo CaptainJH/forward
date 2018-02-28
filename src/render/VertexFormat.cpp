@@ -6,6 +6,7 @@ VertexFormat::VertexFormat()
 	: mNumAttributes(0)
 	, mVertexSize(0)
 {
+	m_type = FGOT_VERTEX_INPUT_LAYOUT;
 }
 
 void VertexFormat::Reset()

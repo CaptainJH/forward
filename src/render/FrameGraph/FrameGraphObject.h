@@ -27,6 +27,7 @@ namespace forward
 				FGOT_BLEND_STATE,
 				FGOT_DEPTH_STENCIL_STATE,
 				FGOT_RASTERIZER_STATE,
+			FGOT_VERTEX_INPUT_LAYOUT,
 		FGOT_NUM_TYPES
 	};
 
@@ -47,7 +48,7 @@ namespace forward
 		inline bool IsDrawingState() const;
 
 		inline void SetDeviceObject(forward::DeviceObject* obj);
-		inline DeviceObject* DeviceObject();
+		inline forward::DeviceObject* DeviceObject();
 
 	protected:
 		FrameGraphObjectType	m_type;

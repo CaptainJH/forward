@@ -9,7 +9,8 @@ using namespace forward;
 //--------------------------------------------------------------------------------
 u32 DeviceObject::s_usResourceUID = 0;
 //--------------------------------------------------------------------------------
-DeviceObject::DeviceObject()
+DeviceObject::DeviceObject(forward::FrameGraphObject* obj)
+	: m_frameGraphObjPtr(obj)
 {
 	m_usInnerID = s_usResourceUID;
 	s_usResourceUID++;
@@ -32,4 +33,9 @@ void DeviceObject::SetName(const std::string& name)
 u32 DeviceObject::GetInnerID()
 {
 	return m_usInnerID;
+}
+//--------------------------------------------------------------------------------
+FrameGraphObject* DeviceObject::FrameGraphObject()
+{
+	return m_frameGraphObjPtr;
 }

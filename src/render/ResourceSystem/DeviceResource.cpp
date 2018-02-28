@@ -7,7 +7,14 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
+DeviceResource::DeviceResource(forward::FrameGraphObject* obj)
+	: DeviceObject(obj)
+{
+	m_usInnerID = s_usResourceUID++;
+}
+
 DeviceResource::DeviceResource( )
+	: DeviceObject(nullptr)
 {
 	m_usInnerID = s_usResourceUID;
 	s_usResourceUID++;
