@@ -38,15 +38,18 @@ DeviceBlendStateDX11::~DeviceBlendStateDX11()
 
 void DeviceBlendStateDX11::Bind(ID3D11DeviceContext* deviceContext)
 {
-	f32 afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	auto state = GetBlendState();
-	/// TODO: should use values in BlendState
-	deviceContext->OMSetBlendState(state, afBlendFactors, 0xFFFFFFFF);
+	BlendState* bState = GetBlendState();
+	deviceContext->OMSetBlendState(GetBlendStateDX11(), &bState->blendColor[0], bState->sampleMask);
 }
 
-ID3D11BlendState* DeviceBlendStateDX11::GetBlendState()
+ID3D11BlendState* DeviceBlendStateDX11::GetBlendStateDX11()
 {
 	return static_cast<ID3D11BlendState*>(m_deviceObjPtr.Get());
+}
+
+BlendState* DeviceBlendStateDX11::GetBlendState()
+{
+	return static_cast<BlendState*>(m_frameGraphObjPtr);
 }
 
 D3D11_BLEND const DeviceBlendStateDX11::msMode[] =

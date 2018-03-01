@@ -4,6 +4,7 @@
 #pragma once
 
 #include "DeviceDrawingStateDX11.h"
+#include "render/FrameGraph/PipelineStateObjects.h"
 
 namespace forward
 {
@@ -11,7 +12,13 @@ namespace forward
 	{
 	public:
 
-		ID3D11RasterizerState * GetRasterizerState();
+		DeviceRasterizerStateDX11(ID3D11Device* device, RasterizerState* rsState);
+		virtual ~DeviceRasterizerStateDX11();
+
+		ID3D11RasterizerState * GetRasterizerStateDX11();
+		RasterizerState* GetRasterizerState();
+
+		void Bind(ID3D11DeviceContext* deviceContext);
 
 	private:
 		// Conversions from FrameGraph values to DX11 values.

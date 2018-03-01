@@ -14,7 +14,8 @@ namespace forward
 		DeviceBlendStateDX11(ID3D11Device* device, BlendState* blendState);
 		virtual ~DeviceBlendStateDX11();
 
-		ID3D11BlendState* GetBlendState();
+		ID3D11BlendState* GetBlendStateDX11();
+		BlendState* GetBlendState();
 
 		void Bind(ID3D11DeviceContext* deviceContext);
 
