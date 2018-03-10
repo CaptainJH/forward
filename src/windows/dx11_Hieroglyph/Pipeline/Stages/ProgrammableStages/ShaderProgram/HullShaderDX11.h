@@ -27,7 +27,7 @@ namespace forward
 		HullShaderDX11( ID3D11HullShader* pShader );
 		virtual ~HullShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11HullShader*			m_pHullShader;

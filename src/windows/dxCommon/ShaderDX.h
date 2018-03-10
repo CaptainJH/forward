@@ -41,7 +41,7 @@ namespace forward
 		ShaderDX(forward::FrameGraphObject* obj);
 		virtual ~ShaderDX();
 
-		virtual ShaderType GetType() = 0;
+		virtual ShaderType GetType() const = 0;
 
 		ID3DBlob*	GetCompiledCode();	
 

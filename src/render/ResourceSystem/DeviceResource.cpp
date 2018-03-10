@@ -4,6 +4,7 @@
 //--------------------------------------------------------------------------------
 #include "DeviceResource.h"
 #include "ResourceConfig.h"
+#include "FrameGraphResource.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -22,4 +23,9 @@ DeviceResource::DeviceResource( )
 //--------------------------------------------------------------------------------
 DeviceResource::~DeviceResource()
 {
+}
+
+FrameGraphResource* DeviceResource::GetFrameGraphResource()
+{
+	return dynamic_cast<FrameGraphResource*>(FrameGraphObject());
 }

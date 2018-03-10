@@ -41,8 +41,7 @@ namespace forward
 		i32		GetResourceID() const;
 		void	SetResourceID(i32 id);
 
-		void	CopyCPUToGPU(u8* /*srcData*/, u32 /*srcDataSize*/) override {}
-		void	CopyGPUToCPU(u8* /*dstData*/, u32 /*dstDataSize*/) override {}
+		void	SyncCPUToGPU() override {}
 
 	protected:
 		i32		m_ResourceID = -1;

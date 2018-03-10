@@ -27,7 +27,7 @@ namespace forward
 		ComputeShaderDX11( ID3D11ComputeShader* pShader );
 		virtual ~ComputeShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11ComputeShader*			m_pComputeShader;

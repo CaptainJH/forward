@@ -15,13 +15,3 @@ UnorderedAccessViewComPtr DeviceTextureDX11::GetUAView() const
 {
 	return m_uav;
 }
-
-void DeviceTextureDX11::CopyCPUToGPU(u8* /*srcData*/, u32 /*srcDataSize*/)
-{
-	/// TODO:
-}
-
-void DeviceTextureDX11::CopyGPUToCPU(u8* /*dstData*/, u32 /*dstDataSize*/)
-{
-	/// TODO:
-}

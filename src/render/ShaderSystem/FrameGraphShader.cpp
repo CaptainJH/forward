@@ -37,3 +37,18 @@ FrameGraphPixelShader::FrameGraphPixelShader(const std::string& name, const std:
 {
 	m_type = FGOT_PIXEL_SHADER;
 }
+
+const std::string& FrameGraphShader::GetShaderText() const
+{
+	return m_shader;
+}
+
+const std::wstring& FrameGraphShader::GetShaderFile() const
+{
+	return m_shaderFile;
+}
+
+const std::wstring& FrameGraphShader::GetShaderEntry() const
+{
+	return m_entryFunction;
+}

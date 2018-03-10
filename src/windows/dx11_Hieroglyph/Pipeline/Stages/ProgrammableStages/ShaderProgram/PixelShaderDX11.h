@@ -27,7 +27,7 @@ namespace forward
 		PixelShaderDX11( ID3D11PixelShader* pShader );
 		virtual ~PixelShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11PixelShader*			m_pPixelShader;

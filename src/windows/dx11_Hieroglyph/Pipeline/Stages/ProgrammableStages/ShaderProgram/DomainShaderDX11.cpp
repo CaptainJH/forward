@@ -24,7 +24,7 @@ DomainShaderDX11::~DomainShaderDX11()
 	SAFE_RELEASE( m_pDomainShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType DomainShaderDX11::GetType()
+ShaderType DomainShaderDX11::GetType() const
 {
 	return( DOMAIN_SHADER );
 }

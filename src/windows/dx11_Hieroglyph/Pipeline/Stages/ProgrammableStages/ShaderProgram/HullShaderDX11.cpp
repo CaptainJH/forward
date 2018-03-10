@@ -24,7 +24,7 @@ HullShaderDX11::~HullShaderDX11()
 	SAFE_RELEASE( m_pHullShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType HullShaderDX11::GetType()
+ShaderType HullShaderDX11::GetType() const
 {
 	return( HULL_SHADER );
 }

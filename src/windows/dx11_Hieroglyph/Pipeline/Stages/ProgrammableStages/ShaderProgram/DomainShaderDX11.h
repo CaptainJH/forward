@@ -27,7 +27,7 @@ namespace forward
 		DomainShaderDX11( ID3D11DomainShader* pShader );
 		virtual ~DomainShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11DomainShader*			m_pDomainShader;

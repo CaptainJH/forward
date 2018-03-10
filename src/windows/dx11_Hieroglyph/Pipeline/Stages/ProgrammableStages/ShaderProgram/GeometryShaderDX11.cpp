@@ -24,7 +24,7 @@ GeometryShaderDX11::~GeometryShaderDX11()
 	SAFE_RELEASE( m_pGeometryShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType GeometryShaderDX11::GetType()
+ShaderType GeometryShaderDX11::GetType() const
 {
 	return( GEOMETRY_SHADER );
 }

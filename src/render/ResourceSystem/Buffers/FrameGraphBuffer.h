@@ -62,37 +62,40 @@ namespace forward
 	}
 
 
-	class FrameGraphConstantBuffer : public FrameGraphBuffer
+	class FrameGraphConstantBufferBase : public FrameGraphBuffer
 	{
 	public:
-		template<class T>
-		FrameGraphConstantBuffer(const std::string& name, const T& data);
+		FrameGraphConstantBufferBase(const std::string& name);
 		ResourceType GetResourceType() const override;
-		
-		template<class T>
-		T* GetTypedData();
+	};
 
-		template<class T>
+	template<class T>
+	class FrameGraphConstantBuffer : public FrameGraphConstantBufferBase
+	{
+	public:
+		FrameGraphConstantBuffer(const std::string& name, const T& data);
+
+		T* GetTypedData();
 		void SetTypedData(const T& data);
 	};
 
 
 	template<class T>
-	FrameGraphConstantBuffer::FrameGraphConstantBuffer(const std::string& name, const T& data)
-		: FrameGraphBuffer(name)
+	FrameGraphConstantBuffer<T>::FrameGraphConstantBuffer(const std::string& name, const T& data)
+		: FrameGraphBufferBase(name, sizeof(T))
 	{
 		m_type = FGOT_CONSTANT_BUFFER;
 		Initialize(1, sizeof(data));
 	}
 
 	template<class T>
-	T* FrameGraphConstantBuffer::GetTypedData()
+	T* FrameGraphConstantBuffer<T>::GetTypedData()
 	{
 		return static_cast<T*>(m_data);
 	}
 
 	template<class T>
-	void FrameGraphConstantBuffer::SetTypedData(const T& data)
+	void FrameGraphConstantBuffer<T>::SetTypedData(const T& data)
 	{
 		assert(sizeof(T) == m_elementSize);
 

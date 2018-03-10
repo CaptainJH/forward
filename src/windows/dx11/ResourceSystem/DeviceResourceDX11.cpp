@@ -6,9 +6,9 @@
 
 using namespace forward;
 
-DeviceResourceDX11::DeviceResourceDX11()
+DeviceResourceDX11::DeviceResourceDX11(forward::FrameGraphObject* obj)
+	: DeviceResource(obj)
 {
-
 }
 
 DeviceResourceDX11::~DeviceResourceDX11()

@@ -224,7 +224,7 @@ namespace forward
 	{
 		FrameGraphShader*	m_shader;
 
-		std::array<FrameGraphConstantBuffer*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers;
+		std::array<FrameGraphConstantBufferBase*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers;
 		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources;
 	};
 

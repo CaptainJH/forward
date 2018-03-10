@@ -24,7 +24,7 @@ PixelShaderDX11::~PixelShaderDX11()
 	SAFE_RELEASE( m_pPixelShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType PixelShaderDX11::GetType()
+ShaderType PixelShaderDX11::GetType() const
 {
 	return( PIXEL_SHADER );
 }

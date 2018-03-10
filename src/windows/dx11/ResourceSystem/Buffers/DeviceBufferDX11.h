@@ -11,8 +11,9 @@ namespace forward
 	class DeviceBufferDX11 : public DeviceResourceDX11
 	{
 	public:
+		DeviceBufferDX11(forward::FrameGraphObject* obj);
 
-		ID3D11Buffer*			GetBufferPtr();
+		ID3D11Buffer*			GetDXBufferPtr();
 
 		const D3D11_BUFFER_DESC&		GetActualDescription();
 
@@ -23,8 +24,10 @@ namespace forward
 		u32						GetMiscFlags();
 		u32						GetStructureByteStride();
 
-		void					CopyCPUToGPU(u8* srcData, u32 srcDataSize) override;
-		void					CopyGPUToCPU(u8* dstData, u32 dstDataSize) override;
+		void					SyncCPUToGPU() override;
+
+	private:
+		void					SyncCPUToGPU(ID3D11DeviceContext* context);
 
 	protected:
 		D3D11_BUFFER_DESC		m_actualDesc;

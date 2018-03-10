@@ -77,7 +77,11 @@ const VertexFormat& FrameGraphVertexBuffer::GetVertexFormat() const
 	return m_vertexFormat;
 }
 
-ResourceType FrameGraphConstantBuffer::GetResourceType() const
+FrameGraphConstantBufferBase::FrameGraphConstantBufferBase(const std::string& name)
+	: FrameGraphBuffer(name)
+{}
+
+ResourceType FrameGraphConstantBufferBase::GetResourceType() const
 {
 	return RT_CONSTANTBUFFER;
 }

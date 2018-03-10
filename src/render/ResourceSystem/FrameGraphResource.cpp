@@ -48,6 +48,11 @@ u32 FrameGraphResource::GetNumBytes() const
 	return m_numBytes;
 }
 
+u8* FrameGraphResource::GetData()
+{
+	return m_data;
+}
+
 void FrameGraphResource::CreateStorage()
 {
 	if (m_storage.empty())
@@ -94,4 +99,14 @@ void FrameGraphResource::Initialize(u32 numElements, u32 elementSize)
 		m_numBytes = 0;
 		m_elementSize = 0;
 	}
+}
+
+void FrameGraphResource::SetUsage(ResourceUsage usage)
+{
+	m_usage = usage;
+}
+
+ResourceUsage FrameGraphResource::GetUsage() const
+{
+	return m_usage;
 }

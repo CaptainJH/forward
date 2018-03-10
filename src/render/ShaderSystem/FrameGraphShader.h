@@ -13,9 +13,15 @@ namespace forward
 	public:
 		FrameGraphShader(const std::string& name, const std::wstring& shaderFile);
 
+		const std::string& GetShaderText() const;
+		const std::wstring& GetShaderFile() const;
+		const std::wstring& GetShaderEntry() const;
+
 	protected:
 		std::wstring m_shaderFile;
+		std::wstring m_entryFunction;
 		std::string m_shader;
+		
 	};
 
 

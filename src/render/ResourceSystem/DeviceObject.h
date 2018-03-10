@@ -23,10 +23,10 @@ namespace forward
 		forward::FrameGraphObject*		FrameGraphObject();
 
 	protected:
-		std::string				m_name;
+		std::string						m_name;
 		forward::FrameGraphObject*		m_frameGraphObjPtr = nullptr;
 
-		static u32				s_usResourceUID;
-		u32						m_usInnerID;
+		static u32						s_usResourceUID;
+		u32								m_usInnerID;
 	};
 }

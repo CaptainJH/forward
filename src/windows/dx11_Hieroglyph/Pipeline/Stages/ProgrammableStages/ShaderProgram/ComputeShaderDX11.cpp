@@ -24,7 +24,7 @@ ComputeShaderDX11::~ComputeShaderDX11()
 	SAFE_RELEASE( m_pComputeShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType ComputeShaderDX11::GetType()
+ShaderType ComputeShaderDX11::GetType() const
 {
 	return( COMPUTE_SHADER );
 }

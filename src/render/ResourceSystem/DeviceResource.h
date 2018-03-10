@@ -8,6 +8,7 @@
 namespace forward
 {
 	class FrameGraphObject;
+	class FrameGraphResource;
 
 	enum ResourceType
 	{
@@ -31,13 +32,14 @@ namespace forward
 
 		virtual ~DeviceResource();
 
+		FrameGraphResource* GetFrameGraphResource();
+
 		virtual ResourceType	GetType() = 0;
 
 		virtual u32				GetEvictionPriority() = 0;
 		virtual void			SetEvictionPriority( u32 EvictionPriority ) = 0;
 
-		virtual void			CopyCPUToGPU(u8* srcData, u32 srcDataSize) = 0;
-		virtual void			CopyGPUToCPU(u8* dstData, u32 dstDataSize) = 0;
+		virtual void			SyncCPUToGPU() = 0;
 	};
 
 	typedef std::shared_ptr<DeviceResource> ResourcePtr;

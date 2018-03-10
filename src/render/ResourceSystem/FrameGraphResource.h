@@ -8,6 +8,15 @@
 
 namespace forward
 {
+	// The resource usage.  These control how the GPU versions are created.
+	// You must set the usage type before binding the resource to an engine.
+	enum ResourceUsage
+	{
+		RU_IMMUTABLE,       // D3D11_USAGE_IMMUTABLE (default)
+		RU_DYNAMIC_UPDATE,  // D3D11_USAGE_DYNAMIC
+		RU_SHADER_OUTPUT    // D3D11_USAGE_DEFAULT
+	};
+
 	class FrameGraphResource : public FrameGraphObject
 	{
 	public:
@@ -18,6 +27,9 @@ namespace forward
 		virtual ResourceType GetResourceType() const = 0;
 
 		DeviceResource*		GetResource();
+
+		void SetUsage(ResourceUsage usage);
+		ResourceUsage GetUsage() const;
 
 		// Create or destroy the system-memory storage associated with the
 		// resource.  A resource does not necessarily require system memory
@@ -32,13 +44,16 @@ namespace forward
 
 		void Initialize(u32 numElements, u32 elementSize);
 
+		u8* GetData();
+
 	protected:
 
 		u32		m_numElements;
 		u32		m_numActiveElements;
 		u32		m_elementSize;
 		u32		m_numBytes;
-		std::vector<i8> m_storage;
-		i8*		m_data;
+		std::vector<u8> m_storage;
+		u8*		m_data;
+		ResourceUsage	m_usage;
 	};
 }

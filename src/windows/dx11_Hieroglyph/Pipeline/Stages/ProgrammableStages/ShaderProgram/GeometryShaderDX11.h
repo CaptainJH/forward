@@ -27,7 +27,7 @@ namespace forward
 		GeometryShaderDX11( ID3D11GeometryShader* pShader );
 		virtual ~GeometryShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11GeometryShader*			m_pGeometryShader;

@@ -3,10 +3,17 @@
 //***************************************************************************************
 
 #include "DeviceBufferDX11.h"
+#include "render/ResourceSystem/FrameGraphResource.h"
 
 using namespace forward;
 
-ID3D11Buffer* DeviceBufferDX11::GetBufferPtr()
+DeviceBufferDX11::DeviceBufferDX11(forward::FrameGraphObject* obj)
+	: DeviceResourceDX11(obj)
+{
+
+}
+
+ID3D11Buffer* DeviceBufferDX11::GetDXBufferPtr()
 {
 	if (m_deviceResPtr)
 	{
@@ -22,7 +29,7 @@ const D3D11_BUFFER_DESC& DeviceBufferDX11::GetActualDescription()
 
 	if (m_deviceResPtr)
 	{
-		GetBufferPtr()->GetDesc(&m_actualDesc);
+		GetDXBufferPtr()->GetDesc(&m_actualDesc);
 	}
 
 	return m_actualDesc;
@@ -70,12 +77,24 @@ u32 DeviceBufferDX11::GetStructureByteStride()
 	return description.StructureByteStride;
 }
 
-void DeviceBufferDX11::CopyCPUToGPU(u8* /*srcData*/, u32 /*srcDataSize*/)
+void DeviceBufferDX11::SyncCPUToGPU(ID3D11DeviceContext* context)
 {
-	/// TODO: 
+	auto buffer = GetFrameGraphResource();
+	if (!buffer || buffer->GetUsage() != ResourceUsage::RU_DYNAMIC_UPDATE)
+	{
+		return;
+	}
+
+	auto dxBuffer = GetDXBufferPtr();
+	D3D11_MAPPED_SUBRESOURCE sub;
+	HR(context->Map(dxBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub));
+
+	memcpy(sub.pData, buffer->GetData(), buffer->GetNumBytes());
+
+	context->Unmap(dxBuffer, 0);
 }
 
-void DeviceBufferDX11::CopyGPUToCPU(u8* /*dstData*/, u32 /*dstDataSize*/)
+void DeviceBufferDX11::SyncCPUToGPU()
 {
 	/// TODO:
 }

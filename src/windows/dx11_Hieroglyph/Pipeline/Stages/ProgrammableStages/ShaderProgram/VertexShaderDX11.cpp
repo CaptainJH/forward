@@ -24,7 +24,7 @@ VertexShaderDX11::~VertexShaderDX11()
 	SAFE_RELEASE( m_pVertexShader );
 }
 //--------------------------------------------------------------------------------
-ShaderType VertexShaderDX11::GetType()
+ShaderType VertexShaderDX11::GetType() const 
 {
 	return( VERTEX_SHADER );
 }

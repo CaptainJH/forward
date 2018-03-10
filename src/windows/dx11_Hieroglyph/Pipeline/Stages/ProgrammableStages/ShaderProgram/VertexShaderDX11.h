@@ -27,7 +27,7 @@ namespace forward
 		VertexShaderDX11( ID3D11VertexShader* pShader );
 		virtual ~VertexShaderDX11();
 
-		virtual ShaderType GetType();
+		ShaderType GetType() const override;
 
 	protected:
 		ID3D11VertexShader*			m_pVertexShader;

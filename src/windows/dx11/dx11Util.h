@@ -6,6 +6,7 @@
 #include <d3d11_2.h>
 #include <wrl.h>
 #include "dxCommon/d3dUtil.h"
+#include "utilities/Log.h"
 
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DeviceContextComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Query> QueryComPtr;
@@ -28,6 +29,9 @@ typedef Microsoft::WRL::ComPtr<ID3D11DepthStencilState> DepthStencilStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11SamplerState> SamplerStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayoutComPtr;
+
+#define D3D11_RESOURCE_MISC_NONE	0
+#define D3D11_CPU_ACCESS_NONE		0
 
 namespace forward
 {
