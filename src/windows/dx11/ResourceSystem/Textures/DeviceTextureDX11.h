@@ -7,9 +7,13 @@
 
 namespace forward
 {
+	class FrameGraphTexture;
+
 	class DeviceTextureDX11 : public DeviceResourceDX11
 	{
 	public:
+
+		DeviceTextureDX11(FrameGraphTexture* tex);
 
 		ShaderResourceViewComPtr	GetSRView() const;
 		UnorderedAccessViewComPtr	GetUAView() const;

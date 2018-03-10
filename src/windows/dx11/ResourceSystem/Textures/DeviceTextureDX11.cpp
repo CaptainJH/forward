@@ -3,8 +3,13 @@
 //***************************************************************************************
 
 #include "DeviceTextureDX11.h"
+#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 
 using namespace forward;
+
+DeviceTextureDX11::DeviceTextureDX11(FrameGraphTexture* tex)
+	: DeviceResourceDX11(tex)
+{}
 
 ShaderResourceViewComPtr DeviceTextureDX11::GetSRView() const
 {

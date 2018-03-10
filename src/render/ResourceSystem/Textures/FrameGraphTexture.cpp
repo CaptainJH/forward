@@ -6,9 +6,10 @@
 
 using namespace forward;
 
-FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType format)
+FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType format, TextureBindPosition bind)
 	: FrameGraphResource(name)
 	, m_format(format)
+	, m_bindPosition(bind)
 {
 	m_type = FGOT_TEXTURE;
 }
@@ -18,8 +19,24 @@ DataFormatType FrameGraphTexture::GetFormat() const
 	return m_format;
 }
 
-FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height)
-	: FrameGraphTexture(name, format)
+u32 FrameGraphTexture::GetMipLevelNum() const
+{
+	return m_mipLevelNum;
+}
+
+TextureBindPosition FrameGraphTexture::GetBindPosition() const
+{
+	return m_bindPosition;
+}
+
+bool FrameGraphTexture::WantAutoGenerateMips() const
+{
+	return m_autoGenerateMip;
+}
+
+FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, 
+	u32 width, u32 height, TextureBindPosition bind)
+	: FrameGraphTexture(name, format, bind)
 	, m_width(width)
 	, m_height(height)
 {
