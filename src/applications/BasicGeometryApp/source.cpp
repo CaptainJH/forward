@@ -1,6 +1,6 @@
-#include "dx11_Hieroglyph/ApplicationDX11.h"
-#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "ApplicationWin.h"
 #include "TriangleIndices.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 
 using namespace forward;
 

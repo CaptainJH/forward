@@ -1,10 +1,10 @@
 #include <windowsx.h>
 
-#include "ApplicationDX11.h"
-#include "Pipeline/PipelineManagerDX11.h"
-
+#include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
-#include "ResourceSystem/Texture/Texture2dConfigDX11.h"
+
+#include "dx11_Hieroglyph/Pipeline/PipelineManagerDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
 
 //--------------------------------------------------------------------------------
 using namespace forward;

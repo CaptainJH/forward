@@ -23,7 +23,7 @@
 #include "Timer.h"
 #include "FileSystem.h"
 #include "Log.h"
-#include "RendererDX11.h"
+#include "dx11_Hieroglyph/RendererDX11.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
