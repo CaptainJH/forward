@@ -4,7 +4,7 @@
 #pragma once
 #include "Types.h"
 #include "DataFormat.h"
-#include "ResourceSystem/ResourceConfig.h"
+#include "ResourceSystem/DeviceResource.h"
 
 
 namespace forward
@@ -30,14 +30,6 @@ namespace forward
 	{
 	public:
 		virtual RendererAPI GetRendererAPI() const = 0;
-
-		virtual ResourcePtr CreateVertexBuffer(VertexBufferConfig* pConfig, Subresource* pData) = 0;
-		virtual ResourcePtr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData) = 0;
-		virtual ResourcePtr CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData) = 0;
-
-		virtual ResourcePtr CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData) = 0;
-		virtual ResourcePtr CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData) = 0;
-		virtual ResourcePtr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData) = 0;
 
 		virtual void DeleteResource(ResourcePtr ptr) = 0;
 

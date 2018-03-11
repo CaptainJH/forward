@@ -108,13 +108,13 @@ namespace forward
 		ResourceProxyPtr CreateTexture2D( Texture2dConfigDX11* pConfig, Subresource* pData );
 		ResourceProxyPtr CreateTexture3D( Texture3dConfigDX11* pConfig, Subresource* pData );
 
-		ResourcePtr CreateVertexBuffer( VertexBufferConfig* pConfig, Subresource* pData) override;
-		ResourcePtr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData) override;
-		ResourcePtr CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateVertexBuffer( VertexBufferConfig* pConfig, Subresource* pData);
+		ResourcePtr CreateIndexBuffer(IndexBufferConfig* pConfig, Subresource* pData);
+		ResourcePtr CreateConstantBuffer(ConstantBufferConfig* pConfig, Subresource* pData);
 
-		ResourcePtr CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData) override;
-		ResourcePtr CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData) override;
-		ResourcePtr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData) override;
+		ResourcePtr CreateTexture1D(Texture1dConfig* pConfig, Subresource* pData);
+		ResourcePtr CreateTexture2D(Texture2dConfig* pConfig, Subresource* pData);
+		ResourcePtr CreateTexture3D(Texture3dConfig* pConfig, Subresource* pData);
 
 		void DeleteResource(ResourcePtr ptr) override;
 

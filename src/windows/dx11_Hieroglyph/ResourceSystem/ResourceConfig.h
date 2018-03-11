@@ -5,8 +5,8 @@
 
 
 #include "Types.h"
-#include "DeviceResource.h"
 #include "DataFormat.h"
+#include "render/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

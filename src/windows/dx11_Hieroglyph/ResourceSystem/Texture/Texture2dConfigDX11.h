@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------
 #include "Types.h"
 #include <d3d11_2.h>
-#include "render/ResourceSystem/ResourceConfig.h"
+#include "dx11_Hieroglyph/ResourceSystem/ResourceConfig.h"
 #include "dx11_Hieroglyph/ResourceSystem/ResourceDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/ResourceView/ShaderResourceViewConfigDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/ResourceView/RenderTargetViewConfigDX11.h"

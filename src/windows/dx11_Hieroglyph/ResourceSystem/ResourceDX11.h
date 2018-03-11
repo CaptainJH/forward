@@ -23,7 +23,7 @@
 #define ResourceDX11_h
 
 #include "Types.h"
-#include "render/ResourceSystem/ResourceConfig.h"
+#include "dx11_Hieroglyph/ResourceSystem/ResourceConfig.h"
 #include <d3d11_2.h>
 //--------------------------------------------------------------------------------
 namespace forward
