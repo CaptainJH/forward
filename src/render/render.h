@@ -9,6 +9,13 @@
 
 namespace forward
 {
+	enum RendererType
+	{
+		Renderer_Hieroglyph,
+		Renderer_Forward_DX11,
+		Renderer_Forward_DX12,
+	};
+
 	enum RendererAPI
 	{
 		DirectX11,

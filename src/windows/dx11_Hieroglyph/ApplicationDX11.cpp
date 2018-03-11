@@ -38,7 +38,8 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	mMaximized(false),
 	mResizing(false),
 	m4xMsaaQuality(0),
-	m_pRender(0)
+	m_pRender(nullptr),
+	m_pRender2(nullptr)
 {
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
@@ -319,7 +320,18 @@ void ApplicationWin::CalculateFrameStats()
 
 bool ApplicationWin::ConfigureRendererComponents()
 {
-	m_pRender = new RendererDX11;
+	switch (RenderType)
+	{
+	case Renderer_Hieroglyph:
+		m_pRender = new RendererDX11;
+		m_pRender2 = m_pRender;
+		break;
+
+	case Renderer_Forward_DX11:
+
+	default:
+		assert(false);
+	}
 
 	SwapChainConfig Config(m_pRender);
 	Config.SetWidth(mClientWidth);

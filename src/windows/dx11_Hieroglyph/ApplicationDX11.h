@@ -20,10 +20,10 @@
 #include <Windows.h>
 #include "PCH.h"
 #include "dxCommon/d3dUtil.h"
-#include "RendererDX11.h"
 #include "Timer.h"
 #include "FileSystem.h"
 #include "Log.h"
+#include "RendererDX11.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -87,12 +87,15 @@ namespace forward
 		FileSystem mFileSystem;
 
 		RendererDX11*	m_pRender;
+		Renderer*		m_pRender2;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
 		i32 mClientWidth;
 		i32 mClientHeight;
 		bool mEnable4xMsaa;
+
+		RendererType RenderType = RendererType::Renderer_Hieroglyph;
 	};
 
 	typedef ApplicationWin Application;
