@@ -36,6 +36,9 @@ namespace forward
 		void SetSwapEffect( DXGI_SWAP_EFFECT SwapEffect );
 		void SetFlags( u32 Flags );
 
+		u32 GetWidth() const;
+		u32 GetHeight() const;
+
 		DXGI_SWAP_CHAIN_DESC& GetSwapChainDesc();
 
 	private:

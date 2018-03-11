@@ -81,8 +81,13 @@ namespace forward
 		// obtain and release all of the hardware specific resources that
 		// are used during rendering.
 
-		bool Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
-		void Shutdown();
+	private:
+		bool InitializeD3D( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
+	public:
+		bool Initialize(SwapChainConfig& scConfig) override;
+		void Shutdown() override;
+
+		void OnResize(u32 width, u32 height) override;
 
 		// These methods provide rendering frame control.  They are closely
 		// related to the API for sequencing rendering batches.
@@ -251,6 +256,9 @@ namespace forward
 		std::vector<InputLayoutComPtr>			m_vInputLayouts;
 		std::vector<SamplerStateComPtr>			m_vSamplerStates;
 		std::vector<ViewPortDX11>				m_vViewPorts;
+
+		ResourcePtr								m_RenderTarget;
+		ResourcePtr								m_DepthTarget;
 
 	public:
 		PipelineManagerDX11*					pImmPipeline;

@@ -24,20 +24,26 @@ namespace forward
 	};
 
 	class RenderPass;
+	class SwapChainConfig;
 
 
 	class Renderer
 	{
 	public:
+		virtual ~Renderer();
 		virtual RendererAPI GetRendererAPI() const = 0;
 
 		virtual void DeleteResource(ResourcePtr ptr) = 0;
 
 		virtual void DrawRenderPass(RenderPass& pass) = 0;
 
+		virtual void OnResize(u32 width, u32 height) = 0;
+
+		virtual bool Initialize(SwapChainConfig&) = 0;
+		virtual void Shutdown() = 0;
+
 	protected:
 		Renderer();
-		virtual ~Renderer();
 
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.

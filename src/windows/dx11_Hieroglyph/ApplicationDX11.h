@@ -29,11 +29,11 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class ApplicationDX11
+	class ApplicationWin
 	{
 	public:
-		ApplicationDX11(HINSTANCE hInstance, i32 width=800, i32 height=600);
-		virtual ~ApplicationDX11();
+		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
+		virtual ~ApplicationWin();
 
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
@@ -87,18 +87,15 @@ namespace forward
 		FileSystem mFileSystem;
 
 		RendererDX11*	m_pRender;
-		ResourcePtr	m_RenderTarget;
-		ResourcePtr	m_DepthTarget;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
-		D3D_DRIVER_TYPE md3dDriverType;
 		i32 mClientWidth;
 		i32 mClientHeight;
 		bool mEnable4xMsaa;
 	};
 
-	typedef ApplicationDX11 Application;
+	typedef ApplicationWin Application;
 };
 //--------------------------------------------------------------------------------
 #endif // ApplicationDX11_h

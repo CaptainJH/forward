@@ -151,3 +151,12 @@ DXGI_SWAP_CHAIN_DESC& SwapChainConfig::GetSwapChainDesc()
 	return( m_State );
 }
 //--------------------------------------------------------------------------------
+u32 SwapChainConfig::GetWidth() const
+{
+	return m_State.BufferDesc.Width;
+}
+//--------------------------------------------------------------------------------
+u32 SwapChainConfig::GetHeight() const
+{
+	return m_State.BufferDesc.Height;
+}

@@ -149,7 +149,7 @@ u64 RendererDX11::GetAvailableVideoMemory()
     return( availableVideoMem );
 }
 //--------------------------------------------------------------------------------
-bool RendererDX11::Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel )
+bool RendererDX11::InitializeD3D( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel )
 {
 
     HRESULT hr = S_OK;
@@ -2127,4 +2127,73 @@ i32 RendererDX11::GetShaderIndex(const std::string& name) const
 	}
 
 	return -1;
+}
+
+//--------------------------------------------------------------------------------
+bool RendererDX11::Initialize(SwapChainConfig& scConfig)
+{
+	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_0))
+	{
+		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
+
+		if (!InitializeD3D(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
+		{
+			return false;
+		}
+
+	}
+
+	// Create a swap chain for the window that we started out with.  This
+	// demonstrates using a configuration object for fast and concise object
+	// creation.
+	auto swapChainId = CreateSwapChain(&scConfig);
+
+	// We'll keep a copy of the render target index to use in later examples.
+
+	m_RenderTarget = GetSwapChainResource(swapChainId);
+
+	// Next we create a depth buffer for use in the traditional rendering
+	// pipeline.
+
+	//Texture2dConfigDX11 DepthConfig;
+	//DepthConfig.SetDepthBuffer(mClientWidth, mClientHeight);
+	TextureDSConfig DepthConfig;
+	DepthConfig.SetWidth(scConfig.GetWidth());
+	DepthConfig.SetHeight(scConfig.GetHeight());
+	DepthConfig.SetFormat(DF_D32_FLOAT);
+	m_DepthTarget = CreateTexture2D(&DepthConfig, 0);
+	m_DepthTarget->SetName("DepthStencilTarget");
+
+	// Bind the swap chain render target and the depth buffer for use in 
+	// rendering.  
+
+	pImmPipeline->ClearRenderTargets();
+	pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+	pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
+	pImmPipeline->ApplyRenderTargets();
+
+
+	// Create a view port to use on the scene.  This basically selects the 
+	// entire floating point area of the render target.
+	i32 ViewPort = CreateViewPort(scConfig.GetWidth(), scConfig.GetHeight());
+	pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+	pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, ViewPort);
+
+	return true;
+}
+//--------------------------------------------------------------------------------
+void RendererDX11::OnResize(u32 width, u32 height)
+{
+	ResizeSwapChain(0, width, height);
+	// TODO: ResizeTexture should accept Resource
+	//m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
+
+	pImmPipeline->ClearRenderTargets();
+	pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
+	pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
+	pImmPipeline->ApplyRenderTargets();
+
+	ResizeViewport(0, width, height);
+	pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
+	pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
 }

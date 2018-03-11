@@ -15,7 +15,7 @@ namespace
 	// This is just used to forward Windows messages from a global window
 	// procedure to our member function window procedure because we cannot
 	// assign a member function to WNDCLASS::lpfnWndProc.
-	ApplicationDX11* gApplicationDX11 = 0;
+	ApplicationWin* gApplicationDX11 = 0;
 }
 
 LRESULT CALLBACK
@@ -26,10 +26,9 @@ MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 	return gApplicationDX11->MsgProc(hwnd, msg, wParam, lParam);
 }
 
-ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, i32 width, i32 height)
+ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	: mhAppInst(hInstance),
 	mMainWndCaption(L"D3D11 Application"),
-	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
 	mClientWidth(width),
 	mClientHeight(height),
 	mEnable4xMsaa(false),
@@ -47,27 +46,27 @@ ApplicationDX11::ApplicationDX11(HINSTANCE hInstance, i32 width, i32 height)
 	gApplicationDX11 = this;
 }
 
-ApplicationDX11::~ApplicationDX11()
+ApplicationWin::~ApplicationWin()
 {
 	ShutdownRendererComponents();
 }
 
-HINSTANCE ApplicationDX11::AppInst()const
+HINSTANCE ApplicationWin::AppInst()const
 {
 	return mhAppInst;
 }
 
-HWND ApplicationDX11::MainWnd()const
+HWND ApplicationWin::MainWnd()const
 {
 	return mhMainWnd;
 }
 
-f32 ApplicationDX11::AspectRatio()const
+f32 ApplicationWin::AspectRatio()const
 {
 	return static_cast<f32>(mClientWidth) / mClientHeight;
 }
 
-i32 ApplicationDX11::Run()
+i32 ApplicationWin::Run()
 {
 	MSG msg = { 0 };
 
@@ -100,7 +99,7 @@ i32 ApplicationDX11::Run()
 	return (i32)msg.wParam;
 }
 
-bool ApplicationDX11::Init()
+bool ApplicationWin::Init()
 {
 	if (!InitMainWindow())
 		return false;
@@ -111,23 +110,12 @@ bool ApplicationDX11::Init()
 	return true;
 }
 
-void ApplicationDX11::OnResize()
+void ApplicationWin::OnResize()
 {
-	m_pRender->ResizeSwapChain(0, mClientWidth, mClientHeight);
-	// TODO: ResizeTexture should accept Resource
-	//m_pRender->ResizeTexture(m_DepthTarget, mClientWidth, mClientHeight);
-
-	m_pRender->pImmPipeline->ClearRenderTargets();
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
-	m_pRender->pImmPipeline->ApplyRenderTargets();
-
-	m_pRender->ResizeViewport(0, mClientWidth, mClientHeight);
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, 0);
+	m_pRender->OnResize(mClientWidth, mClientHeight);
 }
 
-LRESULT ApplicationDX11::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
+LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -152,7 +140,7 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lPara
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (m_pRender && m_pRender->GetDevice())
+		if (m_pRender)
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -276,7 +264,7 @@ LRESULT ApplicationDX11::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lPara
 }
 
 
-bool ApplicationDX11::InitMainWindow()
+bool ApplicationWin::InitMainWindow()
 {
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -316,7 +304,7 @@ bool ApplicationDX11::InitMainWindow()
 	return true;
 }
 
-void ApplicationDX11::CalculateFrameStats()
+void ApplicationWin::CalculateFrameStats()
 {
 	auto fps = mTimer.Framerate();
 	f32 mspf = mTimer.Elapsed();
@@ -329,69 +317,27 @@ void ApplicationDX11::CalculateFrameStats()
 	SetWindowText(mhMainWnd, outs.str().c_str());
 }
 
-bool ApplicationDX11::ConfigureRendererComponents()
+bool ApplicationWin::ConfigureRendererComponents()
 {
 	m_pRender = new RendererDX11;
-
-	if (!m_pRender->Initialize(md3dDriverType, D3D_FEATURE_LEVEL_11_0))
-	{
-		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
-
-		if (!m_pRender->Initialize(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
-		{
-			ShowWindow(MainWnd(), SW_HIDE);
-			MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!", 
-				mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
-			RequestTermination();
-			return false;
-		}
-
-	}
-
-	// Create a swap chain for the window that we started out with.  This
-	// demonstrates using a configuration object for fast and concise object
-	// creation.
 
 	SwapChainConfig Config(m_pRender);
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());
-	auto swapChainId = m_pRender->CreateSwapChain(&Config);
 
-	// We'll keep a copy of the render target index to use in later examples.
-
-	m_RenderTarget = m_pRender->GetSwapChainResource(swapChainId);
-
-	// Next we create a depth buffer for use in the traditional rendering
-	// pipeline.
-
-	//Texture2dConfigDX11 DepthConfig;
-	//DepthConfig.SetDepthBuffer(mClientWidth, mClientHeight);
-	TextureDSConfig DepthConfig;
-	DepthConfig.SetWidth(mClientWidth);
-	DepthConfig.SetHeight(mClientHeight);
-	DepthConfig.SetFormat(DF_D32_FLOAT);
-	m_DepthTarget = m_pRender->CreateTexture2D(&DepthConfig, 0);
-	m_DepthTarget->SetName("DepthStencilTarget");
-
-	// Bind the swap chain render target and the depth buffer for use in 
-	// rendering.  
-
-	m_pRender->pImmPipeline->ClearRenderTargets();
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.RenderTargetResources.SetState(0, m_RenderTarget);
-	m_pRender->pImmPipeline->OutputMergerStage.DesiredState.DepthTargetResources.SetState(m_DepthTarget);
-	m_pRender->pImmPipeline->ApplyRenderTargets();
-
-
-	// Create a view port to use on the scene.  This basically selects the 
-	// entire floating point area of the render target.
-	i32 ViewPort = m_pRender->CreateViewPort(mClientWidth, mClientHeight);
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.ViewportCount.SetState(1);
-	m_pRender->pImmPipeline->RasterizerStage.DesiredState.Viewports.SetState(0, ViewPort);
+	if (!m_pRender->Initialize(Config))
+	{
+		ShowWindow(MainWnd(), SW_HIDE);
+		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
+			mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+		RequestTermination();
+		return false;
+	}
 
 	return true;
 }
-void ApplicationDX11::ShutdownRendererComponents()
+void ApplicationWin::ShutdownRendererComponents()
 {
 	if (m_pRender)
 	{
@@ -400,7 +346,7 @@ void ApplicationDX11::ShutdownRendererComponents()
 	}
 }
 
-void ApplicationDX11::RequestTermination()
+void ApplicationWin::RequestTermination()
 {
 	// This triggers the termination of the application
 	PostQuitMessage(0);
