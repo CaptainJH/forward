@@ -30,6 +30,8 @@ typedef Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11SamplerState> SamplerStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayoutComPtr;
 
+typedef Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> UserDefinedAnnotationComPtr;
+
 #define D3D11_RESOURCE_MISC_NONE	0
 #define D3D11_CPU_ACCESS_NONE		0
 

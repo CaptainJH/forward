@@ -14,7 +14,10 @@ namespace forward
 	{
 	public:
 
+		static DeviceTexture2DDX11* BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex);
+
 		DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex);
+		DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex);
 
 		ResourceType	GetType() override;
 		ID3D11Texture2D* GetDXTexture2DPtr();
@@ -22,6 +25,8 @@ namespace forward
 
 		DepthStencilViewComPtr		GetDSView() const;
 		RenderTargetViewComPtr		GetRTView() const;
+
+		void						SyncCPUToGPU() override;
 
 	private:
 		void CreateSRView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);

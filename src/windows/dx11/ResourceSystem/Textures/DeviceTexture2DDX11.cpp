@@ -6,6 +6,75 @@
 
 using namespace forward;
 
+DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex)
+{
+	D3D11_TEXTURE2D_DESC desc;
+	tex->GetDesc(&desc);
+	DataFormatType format = static_cast<DataFormatType>(desc.Format);
+	TextureBindPosition bp = TextureBindPosition::TBP_Shader;
+	if (desc.BindFlags | D3D11_BIND_DEPTH_STENCIL)
+	{
+		bp = TextureBindPosition::TBP_DS;
+	}
+	else if (desc.BindFlags | D3D11_BIND_RENDER_TARGET)
+	{
+		bp = TextureBindPosition::TBP_RT;
+	}
+	auto fg_tex = new FrameGraphTexture2D(name, format, desc.Width, desc.Height, bp);
+
+	return new DeviceTexture2DDX11(tex, fg_tex);
+}
+
+DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex)
+	: DeviceTextureDX11(tex)
+{
+	D3D11_TEXTURE2D_DESC desc;
+	deviceTex->GetDesc(&desc);
+	assert(desc.Width == tex->GetWidth());
+	assert(desc.Height == tex->GetHeight());
+	assert(desc.MipLevels == tex->GetMipLevelNum());
+
+	m_deviceResPtr = deviceTex;
+	ID3D11Device* device = nullptr;
+	deviceTex->GetDevice(&device);
+	const auto TBP = tex->GetBindPosition();
+
+	// Create views of the texture.
+	if (TBP == TBP_Shader || TBP == TBP_RT)
+	{
+		CreateSRView(device, desc);
+	}
+
+	if (TBP == TBP_RT)
+	{
+		CreateRTView(device, desc);
+	}
+
+	if (TBP == TBP_DS_ONLY || TBP == TBP_DS)
+	{
+		CreateDSView(device);
+
+		if (TBP == TBP_DS)
+		{
+			CreateDSSRView(device);
+		}
+	}
+
+	if (tex->GetUsage() == ResourceUsage::RU_SHADER_OUTPUT)
+	{
+		CreateUAView(device, desc);
+	}
+
+	// Generate mipmaps if requested.
+	if (tex->WantAutoGenerateMips() && m_srv)
+	{
+		ID3D11DeviceContext* context;
+		device->GetImmediateContext(&context);
+		context->GenerateMips(m_srv.Get());
+		context->Release();
+	}
+}
+
 DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex)
 	: DeviceTextureDX11(tex)
 {
@@ -264,4 +333,9 @@ DXGI_FORMAT DeviceTexture2DDX11::GetDepthSRVFormat(DXGI_FORMAT depthFormat)
 
 	Log::Get().Write(L"Invalid depth format.");
 	return DXGI_FORMAT_UNKNOWN;
+}
+
+void DeviceTexture2DDX11::SyncCPUToGPU()
+{
+	///TODO:
 }
