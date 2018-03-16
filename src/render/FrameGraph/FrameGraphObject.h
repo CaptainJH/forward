@@ -57,6 +57,8 @@ namespace forward
 		forward::DeviceObject*	m_deviceObjectPtr = nullptr;
 	};
 
+	typedef std::shared_ptr<FrameGraphObject> ObjectPtr;
+
 	FrameGraphObjectType FrameGraphObject::GetType() const
 	{
 		return m_type;

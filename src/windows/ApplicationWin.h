@@ -22,7 +22,17 @@
 #include "Timer.h"
 #include "FileSystem.h"
 #include "Log.h"
+
+#include "Vector2f.h"
+#include "Vector3f.h"
+#include "Vector4f.h"
+#include "Matrix4f.h"
+
+#include "render.h"
+
+#ifdef  USE_LEGACY_RENDERER
 #include "dx11_Hieroglyph/RendererDX11.h"
+#endif
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -85,7 +95,9 @@ namespace forward
 		Timer mTimer;
 		FileSystem mFileSystem;
 
+#ifdef USE_LEGACY_RENDERER
 		RendererDX11*	m_pRender;
+#endif
 		Renderer*		m_pRender2;
 
 		// Derived class should set these in derived constructor to customize starting values.

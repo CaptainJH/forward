@@ -3,8 +3,12 @@
 #include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
 
+#ifdef USE_LEGACY_RENDERER
 #include "dx11_Hieroglyph/Pipeline/PipelineManagerDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
+#else
+#include "dx11/Renderer2DX11.h"
+#endif
 
 //--------------------------------------------------------------------------------
 using namespace forward;
@@ -37,9 +41,11 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	mMinimized(false),
 	mMaximized(false),
 	mResizing(false),
-	m4xMsaaQuality(0),
-	m_pRender(nullptr),
-	m_pRender2(nullptr)
+	m4xMsaaQuality(0)
+#ifdef USE_LEGACY_RENDERER
+	, m_pRender(nullptr)
+#endif
+	, m_pRender2(nullptr)
 {
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
@@ -113,7 +119,7 @@ bool ApplicationWin::Init()
 
 void ApplicationWin::OnResize()
 {
-	m_pRender->OnResize(mClientWidth, mClientHeight);
+	m_pRender2->OnResize(mClientWidth, mClientHeight);
 }
 
 LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
@@ -141,7 +147,7 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (m_pRender)
+		if (m_pRender2)
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -323,22 +329,28 @@ bool ApplicationWin::ConfigureRendererComponents()
 	switch (RenderType)
 	{
 	case Renderer_Hieroglyph:
+#ifdef USE_LEGACY_RENDERER
 		m_pRender = new RendererDX11;
 		m_pRender2 = m_pRender;
+#endif
 		break;
 
 	case Renderer_Forward_DX11:
+#ifndef USE_LEGACY_RENDERER
+		m_pRender2 = new Renderer2DX11;
+#endif
+		break;
 
 	default:
 		assert(false);
 	}
 
-	SwapChainConfig Config(m_pRender);
+	SwapChainConfig Config(m_pRender2);
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());
 
-	if (!m_pRender->Initialize(Config))
+	if (!m_pRender2->Initialize(Config))
 	{
 		ShowWindow(MainWnd(), SW_HIDE);
 		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
@@ -351,10 +363,10 @@ bool ApplicationWin::ConfigureRendererComponents()
 }
 void ApplicationWin::ShutdownRendererComponents()
 {
-	if (m_pRender)
+	if (m_pRender2)
 	{
-		m_pRender->Shutdown();
-		SAFE_DELETE(m_pRender);
+		m_pRender2->Shutdown();
+		SAFE_DELETE(m_pRender2);
 	}
 }
 

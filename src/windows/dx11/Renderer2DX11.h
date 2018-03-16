@@ -2,6 +2,7 @@
 #include "render/render.h"
 #include "dx11Util.h"
 #include "dxCommon/SwapChain.h"
+#include "render/FrameGraph/FrameGraphObject.h"
 
 namespace forward
 {
@@ -12,6 +13,10 @@ namespace forward
 		RendererAPI GetRendererAPI() const override;
 
 		void DrawRenderPass(RenderPass& pass) override;
+
+		void DeleteResource(ResourcePtr ptr) override;
+
+		void OnResize(u32 width, u32 height) override;
 
 		bool Initialize(SwapChainConfig& config) override;
 		void Shutdown() override;
@@ -43,5 +48,7 @@ namespace forward
 		i32										m_iCurrentQuery;
 		QueryComPtr								m_Queries[NumQueries];
 		D3D11_QUERY_DATA_PIPELINE_STATISTICS	m_PipelineStatsData;
+
+		std::vector<ObjectPtr>					m_fgObjs;
 	};
 }

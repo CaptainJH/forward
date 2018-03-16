@@ -1,4 +1,5 @@
-#include "dx11_Hieroglyph/ApplicationDX11.h"
+#define USE_LEGACY_RENDERER
+#include "ApplicationWin.h"
 #include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/StateObject/RasterizerStateConfigDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"

@@ -3,6 +3,7 @@
 #include "dxCommon/DXGIOutput.h"
 #include "dxCommon/SwapChainConfig.h"
 #include "dx11/ResourceSystem/Textures/DeviceTexture2DDX11.h"
+#include "render/ResourceSystem/FrameGraphResource.h"
 
 using namespace forward;
 using Microsoft::WRL::ComPtr;
@@ -178,9 +179,8 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 	if (FAILED(hr))
 	{
 		Log::Get().Write(L"Failed to create swap chain!");
-		return(-1);
+		return -1;
 	}
-
 
 	// Acquire the texture interface from the swap chain.
 	Texture2DComPtr pSwapChainBuffer;
@@ -188,7 +188,7 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 	if (FAILED(hr))
 	{
 		Log::Get().Write(L"Failed to get swap chain texture resource!");
-		return(-1);
+		return -1;
 	}
 
 	auto rt_tex = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get());
@@ -199,7 +199,10 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 
 	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtResourcePtr));
 
-	return m_vSwapChains.size() - 1;
+	ObjectPtr op(rt_tex->GetFrameGraphResource());
+	m_fgObjs.push_back(op);
+
+	return static_cast<i32>(m_vSwapChains.size() - 1);
 }
 
 bool Renderer2DX11::Initialize(SwapChainConfig& config)
@@ -214,4 +217,26 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 		}
 
 	}
+
+	// Create a swap chain for the window that we started out with.  This
+	// demonstrates using a configuration object for fast and concise object
+	// creation.
+	/*auto swapChainId =*/ CreateSwapChain(&config);
+
+	return true;
+}
+
+void Renderer2DX11::DrawRenderPass(RenderPass& /*pass*/)
+{
+
+}
+
+void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)
+{
+
+}
+
+void Renderer2DX11::OnResize(u32 /*width*/, u32 /*height*/)
+{
+
 }

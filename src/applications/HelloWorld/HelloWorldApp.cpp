@@ -1,3 +1,4 @@
+#define USE_LEGACY_RENDERER
 #include "ApplicationWin.h"
 #include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 
