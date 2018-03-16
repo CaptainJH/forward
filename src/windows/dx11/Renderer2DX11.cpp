@@ -4,6 +4,7 @@
 #include "dxCommon/SwapChainConfig.h"
 #include "dx11/ResourceSystem/Textures/DeviceTexture2DDX11.h"
 #include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 
 using namespace forward;
 using Microsoft::WRL::ComPtr;
@@ -222,6 +223,15 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 	// demonstrates using a configuration object for fast and concise object
 	// creation.
 	/*auto swapChainId =*/ CreateSwapChain(&config);
+
+	// Next we create a depth buffer for use in the traditional rendering
+	// pipeline.
+	auto dsPtr = std::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+		config.GetWidth(), config.GetHeight(), TextureBindPosition::TBP_DS);
+	m_fgObjs.push_back(dsPtr);
+	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr.get());
+	dsPtr->SetDeviceObject(dsDevicePtr);
+
 
 	return true;
 }

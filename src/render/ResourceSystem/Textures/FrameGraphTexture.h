@@ -10,34 +10,33 @@ namespace forward
 {
 	enum TextureBindPosition
 	{
-		TBP_Shader,
-		TBP_RT,
-		//TBP_RT_ONLY,
-		TBP_DS,
-		TBP_DS_ONLY
+		TBP_None	= 0L,
+		TBP_Shader	= 0x8L,
+		TBP_RT		= 0x20L,
+		TBP_DS		= 0x40L,
 	};
 
 	class FrameGraphTexture : public FrameGraphResource
 	{
 	public:
-		FrameGraphTexture(const std::string& name, DataFormatType format, TextureBindPosition bind=TBP_Shader);
+		FrameGraphTexture(const std::string& name, DataFormatType format, u32 bind=TBP_Shader);
 
 		DataFormatType	GetFormat() const;
 		u32				GetMipLevelNum() const;
 		bool			WantAutoGenerateMips() const;
-		TextureBindPosition GetBindPosition() const;
+		u32				GetBindPosition() const;
 
 	protected:
 		DataFormatType	m_format = DF_UNKNOWN;
 		u32				m_mipLevelNum = 1;
 		bool			m_autoGenerateMip = false;
-		TextureBindPosition m_bindPosition;
+		u32				m_bindPosition;
 	};
 
 	class FrameGraphTexture2D : public FrameGraphTexture
 	{
 	public:
-		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, TextureBindPosition);
+		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp);
 		ResourceType GetResourceType() const override;
 
 		u32 GetWidth() const;

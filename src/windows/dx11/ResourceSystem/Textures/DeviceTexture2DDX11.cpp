@@ -11,14 +11,18 @@ DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::st
 	D3D11_TEXTURE2D_DESC desc;
 	tex->GetDesc(&desc);
 	DataFormatType format = static_cast<DataFormatType>(desc.Format);
-	TextureBindPosition bp = TextureBindPosition::TBP_Shader;
+	u32 bp = static_cast<u32>(TextureBindPosition::TBP_None);
 	if (desc.BindFlags & D3D11_BIND_DEPTH_STENCIL)
 	{
-		bp = TextureBindPosition::TBP_DS;
+		bp |= TextureBindPosition::TBP_DS;
 	}
 	else if (desc.BindFlags & D3D11_BIND_RENDER_TARGET)
 	{
-		bp = TextureBindPosition::TBP_RT;
+		bp |= TextureBindPosition::TBP_RT;
+	}
+	else if (desc.BindFlags & D3D11_BIND_SHADER_RESOURCE)
+	{
+		bp |= TextureBindPosition::TBP_Shader;
 	}
 	auto fg_tex = new FrameGraphTexture2D(name, format, desc.Width, desc.Height, bp);
 	auto ret = new DeviceTexture2DDX11(tex, fg_tex);
@@ -42,23 +46,25 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphT
 	const auto TBP = tex->GetBindPosition();
 
 	// Create views of the texture.
-	if (TBP == TBP_Shader /*|| TBP == TBP_RT*/)
+	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
 	{
 		CreateSRView(device, desc);
 	}
 
-	if (TBP == TBP_RT)
+	if (TBP & TBP_RT)
 	{
 		CreateRTView(device, desc);
 	}
 
-	if (TBP == TBP_DS_ONLY || TBP == TBP_DS)
+	if (TBP & TBP_DS)
 	{
-		CreateDSView(device);
-
-		if (TBP == TBP_DS)
+		if (TBP & TBP_Shader)
 		{
 			CreateDSSRView(device);
+		}
+		else
+		{
+			CreateDSView(device);
 		}
 	}
 
@@ -92,7 +98,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 
 	const auto TBP = tex->GetBindPosition();
 
-	if (TBP == TBP_Shader)
+	if (TBP & TBP_Shader)
 	{
 		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -123,7 +129,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
 	}
-	else if (TBP == TBP_RT)
+	else if (TBP & TBP_RT)
 	{
 		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 		desc.Usage = D3D11_USAGE_DEFAULT;
@@ -140,7 +146,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
 	}
-	else if (TBP == TBP_DS || TBP == TBP_DS_ONLY)
+	else if (TBP & TBP_DS)
 	{
 		desc.MipLevels = 1;
 		desc.Format = GetDepthResourceFormat(static_cast<DXGI_FORMAT>(tex->GetFormat()));
@@ -148,7 +154,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
 
-		if (TBP == TBP_DS)
+		if (TBP & TBP_Shader)
 		{
 			desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 		}
@@ -169,7 +175,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	m_deviceResPtr = dxTexture;
 
 	// Create views of the texture.
-	if (TBP == TBP_Shader || TBP == TBP_RT)
+	if (TBP & TBP_Shader)
 	{
 		CreateSRView(device, desc);
 	}
@@ -179,13 +185,15 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 		CreateRTView(device, desc);
 	}
 
-	if (TBP == TBP_DS_ONLY || TBP == TBP_DS)
+	if (TBP == TBP_DS)
 	{
-		CreateDSView(device);
-
-		if (TBP == TBP_DS)
+		if (TBP & TBP_Shader)
 		{
 			CreateDSSRView(device);
+		}
+		else
+		{
+			CreateDSView(device);
 		}
 	}
 

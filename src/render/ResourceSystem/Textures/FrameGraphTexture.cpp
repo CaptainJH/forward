@@ -6,7 +6,7 @@
 
 using namespace forward;
 
-FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType format, TextureBindPosition bind)
+FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType format, u32 bind)
 	: FrameGraphResource(name)
 	, m_format(format)
 	, m_bindPosition(bind)
@@ -24,7 +24,7 @@ u32 FrameGraphTexture::GetMipLevelNum() const
 	return m_mipLevelNum;
 }
 
-TextureBindPosition FrameGraphTexture::GetBindPosition() const
+u32 FrameGraphTexture::GetBindPosition() const
 {
 	return m_bindPosition;
 }
@@ -35,7 +35,7 @@ bool FrameGraphTexture::WantAutoGenerateMips() const
 }
 
 FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, 
-	u32 width, u32 height, TextureBindPosition bind)
+	u32 width, u32 height, u32 bind)
 	: FrameGraphTexture(name, format, bind)
 	, m_width(width)
 	, m_height(height)
