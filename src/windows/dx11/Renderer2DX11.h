@@ -24,6 +24,8 @@ namespace forward
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 
+		FrameGraphObject* FindFrameGraphObject(const std::string& name) override;
+
 	private:
 		bool InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel);
 		i32 CreateSwapChain(SwapChainConfig* pConfig);

@@ -2,9 +2,15 @@
 #include "dxCommon/DXGIAdapter.h"
 #include "dxCommon/DXGIOutput.h"
 #include "dxCommon/SwapChainConfig.h"
+#include "dx11/InputLayout/DeviceInputLayoutDX11.h"
+#include "dx11/ShaderSystem/VertexShaderDX11.h"
+#include "dx11/ShaderSystem/PixelShaderDX11.h"
+#include "dx11/ResourceSystem/Buffers/DeviceVertexBufferDX11.h"
+#include "dx11/ResourceSystem/Buffers/DeviceIndexBufferDX11.h"
 #include "dx11/ResourceSystem/Textures/DeviceTexture2DDX11.h"
 #include "render/ResourceSystem/FrameGraphResource.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/FrameGraph/RenderPass.h"
 
 using namespace forward;
 using Microsoft::WRL::ComPtr;
@@ -236,14 +242,75 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 	return true;
 }
 
-void Renderer2DX11::DrawRenderPass(RenderPass& /*pass*/)
+FrameGraphObject* Renderer2DX11::FindFrameGraphObject(const std::string& name)
 {
+	for (auto ptr : m_fgObjs)
+	{
+		if (ptr->Name() == name)
+		{
+			return ptr.get();
+		}
+	}
 
+	return nullptr;
+}
+
+void Renderer2DX11::DrawRenderPass(RenderPass& pass)
+{
+	auto& pso = pass.GetPSO();
+	if (!pso.m_IAState.m_vertexLayout.DeviceObject())
+	{
+		auto vb = pso.m_IAState.m_vertexBuffers[0];
+		auto vs = static_cast<FrameGraphVertexShader*>(pso.m_VSState.m_shader);
+		auto vfDevice = new DeviceInputLayoutDX11(m_pDevice.Get(), vb, vs);
+		pso.m_IAState.m_vertexLayout.SetDeviceObject(vfDevice);
+	}
+	DeviceInputLayoutDX11* layout = static_cast<DeviceInputLayoutDX11*>(pso.m_IAState.m_vertexLayout.DeviceObject());
+	m_pContext->IASetInputLayout(layout->GetInputLayout().Get());
+	m_pContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(pso.m_IAState.m_topologyType));
+
+	ID3D11Buffer* Buffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+	u32 Strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+	u32 Offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = { 0 };
+	u32 i = 0;
+	for (; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+	{
+		auto vb = pso.m_IAState.m_vertexBuffers[i];
+		if (!vb->DeviceObject())
+		{
+			auto deviceVB = new DeviceVertexBufferDX11(m_pDevice.Get(), vb);
+			vb->SetDeviceObject(deviceVB);
+		}
+
+		Buffers[i] = static_cast<DeviceVertexBufferDX11*>(vb->DeviceObject())->GetDXBufferPtr();
+		Strides[i] = vb->GetElementSize();
+		Offsets[i] = 0;
+	}
+
+	
+	m_pContext->IASetVertexBuffers(0, i, &Buffers[0], Strides, Offsets);
+
+	if (pso.m_IAState.m_indexBuffer)
+	{
+		auto ib = pso.m_IAState.m_indexBuffer;
+		if (!ib->DeviceObject())
+		{
+			auto deviceIB = new DeviceIndexBufferDX11(m_pDevice.Get(), ib);
+			ib->SetDeviceObject(deviceIB);
+		}
+
+		DXGI_FORMAT dataFormat = DXGI_FORMAT_R32_UINT;
+		DeviceIndexBufferDX11* pib = static_cast<DeviceIndexBufferDX11*>(ib->DeviceObject());
+		m_pContext->IASetIndexBuffer(pib->GetDXBufferPtr(), dataFormat, 0);
+	}
+	else
+	{
+		m_pContext->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
+	}
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)
 {
-
 }
 
 void Renderer2DX11::OnResize(u32 /*width*/, u32 /*height*/)

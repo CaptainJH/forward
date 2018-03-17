@@ -49,6 +49,8 @@ namespace forward
 		virtual bool Initialize(SwapChainConfig&) = 0;
 		virtual void Shutdown() = 0;
 
+		virtual FrameGraphObject* FindFrameGraphObject(const std::string& name) = 0;
+
 	protected:
 		Renderer();
 

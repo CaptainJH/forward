@@ -11,7 +11,7 @@ namespace forward
 	class FrameGraphShader : public FrameGraphObject
 	{
 	public:
-		FrameGraphShader(const std::string& name, const std::wstring& shaderFile);
+		FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 
 		const std::string& GetShaderText() const;
 		const std::wstring& GetShaderFile() const;
@@ -28,14 +28,14 @@ namespace forward
 	class FrameGraphVertexShader : public FrameGraphShader
 	{
 	public:
-		FrameGraphVertexShader(const std::string& name, const std::wstring& shaderFile);
+		FrameGraphVertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 
 	};
 
 	class FrameGraphPixelShader : public FrameGraphShader
 	{
 	public:
-		FrameGraphPixelShader(const std::string& name, const std::wstring& shaderFile);
+		FrameGraphPixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 	};
 
 }

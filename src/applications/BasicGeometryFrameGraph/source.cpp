@@ -31,8 +31,6 @@ class BasicGeometryFrameGraph : public Application
 public:
 	BasicGeometryFrameGraph(HINSTANCE hInstance, i32 width, i32 height)
 		: Application(hInstance, width, height)
-		, m_vsID(-1)
-		, m_psID(-1)
 	{
 		mMainWndCaption = L"BasicGeometryFrameGraph";
 		RenderType = RendererType::Renderer_Forward_DX11;
@@ -54,16 +52,11 @@ protected:
 private:
 	void BuildShaders();
 	void BuildGeometry();
-	void SetupPipeline();
-	void BuildFrameGraph();
-
-	i32 m_vsID;
-	i32 m_psID;
+	void SetupPipelineStates();
 
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
-	ResourcePtr m_constantBuffer;
 
 	MyRenderPass m_renderPass;
 };
@@ -88,13 +81,11 @@ void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 {
 	auto frames = (f32)mTimer.FrameCount() / 1000;
 	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
-
-	BuildFrameGraph();
 }
 
 void BasicGeometryFrameGraph::DrawScene()
 {
-
+	m_pRender2->DrawRenderPass(m_renderPass);
 }
 
 bool BasicGeometryFrameGraph::Init()
@@ -103,40 +94,60 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-
+	BuildShaders();
+	BuildGeometry();
+	SetupPipelineStates();
 
 	return true;
 }
 
 void BasicGeometryFrameGraph::BuildShaders()
 {
-
+	m_renderPass.GetPSO().m_VSState.m_shader = new FrameGraphVertexShader("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
+	m_renderPass.GetPSO().m_PSState.m_shader = new FrameGraphPixelShader("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
 }
 
 void BasicGeometryFrameGraph::OnResize()
 {
 	Application::OnResize();
-	SetupPipeline();
 }
 
 void BasicGeometryFrameGraph::BuildGeometry()
 {
-	
+	auto& vf = m_renderPass.GetPSO().m_IAState.m_vertexLayout;
+	vf.Bind(VASemantic::VA_POSITIONT, DataFormatType::DF_R32G32B32_FLOAT, 0);
+	vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+
+	m_renderPass.GetPSO().m_IAState.m_topologyType = PT_TRIANGLESTRIP;
+
+	/////////////
+	///build quad
+	/////////////
+	Vertex quadVertices[] =
+	{
+		{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
+		{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
+		{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
+		{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
+	};
+
+	m_renderPass.GetPSO().m_IAState.m_vertexBuffers[0] = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
 }
 
-void BasicGeometryFrameGraph::SetupPipeline()
+void BasicGeometryFrameGraph::SetupPipelineStates()
 {
+	auto dsPtr = m_pRender2->FindFrameGraphObject("DefaultDS");
+	m_renderPass.GetPSO().m_OMState.m_depthStencilResource =
+		static_cast<FrameGraphTexture2D*>(dsPtr);
+
+	auto rsPtr = m_pRender2->FindFrameGraphObject("DefaultRT");
+	m_renderPass.GetPSO().m_OMState.m_renderTargetResources[0] =
+		static_cast<FrameGraphTexture2D*>(rsPtr);
 }
 
 void BasicGeometryFrameGraph::OnSpace()
 {
 	mAppPaused = !mAppPaused;
-}
-
-void BasicGeometryFrameGraph::BuildFrameGraph()
-{
-
-
 }
 
 void MyRenderPass::Execute()

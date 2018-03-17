@@ -8,7 +8,8 @@
 
 using namespace forward;
 
-FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& shaderFile)
+FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+	: m_entryFunction(entryFunction)
 {
 	SetName(name);
 
@@ -26,14 +27,14 @@ FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& 
 	m_shader = SourceFile.GetDataPtr();
 }
 
-FrameGraphVertexShader::FrameGraphVertexShader(const std::string& name, const std::wstring& shaderFile)
-	: FrameGraphShader(name, shaderFile)
+FrameGraphVertexShader::FrameGraphVertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+	: FrameGraphShader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_VERTEX_SHADER;
 }
 
-FrameGraphPixelShader::FrameGraphPixelShader(const std::string& name, const std::wstring& shaderFile)
-	: FrameGraphShader(name, shaderFile)
+FrameGraphPixelShader::FrameGraphPixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+	: FrameGraphShader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_PIXEL_SHADER;
 }

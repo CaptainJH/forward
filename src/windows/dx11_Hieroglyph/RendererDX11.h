@@ -212,6 +212,7 @@ namespace forward
 
 		// FrameGraph related APIs
 		void DrawRenderPass(RenderPass& /*pass*/) override {}
+		FrameGraphObject* FindFrameGraphObject(const std::string&) override { return nullptr; }
 
 	protected:
 
