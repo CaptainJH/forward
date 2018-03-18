@@ -115,7 +115,7 @@ void BasicGeometryFrameGraph::OnResize()
 void BasicGeometryFrameGraph::BuildGeometry()
 {
 	auto& vf = m_renderPass.GetPSO().m_IAState.m_vertexLayout;
-	vf.Bind(VASemantic::VA_POSITIONT, DataFormatType::DF_R32G32B32_FLOAT, 0);
+	vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
 	vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 
 	m_renderPass.GetPSO().m_IAState.m_topologyType = PT_TRIANGLESTRIP;
@@ -131,7 +131,13 @@ void BasicGeometryFrameGraph::BuildGeometry()
 		{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
 	};
 
-	m_renderPass.GetPSO().m_IAState.m_vertexBuffers[0] = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
+	auto vb = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
+	for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
+	{
+		vb->AddVertex(quadVertices[i]);
+	}
+	vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
+	m_renderPass.GetPSO().m_IAState.m_vertexBuffers[0] = vb;
 }
 
 void BasicGeometryFrameGraph::SetupPipelineStates()

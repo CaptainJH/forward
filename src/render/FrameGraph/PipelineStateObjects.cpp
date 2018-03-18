@@ -60,7 +60,8 @@ RasterizerState::RasterizerState()
 	FrameGraphDrawingState("", FGOT_RASTERIZER_STATE),
 	fillMode(FILL_SOLID),
 	cullMode(CULL_BACK),
-	frontCCW(true),
+	//frontCCW(true),
+	frontCCW(false),
 	depthBias(0),
 	depthBiasClamp(0.0f),
 	slopeScaledDepthBias(0.0f),
@@ -70,4 +71,10 @@ RasterizerState::RasterizerState()
 	enableAntialiasedLine(false)
 {
 
+}
+
+void RasterizerStageState::AddViewport(ViewPort vp)
+{
+	assert(m_activeViewportsNum < FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
+	m_viewports[m_activeViewportsNum++] = vp;
 }

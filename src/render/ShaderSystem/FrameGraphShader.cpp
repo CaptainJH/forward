@@ -10,6 +10,7 @@ using namespace forward;
 
 FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
 	: m_entryFunction(entryFunction)
+	, m_shaderFile(shaderFile)
 {
 	SetName(name);
 

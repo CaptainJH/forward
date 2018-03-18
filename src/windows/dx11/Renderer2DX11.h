@@ -52,5 +52,8 @@ namespace forward
 		D3D11_QUERY_DATA_PIPELINE_STATISTICS	m_PipelineStatsData;
 
 		std::vector<ObjectPtr>					m_fgObjs;
+
+		u32		m_width;
+		u32		m_height;
 	};
 }

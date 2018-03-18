@@ -57,7 +57,7 @@ namespace forward
 		assert(m_numActiveElements < m_numElements);
 		assert(sizeof(T) == m_vertexFormat.GetVertexSize());
 
-		memcpy(m_data + m_numActiveElements, &vertex, sizeof(T));
+		memcpy(m_data + m_numActiveElements * sizeof(T), &vertex, sizeof(T));
 		++m_numActiveElements;
 	}
 

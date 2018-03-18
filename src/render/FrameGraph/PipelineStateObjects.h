@@ -190,8 +190,8 @@ namespace forward
 	struct InputAssemblerStageState : public PipelineStageState
 	{
 		PrimitiveTopologyType	m_topologyType;
-		FrameGraphIndexBuffer*	m_indexBuffer;
-		std::array<FrameGraphVertexBuffer*, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers;
+		FrameGraphIndexBuffer*	m_indexBuffer = nullptr;
+		std::array<FrameGraphVertexBuffer*, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };
 		VertexFormat			m_vertexLayout;
 	};
 
@@ -201,7 +201,7 @@ namespace forward
 		DepthStencilState	m_dsState;
 
 		FrameGraphTexture2D*	m_depthStencilResource;
-		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources;
+		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources = { nullptr };
 	};
 
 	struct RECT
@@ -212,20 +212,32 @@ namespace forward
 		i32 height;
 	};
 
+	struct ViewPort
+	{
+		f32 Width = 0.0f;
+		f32 Height = 0.0f;
+		f32 TopLeftX = 0.0f;
+		f32 TopLeftY = 0.0f;
+		f32 MinDepth = 0.0f;
+		f32 MaxDepth = 1.0f;
+	};
+
 	struct RasterizerStageState : public PipelineStageState
 	{
 		RasterizerState	m_rsState;
 
-		std::array<RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_viewports;
-		std::array<RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_scissorRects;
+		void AddViewport(ViewPort vp);
+		u32 m_activeViewportsNum = 0;
+		std::array<ViewPort, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_viewports;
+		std::array<forward::RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_scissorRects;
 	};
 
 	struct ShaderStageState : public PipelineStageState
 	{
 		FrameGraphShader*	m_shader;
 
-		std::array<FrameGraphConstantBufferBase*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers;
-		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources;
+		std::array<FrameGraphConstantBufferBase*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
+		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
 	};
 
 
