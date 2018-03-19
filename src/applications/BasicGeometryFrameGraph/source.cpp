@@ -22,8 +22,6 @@ class MyRenderPass : public RenderPass
 {
 public:
 	void Execute() override;
-
-	Renderer* m_render = nullptr;
 };
 
 class BasicGeometryFrameGraph : public Application

@@ -408,6 +408,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	auto color = Colors::Cyan;
 	f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 	m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
+	m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
 
 	// Draw
 	m_pContext->Draw(4, 0);
