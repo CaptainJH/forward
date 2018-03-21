@@ -34,7 +34,7 @@ namespace forward
 	class FrameGraphObject
 	{
 	public:
-
+		FrameGraphObject();
 		virtual ~FrameGraphObject();
 
 		const std::string& Name() const;
@@ -50,11 +50,16 @@ namespace forward
 		inline void SetDeviceObject(forward::DeviceObject* obj);
 		inline forward::DeviceObject* DeviceObject();
 
+		static FrameGraphObject* FindFrameGraphObject(const std::string& name);
+		static void RegisterObject(FrameGraphObject* ptr);
+
 	protected:
 		FrameGraphObjectType	m_type;
 		std::string				m_name;
 
 		forward::DeviceObject*	m_deviceObjectPtr = nullptr;
+
+		static std::vector<FrameGraphObject*>	m_sFGObjs;
 	};
 
 	typedef std::shared_ptr<FrameGraphObject> ObjectPtr;
@@ -92,5 +97,12 @@ namespace forward
 	DeviceObject* FrameGraphObject::DeviceObject()
 	{
 		return m_deviceObjectPtr;
+	}
+
+	template<class T>
+	T device_cast(FrameGraphObject* obj)
+	{
+		assert(obj);
+		return static_cast<T>(obj->DeviceObject());
 	}
 }

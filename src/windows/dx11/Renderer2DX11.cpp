@@ -210,9 +210,6 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 
 	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtResourcePtr));
 
-	ObjectPtr op(rt_tex->GetFrameGraphResource());
-	m_fgObjs.push_back(op);
-
 	m_width = pConfig->GetWidth();
 	m_height = pConfig->GetHeight();
 
@@ -239,27 +236,12 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 
 	// Next we create a depth buffer for use in the traditional rendering
 	// pipeline.
-	auto dsPtr = std::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+	auto dsPtr = new FrameGraphTexture2D(std::string("DefaultDS"), DF_D32_FLOAT,
 		config.GetWidth(), config.GetHeight(), TextureBindPosition::TBP_DS);
-	m_fgObjs.push_back(dsPtr);
-	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr.get());
+	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr);
 	dsPtr->SetDeviceObject(dsDevicePtr);
 
-
 	return true;
-}
-
-FrameGraphObject* Renderer2DX11::FindFrameGraphObject(const std::string& name)
-{
-	for (auto ptr : m_fgObjs)
-	{
-		if (ptr->Name() == name)
-		{
-			return ptr.get();
-		}
-	}
-
-	return nullptr;
 }
 
 void Renderer2DX11::DrawRenderPass(RenderPass& pass)
@@ -285,11 +267,11 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	if (!pso.m_IAState.m_vertexLayout.DeviceObject())
 	{
 		auto vb = pso.m_IAState.m_vertexBuffers[0];
-		auto vs = static_cast<FrameGraphVertexShader*>(pso.m_VSState.m_shader);
+		auto vs = pso.m_VSState.m_shader;
 		auto vfDevice = new DeviceInputLayoutDX11(m_pDevice.Get(), vb, vs);
 		pso.m_IAState.m_vertexLayout.SetDeviceObject(vfDevice);
 	}
-	DeviceInputLayoutDX11* layout = static_cast<DeviceInputLayoutDX11*>(pso.m_IAState.m_vertexLayout.DeviceObject());
+	DeviceInputLayoutDX11* layout = device_cast<DeviceInputLayoutDX11*>(&pso.m_IAState.m_vertexLayout);
 	m_pContext->IASetInputLayout(layout->GetInputLayout().Get());
 	m_pContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(pso.m_IAState.m_topologyType));
 
@@ -304,7 +286,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 				vb->SetDeviceObject(deviceVB);
 			}
 
-			auto deviceVB = static_cast<DeviceVertexBufferDX11*>(vb->DeviceObject());
+			auto deviceVB = device_cast<DeviceVertexBufferDX11*>(vb);
 			deviceVB->Bind(m_pContext.Get());
 		}
 	}
@@ -318,7 +300,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 			ib->SetDeviceObject(deviceIB);
 		}
 
-		auto deviceIB = static_cast<DeviceIndexBufferDX11*>(ib->DeviceObject());
+		auto deviceIB = device_cast<DeviceIndexBufferDX11*>(ib);
 		deviceIB->Bind(m_pContext.Get());
 	}
 	else
@@ -327,7 +309,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	}
 
 	// setup VS
-	auto vs = static_cast<VertexShaderDX11*>(pso.m_VSState.m_shader->DeviceObject());
+	auto vs = device_cast<VertexShaderDX11*>(pso.m_VSState.m_shader);
 	vs->Bind(m_pContext.Get());
 
 	// setup Rasterizer
@@ -336,7 +318,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		auto rs = new DeviceRasterizerStateDX11(m_pDevice.Get(), &pso.m_RSState.m_rsState);
 		pso.m_RSState.m_rsState.SetDeviceObject(rs);
 	}
-	auto rs = static_cast<DeviceRasterizerStateDX11*>(pso.m_RSState.m_rsState.DeviceObject());
+	auto rs = device_cast<DeviceRasterizerStateDX11*>(&pso.m_RSState.m_rsState);
 	m_pContext->RSSetState(rs->GetRasterizerStateDX11());
 	if (!pso.m_RSState.m_activeViewportsNum)
 	{
@@ -363,7 +345,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	m_pContext->RSSetScissorRects(0, aRects);
 
 	// setup PS
-	auto ps = static_cast<PixelShaderDX11*>(pso.m_PSState.m_shader->DeviceObject());
+	auto ps = device_cast<PixelShaderDX11*>(pso.m_PSState.m_shader);
 	ps->Bind(m_pContext.Get());
 
 	// setup OutputMerger
@@ -372,7 +354,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		auto blendState = new DeviceBlendStateDX11(m_pDevice.Get(), &pso.m_OMState.m_blendState);
 		pso.m_OMState.m_blendState.SetDeviceObject(blendState);
 	}
-	auto blendState = static_cast<DeviceBlendStateDX11*>(pso.m_OMState.m_blendState.DeviceObject());
+	auto blendState = device_cast<DeviceBlendStateDX11*>(&pso.m_OMState.m_blendState);
 	auto blendStateDX11 = blendState->GetBlendStateDX11();
 	f32 afBlendFactors[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_pContext->OMSetBlendState(blendStateDX11, afBlendFactors, 0xFFFFFFFF);
@@ -394,18 +376,18 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		if (rt)
 		{
 			assert(rt->DeviceObject());
-			auto rtDevice = static_cast<DeviceTexture2DDX11*>(rt->DeviceObject());
+			auto rtDevice = device_cast<DeviceTexture2DDX11*>(rt);
 			rtvs[i] = rtDevice->GetRTView().Get();
 		}
 	}
 	if (pso.m_OMState.m_depthStencilResource)
 	{
-		auto dsDevice = static_cast<DeviceTexture2DDX11*>(pso.m_OMState.m_depthStencilResource->DeviceObject());
+		auto dsDevice = device_cast<DeviceTexture2DDX11*>(pso.m_OMState.m_depthStencilResource);
 		dsv = dsDevice->GetDSView().Get();
 	}
 	m_pContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv);
 
-	auto color = Colors::Cyan;
+	auto color = Colors::Black;
 	f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 	m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
 	m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);

@@ -140,11 +140,11 @@ void BasicGeometryFrameGraph::BuildGeometry()
 
 void BasicGeometryFrameGraph::SetupPipelineStates()
 {
-	auto dsPtr = m_pRender2->FindFrameGraphObject("DefaultDS");
+	auto dsPtr = FrameGraphObject::FindFrameGraphObject("DefaultDS");
 	m_renderPass.GetPSO().m_OMState.m_depthStencilResource =
 		static_cast<FrameGraphTexture2D*>(dsPtr);
 
-	auto rsPtr = m_pRender2->FindFrameGraphObject("DefaultRT");
+	auto rsPtr = FrameGraphObject::FindFrameGraphObject("DefaultRT");
 	m_renderPass.GetPSO().m_OMState.m_renderTargetResources[0] =
 		static_cast<FrameGraphTexture2D*>(rsPtr);
 }

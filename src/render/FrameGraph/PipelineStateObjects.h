@@ -234,10 +234,18 @@ namespace forward
 
 	struct ShaderStageState : public PipelineStageState
 	{
-		FrameGraphShader*	m_shader;
-
 		std::array<FrameGraphConstantBufferBase*, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
 		std::array<FrameGraphTexture2D*, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
+	};
+
+	struct VertexShaderStageState : public ShaderStageState
+	{
+		FrameGraphVertexShader* m_shader;
+	};
+
+	struct PixelShaderStageState : public ShaderStageState
+	{
+		FrameGraphPixelShader* m_shader;
 	};
 
 
@@ -247,7 +255,7 @@ namespace forward
 		RasterizerStageState		m_RSState;
 		OutputMergerStageState		m_OMState;
 
-		ShaderStageState			m_VSState;
-		ShaderStageState			m_PSState;
+		VertexShaderStageState		m_VSState;
+		PixelShaderStageState		m_PSState;
 	};
 }

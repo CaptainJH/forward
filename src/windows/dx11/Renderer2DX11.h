@@ -24,8 +24,6 @@ namespace forward
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 
-		FrameGraphObject* FindFrameGraphObject(const std::string& name) override;
-
 	private:
 		bool InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel);
 		i32 CreateSwapChain(SwapChainConfig* pConfig);
@@ -50,8 +48,6 @@ namespace forward
 		i32										m_iCurrentQuery;
 		QueryComPtr								m_Queries[NumQueries];
 		D3D11_QUERY_DATA_PIPELINE_STATISTICS	m_PipelineStatsData;
-
-		std::vector<ObjectPtr>					m_fgObjs;
 
 		u32		m_width;
 		u32		m_height;
