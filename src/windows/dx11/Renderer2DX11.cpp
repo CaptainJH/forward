@@ -393,8 +393,18 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
 
 	// Draw
-	m_pContext->Draw(4, 0);
+	pass.Execute(*this);
 	
+	m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+}
+
+void Renderer2DX11::Draw(u32 vertexNum, u32 startVertexLocation)
+{
+	m_pContext->Draw(vertexNum, startVertexLocation);
+}
+
+void Renderer2DX11::Present()
+{
 	m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
 }
 

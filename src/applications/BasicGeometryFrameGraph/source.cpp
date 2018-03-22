@@ -18,12 +18,6 @@ struct CBufferType
 	Matrix4f mat;
 };
 
-class MyRenderPass : public RenderPass
-{
-public:
-	void Execute() override;
-};
-
 class BasicGeometryFrameGraph : public Application
 {
 public:
@@ -48,15 +42,12 @@ protected:
 	virtual void OnSpace();
 
 private:
-	void BuildShaders();
-	void BuildGeometry();
-	void SetupPipelineStates();
 
 	Matrix4f m_worldMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	MyRenderPass m_renderPass;
+	std::unique_ptr<RenderPass> m_renderPass;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -83,7 +74,7 @@ void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 
 void BasicGeometryFrameGraph::DrawScene()
 {
-	m_pRender2->DrawRenderPass(m_renderPass);
+	m_pRender2->DrawRenderPass(*m_renderPass.get());
 }
 
 bool BasicGeometryFrameGraph::Init()
@@ -92,17 +83,53 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	BuildShaders();
-	BuildGeometry();
-	SetupPipelineStates();
+	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
+	[](PipelineStateObject& pso) {
+		// setup shaders
+		pso.m_VSState.m_shader = new FrameGraphVertexShader("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
+		pso.m_PSState.m_shader = new FrameGraphPixelShader("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
+	
+		// setup geometry
+		auto& vf = pso.m_IAState.m_vertexLayout;
+		vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+		vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+
+		pso.m_IAState.m_topologyType = PT_TRIANGLESTRIP;
+
+		/////////////
+		///build quad
+		/////////////
+		Vertex quadVertices[] =
+		{
+			{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
+			{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
+			{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
+			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
+		};
+
+		auto vb = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
+		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
+		{
+			vb->AddVertex(quadVertices[i]);
+		}
+		vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
+		pso.m_IAState.m_vertexBuffers[0] = vb;
+
+		// setup render states
+		auto dsPtr = FrameGraphObject::FindFrameGraphObject("DefaultDS");
+		pso.m_OMState.m_depthStencilResource =
+			static_cast<FrameGraphTexture2D*>(dsPtr);
+
+		auto rsPtr = FrameGraphObject::FindFrameGraphObject("DefaultRT");
+		pso.m_OMState.m_renderTargetResources[0] =
+			static_cast<FrameGraphTexture2D*>(rsPtr);
+	},
+	[](Renderer& render) {
+		render.Draw(4);
+	});
+
 
 	return true;
-}
-
-void BasicGeometryFrameGraph::BuildShaders()
-{
-	m_renderPass.GetPSO().m_VSState.m_shader = new FrameGraphVertexShader("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
-	m_renderPass.GetPSO().m_PSState.m_shader = new FrameGraphPixelShader("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
 }
 
 void BasicGeometryFrameGraph::OnResize()
@@ -110,52 +137,7 @@ void BasicGeometryFrameGraph::OnResize()
 	Application::OnResize();
 }
 
-void BasicGeometryFrameGraph::BuildGeometry()
-{
-	auto& vf = m_renderPass.GetPSO().m_IAState.m_vertexLayout;
-	vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-	vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
-
-	m_renderPass.GetPSO().m_IAState.m_topologyType = PT_TRIANGLESTRIP;
-
-	/////////////
-	///build quad
-	/////////////
-	Vertex quadVertices[] =
-	{
-		{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
-		{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
-		{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
-		{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
-	};
-
-	auto vb = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
-	for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
-	{
-		vb->AddVertex(quadVertices[i]);
-	}
-	vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
-	m_renderPass.GetPSO().m_IAState.m_vertexBuffers[0] = vb;
-}
-
-void BasicGeometryFrameGraph::SetupPipelineStates()
-{
-	auto dsPtr = FrameGraphObject::FindFrameGraphObject("DefaultDS");
-	m_renderPass.GetPSO().m_OMState.m_depthStencilResource =
-		static_cast<FrameGraphTexture2D*>(dsPtr);
-
-	auto rsPtr = FrameGraphObject::FindFrameGraphObject("DefaultRT");
-	m_renderPass.GetPSO().m_OMState.m_renderTargetResources[0] =
-		static_cast<FrameGraphTexture2D*>(rsPtr);
-}
-
 void BasicGeometryFrameGraph::OnSpace()
 {
 	mAppPaused = !mAppPaused;
-}
-
-void MyRenderPass::Execute()
-{
-	//RendererDX11* renderDX11 = dynamic_cast<RendererDX11*>(m_render);
-	
 }

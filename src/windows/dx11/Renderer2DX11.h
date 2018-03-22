@@ -21,12 +21,15 @@ namespace forward
 		bool Initialize(SwapChainConfig& config) override;
 		void Shutdown() override;
 
+		void Draw(u32 vertexNum, u32 startVertexLocation=0) override;
+
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 
 	private:
 		bool InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel);
 		i32 CreateSwapChain(SwapChainConfig* pConfig);
+		void Present();
 
 	private:
 		// The main API interfaces used in the renderer.
