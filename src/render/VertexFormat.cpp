@@ -122,6 +122,17 @@ u32 VertexFormat::GetOffset(i32 i) const
 	return 0xFFFFFFFFu;
 }
 
+bool VertexFormat::ContainSemantic(VASemantic semantic) const
+{
+	for (auto i = 0; i < mNumAttributes; ++i)
+	{
+		if (mAttributes[i].semantic == semantic)
+			return true;
+	}
+
+	return false;
+}
+
 VertexFormat::Attribute::Attribute()
 	: semantic(VA_NO_SEMANTIC)
 	, type(DF_UNKNOWN)

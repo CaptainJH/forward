@@ -71,6 +71,8 @@ namespace forward
 		DataFormatType GetType(i32 i) const;
 		u32 GetOffset(i32 i) const;
 
+		bool ContainSemantic(VASemantic semantic) const;
+
 	private:
 		struct Attribute
 		{

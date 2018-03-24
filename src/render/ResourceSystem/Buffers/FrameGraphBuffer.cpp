@@ -51,12 +51,42 @@ void FrameGraphIndexBuffer::AddFace(const TriangleIndices& face)
 	++m_numActiveElements;
 }
 
+void FrameGraphIndexBuffer::AddLine(const LineIndices& line)
+{
+	assert(m_numActiveElements < m_numElements);
+
+	u32 src = line.P1();
+	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	++m_numActiveElements;
+
+	assert(m_numActiveElements < m_numElements);
+
+	src = line.P2();
+	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	++m_numActiveElements;
+}
+
+void FrameGraphIndexBuffer::AddPoint(const PointIndices& point)
+{
+	assert(m_numActiveElements < m_numElements);
+
+	u32 src = point.P1();
+	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	++m_numActiveElements;
+}
+
 void FrameGraphIndexBuffer::AddIndex(u32 index)
 {
 	assert(m_numActiveElements < m_numElements);
 
 	memcpy(m_data + m_numActiveElements, &index, sizeof(u32));
 	++m_numActiveElements;
+}
+
+u32 FrameGraphIndexBuffer::operator[](u32 index)
+{
+	assert(index < m_numActiveElements);
+	return *(u32*)GetData()[index * sizeof(u32)];
 }
 
 FrameGraphVertexBuffer::FrameGraphVertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices)

@@ -2,6 +2,7 @@
 // RenderPass.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #include "RenderPass.h"
+#include "RenderPassHelper.h"
 #include "render.h"
 
 using namespace forward;
@@ -16,8 +17,15 @@ RenderPass::RenderPass(CleanType cleanType, SetupFuncType setup, ExecuteFuncType
 	, m_setupCallback(setup)
 	, m_executeCallback(execute)
 {
-	m_setupCallback(GetPSO());
+	RenderPassBuilder builder(this);
+	m_setupCallback(builder, GetPSO());
 }
+
+RenderPass::RenderPass()
+	: m_cleanType(RenderPass::CT_Default)
+	, m_setupCallback(nullptr)
+	, m_executeCallback(nullptr)
+{}
 
 RenderPass::~RenderPass()
 {

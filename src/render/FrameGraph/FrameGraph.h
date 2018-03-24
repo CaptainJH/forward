@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "RenderPass.h"
+#include "RenderPassHelper.h"
 
 namespace forward
 {

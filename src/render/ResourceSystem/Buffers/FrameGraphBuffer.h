@@ -8,6 +8,8 @@
 #include "render/PrimitiveTopology.h"
 #include "render/VertexFormat.h"
 #include "geometry/TriangleIndices.h"
+#include "geometry/LineIndices.h"
+#include "geometry/PointIndices.h"
 
 namespace forward
 {
@@ -28,9 +30,11 @@ namespace forward
 		PrimitiveTopologyType GetPrimitiveType() const;
 
 		void AddFace(const TriangleIndices& face);
-		//void AddLine(const LineIndices& line);
-		//void AddPoint(const PointIndices& point);
+		void AddLine(const LineIndices& line);
+		void AddPoint(const PointIndices& point);
 		void AddIndex(u32 index);
+
+		u32 operator[](u32 index);
 
 	protected:
 		PrimitiveTopologyType m_primitiveType;

@@ -84,7 +84,7 @@ bool BasicGeometryFrameGraph::Init()
 		return false;
 
 	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
-	[](PipelineStateObject& pso) {
+	[](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = new FrameGraphVertexShader("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
 		pso.m_PSState.m_shader = new FrameGraphPixelShader("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
