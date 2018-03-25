@@ -19,6 +19,8 @@ PixelShaderDX11::PixelShaderDX11(ID3D11Device* device, forward::FrameGraphObject
 		m_pCompiledShader->GetBufferSize(), linkage, &dxShader));
 
 	m_deviceObjPtr = dxShader;
+
+	ReflectShader();
 }
 
 PixelShaderDX11::~PixelShaderDX11()

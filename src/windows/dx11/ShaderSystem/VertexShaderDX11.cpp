@@ -19,6 +19,8 @@ VertexShaderDX11::VertexShaderDX11(ID3D11Device* device, forward::FrameGraphObje
 		m_pCompiledShader->GetBufferSize(), linkage, &dxShader));
 
 	m_deviceObjPtr = dxShader;
+
+	ReflectShader();
 }
 
 VertexShaderDX11::~VertexShaderDX11()

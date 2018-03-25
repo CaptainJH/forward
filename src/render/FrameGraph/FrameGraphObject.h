@@ -3,6 +3,7 @@
 //***************************************************************************************
 #pragma once
 
+#include <assert.h>
 #include "render/ResourceSystem/DeviceObject.h"
 
 namespace forward
@@ -60,6 +61,9 @@ namespace forward
 		forward::DeviceObject*	m_deviceObjectPtr = nullptr;
 
 		static std::vector<FrameGraphObject*>	m_sFGObjs;
+
+	private:
+		virtual void PostSetDeviceObject() {}
 	};
 
 	typedef std::shared_ptr<FrameGraphObject> ObjectPtr;
@@ -92,6 +96,7 @@ namespace forward
 	void FrameGraphObject::SetDeviceObject(forward::DeviceObject* obj)
 	{
 		m_deviceObjectPtr = obj;
+		PostSetDeviceObject();
 	}
 
 	DeviceObject* FrameGraphObject::DeviceObject()

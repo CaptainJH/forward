@@ -21,7 +21,7 @@ std::vector<std::string> CallStackTraceGenerator::GetTrace()
     // Quote from Microsoft Documentation:
     // ## Windows Server 2003 and Windows XP:  
     // ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
-    const int kMaxCallers = 62; 
+    const i32 kMaxCallers = 62; 
 
     void         * callers_stack[ kMaxCallers ];
     u16				frames;

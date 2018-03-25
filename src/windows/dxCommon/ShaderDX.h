@@ -45,9 +45,6 @@ namespace forward
 
 		ID3DBlob*	GetCompiledCode();	
 
-		//void SetReflection( ShaderReflectionDX11* pReflection );
-		//ShaderReflectionDX11* GetReflection( );
-
 		std::wstring ToString();
 
 	public:
@@ -56,7 +53,6 @@ namespace forward
 		std::wstring							ShaderModel;
 		std::string								ShaderText;
 		ID3DBlob*								m_pCompiledShader;
-		//ShaderReflectionDX11*					m_pReflection;
 	};
 };
 //--------------------------------------------------------------------------------

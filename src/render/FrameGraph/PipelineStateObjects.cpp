@@ -19,7 +19,7 @@ BlendState::BlendState()
 	blendColor({ 0.0f, 0.0f, 0.0f, 0.0f }),
 	sampleMask(0xFFFFFFFFu)
 {
-	for (int i = 0; i < NUM_TARGETS; ++i)
+	for (auto i = 0U; i < NUM_TARGETS; ++i)
 	{
 		Target& trg = target[i];
 		trg.enable = false;
