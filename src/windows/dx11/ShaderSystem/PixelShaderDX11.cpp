@@ -14,9 +14,9 @@ PixelShaderDX11::PixelShaderDX11(ID3D11Device* device, forward::FrameGraphObject
 	assert(m_pCompiledShader);
 
 	ID3D11ClassLinkage* linkage = nullptr;
-	ID3D11PixelShader* dxShader = nullptr;
+	PixelShaderComPtr dxShader;
 	HR(device->CreatePixelShader(m_pCompiledShader->GetBufferPointer(),
-		m_pCompiledShader->GetBufferSize(), linkage, &dxShader));
+		m_pCompiledShader->GetBufferSize(), linkage, dxShader.GetAddressOf()));
 
 	m_deviceObjPtr = dxShader;
 

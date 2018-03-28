@@ -48,9 +48,9 @@ ID3D11DepthStencilState * DeviceDepthStencilStateDX11::GetDepthStencilStateDX11(
 	return static_cast<ID3D11DepthStencilState*>(m_deviceObjPtr.Get());
 }
 
-DepthStencilState* DeviceDepthStencilStateDX11::GetDepthStencilState()
+shared_ptr<DepthStencilState> DeviceDepthStencilStateDX11::GetDepthStencilState()
 {
-	return static_cast<DepthStencilState*>(m_frameGraphObjPtr);
+	return m_frameGraphObjPtr.lock();
 }
 
 D3D11_DEPTH_WRITE_MASK const DeviceDepthStencilStateDX11::msWriteMask[] =

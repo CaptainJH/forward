@@ -4,12 +4,13 @@
 #pragma once
 
 #include "PCH.h"
+#include "SmartPtrs.h"
 
 namespace forward
 {
 	class FrameGraphObject;
 
-	class DeviceObject
+	class DeviceObject : public intrusive_ref_counter
 	{
 	public:
 		DeviceObject(forward::FrameGraphObject* obj);
@@ -20,13 +21,13 @@ namespace forward
 
 		u32						GetInnerID();
 
-		forward::FrameGraphObject*		FrameGraphObject();
+		shared_ptr<forward::FrameGraphObject>		FrameGraphObject();
 
 	protected:
-		std::string						m_name;
-		forward::FrameGraphObject*		m_frameGraphObjPtr = nullptr;
+		std::string							m_name;
+		weak_ptr<forward::FrameGraphObject> m_frameGraphObjPtr = nullptr;
 
-		static u32						s_usResourceUID;
+		static u32						s_usDeviceObjectUID;
 		u32								m_usInnerID;
 	};
 }

@@ -30,16 +30,16 @@ public:
 
 	~BasicGeometryFrameGraph()
 	{
-		Log::Get().Close();
+		SAFE_DELETE(m_renderPass);
 	}
 
 	virtual bool Init();
 	virtual void OnResize();
 
 protected:
-	virtual void UpdateScene(f32 dt);
-	virtual void DrawScene();
-	virtual void OnSpace();
+	void UpdateScene(f32 dt) override;
+	void DrawScene() override;
+	void OnSpace() override;
 
 private:
 
@@ -47,7 +47,7 @@ private:
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	std::unique_ptr<RenderPass> m_renderPass;
+	RenderPass* m_renderPass;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -74,7 +74,7 @@ void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 
 void BasicGeometryFrameGraph::DrawScene()
 {
-	m_pRender2->DrawRenderPass(*m_renderPass.get());
+	m_pRender2->DrawRenderPass(*m_renderPass);
 }
 
 bool BasicGeometryFrameGraph::Init()
@@ -83,11 +83,11 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
+	m_renderPass = new RenderPass(RenderPass::CT_Default, 
 	[](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = new FrameGraphVertexShader("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
-		pso.m_PSState.m_shader = new FrameGraphPixelShader("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
+		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
+		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
 	
 		// setup geometry
 		auto& vf = pso.m_IAState.m_vertexLayout;
@@ -107,7 +107,7 @@ bool BasicGeometryFrameGraph::Init()
 			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
 		};
 
-		auto vb = new FrameGraphVertexBuffer("VertexBuffer", vf, 4);
+		auto vb = forward::make_shared<FrameGraphVertexBuffer>("VertexBuffer", vf, 4);
 		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
 		{
 			vb->AddVertex(quadVertices[i]);
@@ -117,12 +117,10 @@ bool BasicGeometryFrameGraph::Init()
 
 		// setup render states
 		auto dsPtr = FrameGraphObject::FindFrameGraphObject("DefaultDS");
-		pso.m_OMState.m_depthStencilResource =
-			static_cast<FrameGraphTexture2D*>(dsPtr);
+		pso.m_OMState.m_depthStencilResource = dsPtr;
 
 		auto rsPtr = FrameGraphObject::FindFrameGraphObject("DefaultRT");
-		pso.m_OMState.m_renderTargetResources[0] =
-			static_cast<FrameGraphTexture2D*>(rsPtr);
+		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[](Renderer& render) {
 		render.Draw(4);

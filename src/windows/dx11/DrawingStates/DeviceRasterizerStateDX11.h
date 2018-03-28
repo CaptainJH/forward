@@ -16,7 +16,7 @@ namespace forward
 		virtual ~DeviceRasterizerStateDX11();
 
 		ID3D11RasterizerState * GetRasterizerStateDX11();
-		RasterizerState* GetRasterizerState();
+		shared_ptr<RasterizerState> GetRasterizerState();
 
 		void Bind(ID3D11DeviceContext* deviceContext);
 

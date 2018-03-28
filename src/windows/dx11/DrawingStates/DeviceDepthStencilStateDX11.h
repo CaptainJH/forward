@@ -16,7 +16,7 @@ namespace forward
 		virtual ~DeviceDepthStencilStateDX11();
 
 		ID3D11DepthStencilState * GetDepthStencilStateDX11();
-		DepthStencilState* GetDepthStencilState();
+		shared_ptr<DepthStencilState> GetDepthStencilState();
 
 		void Bind(ID3D11DeviceContext* deviceContext);
 

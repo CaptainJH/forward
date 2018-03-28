@@ -56,6 +56,7 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 ApplicationWin::~ApplicationWin()
 {
 	ShutdownRendererComponents();
+	Log::Get().Close();
 }
 
 HINSTANCE ApplicationWin::AppInst()const

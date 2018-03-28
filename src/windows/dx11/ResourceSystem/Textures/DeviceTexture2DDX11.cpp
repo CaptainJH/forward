@@ -41,36 +41,36 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphT
 	assert(desc.MipLevels == tex->GetMipLevelNum());
 
 	m_deviceResPtr = deviceTex;
-	ID3D11Device* device = nullptr;
-	deviceTex->GetDevice(&device);
+	DeviceComPtr device;
+	deviceTex->GetDevice(device.GetAddressOf());
 	const auto TBP = tex->GetBindPosition();
 
 	// Create views of the texture.
 	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
 	{
-		CreateSRView(device, desc);
+		CreateSRView(device.Get(), desc);
 	}
 
 	if (TBP & TBP_RT)
 	{
-		CreateRTView(device, desc);
+		CreateRTView(device.Get(), desc);
 	}
 
 	if (TBP & TBP_DS)
 	{
 		if (TBP & TBP_Shader)
 		{
-			CreateDSSRView(device);
+			CreateDSSRView(device.Get());
 		}
 		else
 		{
-			CreateDSView(device);
+			CreateDSView(device.Get());
 		}
 	}
 
 	if (tex->GetUsage() == ResourceUsage::RU_SHADER_OUTPUT)
 	{
-		CreateUAView(device, desc);
+		CreateUAView(device.Get(), desc);
 	}
 
 	// Generate mipmaps if requested.
@@ -159,17 +159,17 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 		}
 	}
-
+	
 	// Create the texture.
-	ID3D11Texture2D* dxTexture = nullptr;
+	Texture2DComPtr dxTexture;
 	if (tex->GetData())
 	{
 		/// TODO: create texture from memory not supported now.
-		HR(device->CreateTexture2D(&desc, nullptr, &dxTexture));
+		HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
 	}
 	else
 	{
-		HR(device->CreateTexture2D(&desc, nullptr, &dxTexture));
+		HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
 	}
 
 	m_deviceResPtr = dxTexture;
@@ -227,9 +227,13 @@ ID3D11Texture2D* DeviceTexture2DDX11::GetDXTexture2DPtr()
 	return nullptr;
 }
 
-FrameGraphTexture2D* DeviceTexture2DDX11::GetFrameGraphTexture2D()
+shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX11::GetFrameGraphTexture2D()
 {
-	return dynamic_cast<FrameGraphTexture2D*>(FrameGraphObject());
+	auto ptr = FrameGraphObject();
+	forward::FrameGraphObject* p_obj = ptr.get();
+	auto p = dynamic_cast<FrameGraphTexture2D*>(p_obj);
+
+	return shared_ptr<FrameGraphTexture2D>(p);
 }
 
 DepthStencilViewComPtr DeviceTexture2DDX11::GetDSView() const

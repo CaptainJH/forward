@@ -4,10 +4,12 @@
 #pragma once
 
 #include <assert.h>
-#include "render/ResourceSystem/DeviceObject.h"
+#include "SmartPtrs.h"
 
 namespace forward
 {
+	class DeviceObject;
+
 	enum FrameGraphObjectType
 	{
 		FGOT_GRAPHICS_OBJECT,  // abstract
@@ -32,7 +34,7 @@ namespace forward
 		FGOT_NUM_TYPES
 	};
 
-	class FrameGraphObject
+	class FrameGraphObject : public intrusive_ref_counter
 	{
 	public:
 		FrameGraphObject();
@@ -48,25 +50,25 @@ namespace forward
 		inline bool IsShader() const;
 		inline bool IsDrawingState() const;
 
-		inline void SetDeviceObject(forward::DeviceObject* obj);
-		inline forward::DeviceObject* DeviceObject();
+		void SetDeviceObject(forward::DeviceObject* obj);
+		void SetDeviceObject(forward::shared_ptr<forward::DeviceObject> p);
+		inline shared_ptr<forward::DeviceObject> DeviceObject();
 
-		static FrameGraphObject* FindFrameGraphObject(const std::string& name);
+		static shared_ptr<FrameGraphObject> FindFrameGraphObject(const std::string& name);
 		static void RegisterObject(FrameGraphObject* ptr);
+		static void CheckMemoryLeak();
 
 	protected:
 		FrameGraphObjectType	m_type;
 		std::string				m_name;
 
-		forward::DeviceObject*	m_deviceObjectPtr = nullptr;
+		shared_ptr<forward::DeviceObject>		m_deviceObjectPtr = nullptr;
 
-		static std::vector<FrameGraphObject*>	m_sFGObjs;
+		static std::vector<weak_ptr<FrameGraphObject>>	m_sFGObjs;
 
 	private:
 		virtual void PostSetDeviceObject() {}
 	};
-
-	typedef std::shared_ptr<FrameGraphObject> ObjectPtr;
 
 	FrameGraphObjectType FrameGraphObject::GetType() const
 	{
@@ -93,13 +95,7 @@ namespace forward
 		return m_type > FGOT_DRAWING_STATE && m_type < FGOT_NUM_TYPES;
 	}
 
-	void FrameGraphObject::SetDeviceObject(forward::DeviceObject* obj)
-	{
-		m_deviceObjectPtr = obj;
-		PostSetDeviceObject();
-	}
-
-	DeviceObject* FrameGraphObject::DeviceObject()
+	shared_ptr<forward::DeviceObject> FrameGraphObject::DeviceObject()
 	{
 		return m_deviceObjectPtr;
 	}
@@ -108,6 +104,14 @@ namespace forward
 	T device_cast(FrameGraphObject* obj)
 	{
 		assert(obj);
-		return static_cast<T>(obj->DeviceObject());
+		return static_cast<T>(obj->DeviceObject().get());
 	}
+
+	template<class T>
+	T device_cast(forward::shared_ptr<forward::FrameGraphObject> p)
+	{
+		assert(p);
+		return static_cast<T>(p->DeviceObject().get());
+	}
+
 }

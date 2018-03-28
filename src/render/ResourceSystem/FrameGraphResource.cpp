@@ -25,7 +25,7 @@ FrameGraphResource::FrameGraphResource(const std::string& name)
 
 DeviceResource* FrameGraphResource::GetResource()
 {
-	return static_cast<DeviceResource*>(m_deviceObjectPtr);
+	return static_cast<DeviceResource*>(m_deviceObjectPtr.get());
 }
 
 FrameGraphResource::~FrameGraphResource()

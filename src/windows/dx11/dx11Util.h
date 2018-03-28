@@ -8,6 +8,7 @@
 #include "dxCommon/d3dUtil.h"
 #include "utilities/Log.h"
 
+typedef Microsoft::WRL::ComPtr<ID3D11Device> DeviceComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DeviceContextComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11Query> QueryComPtr;
 
@@ -23,6 +24,9 @@ typedef Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShaderResourceViewComPt
 typedef Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthStencilViewComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetViewComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> UnorderedAccessViewComPtr;
+
+typedef Microsoft::WRL::ComPtr<ID3D11VertexShader> VertexShaderComPtr;
+typedef Microsoft::WRL::ComPtr<ID3D11PixelShader> PixelShaderComPtr;
 
 typedef Microsoft::WRL::ComPtr<ID3D11BlendState> BlendStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11DepthStencilState> DepthStencilStateComPtr;

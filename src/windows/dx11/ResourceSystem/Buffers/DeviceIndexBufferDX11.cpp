@@ -40,18 +40,18 @@ DeviceIndexBufferDX11::DeviceIndexBufferDX11(ID3D11Device* device, FrameGraphInd
 	}
 
 	// Create the buffer.
-	ID3D11Buffer* buffer = nullptr;
+	BufferComPtr buffer;
 	if (ib->GetData())
 	{
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = ib->GetData();
 		data.SysMemPitch = 0;
 		data.SysMemSlicePitch = 0;
-		HR(device->CreateBuffer(&desc, &data, &buffer));
+		HR(device->CreateBuffer(&desc, &data, buffer.GetAddressOf()));
 	}
 	else
 	{
-		HR(device->CreateBuffer(&desc, nullptr, &buffer));
+		HR(device->CreateBuffer(&desc, nullptr, buffer.GetAddressOf()));
 	}
 
 	m_deviceResPtr = buffer;

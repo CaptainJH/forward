@@ -14,9 +14,9 @@ VertexShaderDX11::VertexShaderDX11(ID3D11Device* device, forward::FrameGraphObje
 	assert(m_pCompiledShader);
 
 	ID3D11ClassLinkage* linkage = nullptr;
-	ID3D11VertexShader* dxShader = nullptr;
+	VertexShaderComPtr dxShader;
 	HR(device->CreateVertexShader(m_pCompiledShader->GetBufferPointer(),
-		m_pCompiledShader->GetBufferSize(), linkage, &dxShader));
+		m_pCompiledShader->GetBufferSize(), linkage, dxShader.GetAddressOf()));
 
 	m_deviceObjPtr = dxShader;
 

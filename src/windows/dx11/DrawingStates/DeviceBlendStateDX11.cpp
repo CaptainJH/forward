@@ -27,8 +27,8 @@ DeviceBlendStateDX11::DeviceBlendStateDX11(ID3D11Device* device, BlendState* ble
 	}
 
 	// Create the blend state.
-	ID3D11BlendState* state = nullptr;
-	HR(device->CreateBlendState(&desc, &state));
+	BlendStateComPtr state;
+	HR(device->CreateBlendState(&desc, state.GetAddressOf()));
 	m_deviceObjPtr = state;
 }
 
@@ -38,7 +38,7 @@ DeviceBlendStateDX11::~DeviceBlendStateDX11()
 
 void DeviceBlendStateDX11::Bind(ID3D11DeviceContext* deviceContext)
 {
-	BlendState* bState = GetBlendState();
+	auto bState = GetBlendState();
 	deviceContext->OMSetBlendState(GetBlendStateDX11(), &bState->blendColor[0], bState->sampleMask);
 }
 
@@ -47,9 +47,9 @@ ID3D11BlendState* DeviceBlendStateDX11::GetBlendStateDX11()
 	return static_cast<ID3D11BlendState*>(m_deviceObjPtr.Get());
 }
 
-BlendState* DeviceBlendStateDX11::GetBlendState()
+shared_ptr<BlendState> DeviceBlendStateDX11::GetBlendState()
 {
-	return static_cast<BlendState*>(m_frameGraphObjPtr);
+	return m_frameGraphObjPtr.lock();
 }
 
 D3D11_BLEND const DeviceBlendStateDX11::msMode[] =

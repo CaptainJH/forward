@@ -23,8 +23,8 @@ DeviceRasterizerStateDX11::DeviceRasterizerStateDX11(ID3D11Device* device, Raste
 	desc.AntialiasedLineEnable = (rsState->enableAntialiasedLine ? TRUE : FALSE);
 
 	// Create the rasterizer state.
-	ID3D11RasterizerState* state = nullptr;
-	HR(device->CreateRasterizerState(&desc, &state));
+	RasterizerStateComPtr state;
+	HR(device->CreateRasterizerState(&desc, state.GetAddressOf()));
 	m_deviceObjPtr = state;
 }
 
@@ -37,9 +37,9 @@ ID3D11RasterizerState* DeviceRasterizerStateDX11::GetRasterizerStateDX11()
 	return static_cast<ID3D11RasterizerState*>(m_deviceObjPtr.Get());
 }
 
-RasterizerState* DeviceRasterizerStateDX11::GetRasterizerState()
+shared_ptr<RasterizerState> DeviceRasterizerStateDX11::GetRasterizerState()
 {
-	return static_cast<RasterizerState*>(m_frameGraphObjPtr);
+	return m_frameGraphObjPtr.lock();
 }
 
 void DeviceRasterizerStateDX11::Bind(ID3D11DeviceContext* deviceContext)

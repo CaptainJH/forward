@@ -39,7 +39,7 @@ DeviceInputLayoutDX11::DeviceInputLayoutDX11(ID3D11Device* device, const FrameGr
 			element.InstanceDataStepRate = 0;
 		}
 
-		auto compiledCode = static_cast<ShaderDX*>(vshader->DeviceObject())->GetCompiledCode();
+		auto compiledCode = device_cast<ShaderDX*>(vshader)->GetCompiledCode();
 		HR(device->CreateInputLayout(m_elements, m_numElements, compiledCode->GetBufferPointer(), 
 			compiledCode->GetBufferSize(), m_inputLayout.GetAddressOf()));
 

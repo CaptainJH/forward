@@ -78,7 +78,7 @@ namespace forward
 		bool InitMainWindow();
 
 		virtual bool ConfigureRendererComponents();
-		virtual void ShutdownRendererComponents();
+		void ShutdownRendererComponents();
 
 		void CalculateFrameStats();
 

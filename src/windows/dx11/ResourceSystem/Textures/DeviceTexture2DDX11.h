@@ -21,7 +21,7 @@ namespace forward
 
 		ResourceType	GetType() override;
 		ID3D11Texture2D* GetDXTexture2DPtr();
-		FrameGraphTexture2D* GetFrameGraphTexture2D();
+		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
 
 		DepthStencilViewComPtr		GetDSView() const;
 		RenderTargetViewComPtr		GetRTView() const;

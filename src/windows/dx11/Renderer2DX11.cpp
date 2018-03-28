@@ -36,8 +36,11 @@ void Renderer2DX11::Shutdown()
 		{
 			pSwapChain->GetSwapChain()->SetFullscreenState(false, NULL);
 		}
-		delete pSwapChain;
+		SAFE_DELETE(pSwapChain);
 	}
+
+	FrameGraphObject::CheckMemoryLeak();
+	//m_pDebugger->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 }
 
 bool Renderer2DX11::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel)
@@ -120,7 +123,6 @@ bool Renderer2DX11::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL 
 		return false;
 
 	// Get the debugger interface from the device.
-
 	hr = m_pDevice.CopyTo(m_pDebugger.GetAddressOf());
 
 	if (FAILED(hr))
@@ -140,7 +142,7 @@ bool Renderer2DX11::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL 
 
 	for (i32 i = 0; i < NumQueries; ++i)
 	{
-		hr = m_pDevice->CreateQuery(&queryDesc, &m_Queries[i]);
+		hr = m_pDevice->CreateQuery(&queryDesc, m_Queries[i].GetAddressOf());
 
 		if (FAILED(hr))
 		{
@@ -202,13 +204,14 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 		return -1;
 	}
 
-	auto rt_tex = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get());
-	ResourcePtr rtResourcePtr(rt_tex);
-	// With the resource proxy created, create the swap chain wrapper and store it.
-	// The resource proxy can then be used later on by the application to get the
-	// RTV or texture ID if needed.
-
-	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtResourcePtr));
+	auto rtPtr = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get());
+	// Next we create a depth buffer for use in the traditional rendering
+	// pipeline.
+	auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+		pConfig->GetWidth(), pConfig->GetHeight(), TextureBindPosition::TBP_DS);
+	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr.get());
+	dsPtr->SetDeviceObject(dsDevicePtr);
+	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtPtr->FrameGraphObject(), dsPtr));
 
 	m_width = pConfig->GetWidth();
 	m_height = pConfig->GetHeight();
@@ -234,13 +237,6 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 	// creation.
 	/*auto swapChainId =*/ CreateSwapChain(&config);
 
-	// Next we create a depth buffer for use in the traditional rendering
-	// pipeline.
-	auto dsPtr = new FrameGraphTexture2D(std::string("DefaultDS"), DF_D32_FLOAT,
-		config.GetWidth(), config.GetHeight(), TextureBindPosition::TBP_DS);
-	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr);
-	dsPtr->SetDeviceObject(dsDevicePtr);
-
 	return true;
 }
 
@@ -252,14 +248,14 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	if (!pso.m_VSState.m_shader->DeviceObject())
 	{
 		auto vs = pso.m_VSState.m_shader;
-		auto deviceVS = new VertexShaderDX11(m_pDevice.Get(), vs);
+		auto deviceVS = forward::make_shared<VertexShaderDX11>(m_pDevice.Get(), vs.get());
 		vs->SetDeviceObject(deviceVS);
 	}
 
 	if (!pso.m_PSState.m_shader->DeviceObject())
 	{
 		auto ps = pso.m_PSState.m_shader;
-		auto devicePS = new PixelShaderDX11(m_pDevice.Get(), ps);
+		auto devicePS = forward::make_shared<PixelShaderDX11>(m_pDevice.Get(), ps.get());
 		ps->SetDeviceObject(devicePS);
 	}
 
@@ -268,7 +264,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	{
 		auto vb = pso.m_IAState.m_vertexBuffers[0];
 		auto vs = pso.m_VSState.m_shader;
-		auto vfDevice = new DeviceInputLayoutDX11(m_pDevice.Get(), vb, vs);
+		auto vfDevice = forward::make_shared<DeviceInputLayoutDX11>(m_pDevice.Get(), vb.get(), vs.get());
 		pso.m_IAState.m_vertexLayout.SetDeviceObject(vfDevice);
 	}
 	DeviceInputLayoutDX11* layout = device_cast<DeviceInputLayoutDX11*>(&pso.m_IAState.m_vertexLayout);
@@ -282,7 +278,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (!vb->DeviceObject())
 			{
-				auto deviceVB = new DeviceVertexBufferDX11(m_pDevice.Get(), vb);
+				auto deviceVB = forward::make_shared<DeviceVertexBufferDX11>(m_pDevice.Get(), vb.get());
 				vb->SetDeviceObject(deviceVB);
 			}
 
@@ -296,7 +292,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		auto ib = pso.m_IAState.m_indexBuffer;
 		if (!ib->DeviceObject())
 		{
-			auto deviceIB = new DeviceIndexBufferDX11(m_pDevice.Get(), ib);
+			auto deviceIB = forward::make_shared<DeviceIndexBufferDX11>(m_pDevice.Get(), ib.get());
 			ib->SetDeviceObject(deviceIB);
 		}
 

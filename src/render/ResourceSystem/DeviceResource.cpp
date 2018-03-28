@@ -10,14 +10,11 @@ using namespace forward;
 DeviceResource::DeviceResource(forward::FrameGraphObject* obj)
 	: DeviceObject(obj)
 {
-	m_usInnerID = s_usResourceUID++;
 }
 
 DeviceResource::DeviceResource( )
 	: DeviceObject(nullptr)
 {
-	m_usInnerID = s_usResourceUID;
-	s_usResourceUID++;
 }
 //--------------------------------------------------------------------------------
 DeviceResource::~DeviceResource()
@@ -26,5 +23,5 @@ DeviceResource::~DeviceResource()
 
 FrameGraphResource* DeviceResource::GetFrameGraphResource()
 {
-	return dynamic_cast<FrameGraphResource*>(FrameGraphObject());
+	return dynamic_cast<FrameGraphResource*>(FrameGraphObject().get());
 }

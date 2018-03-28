@@ -33,7 +33,7 @@ namespace forward
 
 	private:
 		// The main API interfaces used in the renderer.
-		Microsoft::WRL::ComPtr<ID3D11Device>	m_pDevice;
+		DeviceComPtr							m_pDevice;
 		Microsoft::WRL::ComPtr<ID3D11Debug>		m_pDebugger;
 
 		DeviceContextComPtr						m_pContext;
