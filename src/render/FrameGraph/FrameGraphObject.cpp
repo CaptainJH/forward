@@ -30,23 +30,6 @@ void FrameGraphObject::SetName(const std::string& name)
 	m_name = name;
 }
 
-shared_ptr<FrameGraphObject> FrameGraphObject::FindFrameGraphObject(const std::string& name)
-{
-	for (auto ptr : m_sFGObjs)
-	{
-		if (!ptr.expired())
-		{
-			auto shared = ptr.lock();
-			if (shared->Name() == name)
-			{
-				return shared;
-			}
-		}
-	}
-
-	return nullptr;
-}
-
 void FrameGraphObject::RegisterObject(FrameGraphObject* ptr)
 {
 	auto it = std::find_if(m_sFGObjs.begin(), m_sFGObjs.end(), [](weak_ptr<FrameGraphObject>& ptr)->bool {
@@ -82,7 +65,7 @@ void FrameGraphObject::SetDeviceObject(forward::DeviceObject* obj)
 	PostSetDeviceObject();
 }
 
-void FrameGraphObject::SetDeviceObject(forward::shared_ptr<forward::DeviceObject> p)
+void FrameGraphObject::SetDeviceObject(DeviceObjPtr p)
 {
 	m_deviceObjectPtr = p;
 	PostSetDeviceObject();

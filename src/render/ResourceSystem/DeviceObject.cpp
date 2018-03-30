@@ -43,6 +43,6 @@ shared_ptr<FrameGraphObject> DeviceObject::FrameGraphObject()
 	}
 	else
 	{
-		return m_frameGraphObjPtr.lock();
+		return m_frameGraphObjPtr.lock_down<forward::FrameGraphObject>();
 	}
 }

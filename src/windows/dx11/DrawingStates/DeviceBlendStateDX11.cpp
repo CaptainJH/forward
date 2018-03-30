@@ -49,7 +49,7 @@ ID3D11BlendState* DeviceBlendStateDX11::GetBlendStateDX11()
 
 shared_ptr<BlendState> DeviceBlendStateDX11::GetBlendState()
 {
-	return m_frameGraphObjPtr.lock();
+	return m_frameGraphObjPtr.lock_down<BlendState>();
 }
 
 D3D11_BLEND const DeviceBlendStateDX11::msMode[] =

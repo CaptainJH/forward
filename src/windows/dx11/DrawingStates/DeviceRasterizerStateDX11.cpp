@@ -39,7 +39,7 @@ ID3D11RasterizerState* DeviceRasterizerStateDX11::GetRasterizerStateDX11()
 
 shared_ptr<RasterizerState> DeviceRasterizerStateDX11::GetRasterizerState()
 {
-	return m_frameGraphObjPtr.lock();
+	return m_frameGraphObjPtr.lock_down<RasterizerState>();
 }
 
 void DeviceRasterizerStateDX11::Bind(ID3D11DeviceContext* deviceContext)

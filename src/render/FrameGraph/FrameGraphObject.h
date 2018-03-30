@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include "SmartPtrs.h"
+#include "render/ResourceSystem/DeviceObject.h"
 
 namespace forward
 {
@@ -51,10 +52,26 @@ namespace forward
 		inline bool IsDrawingState() const;
 
 		void SetDeviceObject(forward::DeviceObject* obj);
-		void SetDeviceObject(forward::shared_ptr<forward::DeviceObject> p);
-		inline shared_ptr<forward::DeviceObject> DeviceObject();
+		void SetDeviceObject(DeviceObjPtr p);
+		inline DeviceObjPtr DeviceObject();
 
-		static shared_ptr<FrameGraphObject> FindFrameGraphObject(const std::string& name);
+		template<class T = FrameGraphObject>
+		static shared_ptr<T> FindFrameGraphObject(const std::string& name)
+		{
+			for (auto ptr : m_sFGObjs)
+			{
+				if (!ptr.expired())
+				{
+					auto shared = ptr.lock_down<T>();
+					if (shared->Name() == name)
+					{
+						return shared;
+					}
+				}
+			}
+
+			return nullptr;
+		}
 		static void RegisterObject(FrameGraphObject* ptr);
 		static void CheckMemoryLeak();
 
@@ -62,7 +79,7 @@ namespace forward
 		FrameGraphObjectType	m_type;
 		std::string				m_name;
 
-		shared_ptr<forward::DeviceObject>		m_deviceObjectPtr = nullptr;
+		DeviceObjPtr m_deviceObjectPtr = nullptr;
 
 		static std::vector<weak_ptr<FrameGraphObject>>	m_sFGObjs;
 
@@ -95,7 +112,7 @@ namespace forward
 		return m_type > FGOT_DRAWING_STATE && m_type < FGOT_NUM_TYPES;
 	}
 
-	shared_ptr<forward::DeviceObject> FrameGraphObject::DeviceObject()
+	DeviceObjPtr FrameGraphObject::DeviceObject()
 	{
 		return m_deviceObjectPtr;
 	}

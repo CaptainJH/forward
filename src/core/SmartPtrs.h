@@ -1,14 +1,17 @@
 #pragma once
 #include <assert.h>
+#include <type_traits>
 #include <map>
 #include "Types.h"
 
 namespace forward
 {
+	class intrusive_ref_counter;
+
 	class weak_ptr_base
 	{
 	protected:
-		void* px = nullptr;
+		intrusive_ref_counter* px = nullptr;
 
 		void register_weak_ptr();
 		void deregister_weak_ptr();
@@ -79,7 +82,7 @@ namespace forward
 		}
 
 
-		static std::map<void*, std::vector<weak_ptr_base*>> m_sWeakPtrTable;
+		static std::map<intrusive_ref_counter*, std::vector<weak_ptr_base*>> m_sWeakPtrTable;
 
 	public:
 		static void intrusive_ptr_add_ref(const intrusive_ref_counter* p)
@@ -126,16 +129,16 @@ namespace forward
 			: px(p)
 		{
 			if (px != nullptr && add_ref) 
-				intrusive_ref_counter::intrusive_ptr_add_ref((const intrusive_ref_counter*)px);
+				intrusive_ref_counter::intrusive_ptr_add_ref(px);
 		}
 
-		template<class U>
+		template<class U, typename std::enable_if<std::is_convertible<U*, T*>::value, size_t>::type = 0>
 		shared_ptr(shared_ptr<U> const& rhs)
 			: px((T*)rhs.get())
 		{
 			if (px != nullptr)
 			{
-				intrusive_ref_counter::intrusive_ptr_add_ref((const intrusive_ref_counter*)px);
+				intrusive_ref_counter::intrusive_ptr_add_ref(px);
 			}
 		}
 
@@ -143,13 +146,13 @@ namespace forward
 			: px(rhs.px)
 		{
 			if (px != nullptr) 
-				intrusive_ref_counter::intrusive_ptr_add_ref((const intrusive_ref_counter*)px);
+				intrusive_ref_counter::intrusive_ptr_add_ref(px);
 		}
 
 		~shared_ptr()
 		{
 			if (px != nullptr) 
-				intrusive_ref_counter::intrusive_ptr_release((const intrusive_ref_counter*)px);
+				intrusive_ref_counter::intrusive_ptr_release(px);
 		}
 
 		// Move support
@@ -321,6 +324,20 @@ namespace forward
 		shared_ptr<T> lock()
 		{
 			return forward::shared_ptr<T>(getTypedPtr());
+		}
+
+		template<class U, typename std::enable_if<std::is_convertible<U*, T*>::value, size_t>::type = 0>
+		shared_ptr<U> lock_down()
+		{
+			auto ptr = dynamic_cast<U*>(px);
+			if (ptr)
+			{
+				return shared_ptr<U>(ptr);
+			}
+			else
+			{
+				return nullptr;
+			}
 		}
 
 		bool expired() const

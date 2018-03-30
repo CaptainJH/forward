@@ -19,4 +19,4 @@ void weak_ptr_base::deregister_weak_ptr()
 	it->second.erase(it_weak);
 }
 
-std::map<void*, std::vector<weak_ptr_base*>> intrusive_ref_counter::m_sWeakPtrTable;
+std::map<intrusive_ref_counter*, std::vector<weak_ptr_base*>> intrusive_ref_counter::m_sWeakPtrTable;

@@ -116,10 +116,10 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_IAState.m_vertexBuffers[0] = vb;
 
 		// setup render states
-		auto dsPtr = FrameGraphObject::FindFrameGraphObject("DefaultDS");
+		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject("DefaultRT");
+		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[](Renderer& render) {

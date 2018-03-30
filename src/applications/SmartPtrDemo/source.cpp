@@ -27,15 +27,23 @@ struct B : public A
 
 i32 main()
 {
-	//bool b2a = std::is_convertible<B*, A*>::value;
-	//std::cout << b2a << std::endl;
+	std::cout << sizeof(shared_ptr<B>) << std::endl;
+	std::cout << sizeof(weak_ptr<B>) << std::endl;
 
-	//shared_ptr<B> pint = make_shared<B>(5);
-	//shared_ptr<A> pa(pint);
-	//shared_ptr<float> pfloat(pint);
+	shared_ptr<B> pB = make_shared<B>(5);
+	{
+		shared_ptr<B> pB2(pB.get());
+	}
+	std::cout << pB->a << std::endl; // doesn't work for std::shared_ptr!
 
-	std::shared_ptr<A> pint = std::make_shared<A>(5);
-	std::shared_ptr<B> pfloat(pint);
+	shared_ptr<A> pA(pB); // OK!
+	//shared_ptr<B> pB2(pA); // cannot compile
+
+	// cannot compile
+	//shared_ptr<int> pfloat = make_shared<int>(5);
+
+	//i32* raw_ptr = new int(5);
+	//weak_ptr<int> wp(raw_ptr); // cannot compile!
 
 
 	return 0;

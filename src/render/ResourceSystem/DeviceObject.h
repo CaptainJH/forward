@@ -24,10 +24,12 @@ namespace forward
 		shared_ptr<forward::FrameGraphObject>		FrameGraphObject();
 
 	protected:
-		std::string							m_name;
-		weak_ptr<forward::FrameGraphObject> m_frameGraphObjPtr = nullptr;
+		std::string									m_name;
+		weak_ptr<forward::intrusive_ref_counter>	m_frameGraphObjPtr = nullptr; // use type intrusive_ref_counter to avoid cross reference compiling issue.
 
 		static u32						s_usDeviceObjectUID;
 		u32								m_usInnerID;
 	};
+
+	typedef shared_ptr<DeviceObject> DeviceObjPtr;
 }
