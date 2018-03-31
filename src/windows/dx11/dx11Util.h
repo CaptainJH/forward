@@ -38,8 +38,3 @@ typedef Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> UserDefinedAnnotationC
 
 #define D3D11_RESOURCE_MISC_NONE	0
 #define D3D11_CPU_ACCESS_NONE		0
-
-namespace forward
-{
-	D3D11_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
-}

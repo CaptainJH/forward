@@ -13,6 +13,7 @@
 #include "PCH.h"
 #include "ShaderFactoryDX.h"
 #include "Log.h"
+#include "utilities/Utils.h"
 #include "dxCommon/d3dUtil.h"
 #include "FileSystem.h"
 #include "FileLoader.h"

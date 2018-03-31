@@ -4,14 +4,6 @@
 
 using namespace forward;
 
-//--------------------------------------------------------------------------------
-// Structure for Vertex Buffer
-struct Vertex
-{
-	Vector3f Pos;
-	Vector4f Color;
-};
-
 class BasicGeometryFrameGraph : public Application
 {
 public:
@@ -36,7 +28,6 @@ protected:
 
 private:
 
-	Matrix4f m_WVPMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
@@ -65,8 +56,8 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 {
 	auto frames = (f32)mTimer.FrameCount() / 1000;
-	m_WVPMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
-	*m_constantBuffer = m_WVPMat * m_viewMat * m_projMat;
+	auto worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
+	*m_constantBuffer = worldMat * m_viewMat * m_projMat;
 }
 
 void BasicGeometryFrameGraph::DrawScene()
@@ -82,8 +73,7 @@ bool BasicGeometryFrameGraph::Init()
 
 	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
 	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
-		// Init the world matrix
-		m_WVPMat = Matrix4f::Identity();
+
 		// Build the view matrix.
 		Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
 		Vector3f target; target.MakeZero();
@@ -97,39 +87,7 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
 
 		// setup geometry
-		VertexFormat vf;
-		vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-		vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
-
-		m_geometry = std::make_unique<SimpleGeometry>("SimpleGeometry", vf, PT_TRIANGLELIST, 8, 12 * 3);
-		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, -1.0f, -1.0f), Colors::White });
-		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, +1.0f, -1.0f), Colors::Black });
-		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, +1.0f, -1.0f), Colors::Red });
-		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, -1.0f, -1.0f), Colors::Green });
-		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, -1.0f, +1.0f), Colors::Blue });
-		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, +1.0f, +1.0f), Colors::Yellow });
-		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, +1.0f, +1.0f), Colors::Cyan });
-		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, -1.0f, +1.0f), Colors::Magenta });
-
-		m_geometry->AddFace(TriangleIndices(0, 1, 2));
-		m_geometry->AddFace(TriangleIndices(0, 2, 3));
-
-		m_geometry->AddFace(TriangleIndices(4, 6, 5));
-		m_geometry->AddFace(TriangleIndices(4, 7, 6));
-
-		m_geometry->AddFace(TriangleIndices(4, 5, 1));
-		m_geometry->AddFace(TriangleIndices(4, 1, 0));
-
-		m_geometry->AddFace(TriangleIndices(3, 2, 6));
-		m_geometry->AddFace(TriangleIndices(3, 6, 7));
-
-		m_geometry->AddFace(TriangleIndices(1, 5, 6));
-		m_geometry->AddFace(TriangleIndices(1, 6, 2));
-
-		m_geometry->AddFace(TriangleIndices(4, 0, 3));
-		m_geometry->AddFace(TriangleIndices(4, 3, 7));
-		// end setup geometry
-
+		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
 		builder << *m_geometry;
 
 		// setup constant buffer

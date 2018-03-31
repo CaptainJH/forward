@@ -16,6 +16,7 @@
 #include "render/ResourceSystem/FrameGraphResource.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "render/FrameGraph/RenderPass.h"
+#include "utilities/Utils.h"
 
 using namespace forward;
 using Microsoft::WRL::ComPtr;

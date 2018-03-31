@@ -29,6 +29,7 @@
 #include "Matrix4f.h"
 
 #include "render.h"
+#include "Utils.h"
 
 #ifdef  USE_LEGACY_RENDERER
 #include "dx11_Hieroglyph/RendererDX11.h"

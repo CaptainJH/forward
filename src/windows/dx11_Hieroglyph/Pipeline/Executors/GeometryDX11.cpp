@@ -15,6 +15,7 @@
 #include "dx11_Hieroglyph/ResourceSystem/Buffer/IndexBufferDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "Log.h"
+#include "Utils.h"
 #include "dx11_Hieroglyph/RendererDX11.h"
 //--------------------------------------------------------------------------------
 using namespace forward;

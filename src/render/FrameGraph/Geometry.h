@@ -1,13 +1,37 @@
 #pragma once
 #include "RenderPassHelper.h"
 #include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "Vector3f.h"
+#include "utilities/Utils.h"
 
 namespace forward
 {
+	struct Vertex_POS_COLOR
+	{
+		Vector3f Pos;
+		Vector4f Color;
+	};
+
+	enum GeometryPrefab
+	{
+		GP_COLOR_BOX,
+	};
+
+
 	class SimpleGeometry : public IRenderPassSource
 	{
 	public:
 		SimpleGeometry(const std::string& name, VertexFormat& format, PrimitiveTopologyType pt, const u32 vertexNum, const u32 primitiveCount);
+
+		template<class BuilderType> 
+		SimpleGeometry(const std::string& name, BuilderType)
+			: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", BuilderType::GetVertexFormat(), BuilderType::VertexCount))
+			, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", BuilderType::Topology, BuilderType::IndexCount))
+		{
+			m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
+			m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);
+			BuilderType::Initializer(this);
+		}
 		~SimpleGeometry();
 
 		void AddFace(const TriangleIndices& face);
@@ -35,5 +59,57 @@ namespace forward
 
 		shared_ptr<FrameGraphVertexBuffer>		m_VB;
 		shared_ptr<FrameGraphIndexBuffer>		m_IB;
+	};
+
+
+	template<int Prefab>
+	struct GeometryBuilder
+	{};
+
+	template<>
+	struct GeometryBuilder<GeometryPrefab::GP_COLOR_BOX>
+	{
+		static const u32 VertexCount = 8;
+		static const u32 IndexCount = 36;
+		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+
+			return vf;
+		}
+
+		static void Initializer(forward::SimpleGeometry* geometry)
+		{
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, -1.0f), Colors::White });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, -1.0f), Colors::Black });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, -1.0f), Colors::Red });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, -1.0f), Colors::Green });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, +1.0f), Colors::Blue });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, +1.0f), Colors::Yellow });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, +1.0f), Colors::Cyan });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, +1.0f), Colors::Magenta });
+
+			geometry->AddFace(TriangleIndices(0, 1, 2));
+			geometry->AddFace(TriangleIndices(0, 2, 3));
+
+			geometry->AddFace(TriangleIndices(4, 6, 5));
+			geometry->AddFace(TriangleIndices(4, 7, 6));
+
+			geometry->AddFace(TriangleIndices(4, 5, 1));
+			geometry->AddFace(TriangleIndices(4, 1, 0));
+
+			geometry->AddFace(TriangleIndices(3, 2, 6));
+			geometry->AddFace(TriangleIndices(3, 6, 7));
+
+			geometry->AddFace(TriangleIndices(1, 5, 6));
+			geometry->AddFace(TriangleIndices(1, 6, 2));
+
+			geometry->AddFace(TriangleIndices(4, 0, 3));
+			geometry->AddFace(TriangleIndices(4, 3, 7));
+		}
 	};
 }

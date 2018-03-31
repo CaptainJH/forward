@@ -49,6 +49,7 @@
 #include "dxCommon/DXGIOutput.h"
 
 #include "dx11Util.h"
+#include "Utils.h"
 
 
 //#include "D3DEnumConversion.h"
