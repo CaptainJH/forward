@@ -62,7 +62,7 @@ namespace forward
 	};
 
 
-	template<int Prefab>
+	template<i32 Prefab>
 	struct GeometryBuilder
 	{};
 
