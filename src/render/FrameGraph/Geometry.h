@@ -24,10 +24,16 @@ namespace forward
 		i32 GetVertexCount();
 		i32 GetVertexSize();
 
+		template<class T>
+		void AddVertex(const T& vertex)
+		{
+			m_VB->AddVertex(vertex);
+		}
+
 	private:
 		void OnRenderPassBuilding(RenderPass&) override;
 
-		FrameGraphVertexBuffer		m_VB;
-		FrameGraphIndexBuffer		m_IB;
+		shared_ptr<FrameGraphVertexBuffer>		m_VB;
+		shared_ptr<FrameGraphIndexBuffer>		m_IB;
 	};
 }

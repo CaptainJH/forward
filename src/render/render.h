@@ -50,6 +50,7 @@ namespace forward
 		virtual void Shutdown() = 0;
 
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation=0) = 0;
+		virtual void DrawIndexed(u32 indexCount) = 0;
 
 	protected:
 		Renderer();

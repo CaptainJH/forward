@@ -1,6 +1,6 @@
 #include "ApplicationWin.h"
-#include "TriangleIndices.h"
 #include "render/FrameGraph/FrameGraph.h"
+#include "render/FrameGraph/Geometry.h"
 
 using namespace forward;
 
@@ -10,12 +10,6 @@ struct Vertex
 {
 	Vector3f Pos;
 	Vector4f Color;
-};
-
-// structure for constant buffer
-struct CBufferType
-{
-	Matrix4f mat;
 };
 
 class BasicGeometryFrameGraph : public Application
@@ -30,7 +24,6 @@ public:
 
 	~BasicGeometryFrameGraph()
 	{
-		SAFE_DELETE(m_renderPass);
 	}
 
 	virtual bool Init();
@@ -43,11 +36,14 @@ protected:
 
 private:
 
-	Matrix4f m_worldMat;
+	Matrix4f m_WVPMat;
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	RenderPass* m_renderPass;
+	shared_ptr<FrameGraphConstantBuffer<Matrix4f>> m_constantBuffer;
+
+	std::unique_ptr<RenderPass> m_renderPass;
+	std::unique_ptr<SimpleGeometry> m_geometry;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -69,7 +65,8 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 {
 	auto frames = (f32)mTimer.FrameCount() / 1000;
-	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
+	m_WVPMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
+	*m_constantBuffer = m_WVPMat * m_viewMat * m_projMat;
 }
 
 void BasicGeometryFrameGraph::DrawScene()
@@ -83,37 +80,62 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_renderPass = new RenderPass(RenderPass::CT_Default, 
-	[](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
+	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
+		// Init the world matrix
+		m_WVPMat = Matrix4f::Identity();
+		// Build the view matrix.
+		Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
+		Vector3f target; target.MakeZero();
+		Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+		m_viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
+		// Build the projection matrix
+		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
-	
+		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
+		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
+
 		// setup geometry
-		auto& vf = pso.m_IAState.m_vertexLayout;
+		VertexFormat vf;
 		vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
 		vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 
-		pso.m_IAState.m_topologyType = PT_TRIANGLESTRIP;
+		m_geometry = std::make_unique<SimpleGeometry>("SimpleGeometry", vf, PT_TRIANGLELIST, 8, 12 * 3);
+		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, -1.0f, -1.0f), Colors::White });
+		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, +1.0f, -1.0f), Colors::Black });
+		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, +1.0f, -1.0f), Colors::Red });
+		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, -1.0f, -1.0f), Colors::Green });
+		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, -1.0f, +1.0f), Colors::Blue });
+		m_geometry->AddVertex(Vertex{ Vector3f(-1.0f, +1.0f, +1.0f), Colors::Yellow });
+		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, +1.0f, +1.0f), Colors::Cyan });
+		m_geometry->AddVertex(Vertex{ Vector3f(+1.0f, -1.0f, +1.0f), Colors::Magenta });
 
-		/////////////
-		///build quad
-		/////////////
-		Vertex quadVertices[] =
-		{
-			{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
-			{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
-			{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
-			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
-		};
+		m_geometry->AddFace(TriangleIndices(0, 1, 2));
+		m_geometry->AddFace(TriangleIndices(0, 2, 3));
 
-		auto vb = forward::make_shared<FrameGraphVertexBuffer>("VertexBuffer", vf, 4);
-		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
-		{
-			vb->AddVertex(quadVertices[i]);
-		}
-		vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
-		pso.m_IAState.m_vertexBuffers[0] = vb;
+		m_geometry->AddFace(TriangleIndices(4, 6, 5));
+		m_geometry->AddFace(TriangleIndices(4, 7, 6));
+
+		m_geometry->AddFace(TriangleIndices(4, 5, 1));
+		m_geometry->AddFace(TriangleIndices(4, 1, 0));
+
+		m_geometry->AddFace(TriangleIndices(3, 2, 6));
+		m_geometry->AddFace(TriangleIndices(3, 6, 7));
+
+		m_geometry->AddFace(TriangleIndices(1, 5, 6));
+		m_geometry->AddFace(TriangleIndices(1, 6, 2));
+
+		m_geometry->AddFace(TriangleIndices(4, 0, 3));
+		m_geometry->AddFace(TriangleIndices(4, 3, 7));
+		// end setup geometry
+
+		builder << *m_geometry;
+
+		// setup constant buffer
+		m_constantBuffer = make_shared<FrameGraphConstantBuffer<Matrix4f>>("CB");
+		m_constantBuffer->SetUsage(RU_DYNAMIC_UPDATE); // set to dynamic so we can update the buffer every frame.
+		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states
 		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
@@ -122,8 +144,8 @@ bool BasicGeometryFrameGraph::Init()
 		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
-	[](Renderer& render) {
-		render.Draw(4);
+	[&](Renderer& render) {
+		render.DrawIndexed(m_geometry->GetIndexCount());
 	});
 
 

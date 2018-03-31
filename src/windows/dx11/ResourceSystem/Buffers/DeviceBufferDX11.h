@@ -25,8 +25,6 @@ namespace forward
 		u32						GetStructureByteStride();
 
 		void					SyncCPUToGPU() override;
-
-	private:
 		void					SyncCPUToGPU(ID3D11DeviceContext* context);
 
 	protected:

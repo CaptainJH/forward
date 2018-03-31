@@ -6,10 +6,11 @@
 using namespace forward;
 
 SimpleGeometry::SimpleGeometry(const std::string& name, VertexFormat& format, PrimitiveTopologyType pt, const u32 vertexNum, const u32 primitiveCount)
-	: m_VB(name + "_VB", format, vertexNum)
-	, m_IB(name + "_IB", pt, primitiveCount)
+	: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", format, vertexNum))
+	, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", pt, primitiveCount))
 {
-
+	m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
+	m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);
 }
 
 SimpleGeometry::~SimpleGeometry()
@@ -19,44 +20,44 @@ SimpleGeometry::~SimpleGeometry()
 void SimpleGeometry::OnRenderPassBuilding(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
-	pso.m_IAState.m_indexBuffer = &m_IB;
-	pso.m_IAState.m_topologyType = m_IB.GetPrimitiveType();
+	pso.m_IAState.m_indexBuffer = m_IB;
+	pso.m_IAState.m_topologyType = m_IB->GetPrimitiveType();
 
 	// TODO: should automatically bind to the first available binding point, 
 	// and modify VertexFormat's unit accordingly.
-	pso.m_IAState.m_vertexBuffers[0] = &m_VB;
-	pso.m_IAState.m_vertexLayout = m_VB.GetVertexFormat();
+	pso.m_IAState.m_vertexBuffers[0] = m_VB;
+	pso.m_IAState.m_vertexLayout = m_VB->GetVertexFormat();
 }
 
 void SimpleGeometry::AddFace(const TriangleIndices& face)
 {
-	m_IB.AddFace(face);
+	m_IB->AddFace(face);
 }
 
 void SimpleGeometry::AddLine(const LineIndices& line)
 {
-	m_IB.AddLine(line);
+	m_IB->AddLine(line);
 }
 
 void SimpleGeometry::AddPoint(const PointIndices& point)
 {
-	m_IB.AddPoint(point);
+	m_IB->AddPoint(point);
 }
 
 void SimpleGeometry::AddIndex(u32 index)
 {
-	m_IB.AddIndex(index);
+	m_IB->AddIndex(index);
 }
 
 PrimitiveTopologyType SimpleGeometry::GetPrimitiveType() const
 {
-	return m_IB.GetPrimitiveType();
+	return m_IB->GetPrimitiveType();
 }
 
 i32 SimpleGeometry::GetPrimitiveCount() const
 {
 	u32 count = 0;
-	u32 indices = m_IB.GetNumElements();
+	u32 indices = m_IB->GetNumElements();
 
 	auto primType = GetPrimitiveType();
 	switch (primType)
@@ -152,15 +153,15 @@ i32 SimpleGeometry::GetPrimitiveCount() const
 
 u32 SimpleGeometry::GetIndexCount()
 {
-	return m_IB.GetNumElements();
+	return m_IB->GetNumElements();
 }
 
 i32 SimpleGeometry::GetVertexCount()
 {
-	return m_VB.GetNumElements();
+	return m_VB->GetNumElements();
 }
 
 i32 SimpleGeometry::GetVertexSize()
 {
-	return m_VB.GetElementSize();
+	return m_VB->GetElementSize();
 }

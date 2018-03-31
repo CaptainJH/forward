@@ -213,6 +213,7 @@ namespace forward
 		// FrameGraph related APIs
 		void DrawRenderPass(RenderPass& /*pass*/) override {}
 		void Draw(u32 /*vertexNum*/, u32 /*startVertexLocation = 0*/) override {}
+		void DrawIndexed(u32) override {}
 
 	protected:
 

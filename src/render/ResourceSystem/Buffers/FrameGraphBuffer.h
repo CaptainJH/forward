@@ -77,19 +77,26 @@ namespace forward
 	class FrameGraphConstantBuffer : public FrameGraphConstantBufferBase
 	{
 	public:
-		FrameGraphConstantBuffer(const std::string& name, const T& data);
+		FrameGraphConstantBuffer(const std::string& name);
 
 		T* GetTypedData();
 		void SetTypedData(const T& data);
+
+		FrameGraphConstantBuffer& operator=(const T& rhs)
+		{
+			assert(GetNumBytes() == sizeof(rhs));
+			memcpy(GetData(), &rhs, sizeof(rhs));
+			return *this;
+		}
 	};
 
 
 	template<class T>
-	FrameGraphConstantBuffer<T>::FrameGraphConstantBuffer(const std::string& name, const T& data)
-		: FrameGraphBufferBase(name, sizeof(T))
+	FrameGraphConstantBuffer<T>::FrameGraphConstantBuffer(const std::string& name)
+		: FrameGraphConstantBufferBase(name)
 	{
 		m_type = FGOT_CONSTANT_BUFFER;
-		Initialize(1, sizeof(data));
+		Initialize(1, sizeof(T));
 	}
 
 	template<class T>

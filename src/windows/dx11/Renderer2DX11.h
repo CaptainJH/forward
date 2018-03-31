@@ -22,6 +22,7 @@ namespace forward
 		void Shutdown() override;
 
 		void Draw(u32 vertexNum, u32 startVertexLocation=0) override;
+		void DrawIndexed(u32 indexCount) override;
 
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();

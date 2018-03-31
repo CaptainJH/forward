@@ -86,7 +86,7 @@ void DeviceBufferDX11::SyncCPUToGPU(ID3D11DeviceContext* context)
 	}
 
 	auto dxBuffer = GetDXBufferPtr();
-	D3D11_MAPPED_SUBRESOURCE sub;
+	D3D11_MAPPED_SUBRESOURCE sub = { nullptr, 0, 0 };
 	HR(context->Map(dxBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub));
 
 	memcpy(sub.pData, buffer->GetData(), buffer->GetNumBytes());

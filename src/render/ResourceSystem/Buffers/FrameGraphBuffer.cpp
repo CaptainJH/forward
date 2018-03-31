@@ -35,19 +35,19 @@ void FrameGraphIndexBuffer::AddFace(const TriangleIndices& face)
 	assert(m_numActiveElements < m_numElements);
 
 	u32 src = face.P1();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 
 	assert(m_numActiveElements < m_numElements);
 
 	src = face.P2();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 
 	assert(m_numActiveElements < m_numElements);
 
 	src = face.P3();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 }
 
@@ -56,13 +56,13 @@ void FrameGraphIndexBuffer::AddLine(const LineIndices& line)
 	assert(m_numActiveElements < m_numElements);
 
 	u32 src = line.P1();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 
 	assert(m_numActiveElements < m_numElements);
 
 	src = line.P2();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 }
 
@@ -71,7 +71,7 @@ void FrameGraphIndexBuffer::AddPoint(const PointIndices& point)
 	assert(m_numActiveElements < m_numElements);
 
 	u32 src = point.P1();
-	memcpy(m_data + m_numActiveElements, &src, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
 }
 
@@ -79,7 +79,7 @@ void FrameGraphIndexBuffer::AddIndex(u32 index)
 {
 	assert(m_numActiveElements < m_numElements);
 
-	memcpy(m_data + m_numActiveElements, &index, sizeof(u32));
+	memcpy(m_data + m_numActiveElements * sizeof(u32), &index, sizeof(u32));
 	++m_numActiveElements;
 }
 

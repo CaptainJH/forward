@@ -8,6 +8,7 @@
 #include "dx11/ShaderSystem/PixelShaderDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceVertexBufferDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceIndexBufferDX11.h"
+#include "dx11/ResourceSystem/Buffers/DeviceConstantBufferDX11.h"
 #include "dx11/ResourceSystem/Textures/DeviceTexture2DDX11.h"
 #include "dx11/DrawingStates/DeviceRasterizerStateDX11.h"
 #include "dx11/DrawingStates/DeviceDepthStencilStateDX11.h"
@@ -308,6 +309,22 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	auto vs = device_cast<VertexShaderDX11*>(pso.m_VSState.m_shader);
 	vs->Bind(m_pContext.Get());
 
+	for (auto cb : pso.m_VSState.m_constantBuffers)
+	{
+		if (cb)
+		{
+			if (!cb->DeviceObject())
+			{
+				auto deviceCB = forward::make_shared<DeviceConstantBufferDX11>(m_pDevice.Get(), cb.get());
+				cb->SetDeviceObject(deviceCB);
+			}
+
+			auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
+			deviceCB->SyncCPUToGPU(m_pContext.Get());
+			vs->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+		}
+	}
+
 	// setup Rasterizer
 	if (!pso.m_RSState.m_rsState.DeviceObject())
 	{
@@ -383,7 +400,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	}
 	m_pContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv);
 
-	auto color = Colors::Black;
+	auto color = Colors::LightSteelBlue;
 	f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 	m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
 	m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
@@ -397,6 +414,11 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 void Renderer2DX11::Draw(u32 vertexNum, u32 startVertexLocation)
 {
 	m_pContext->Draw(vertexNum, startVertexLocation);
+}
+
+void Renderer2DX11::DrawIndexed(u32 indexCount)
+{
+	m_pContext->DrawIndexed(indexCount, 0, 0);
 }
 
 void Renderer2DX11::Present()
