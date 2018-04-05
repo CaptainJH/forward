@@ -4,8 +4,10 @@ file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOUR
 
 add_executable(CmdApp ${SOURCE_FILES})
 set_target_properties(CmdApp PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
-target_link_libraries(CmdApp forward)
+target_link_libraries(CmdApp forwardDX11_Hieroglyph)
 target_link_libraries(CmdApp assimp-vc130-mt.lib)
+
+set_target_properties(CmdApp PROPERTIES FOLDER Application)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX-")

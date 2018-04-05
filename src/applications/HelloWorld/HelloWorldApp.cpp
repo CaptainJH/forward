@@ -1,5 +1,6 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#define USE_LEGACY_RENDERER
+#include "ApplicationWin.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 
 using namespace forward;
 
@@ -43,7 +44,6 @@ private:
 	i32 m_psID;
 
 	ResourcePtr m_pVertexBuffer;
-	ResourcePtr m_pIndexBuffer;
 	i32 m_VertexLayout;
 };
 
@@ -120,15 +120,15 @@ void HelloWorld::BuildGeometry()
 			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
 		};
 
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = quadVertices;
-		data.SysMemPitch = 0;
-		data.SysMemSlicePitch = 0;
+		Subresource data;
+		data.data = quadVertices;
+		data.rowPitch = 0;
+		data.slicePitch = 0;
 
-		BufferConfigDX11 vbConfig;
-		vbConfig.SetDefaultVertexBuffer(4 * sizeof(Vertex), false);
+		VertexBufferConfig vbConfig;
+		vbConfig.SetBufferSize(4 * sizeof(Vertex));
 		m_pVertexBuffer = m_pRender->CreateVertexBuffer(&vbConfig, &data);
-		if (m_pVertexBuffer->m_iResource == -1)
+		if (dynamic_cast<ResourceDX11*>(m_pVertexBuffer.get())->GetResourceID() == -1)
 		{
 			Log::Get().Write(L"Failed to create vertex buffer");
 			assert(false);
@@ -158,9 +158,9 @@ void HelloWorld::BuildGeometry()
 void HelloWorld::SetupPipeline()
 {
 	InputAssemblerStateDX11 iaState;
-	iaState.PrimitiveTopology.SetState(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	iaState.PrimitiveTopology.SetState(PT_TRIANGLESTRIP);
 	iaState.InputLayout.SetState(m_VertexLayout);
-	iaState.VertexBuffers.SetState(0, m_pVertexBuffer->m_iResource);
+	iaState.VertexBuffers.SetState(0, m_pVertexBuffer);
 	iaState.VertexBufferStrides.SetState(0, sizeof(Vertex));
 	iaState.VertexBufferOffsets.SetState(0, 0);
 	iaState.SetFeautureLevel(m_pRender->GetAvailableFeatureLevel(D3D_DRIVER_TYPE_UNKNOWN));

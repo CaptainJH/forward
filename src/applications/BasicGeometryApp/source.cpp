@@ -1,6 +1,7 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#define USE_LEGACY_RENDERER
+#include "ApplicationWin.h"
 #include "TriangleIndices.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 
 using namespace forward;
 
@@ -83,11 +84,8 @@ void BasicGeometryApp::DrawScene()
 {
 	m_pRender->pImmPipeline->ClearBuffers(Colors::LightSteelBlue);
 
-
-	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->mat = m_worldMat * m_viewMat * m_projMat;
-	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+	auto mat = m_worldMat * m_viewMat * m_projMat;
+	m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &mat, sizeof(mat));
 
 	m_pRender->pImmPipeline->ApplyPipelineResources();
 	m_pGeometry->Execute(m_pRender->pImmPipeline);
@@ -111,8 +109,8 @@ bool BasicGeometryApp::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	BuildShaders();
@@ -210,16 +208,14 @@ void BasicGeometryApp::BuildGeometry()
 
 void BasicGeometryApp::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 

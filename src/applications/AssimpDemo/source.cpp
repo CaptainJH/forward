@@ -1,6 +1,7 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#include "dx11_Hieroglyph/ApplicationDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
+#include "render/ResourceSystem/ResourceConfig.h"
 
 #include "GeometryLoader.h"
 
@@ -90,10 +91,8 @@ void AssimpDemo::DrawScene()
 
 	for (auto i = 0U; i < m_vGeoms.size(); ++i)
 	{
-		auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-		auto pBuffer = (CBufferType*)pData.pData;
-		pBuffer->mat = m_vMats[i] * m_worldMat * m_viewMat * m_projMat;
-		m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
+		auto mat = m_vMats[i] * m_worldMat * m_viewMat * m_projMat;
+		m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &mat, sizeof(mat));
 		m_pRender->pImmPipeline->ApplyPipelineResources();
 
 		m_vGeoms[i]->Execute(m_pRender->pImmPipeline);
@@ -118,8 +117,8 @@ bool AssimpDemo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	BuildShaders();
@@ -160,16 +159,14 @@ void AssimpDemo::LoadGeometry()
 
 void AssimpDemo::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 

@@ -1,13 +1,8 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
-#include "ResourceSystem\StateObject\RasterizerStateConfigDX11.h"
-#include "ResourceSystem\Texture\Texture2dConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewConfigDX11.h"
-#include "ResourceSystem\ResourceView\RenderTargetViewConfigDX11.h"
-#include "ResourceSystem\ResourceView\DepthStencilViewConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewConfigDX11.h"
-#include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
+#include "dx11_Hieroglyph/ApplicationDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/StateObject/SamplerStateConfigDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/ResourceView/ShaderResourceViewDX11.h"
 #include "TriangleIndices.h"
 
 #include "Camera.h"
@@ -88,7 +83,7 @@ private:
 	void renderSpotLightShadowMap(const Matrix4f& mat);
 	void renderCSMShadowMap();
 
-	void blurShadowRenderTarget(ResourcePtr ptr);
+	void blurShadowRenderTarget(ResourceProxyPtr ptr);
 
 	i32 m_vsID;
 	i32 m_psID;
@@ -108,14 +103,14 @@ private:
 	GeometryPtr m_pFloor;
 	GeometryPtr m_pQuad;
 	Matrix4f m_worldMat;
-	ResourcePtr m_constantBuffer;
+	ResourceProxyPtr m_constantBuffer;
 
-	ResourcePtr m_shadowMapRenderTargetTex;
-	ResourcePtr m_shadowMapDepthTargetTex;
-	ResourcePtr m_CSMRenderTargetTex;
-	ResourcePtr m_CSMDepthTargetTex;
-	ResourcePtr m_VSMRenderTargetTex;
-	ResourcePtr m_VSMBlurRenderTargetTex;
+	ResourceProxyPtr m_shadowMapRenderTargetTex;
+	ResourceProxyPtr m_shadowMapDepthTargetTex;
+	ResourceProxyPtr m_CSMRenderTargetTex;
+	ResourceProxyPtr m_CSMDepthTargetTex;
+	ResourceProxyPtr m_VSMRenderTargetTex;
+	ResourceProxyPtr m_VSMBlurRenderTargetTex;
 	i32 m_samplerID;
 	i32 m_pcfSamplerID;
 

@@ -1,11 +1,9 @@
-#include "ApplicationDX11.h"
-#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+#include "dx11_Hieroglyph/ApplicationDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
 #include "FileLoader.h"
-#include "ResourceSystem\Texture\Texture3dConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewConfigDX11.h"
-#include "ResourceSystem\StateObject\SamplerStateConfigDX11.h"
-#include "ResourceSystem\ResourceView\ShaderResourceViewDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/Texture/Texture3dConfigDX11.h"
+#include "dx11_Hieroglyph/ResourceSystem/StateObject/SamplerStateConfigDX11.h"
 
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
@@ -137,24 +135,21 @@ void SDFShadowDemo::DrawScene()
 	vsState.ShaderProgram.SetState(m_vsID);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
-	auto pData = m_pRender->pImmPipeline->MapResource(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	auto pBuffer = (CBufferType*)pData.pData;
-	pBuffer->matWorld = m_worldMat;
-	pBuffer->matViewProj = m_viewMat * m_projMat;
-	pBuffer->matViewProjInverse = (m_viewMat * m_projMat).Inverse();
-	pBuffer->screenParams = Vector4f(static_cast<f32>(mClientWidth), static_cast<f32>(mClientHeight), 0.0f, 0.0f);
-	pBuffer->SDFParams = m_sdfParams;
-	pBuffer->SDFOrigin = m_sdfOrigin;
-	pBuffer->cameraPos = m_cameraPos;
-	m_pRender->pImmPipeline->UnMapResource(m_constantBuffer, 0);
-
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
+	CBufferType buffer;
+	buffer.matWorld = m_worldMat;
+	buffer.matViewProj = m_viewMat * m_projMat;
+	buffer.matViewProjInverse = (m_viewMat * m_projMat).Inverse();
+	buffer.screenParams = Vector4f(static_cast<f32>(mClientWidth), static_cast<f32>(mClientHeight), 0.0f, 0.0f);
+	buffer.SDFParams = m_sdfParams;
+	buffer.SDFOrigin = m_sdfOrigin;
+	buffer.cameraPos = m_cameraPos;
+	m_pRender->pImmPipeline->UpdateBufferResource(m_constantBuffer, &buffer, sizeof(CBufferType));
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
 	psState.SamplerStates.SetState(0, m_pRender->GetSamplerState(m_samplerID).Get());
-	psState.ShaderResourceViews.SetState(0, m_pRender->GetShaderResourceViewByIndex(m_SDFTex3D->m_iResourceSRV).GetSRV());
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ShaderResources.SetState(0, m_SDFTex3D);
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 
 	m_pRender->pImmPipeline->ApplyPipelineResources();
@@ -179,8 +174,8 @@ bool SDFShadowDemo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	BufferConfigDX11 cbConfig;
-	cbConfig.SetDefaultConstantBuffer(sizeof(CBufferType), true);
+	ConstantBufferConfig cbConfig;
+	cbConfig.SetBufferSize(sizeof(CBufferType));
 	m_constantBuffer = m_pRender->CreateConstantBuffer(&cbConfig, 0);
 
 	LoadSDFBuffer();
@@ -300,16 +295,14 @@ void SDFShadowDemo::LoadGeometry()
 
 void SDFShadowDemo::SetupPipeline()
 {
-	auto resource = m_pRender->GetResourceByIndex(m_constantBuffer->m_iResource);
-
 	ShaderStageStateDX11 vsState;
 	vsState.ShaderProgram.SetState(m_vsID);
-	vsState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	vsState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->VertexShaderStage.DesiredState = vsState;
 
 	ShaderStageStateDX11 psState;
 	psState.ShaderProgram.SetState(m_psID);
-	psState.ConstantBuffers.SetState(0, (ID3D11Buffer*)resource->GetResource());
+	psState.ConstantBuffers.SetState(0, m_constantBuffer);
 	m_pRender->pImmPipeline->PixelShaderStage.DesiredState = psState;
 }
 
@@ -393,25 +386,16 @@ void SDFShadowDemo::LoadSDFBuffer()
 		m_sdf.push_back(value);
 	}
 
-	Texture3dConfigDX11 texConfig;
-	texConfig.SetDefaults();
+	Texture3dConfig texConfig;
 	texConfig.SetWidth(static_cast<u32>(m_sdfParams.x));
 	texConfig.SetHeight(static_cast<u32>(m_sdfParams.y));
 	texConfig.SetDepth(static_cast<u32>(m_sdfParams.z));
-	texConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
+	texConfig.SetFormat(DF_R32_FLOAT);
 	
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &m_sdf[0];
-	data.SysMemPitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x);
-	data.SysMemSlicePitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x * m_sdfParams.y);
+	Subresource data;
+	data.data = &m_sdf[0];
+	data.rowPitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x);
+	data.slicePitch = static_cast<u32>(sizeof(f32) * m_sdfParams.x * m_sdfParams.y);
 
-	ShaderResourceViewConfigDX11 srvConfig;
-	srvConfig.SetFormat(DXGI_FORMAT_R32_FLOAT);
-	srvConfig.SetViewDimensions(D3D11_SRV_DIMENSION_TEXTURE3D);
-	D3D11_TEX3D_SRV srv;
-	srv.MostDetailedMip = 0;
-	srv.MipLevels = 1;
-	srvConfig.SetTexture3D(srv);
-
-	m_SDFTex3D = m_pRender->CreateTexture3D(&texConfig, &data, &srvConfig);
+	m_SDFTex3D = m_pRender->CreateTexture3D(&texConfig, &data);
 }
