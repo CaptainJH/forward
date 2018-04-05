@@ -11,6 +11,7 @@ FrameGraphResource::FrameGraphResource()
 	, m_numElements(0)
 	, m_elementSize(0)
 	, m_numActiveElements(0)
+	, m_usage(ResourceUsage::RU_IMMUTABLE)
 {}
 
 FrameGraphResource::FrameGraphResource(const std::string& name)
@@ -19,6 +20,7 @@ FrameGraphResource::FrameGraphResource(const std::string& name)
 	, m_numElements(0)
 	, m_elementSize(0)
 	, m_numActiveElements(0)
+	, m_usage(ResourceUsage::RU_IMMUTABLE)
 {
 	m_name = name;
 }

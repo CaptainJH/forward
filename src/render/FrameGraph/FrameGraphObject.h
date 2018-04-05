@@ -63,7 +63,7 @@ namespace forward
 				if (!ptr.expired())
 				{
 					auto shared = ptr.lock_down<T>();
-					if (shared->Name() == name)
+					if (shared && shared->Name() == name)
 					{
 						return shared;
 					}

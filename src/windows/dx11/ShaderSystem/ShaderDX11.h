@@ -19,7 +19,6 @@ namespace forward
 
 		// Calls to ID3D11DeviceContext::XSSetShader.
 		virtual void Bind(ID3D11DeviceContext* context) = 0;
-		virtual void Unbind(ID3D11DeviceContext* context) = 0;
 
 		// Calls to ID3D11DeviceContext::XSSetConstantBuffers.
 		virtual void BindCBuffer(ID3D11DeviceContext* context,

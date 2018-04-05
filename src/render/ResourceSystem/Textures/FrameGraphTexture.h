@@ -36,14 +36,19 @@ namespace forward
 	class FrameGraphTexture2D : public FrameGraphTexture
 	{
 	public:
-		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp);
+		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp, bool enableMSAA=false);
 		ResourceType GetResourceType() const override;
 
 		u32 GetWidth() const;
 		u32 GetHeight() const;
+		void EnableMSAA();
+		u32 GetSampCount() const;
 
 	protected:
 		u32 m_width;
 		u32 m_height;
+
+		u32 m_sampCount;
+		u32 m_sampQuality;
 	};
 }

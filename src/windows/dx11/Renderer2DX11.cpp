@@ -6,6 +6,7 @@
 #include "dx11/InputLayout/DeviceInputLayoutDX11.h"
 #include "dx11/ShaderSystem/VertexShaderDX11.h"
 #include "dx11/ShaderSystem/PixelShaderDX11.h"
+#include "dx11/ShaderSystem/GeometryShaderDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceVertexBufferDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceIndexBufferDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceConstantBufferDX11.h"
@@ -13,6 +14,7 @@
 #include "dx11/DrawingStates/DeviceRasterizerStateDX11.h"
 #include "dx11/DrawingStates/DeviceDepthStencilStateDX11.h"
 #include "dx11/DrawingStates/DeviceBlendStateDX11.h"
+#include "dx11/DrawingStates/DeviceSamplerStateDX11.h"
 #include "render/ResourceSystem/FrameGraphResource.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "render/FrameGraph/RenderPass.h"
@@ -261,6 +263,13 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		ps->SetDeviceObject(devicePS);
 	}
 
+	if (pso.m_GSState.m_shader && !pso.m_GSState.m_shader->DeviceObject())
+	{
+		auto gs = pso.m_GSState.m_shader;
+		auto deviceGS = forward::make_shared<GeometryShaderDX11>(m_pDevice.Get(), gs.get());
+		gs->SetDeviceObject(deviceGS);
+	}
+
 	// setup IA
 	if (!pso.m_IAState.m_vertexLayout.DeviceObject())
 	{
@@ -326,6 +335,34 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		}
 	}
 
+	// setup gs
+	if (pso.m_GSState.m_shader)
+	{
+		auto gs = device_cast<GeometryShaderDX11*>(pso.m_GSState.m_shader);
+		gs->Bind(m_pContext.Get());
+
+		for (auto cb : pso.m_GSState.m_constantBuffers)
+		{
+			if (cb)
+			{
+				if (!cb->DeviceObject())
+				{
+					auto deviceCB = forward::make_shared<DeviceConstantBufferDX11>(m_pDevice.Get(), cb.get());
+					cb->SetDeviceObject(deviceCB);
+				}
+
+				auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
+				deviceCB->SyncCPUToGPU(m_pContext.Get());
+				gs->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+			}
+		}
+	}
+	else
+	{
+		GeometryShaderDX11::Unbind(m_pContext.Get());
+	}
+
+
 	// setup Rasterizer
 	if (!pso.m_RSState.m_rsState.DeviceObject())
 	{
@@ -356,11 +393,72 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	m_pContext->RSSetViewports(pso.m_RSState.m_activeViewportsNum, aViewports);
 
 	D3D11_RECT aRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-	m_pContext->RSSetScissorRects(0, aRects);
+	memset(aRects, 0, sizeof(aRects));
+	if (pso.m_RSState.m_activeScissorRectNum)
+	{
+		for (auto i = 0U; i < pso.m_RSState.m_activeScissorRectNum; ++i)
+		{
+			const auto& rect = pso.m_RSState.m_scissorRects[i];
+			D3D11_RECT& rectDX11 = aRects[i];
+			rectDX11.left	= rect.left;
+			rectDX11.top	= rect.top;
+			rectDX11.right	= rect.width;
+			rectDX11.bottom	= rect.height;
+		}
+
+		m_pContext->RSSetScissorRects(pso.m_RSState.m_activeScissorRectNum, aRects);
+	}
+	else
+	{
+		m_pContext->RSSetScissorRects(0, aRects);
+	}
 
 	// setup PS
 	auto ps = device_cast<PixelShaderDX11*>(pso.m_PSState.m_shader);
 	ps->Bind(m_pContext.Get());
+
+	for (auto cb : pso.m_PSState.m_constantBuffers)
+	{
+		if (cb)
+		{
+			if (!cb->DeviceObject())
+			{
+				auto deviceCB = forward::make_shared<DeviceConstantBufferDX11>(m_pDevice.Get(), cb.get());
+				cb->SetDeviceObject(deviceCB);
+			}
+
+			auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
+			deviceCB->SyncCPUToGPU(m_pContext.Get());
+			ps->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+	{
+		auto res = pso.m_PSState.m_shaderResources[i];
+		if (res)
+		{
+			assert(res->DeviceObject());
+			auto deviceRes = device_cast<DeviceTexture2DDX11*>(res);
+			ps->BindSRView(m_pContext.Get(), i, deviceRes->GetSRView().Get());
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_PSState.m_samplers.size(); ++i)
+	{
+		auto samp = pso.m_PSState.m_samplers[i];
+		if (samp)
+		{
+			if (!samp->DeviceObject())
+			{
+				auto deviceSampler = forward::make_shared<DeviceSamplerStateDX11>(m_pDevice.Get(), samp.get());
+				samp->SetDeviceObject(deviceSampler);
+			}
+
+			auto deviceSampler = device_cast<DeviceSamplerStateDX11*>(samp);
+			ps->BindSampler(m_pContext.Get(), i, deviceSampler->GetSamplerStateDX11());
+		}
+	}
 
 	// setup OutputMerger
 	if (!pso.m_OMState.m_blendState.DeviceObject())
@@ -389,27 +487,46 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		auto rt = pso.m_OMState.m_renderTargetResources[i];
 		if (rt)
 		{
-			assert(rt->DeviceObject());
+			if (!rt->DeviceObject())
+			{
+				auto deviceRT = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), rt.get());
+				rt->SetDeviceObject(deviceRT);
+			}
 			auto rtDevice = device_cast<DeviceTexture2DDX11*>(rt);
 			rtvs[i] = rtDevice->GetRTView().Get();
 		}
 	}
 	if (pso.m_OMState.m_depthStencilResource)
 	{
+		if (!pso.m_OMState.m_depthStencilResource->DeviceObject())
+		{
+			auto deviceDS = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), pso.m_OMState.m_depthStencilResource.get());
+			pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceDS);
+		}
 		auto dsDevice = device_cast<DeviceTexture2DDX11*>(pso.m_OMState.m_depthStencilResource);
 		dsv = dsDevice->GetDSView().Get();
 	}
 	m_pContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv);
 
-	auto color = Colors::LightSteelBlue;
-	f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
-	m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
-	m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
+	if (pass.GetCleanType() == RenderPass::CleanType::CT_Default)
+	{
+		auto color = Colors::LightSteelBlue;
+		f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
+		m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
+		m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
+	}
 
 	// Draw
 	pass.Execute(*this);
 	
-	m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+	if (pass.GetNextRenderPass())
+	{
+		DrawRenderPass(*pass.GetNextRenderPass());
+	}
+	else
+	{
+		m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+	}
 }
 
 void Renderer2DX11::Draw(u32 vertexNum, u32 startVertexLocation)
@@ -425,6 +542,18 @@ void Renderer2DX11::DrawIndexed(u32 indexCount)
 void Renderer2DX11::Present()
 {
 	m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+}
+
+void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src)
+{
+	if (!dst->DeviceObject())
+	{
+		auto deviceDst = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), dst);
+		dst->SetDeviceObject(deviceDst);
+	}
+
+	m_pContext->ResolveSubresource(device_cast<DeviceTexture2DDX11*>(dst)->GetDXTexture2DPtr(), 0, 
+		device_cast<DeviceTexture2DDX11*>(src)->GetDXTexture2DPtr(), 0, static_cast<DXGI_FORMAT>(dst->GetFormat()));
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)

@@ -41,3 +41,13 @@ void RenderPass::Execute(Renderer& render)
 {
 	m_executeCallback(render);
 }
+
+void RenderPass::AttachRenderPass(RenderPass* ptr)
+{
+	m_nextPass = ptr;
+}
+
+RenderPass* RenderPass::GetNextRenderPass()
+{
+	return m_nextPass;
+}

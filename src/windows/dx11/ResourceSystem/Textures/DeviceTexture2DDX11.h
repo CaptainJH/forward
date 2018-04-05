@@ -31,8 +31,8 @@ namespace forward
 	private:
 		void CreateSRView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);
 		void CreateUAView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);
-		void CreateDSView(ID3D11Device* device);
-		void CreateDSSRView(ID3D11Device* device);
+		void CreateDSView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);
+		void CreateDSSRView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);
 		void CreateRTView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx);
 
 		static DXGI_FORMAT GetDepthResourceFormat(DXGI_FORMAT depthFormat);

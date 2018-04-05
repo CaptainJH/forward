@@ -102,7 +102,7 @@ namespace forward
 	template<class T>
 	T* FrameGraphConstantBuffer<T>::GetTypedData()
 	{
-		return static_cast<T*>(m_data);
+		return reinterpret_cast<T*>(m_data);
 	}
 
 	template<class T>

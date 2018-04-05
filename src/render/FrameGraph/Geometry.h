@@ -15,6 +15,7 @@ namespace forward
 	enum GeometryPrefab
 	{
 		GP_COLOR_BOX,
+		GP_SCREEN_QUAD,
 	};
 
 
@@ -65,6 +66,31 @@ namespace forward
 	template<i32 Prefab>
 	struct GeometryBuilder
 	{};
+
+	template<>
+	struct GeometryBuilder<GeometryPrefab::GP_SCREEN_QUAD>
+	{
+		static const u32 VertexCount = 4;
+		static const u32 IndexCount = 0;
+		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLESTRIP;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+
+			return vf;
+		}
+
+		static void Initializer(forward::SimpleGeometry* geometry)
+		{
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Black });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Red });
+			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Green });
+		}
+	};
 
 	template<>
 	struct GeometryBuilder<GeometryPrefab::GP_COLOR_BOX>

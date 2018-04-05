@@ -5,11 +5,11 @@
 
 namespace forward
 {
-	class VertexShaderDX11 : public ShaderDX11
+	class GeometryShaderDX11 : public ShaderDX11
 	{
 	public:
-		VertexShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj);
-		virtual ~VertexShaderDX11();
+		GeometryShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj);
+		virtual ~GeometryShaderDX11();
 
 		// Calls to ID3D11DeviceContext::XSSetShader.
 		void Bind(ID3D11DeviceContext* context) override;
@@ -40,6 +40,6 @@ namespace forward
 		void UnbindSampler(ID3D11DeviceContext* context,
 			u32 bindPoint) override;
 
-		ShaderType GetType() const override { return VERTEX_SHADER; }
+		ShaderType GetType() const override { return GEOMETRY_SHADER; }
 	};
 }

@@ -35,10 +35,12 @@ bool FrameGraphTexture::WantAutoGenerateMips() const
 }
 
 FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, 
-	u32 width, u32 height, u32 bind)
+	u32 width, u32 height, u32 bind, bool enableMSAA/*=false*/)
 	: FrameGraphTexture(name, format, bind)
 	, m_width(width)
 	, m_height(height)
+	, m_sampCount(enableMSAA ? 8: 1)
+	, m_sampQuality(0)
 {
 	m_type = FGOT_TEXTURE2;
 	//Initialize(width * height, DataFormat::GetNumBytesPerStruct(format));
@@ -59,4 +61,14 @@ u32 FrameGraphTexture2D::GetWidth() const
 u32 FrameGraphTexture2D::GetHeight() const
 {
 	return m_height;
+}
+
+void FrameGraphTexture2D::EnableMSAA()
+{
+	m_sampCount = 8;
+}
+
+u32 FrameGraphTexture2D::GetSampCount() const
+{
+	return m_sampCount;
 }

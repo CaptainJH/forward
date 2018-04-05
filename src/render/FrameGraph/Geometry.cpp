@@ -20,7 +20,10 @@ SimpleGeometry::~SimpleGeometry()
 void SimpleGeometry::OnRenderPassBuilding(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
-	pso.m_IAState.m_indexBuffer = m_IB;
+	if (m_IB->GetNumElements())
+	{
+		pso.m_IAState.m_indexBuffer = m_IB;
+	}
 	pso.m_IAState.m_topologyType = m_IB->GetPrimitiveType();
 
 	// TODO: should automatically bind to the first available binding point, 

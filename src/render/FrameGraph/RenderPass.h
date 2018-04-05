@@ -7,8 +7,6 @@
 
 namespace forward
 {
-	const u32 MaxRenderPassDispatchNum = 2;
-
 	class Renderer;
 	class RenderPassBuilder;
 
@@ -18,6 +16,7 @@ namespace forward
 		enum CleanType
 		{
 			CT_Default,
+			CT_Nothing,
 		};
 
 		typedef std::function<void(RenderPassBuilder&, PipelineStateObject&)> SetupFuncType;
@@ -31,6 +30,8 @@ namespace forward
 		PipelineStateObject& GetPSO();
 		CleanType GetCleanType() const;
 		void Execute(Renderer&);
+		void AttachRenderPass(RenderPass* ptr);
+		RenderPass* GetNextRenderPass();
 
 	protected:
 		PipelineStateObject				m_pso;
@@ -39,6 +40,6 @@ namespace forward
 		const ExecuteFuncType			m_executeCallback;
 		const CleanType					m_cleanType;
 
-		std::array<RenderPass*, MaxRenderPassDispatchNum>		m_nextPasses = { nullptr };
+		RenderPass*						m_nextPass = nullptr;
 	};
 }

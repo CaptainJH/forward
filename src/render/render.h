@@ -32,6 +32,7 @@ namespace forward
 
 	class RenderPass;
 	class SwapChainConfig;
+	class FrameGraphTexture2D;
 
 
 	class Renderer
@@ -51,6 +52,8 @@ namespace forward
 
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation=0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
+
+		virtual void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) = 0;
 
 	protected:
 		Renderer();

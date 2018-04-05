@@ -60,11 +60,11 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphT
 	{
 		if (TBP & TBP_Shader)
 		{
-			CreateDSSRView(device.Get());
+			CreateDSSRView(device.Get(), desc);
 		}
 		else
 		{
-			CreateDSView(device.Get());
+			CreateDSView(device.Get(), desc);
 		}
 	}
 
@@ -92,13 +92,43 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	desc.Height = tex->GetHeight();
 	desc.MipLevels = tex->GetMipLevelNum();
 	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Count = tex->GetSampCount();
 	desc.SampleDesc.Quality = 0;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_NONE;
 
 	const auto TBP = tex->GetBindPosition();
 
-	if (TBP & TBP_Shader)
+	if (TBP & TBP_RT)
+	{
+		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
+
+		if (tex->GetUsage() == ResourceUsage::RU_SHADER_OUTPUT)
+		{
+			desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+		}
+
+		if (tex->WantAutoGenerateMips())
+		{
+			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+		}
+	}
+	else if (TBP & TBP_DS)
+	{
+		desc.MipLevels = 1;
+		desc.Format = GetDepthResourceFormat(static_cast<DXGI_FORMAT>(tex->GetFormat()));
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
+
+		if (TBP & TBP_Shader)
+		{
+			desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+		}
+	}
+	else if (TBP & TBP_Shader)
 	{
 		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -127,36 +157,6 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
 			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-		}
-	}
-	else if (TBP & TBP_RT)
-	{
-		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
-
-		if (tex->GetUsage() == ResourceUsage::RU_SHADER_OUTPUT)
-		{
-			desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
-		}
-
-		if (tex->WantAutoGenerateMips())
-		{
-			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-		}
-	}
-	else if (TBP & TBP_DS)
-	{
-		desc.MipLevels = 1;
-		desc.Format = GetDepthResourceFormat(static_cast<DXGI_FORMAT>(tex->GetFormat()));
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
-
-		if (TBP & TBP_Shader)
-		{
-			desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 		}
 	}
 	
@@ -189,11 +189,11 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	{
 		if (TBP & TBP_Shader)
 		{
-			CreateDSSRView(device);
+			CreateDSSRView(device, desc);
 		}
 		else
 		{
-			CreateDSView(device);
+			CreateDSView(device, desc);
 		}
 	}
 
@@ -267,21 +267,21 @@ void DeviceTexture2DDX11::CreateUAView(ID3D11Device* device, const D3D11_TEXTURE
 	HR(device->CreateUnorderedAccessView(GetDXTexture2DPtr(), &desc, m_uav.GetAddressOf()));
 }
 
-void DeviceTexture2DDX11::CreateDSView(ID3D11Device* device)
+void DeviceTexture2DDX11::CreateDSView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx)
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 	desc.Format = static_cast<DXGI_FORMAT>(GetFrameGraphTexture2D()->GetFormat());
-	desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	desc.ViewDimension = tx.SampleDesc.Count == 1 ? D3D11_DSV_DIMENSION_TEXTURE2D : D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	desc.Flags = 0;
 	desc.Texture2D.MipSlice = 0;
 	HR(device->CreateDepthStencilView(GetDXTexture2DPtr(), &desc, m_dsv.GetAddressOf()));
 }
 
-void DeviceTexture2DDX11::CreateDSSRView(ID3D11Device* device)
+void DeviceTexture2DDX11::CreateDSSRView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 	desc.Format = GetDepthSRVFormat(static_cast<DXGI_FORMAT>(GetFrameGraphTexture2D()->GetFormat()));
-	desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	desc.ViewDimension = tx.SampleDesc.Count == 1 ? D3D11_SRV_DIMENSION_TEXTURE2D : D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	desc.Texture2D.MostDetailedMip = 0;
 	desc.Texture2D.MipLevels = 1;
 	HR(device->CreateShaderResourceView(GetDXTexture2DPtr(), &desc, m_srv.GetAddressOf()));
@@ -291,7 +291,7 @@ void DeviceTexture2DDX11::CreateRTView(ID3D11Device* device, const D3D11_TEXTURE
 {
 	D3D11_RENDER_TARGET_VIEW_DESC desc;
 	desc.Format = tx.Format;
-	desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	desc.ViewDimension = tx.SampleDesc.Count == 1 ? D3D11_RTV_DIMENSION_TEXTURE2D : D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	desc.Texture2D.MipSlice = 0;
 
 	HR(device->CreateRenderTargetView(GetDXTexture2DPtr(), &desc, m_rtv.GetAddressOf()));

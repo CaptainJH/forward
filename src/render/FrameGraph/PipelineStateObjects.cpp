@@ -78,3 +78,24 @@ void RasterizerStageState::AddViewport(ViewPort vp)
 	assert(m_activeViewportsNum < FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
 	m_viewports[m_activeViewportsNum++] = vp;
 }
+
+void RasterizerStageState::AddScissorRect(forward::RECT rect)
+{
+	assert(m_activeScissorRectNum < FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
+	m_scissorRects[m_activeScissorRectNum++] = rect;
+}
+
+SamplerState::SamplerState(const std::string& name)
+	: FrameGraphDrawingState(name, FGOT_SAMPLER_STATE)
+	, filter(MIN_P_MAG_P_MIP_P)
+	, mipLODBias(0.0f)
+	, maxAnisotropy(1)
+	, comparison(NEVER)
+	, borderColor({1.0f, 1.0f, 1.0f, 1.0f})
+	, minLOD(-1024)
+	, maxLOD(1024)
+{
+	mode[0] = CLAMP;
+	mode[1] = CLAMP;
+	mode[2] = CLAMP;
+}

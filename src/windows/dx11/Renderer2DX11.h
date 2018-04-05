@@ -24,6 +24,8 @@ namespace forward
 		void Draw(u32 vertexNum, u32 startVertexLocation=0) override;
 		void DrawIndexed(u32 indexCount) override;
 
+		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
+
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 

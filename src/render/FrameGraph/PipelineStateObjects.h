@@ -181,6 +181,70 @@ namespace forward
 		bool enableAntialiasedLine;     // default: false
 	};
 
+	class SamplerState : public FrameGraphDrawingState
+	{
+	public:
+		// The encoding involves minification (MIN), magnification (MAG), and
+		// mip-level filtering (MIP).  After each is P (POINT) or L (LINEAR).
+		enum Filter
+		{
+			MIN_P_MAG_P_MIP_P,
+			MIN_P_MAG_P_MIP_L,
+			MIN_P_MAG_L_MIP_P,
+			MIN_P_MAG_L_MIP_L,
+			MIN_L_MAG_P_MIP_P,
+			MIN_L_MAG_P_MIP_L,
+			MIN_L_MAG_L_MIP_P,
+			MIN_L_MAG_L_MIP_L,
+			ANISOTROPIC,
+			COMPARISON_MIN_P_MAG_P_MIP_P,
+			COMPARISON_MIN_P_MAG_P_MIP_L,
+			COMPARISON_MIN_P_MAG_L_MIP_P,
+			COMPARISON_MIN_P_MAG_L_MIP_L,
+			COMPARISON_MIN_L_MAG_P_MIP_P,
+			COMPARISON_MIN_L_MAG_P_MIP_L,
+			COMPARISON_MIN_L_MAG_L_MIP_P,
+			COMPARISON_MIN_L_MAG_L_MIP_L,
+			COMPARISON_ANISOTROPIC
+		};
+
+		// Modes for handling texture coordinates at texture-image boundaries.
+		enum Mode
+		{
+			WRAP,
+			MIRROR,
+			CLAMP,
+			BORDER,
+			MIRROR_ONCE
+		};
+
+		enum Comparison
+		{
+			NEVER,
+			LESS,
+			EQUAL,
+			LESS_EQUAL,
+			GREATER,
+			NOT_EQUAL,
+			GREATER_EQUAL,
+			ALWAYS
+		};
+
+		// Construction.
+		SamplerState(const std::string& name);
+
+		// Member access.  The members are intended to be write-once before
+		// you create an associated graphics state.
+		Filter		filter;
+		Mode		mode[3];
+		f32			mipLODBias;
+		u32			maxAnisotropy;
+		Comparison	comparison;
+		Vector4f	borderColor;
+		f32 minLOD;
+		f32 maxLOD;
+	};
+
 	struct PipelineStageState
 	{
 		PipelineStageState()
@@ -227,7 +291,9 @@ namespace forward
 		RasterizerState	m_rsState;
 
 		void AddViewport(ViewPort vp);
+		void AddScissorRect(RECT rect);
 		u32 m_activeViewportsNum = 0;
+		u32 m_activeScissorRectNum = 0;
 		std::array<ViewPort, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_viewports;
 		std::array<forward::RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_scissorRects;
 	};
@@ -236,6 +302,7 @@ namespace forward
 	{
 		std::array<shared_ptr<FrameGraphConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
 		std::array<shared_ptr<FrameGraphTexture2D>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
+		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 	};
 
 	struct VertexShaderStageState : public ShaderStageState
@@ -248,6 +315,11 @@ namespace forward
 		shared_ptr<FrameGraphPixelShader> m_shader;
 	};
 
+	struct GeometryShaderStageState : public ShaderStageState
+	{
+		shared_ptr<FrameGraphGeometryShader> m_shader;
+	};
+
 
 	struct PipelineStateObject
 	{
@@ -256,6 +328,7 @@ namespace forward
 		OutputMergerStageState		m_OMState;
 
 		VertexShaderStageState		m_VSState;
+		GeometryShaderStageState	m_GSState;
 		PixelShaderStageState		m_PSState;
 	};
 }

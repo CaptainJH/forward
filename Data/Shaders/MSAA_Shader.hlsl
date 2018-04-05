@@ -113,9 +113,9 @@ VS_OUTPUT VSMainQuad( in VS_INPUT v, uint vid : SV_VertexID )
 
 	o.position = v.position;
 	if(vid == 0)
-		o.color.xyz = float3(0, 0, 0);
+		o.color.xyz = float3(0, 0, 1);
 	else if(vid == 1)
-		o.color.xyz = float3(1, 0, 0);
+		o.color.xyz = float3(1, 0, 1);
 	else if(vid == 2)
 		o.color.xyz = float3(0, 1, 1);
 	else if(vid == 3)

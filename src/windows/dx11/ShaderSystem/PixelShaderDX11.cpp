@@ -39,13 +39,10 @@ void PixelShaderDX11::Bind(ID3D11DeviceContext* context)
 
 void PixelShaderDX11::Unbind(ID3D11DeviceContext* context)
 {
-	if (m_deviceObjPtr)
-	{
-		ID3D11ClassInstance* instances[1] = { nullptr };
-		u32 numInstances = 0;
-		ID3D11PixelShader* dxShader = nullptr;
-		context->PSSetShader(dxShader, instances, numInstances);
-	}
+	ID3D11ClassInstance* instances[1] = { nullptr };
+	u32 numInstances = 0;
+	ID3D11PixelShader* dxShader = nullptr;
+	context->PSSetShader(dxShader, instances, numInstances);
 }
 
 void PixelShaderDX11::BindCBuffer(ID3D11DeviceContext* context, u32 bindPoint, ID3D11Buffer* buffer)
