@@ -126,6 +126,9 @@ bool MSAA_Demo::Init()
 	},
 	[&](Renderer& render) {
 		render.DrawIndexed(m_geometry->GetIndexCount());
+
+		// update constant buffer for next pass
+		(*m_constantBuffer).GetTypedData()->distance = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 	});
 
 	m_renderPassMSAA = std::make_unique<RenderPass>(RenderPass::CT_Default,

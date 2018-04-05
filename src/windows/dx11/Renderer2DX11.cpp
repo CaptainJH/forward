@@ -335,6 +335,33 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		}
 	}
 
+	for (auto i = 0U; i < pso.m_VSState.m_shaderResources.size(); ++i)
+	{
+		auto res = pso.m_VSState.m_shaderResources[i];
+		if (res)
+		{
+			assert(res->DeviceObject());
+			auto deviceRes = device_cast<DeviceTexture2DDX11*>(res);
+			vs->BindSRView(m_pContext.Get(), i, deviceRes->GetSRView().Get());
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_VSState.m_samplers.size(); ++i)
+	{
+		auto samp = pso.m_VSState.m_samplers[i];
+		if (samp)
+		{
+			if (!samp->DeviceObject())
+			{
+				auto deviceSampler = forward::make_shared<DeviceSamplerStateDX11>(m_pDevice.Get(), samp.get());
+				samp->SetDeviceObject(deviceSampler);
+			}
+
+			auto deviceSampler = device_cast<DeviceSamplerStateDX11*>(samp);
+			vs->BindSampler(m_pContext.Get(), i, deviceSampler->GetSamplerStateDX11());
+		}
+	}
+
 	// setup gs
 	if (pso.m_GSState.m_shader)
 	{
@@ -354,6 +381,33 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 				auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
 				deviceCB->SyncCPUToGPU(m_pContext.Get());
 				gs->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+			}
+		}
+
+		for (auto i = 0U; i < pso.m_GSState.m_shaderResources.size(); ++i)
+		{
+			auto res = pso.m_GSState.m_shaderResources[i];
+			if (res)
+			{
+				assert(res->DeviceObject());
+				auto deviceRes = device_cast<DeviceTexture2DDX11*>(res);
+				gs->BindSRView(m_pContext.Get(), i, deviceRes->GetSRView().Get());
+			}
+		}
+
+		for (auto i = 0U; i < pso.m_GSState.m_samplers.size(); ++i)
+		{
+			auto samp = pso.m_GSState.m_samplers[i];
+			if (samp)
+			{
+				if (!samp->DeviceObject())
+				{
+					auto deviceSampler = forward::make_shared<DeviceSamplerStateDX11>(m_pDevice.Get(), samp.get());
+					samp->SetDeviceObject(deviceSampler);
+				}
+
+				auto deviceSampler = device_cast<DeviceSamplerStateDX11*>(samp);
+				gs->BindSampler(m_pContext.Get(), i, deviceSampler->GetSamplerStateDX11());
 			}
 		}
 	}
