@@ -7,6 +7,8 @@ set_target_properties(CmdApp PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
 target_link_libraries(CmdApp forwardDX11_Hieroglyph)
 target_link_libraries(CmdApp assimp-vc130-mt.lib)
 
+set_target_properties(CmdApp PROPERTIES FOLDER Application)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX-")
 	add_custom_command(TARGET CmdApp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
