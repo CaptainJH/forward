@@ -224,7 +224,7 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 	return static_cast<i32>(m_vSwapChains.size() - 1);
 }
 
-bool Renderer2DX11::Initialize(SwapChainConfig& config)
+bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 {
 	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_0))
 	{
@@ -237,10 +237,16 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config)
 
 	}
 
-	// Create a swap chain for the window that we started out with.  This
-	// demonstrates using a configuration object for fast and concise object
-	// creation.
-	/*auto swapChainId =*/ CreateSwapChain(&config);
+	m_width = config.GetWidth();
+	m_height = config.GetHeight();
+
+	if (!bOffScreen)
+	{
+		// Create a swap chain for the window that we started out with.  This
+		// demonstrates using a configuration object for fast and concise object
+		// creation.
+		CreateSwapChain(&config);
+	}
 
 	return true;
 }
@@ -577,6 +583,10 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	if (pass.GetNextRenderPass())
 	{
 		DrawRenderPass(*pass.GetNextRenderPass());
+	}
+	else if (m_vSwapChains.empty())
+	{
+		m_pContext->Flush();
 	}
 	else
 	{

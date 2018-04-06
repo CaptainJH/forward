@@ -1,4 +1,5 @@
 #include <windowsx.h>
+#include <iostream>
 
 #include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
@@ -19,7 +20,7 @@ namespace
 	// This is just used to forward Windows messages from a global window
 	// procedure to our member function window procedure because we cannot
 	// assign a member function to WNDCLASS::lpfnWndProc.
-	ApplicationWin* gApplicationDX11 = 0;
+	ApplicationWin* gApplication = 0;
 }
 
 LRESULT CALLBACK
@@ -27,7 +28,7 @@ MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
-	return gApplicationDX11->MsgProc(hwnd, msg, wParam, lParam);
+	return gApplication->MsgProc(hwnd, msg, wParam, lParam);
 }
 
 ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
@@ -41,7 +42,8 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	mMinimized(false),
 	mMaximized(false),
 	mResizing(false),
-	m4xMsaaQuality(0)
+	m4xMsaaQuality(0),
+	mOffScreenRendering(false)
 #ifdef USE_LEGACY_RENDERER
 	, m_pRender(nullptr)
 #endif
@@ -50,7 +52,27 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
 	// the global window procedure.
-	gApplicationDX11 = this;
+	gApplication = this;
+}
+
+ApplicationWin::ApplicationWin(i32 width, i32 height)
+	: mMainWndCaption(L"D3D11 Application")
+	, mClientWidth(width)
+	, mClientHeight(height)
+	, mEnable4xMsaa(false)
+	, mhMainWnd(0)
+	, mAppPaused(false)
+	, mMinimized(false)
+	, mMaximized(false)
+	, mResizing(false)
+	, m4xMsaaQuality(0)
+	, mOffScreenRendering(true)
+#ifdef USE_LEGACY_RENDERER
+	, m_pRender(nullptr)
+#endif
+	, m_pRender2(nullptr)
+{
+	gApplication = this;
 }
 
 ApplicationWin::~ApplicationWin()
@@ -76,6 +98,23 @@ f32 ApplicationWin::AspectRatio()const
 
 i32 ApplicationWin::Run()
 {
+	if (IsOffScreenRendering())
+	{
+		std::cout << "Start off-screen rendering ..." << std::endl;
+		mTimer.Tick();
+		UpdateScene(0.0f);
+		DrawScene();
+
+		mTimer.Tick();
+		f32 mspf = mTimer.Elapsed();
+
+		std::stringstream outs;
+		outs.precision(6);
+		outs << "rendering finished, took " << mspf << " (ms)";
+		std::cout << outs.str() << std::endl;
+		return 0;
+	}
+
 	MSG msg = { 0 };
 
 	while (msg.message != WM_QUIT)
@@ -109,8 +148,11 @@ i32 ApplicationWin::Run()
 
 bool ApplicationWin::Init()
 {
-	if (!InitMainWindow())
-		return false;
+	if (!IsOffScreenRendering())
+	{
+		if (!InitMainWindow())
+			return false;
+	}
 
 	if (!ConfigureRendererComponents())
 		return false;
@@ -351,7 +393,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());
 
-	if (!m_pRender2->Initialize(Config))
+	if (!m_pRender2->Initialize(Config, IsOffScreenRendering()))
 	{
 		ShowWindow(MainWnd(), SW_HIDE);
 		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
@@ -375,4 +417,9 @@ void ApplicationWin::RequestTermination()
 {
 	// This triggers the termination of the application
 	PostQuitMessage(0);
+}
+
+bool ApplicationWin::IsOffScreenRendering() const
+{
+	return mOffScreenRendering;
 }

@@ -84,7 +84,7 @@ namespace forward
 	private:
 		bool InitializeD3D( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
 	public:
-		bool Initialize(SwapChainConfig& scConfig) override;
+		bool Initialize(SwapChainConfig& scConfig, bool bOffScreen) override;
 		void Shutdown() override;
 
 		void OnResize(u32 width, u32 height) override;

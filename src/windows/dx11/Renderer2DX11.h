@@ -18,7 +18,7 @@ namespace forward
 
 		void OnResize(u32 width, u32 height) override;
 
-		bool Initialize(SwapChainConfig& config) override;
+		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
 		void Shutdown() override;
 
 		void Draw(u32 vertexNum, u32 startVertexLocation=0) override;

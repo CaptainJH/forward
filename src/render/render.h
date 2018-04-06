@@ -47,7 +47,7 @@ namespace forward
 
 		virtual void OnResize(u32 width, u32 height) = 0;
 
-		virtual bool Initialize(SwapChainConfig&) = 0;
+		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 		virtual void Shutdown() = 0;
 
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation=0) = 0;

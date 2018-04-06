@@ -43,6 +43,7 @@ namespace forward
 	{
 	public:
 		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
+		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
 		virtual ~ApplicationWin();
 
 		HINSTANCE AppInst()const;
@@ -83,6 +84,8 @@ namespace forward
 
 		void CalculateFrameStats();
 
+		bool IsOffScreenRendering() const;
+
 	protected:
 
 		HINSTANCE mhAppInst;
@@ -106,6 +109,7 @@ namespace forward
 		i32 mClientWidth;
 		i32 mClientHeight;
 		bool mEnable4xMsaa;
+		bool mOffScreenRendering;
 
 		RendererType RenderType = RendererType::Renderer_Hieroglyph;
 	};

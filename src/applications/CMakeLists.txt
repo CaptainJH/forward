@@ -14,6 +14,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#------FrameGraph apps -----------
 	add_subdirectory(HelloFrameGraphDemo)
 	add_subdirectory(BasicGeometryFrameGraph)
+	add_subdirectory(OffScreenRenderingDemo)
 endif()
 
 add_subdirectory(CmdApp)

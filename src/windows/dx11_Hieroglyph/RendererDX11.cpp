@@ -2131,7 +2131,7 @@ i32 RendererDX11::GetShaderIndex(const std::string& name) const
 }
 
 //--------------------------------------------------------------------------------
-bool RendererDX11::Initialize(SwapChainConfig& scConfig)
+bool RendererDX11::Initialize(SwapChainConfig& scConfig, bool /*bOffScreen*/)
 {
 	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_11_0))
 	{
