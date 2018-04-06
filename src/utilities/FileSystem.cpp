@@ -12,6 +12,7 @@ std::wstring FileSystem::sModelsSubFolder = L"Models/";
 std::wstring FileSystem::sScriptsSubFolder = L"Scripts/";
 std::wstring FileSystem::sShaderSubFolder = L"Shaders/";
 std::wstring FileSystem::sTextureSubFolder = L"Textures/";
+std::wstring FileSystem::sSaved = L"Saved/";
 
 std::wstring FileSystem::sLogFolder = L"Log/";
 
@@ -57,6 +58,11 @@ void FileSystem::SetCWD(const std::wstring& cwd)
 std::wstring FileSystem::GetLogFolder() const
 {
 	return sLogFolder;
+}
+//--------------------------------------------------------------------------------
+std::wstring FileSystem::GetSavedFolder() const
+{
+	return sSaved;
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetDataFolder() const

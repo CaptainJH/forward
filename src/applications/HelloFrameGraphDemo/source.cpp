@@ -1,22 +1,8 @@
 #include "ApplicationWin.h"
-#include "TriangleIndices.h"
 #include "render/FrameGraph/FrameGraph.h"
+#include "render/FrameGraph/Geometry.h"
 
 using namespace forward;
-
-//--------------------------------------------------------------------------------
-// Structure for Vertex Buffer
-struct Vertex
-{
-	Vector3f Pos;
-	Vector4f Color;
-};
-
-// structure for constant buffer
-struct CBufferType
-{
-	Matrix4f mat;
-};
 
 class HelloFrameGraph : public Application
 {
@@ -99,7 +85,7 @@ bool HelloFrameGraph::Init()
 		/////////////
 		///build quad
 		/////////////
-		Vertex quadVertices[] =
+		Vertex_POS_COLOR quadVertices[] =
 		{
 			{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
 			{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
@@ -108,7 +94,7 @@ bool HelloFrameGraph::Init()
 		};
 
 		auto vb = forward::make_shared<FrameGraphVertexBuffer>("VertexBuffer", vf, 4);
-		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex); ++i)
+		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex_POS_COLOR); ++i)
 		{
 			vb->AddVertex(quadVertices[i]);
 		}
@@ -138,4 +124,5 @@ void HelloFrameGraph::OnResize()
 void HelloFrameGraph::OnSpace()
 {
 	mAppPaused = !mAppPaused;
+	m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp");
 }

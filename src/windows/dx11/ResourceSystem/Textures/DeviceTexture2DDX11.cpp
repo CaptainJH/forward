@@ -2,11 +2,10 @@
 // DeviceTexture2DDX11.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceTexture2DDX11.h"
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 
 using namespace forward;
 
-DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex)
+DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex, ResourceUsage usage/*=RU_IMMUTABLE*/)
 {
 	D3D11_TEXTURE2D_DESC desc;
 	tex->GetDesc(&desc);
@@ -25,6 +24,7 @@ DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::st
 		bp |= TextureBindPosition::TBP_Shader;
 	}
 	auto fg_tex = new FrameGraphTexture2D(name, format, desc.Width, desc.Height, bp);
+	fg_tex->SetUsage(usage);
 	auto ret = new DeviceTexture2DDX11(tex, fg_tex);
 	fg_tex->SetDeviceObject(ret);
 
@@ -44,6 +44,11 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphT
 	DeviceComPtr device;
 	deviceTex->GetDevice(device.GetAddressOf());
 	const auto TBP = tex->GetBindPosition();
+
+	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	{
+		CreateStaging(device.Get(), desc);
+	}
 
 	// Create views of the texture.
 	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
@@ -400,7 +405,7 @@ void DeviceTexture2DDX11::SyncGPUToCPU(ID3D11DeviceContext* context)
 		else if (GetType() == ResourceType::RT_TEXTURE2D)
 		{
 			auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
-			CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth(), fgTex2->GetData());
+			CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
 		}
 		else if (GetType() == ResourceType::RT_TEXTURE3D)
 		{

@@ -26,6 +26,8 @@ namespace forward
 
 		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
 
+		void SaveRenderTarget(const std::wstring& filename) override;
+
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 

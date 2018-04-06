@@ -3,6 +3,7 @@
 //***************************************************************************************
 #pragma once
 
+#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "DeviceTextureDX11.h"
 #include "dx11/dx11Util.h"
 
@@ -14,7 +15,7 @@ namespace forward
 	{
 	public:
 
-		static DeviceTexture2DDX11* BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex);
+		static DeviceTexture2DDX11* BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex, ResourceUsage usage=RU_IMMUTABLE);
 
 		DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex);
 		DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex);

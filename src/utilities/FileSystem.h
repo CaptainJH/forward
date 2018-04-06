@@ -33,6 +33,7 @@ namespace forward
 		std::wstring GetScriptsFolder() const;
 		std::wstring GetShaderFolder() const;
 		std::wstring GetTextureFolder() const;
+		std::wstring GetSavedFolder() const;
 
 		std::wstring GetCWD() const;
 		void SetCWD(const std::wstring& cwd);
@@ -54,6 +55,7 @@ namespace forward
 		static std::wstring sScriptsSubFolder;
 		static std::wstring sShaderSubFolder;
 		static std::wstring sTextureSubFolder;
+		static std::wstring sSaved;
 
 		static std::wstring sLogFolder;
 	};

@@ -19,6 +19,7 @@
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "render/FrameGraph/RenderPass.h"
 #include "utilities/Utils.h"
+#include "utilities/FileSaver.h"
 
 using namespace forward;
 using Microsoft::WRL::ComPtr;
@@ -208,7 +209,7 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 		return -1;
 	}
 
-	auto rtPtr = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get());
+	auto rtPtr = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
 	// Next we create a depth buffer for use in the traditional rendering
 	// pipeline.
 	auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
@@ -608,6 +609,28 @@ void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2
 
 	m_pContext->ResolveSubresource(device_cast<DeviceTexture2DDX11*>(dst)->GetDXTexture2DPtr(), 0, 
 		device_cast<DeviceTexture2DDX11*>(src)->GetDXTexture2DPtr(), 0, static_cast<DXGI_FORMAT>(dst->GetFormat()));
+}
+
+void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
+{
+	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+	auto devicert = device_cast<DeviceTexture2DDX11*>(rtPtr);
+	devicert->SyncGPUToCPU(m_pContext.Get());
+
+	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
+	memcpy(tempBuffer, rtPtr->GetData(), rtPtr->GetNumBytes());
+	if (rtPtr->GetElementSize() >= 3)
+	{
+		// transform from RGBA to BGRA
+		for (auto i = 0U; i < rtPtr->GetNumBytes(); i += rtPtr->GetElementSize())
+		{
+			std::swap(tempBuffer[i], tempBuffer[i + 2]);
+		}
+	}
+
+	FileSaver outfile;
+	outfile.SaveAsBMP(filename, tempBuffer, rtPtr->GetWidth(), rtPtr->GetHeight());
+	SAFE_DELETE_ARRAY(tempBuffer);
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)
