@@ -115,35 +115,11 @@ bool FileSaver::SaveAsBMP(const std::wstring& filename, const u8* pData, u32 wid
 	info.biClrUsed = 0;
 	info.biClrImportant = 0;
 
-	HANDLE file = CreateFile(filepath.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
-		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (NULL == file)
-	{
-		CloseHandle(file);
-		return false;
-	}
+	std::ofstream file(filepath, std::ofstream::binary);
+	file.write((const i8*)&bmfh, sizeof(BITMAPFILEHEADER));
+	file.write((const i8*)&info, sizeof(BITMAPINFOHEADER));
+	file.write((const i8*)pData, paddedsize);
+	file.close();
 
-	unsigned long bwritten;
-	if (WriteFile(file, &bmfh, sizeof(BITMAPFILEHEADER),
-		&bwritten, NULL) == false)
-	{
-		CloseHandle(file);
-		return false;
-	}
-
-	if (WriteFile(file, &info, sizeof(BITMAPINFOHEADER),
-		&bwritten, NULL) == false)
-	{
-		CloseHandle(file);
-		return false;
-	}
-
-	if (WriteFile(file, pData, paddedsize, &bwritten, NULL) == false)
-	{
-		CloseHandle(file);
-		return false;
-	}
-
-	CloseHandle(file);
 	return true;
 }
