@@ -12,7 +12,7 @@ std::wstring FileSystem::sModelsSubFolder = L"Models/";
 std::wstring FileSystem::sScriptsSubFolder = L"Scripts/";
 std::wstring FileSystem::sShaderSubFolder = L"Shaders/";
 std::wstring FileSystem::sTextureSubFolder = L"Textures/";
-std::wstring FileSystem::sSaved = L"Saved/";
+std::wstring FileSystem::sSavedFolder = L"Saved/";
 
 std::wstring FileSystem::sLogFolder = L"Log/";
 
@@ -32,11 +32,17 @@ FileSystem::FileSystem()
 		mCWD += L'/';
 	sDataFolder = mCWD + sDataFolder;
 	sLogFolder = mCWD + sLogFolder;
+	sSavedFolder = mCWD + sSavedFolder;
 
 	auto logPath = filesystem::path(sLogFolder);
 	if (!filesystem::exists(logPath))
 	{
 		filesystem::create_directory(logPath);
+	}
+	auto savedPath = filesystem::path(sSavedFolder);
+	if (!filesystem::exists(savedPath))
+	{
+		filesystem::create_directory(savedPath);
 	}
 }
 //--------------------------------------------------------------------------------
@@ -62,7 +68,7 @@ std::wstring FileSystem::GetLogFolder() const
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetSavedFolder() const
 {
-	return sSaved;
+	return sSavedFolder;
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetDataFolder() const

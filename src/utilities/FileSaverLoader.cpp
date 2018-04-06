@@ -88,8 +88,7 @@ FileSaver::~FileSaver()
 
 bool FileSaver::SaveAsBMP(const std::wstring& filename, const u8* pData, u32 width, u32 height) const
 {
-	//std::wstring filepath = FileSystem::getSingleton().GetSavedFolder() + filename;
-	std::wstring filepath = L"C:\\Users\\heqij\\Documents\\GitHub\\forward\\Saved\\" + filename;
+	std::wstring filepath = FileSystem::getSingleton().GetSavedFolder() + filename;
 	auto paddedsize = width * height * 4;
 
 	BITMAPFILEHEADER bmfh;

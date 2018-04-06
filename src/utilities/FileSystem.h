@@ -55,7 +55,7 @@ namespace forward
 		static std::wstring sScriptsSubFolder;
 		static std::wstring sShaderSubFolder;
 		static std::wstring sTextureSubFolder;
-		static std::wstring sSaved;
+		static std::wstring sSavedFolder;
 
 		static std::wstring sLogFolder;
 	};
