@@ -92,7 +92,6 @@ bool BasicGeometryFrameGraph::Init()
 
 		// setup constant buffer
 		m_constantBuffer = make_shared<FrameGraphConstantBuffer<Matrix4f>>("CB");
-		m_constantBuffer->SetUsage(RU_DYNAMIC_UPDATE); // set to dynamic so we can update the buffer every frame.
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states

@@ -144,7 +144,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.Usage = D3D11_USAGE_DYNAMIC;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		}
-		else // usage === ResourceUsage::RU_SHADER_OUTPUT
+		else // usage == ResourceUsage::RU_SHADER_OUTPUT
 		{
 			desc.Usage = D3D11_USAGE_DEFAULT;
 			desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
@@ -173,6 +173,11 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	}
 
 	m_deviceResPtr = dxTexture;
+
+	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	{
+		CreateStaging(device, desc);
+	}
 
 	// Create views of the texture.
 	if (TBP & TBP_Shader)
@@ -297,6 +302,26 @@ void DeviceTexture2DDX11::CreateRTView(ID3D11Device* device, const D3D11_TEXTURE
 	HR(device->CreateRenderTargetView(GetDXTexture2DPtr(), &desc, m_rtv.GetAddressOf()));
 }
 
+void DeviceTexture2DDX11::CreateStaging(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx)
+{
+	D3D11_TEXTURE2D_DESC desc;
+	desc.Width				= tx.Width;
+	desc.Height				= tx.Height;
+	desc.MipLevels			= tx.MipLevels;
+	desc.ArraySize			= tx.ArraySize;
+	desc.Format				= tx.Format;
+	desc.SampleDesc.Count	= tx.SampleDesc.Count;
+	desc.SampleDesc.Quality = tx.SampleDesc.Quality;
+	desc.Usage				= D3D11_USAGE_STAGING;
+	desc.BindFlags			= D3D11_BIND_NONE;
+	desc.CPUAccessFlags		= D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags			= D3D11_RESOURCE_MISC_NONE;
+
+	Texture2DComPtr stagingTex;
+	HR(device->CreateTexture2D(&desc, nullptr, stagingTex.GetAddressOf()));
+	m_stagingResPtr = stagingTex;
+}
+
 DXGI_FORMAT DeviceTexture2DDX11::GetDepthResourceFormat(DXGI_FORMAT depthFormat)
 {
 	if (depthFormat == DXGI_FORMAT_D16_UNORM)
@@ -352,4 +377,36 @@ DXGI_FORMAT DeviceTexture2DDX11::GetDepthSRVFormat(DXGI_FORMAT depthFormat)
 void DeviceTexture2DDX11::SyncCPUToGPU()
 {
 	///TODO:
+}
+
+void DeviceTexture2DDX11::SyncGPUToCPU(ID3D11DeviceContext* context)
+{
+	if (PrepareForSync())
+	{
+		// Copy from GPU memory to staging texture.
+		ID3D11Resource* dxTexture = GetDXTexture2DPtr();
+		context->CopyResource(m_stagingResPtr.Get(), dxTexture);
+
+		// Map the staging texture.
+		D3D11_MAPPED_SUBRESOURCE sub;
+		HR(context->Map(m_stagingResPtr.Get(), 0, D3D11_MAP_READ, 0, &sub));
+
+		// Copy from staging texture to CPU memory.
+		auto fgRes = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
+		if (GetType() == ResourceType::RT_TEXTURE1D)
+		{
+			memcpy(fgRes->GetData(), sub.pData, fgRes->GetNumBytes());
+		}
+		else if (GetType() == ResourceType::RT_TEXTURE2D)
+		{
+			auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
+			CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth(), fgTex2->GetData());
+		}
+		else if (GetType() == ResourceType::RT_TEXTURE3D)
+		{
+			/// TODO
+		}
+
+		context->Unmap(m_stagingResPtr.Get(), 0);
+	}
 }

@@ -34,6 +34,12 @@ bool FrameGraphTexture::WantAutoGenerateMips() const
 	return m_autoGenerateMip;
 }
 
+u32 FrameGraphTexture::GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 dim2) const
+{
+	auto numElementsPerItem = dim0 * dim1 * dim2;
+	return numItems * numElementsPerItem;
+}
+
 FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, 
 	u32 width, u32 height, u32 bind, bool enableMSAA/*=false*/)
 	: FrameGraphTexture(name, format, bind)
@@ -43,9 +49,9 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType
 	, m_sampQuality(0)
 {
 	m_type = FGOT_TEXTURE2;
-	//Initialize(width * height, DataFormat::GetNumBytesPerStruct(format));
 	m_numElements = width * height;
 	m_elementSize = DataFormat::GetNumBytesPerStruct(format);
+	Initialize(GetTotalElements(1, width, height, 1), DataFormat::GetNumBytesPerStruct(format));
 }
 
 ResourceType FrameGraphTexture2D::GetResourceType() const

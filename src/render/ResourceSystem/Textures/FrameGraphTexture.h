@@ -31,6 +31,8 @@ namespace forward
 		u32				m_mipLevelNum = 1;
 		bool			m_autoGenerateMip = false;
 		u32				m_bindPosition;
+
+		u32				GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 dim2) const;
 	};
 
 	class FrameGraphTexture2D : public FrameGraphTexture

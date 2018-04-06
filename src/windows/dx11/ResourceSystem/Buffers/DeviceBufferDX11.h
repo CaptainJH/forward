@@ -26,8 +26,11 @@ namespace forward
 
 		void					SyncCPUToGPU() override;
 		void					SyncCPUToGPU(ID3D11DeviceContext* context);
+		void					SyncGPUToCPU(ID3D11DeviceContext* context);
 
 	protected:
 		D3D11_BUFFER_DESC		m_actualDesc;
+
+		void					CreateStaging(ID3D11Device* device, const D3D11_BUFFER_DESC& descIn);
 	};
 }

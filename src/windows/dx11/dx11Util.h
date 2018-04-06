@@ -39,3 +39,4 @@ typedef Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> UserDefinedAnnotationC
 
 #define D3D11_RESOURCE_MISC_NONE	0
 #define D3D11_CPU_ACCESS_NONE		0
+#define D3D11_BIND_NONE				0

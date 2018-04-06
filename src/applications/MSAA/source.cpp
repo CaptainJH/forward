@@ -108,7 +108,6 @@ bool MSAA_Demo::Init()
 
 		// setup constant buffer
 		m_constantBuffer = make_shared<FrameGraphConstantBuffer<CBufferType>>("CB");
-		m_constantBuffer->SetUsage(RU_DYNAMIC_UPDATE); // set to dynamic so we can update the buffer every frame.
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 		pso.m_PSState.m_constantBuffers[0] = m_constantBuffer;
 

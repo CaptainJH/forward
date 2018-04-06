@@ -98,3 +98,23 @@ void DeviceBufferDX11::SyncCPUToGPU()
 {
 	/// TODO:
 }
+
+void DeviceBufferDX11::SyncGPUToCPU(ID3D11DeviceContext* /*context*/)
+{
+
+}
+
+void DeviceBufferDX11::CreateStaging(ID3D11Device* device, const D3D11_BUFFER_DESC& descIn)
+{
+	D3D11_BUFFER_DESC desc;
+	desc.ByteWidth =			descIn.ByteWidth;
+	desc.Usage =				D3D11_USAGE_STAGING;
+	desc.BindFlags =			D3D11_BIND_NONE;
+	desc.CPUAccessFlags =		D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags =			D3D11_RESOURCE_MISC_NONE;
+	desc.StructureByteStride =	0;
+
+	BufferComPtr stagingBuffer;
+	HR(device->CreateBuffer(&desc, nullptr, stagingBuffer.GetAddressOf()));
+	m_stagingResPtr = stagingBuffer;
+}

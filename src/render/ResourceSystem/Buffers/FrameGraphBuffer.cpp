@@ -109,7 +109,9 @@ const VertexFormat& FrameGraphVertexBuffer::GetVertexFormat() const
 
 FrameGraphConstantBufferBase::FrameGraphConstantBufferBase(const std::string& name)
 	: FrameGraphBuffer(name)
-{}
+{
+	m_usage = RU_DYNAMIC_UPDATE;
+}
 
 ResourceType FrameGraphConstantBufferBase::GetResourceType() const
 {

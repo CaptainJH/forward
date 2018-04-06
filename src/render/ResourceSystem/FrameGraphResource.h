@@ -12,9 +12,10 @@ namespace forward
 	// You must set the usage type before binding the resource to an engine.
 	enum ResourceUsage
 	{
-		RU_IMMUTABLE,       // D3D11_USAGE_IMMUTABLE (default)
-		RU_DYNAMIC_UPDATE,  // D3D11_USAGE_DYNAMIC
-		RU_SHADER_OUTPUT    // D3D11_USAGE_DEFAULT
+		RU_IMMUTABLE,       // D3D11_USAGE_IMMUTABLE (default)	GPU read
+		RU_DYNAMIC_UPDATE,  // D3D11_USAGE_DYNAMIC				GPU read, CPU write
+		RU_SHADER_OUTPUT,   // D3D11_USAGE_DEFAULT				GPU read/write
+		RU_CPU_GPU_BIDIRECTIONAL, // D3D11_USAGE_STAGING		GPU read/write, CPU read/write
 	};
 
 	class FrameGraphResource : public FrameGraphObject

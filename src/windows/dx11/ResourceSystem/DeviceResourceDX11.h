@@ -22,5 +22,8 @@ namespace forward
 
 	protected:
 		DeviceResComPtr		m_deviceResPtr;
+		DeviceResComPtr		m_stagingResPtr;
+
+		bool				PrepareForSync();
 	};
 }
