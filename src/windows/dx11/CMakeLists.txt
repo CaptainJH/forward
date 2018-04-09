@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10)
 
 find_source_files(forward_DX11_SOURCE_FILES "${forward_source_root}/windows")
 remove_paths_from_list(forward_DX11_SOURCE_FILES "${forward_source_root}/windows/dx12")

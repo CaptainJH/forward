@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_subdirectory(HelloWorld)
