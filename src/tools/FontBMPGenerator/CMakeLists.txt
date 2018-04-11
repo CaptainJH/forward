@@ -19,6 +19,7 @@ set_property(TARGET FontBMPGenerator PROPERTY VS_DOTNET_REFERENCES
 	"System.Core"
 	"System.Data"
 	"System.Data.DataSetExtensions"
+	"System.Runtime.InteropServices"
 	"System.Net.Http"
 	"System.Xml"
 	"System.Xml.Linq"

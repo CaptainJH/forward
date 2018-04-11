@@ -34,6 +34,7 @@ namespace forward
 		std::wstring GetShaderFolder() const;
 		std::wstring GetTextureFolder() const;
 		std::wstring GetSavedFolder() const;
+		std::wstring GetFontFolder() const;
 
 		std::wstring GetCWD() const;
 		void SetCWD(const std::wstring& cwd);
@@ -50,14 +51,15 @@ namespace forward
 	private:
 		std::wstring mCWD;
 
-		static std::wstring sDataFolder;
-		static std::wstring sModelsSubFolder;
-		static std::wstring sScriptsSubFolder;
-		static std::wstring sShaderSubFolder;
-		static std::wstring sTextureSubFolder;
-		static std::wstring sSavedFolder;
+		std::wstring mDataFolder;
+		std::wstring mModelsSubFolder;
+		std::wstring mScriptsSubFolder;
+		std::wstring mShaderSubFolder;
+		std::wstring mTextureSubFolder;
+		std::wstring mSavedFolder;
+		std::wstring mFontFolder;
 
-		static std::wstring sLogFolder;
+		std::wstring mLogFolder;
 	};
 };
 //--------------------------------------------------------------------------------

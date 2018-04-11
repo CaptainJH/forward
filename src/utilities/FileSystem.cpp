@@ -7,19 +7,20 @@
 using namespace forward;
 using namespace std::experimental;
 //--------------------------------------------------------------------------------
-std::wstring FileSystem::sDataFolder = L"Data/";
-std::wstring FileSystem::sModelsSubFolder = L"Models/";
-std::wstring FileSystem::sScriptsSubFolder = L"Scripts/";
-std::wstring FileSystem::sShaderSubFolder = L"Shaders/";
-std::wstring FileSystem::sTextureSubFolder = L"Textures/";
-std::wstring FileSystem::sSavedFolder = L"Saved/";
-
-std::wstring FileSystem::sLogFolder = L"Log/";
-
 FileSystem* forward::Singleton<FileSystem>::msSingleton = 0;
 //--------------------------------------------------------------------------------
 FileSystem::FileSystem()
 {
+	mDataFolder = L"Data/";
+	mModelsSubFolder = L"Models/";
+	mScriptsSubFolder = L"Scripts/";
+	mShaderSubFolder = L"Shaders/";
+	mTextureSubFolder = L"Textures/";
+	mSavedFolder = L"Saved/";
+	mFontFolder = L"src/render/Text/";
+
+	mLogFolder = L"Log/";
+
 	auto path = filesystem::current_path();
 	auto pathStr = path.generic_wstring();
 	auto index = pathStr.find(L"forward");
@@ -30,16 +31,17 @@ FileSystem::FileSystem()
 		mCWD = pathStr.substr(0, indexEnd + 1);
 	else
 		mCWD += L'/';
-	sDataFolder = mCWD + sDataFolder;
-	sLogFolder = mCWD + sLogFolder;
-	sSavedFolder = mCWD + sSavedFolder;
+	mDataFolder = mCWD + mDataFolder;
+	mLogFolder = mCWD + mLogFolder;
+	mSavedFolder = mCWD + mSavedFolder;
+	mFontFolder = mCWD + mFontFolder;
 
-	auto logPath = filesystem::path(sLogFolder);
+	auto logPath = filesystem::path(mLogFolder);
 	if (!filesystem::exists(logPath))
 	{
 		filesystem::create_directory(logPath);
 	}
-	auto savedPath = filesystem::path(sSavedFolder);
+	auto savedPath = filesystem::path(mSavedFolder);
 	if (!filesystem::exists(savedPath))
 	{
 		filesystem::create_directory(savedPath);
@@ -63,62 +65,67 @@ void FileSystem::SetCWD(const std::wstring& cwd)
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetLogFolder() const
 {
-	return sLogFolder;
+	return mLogFolder;
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetSavedFolder() const
 {
-	return sSavedFolder;
+	return mSavedFolder;
+}
+//--------------------------------------------------------------------------------
+std::wstring FileSystem::GetFontFolder() const
+{
+	return mFontFolder;
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetDataFolder() const
 {
-	return( sDataFolder );
+	return( mDataFolder );
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetModelsFolder() const
 {
-	return( sDataFolder + sModelsSubFolder );
+	return( mDataFolder + mModelsSubFolder );
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetScriptsFolder() const
 {
-	return( sDataFolder + sScriptsSubFolder );
+	return( mDataFolder + mScriptsSubFolder );
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetShaderFolder() const
 {
-	return( sDataFolder + sShaderSubFolder );
+	return( mDataFolder + mShaderSubFolder );
 }
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetTextureFolder() const
 {
-	return( sDataFolder + sTextureSubFolder );
+	return( mDataFolder + mTextureSubFolder );
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetDataFolder( const std::wstring& folder )
 {
-	sDataFolder = folder;
+	mDataFolder = folder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetModelsFolder( const std::wstring& folder )
 {
-	sModelsSubFolder = folder;
+	mModelsSubFolder = folder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetScriptsFolder( const std::wstring& folder )
 {
-	sScriptsSubFolder = folder;
+	mScriptsSubFolder = folder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetShaderFolder( const std::wstring& folder )
 {
-	sShaderSubFolder = folder;
+	mShaderSubFolder = folder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetTextureFolder( const std::wstring& folder )
 {
-	sTextureSubFolder = folder;
+	mTextureSubFolder = folder;
 }
 //--------------------------------------------------------------------------------
 bool FileSystem::FileExists( const std::wstring& file )
