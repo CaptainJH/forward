@@ -46,6 +46,10 @@ namespace forward
 		void Initialize(u32 numElements, u32 elementSize);
 
 		u8* GetData();
+		template<class T> T GetData()
+		{
+			return reinterpret_cast<T>(GetData());
+		}
 
 	protected:
 

@@ -16,6 +16,8 @@ namespace forward
 		Vector2f( f32 x, f32 y );
 		Vector2f( const Vector2f& Vector );
 
+		static Vector2f Zero();
+
 		// vector operations
 		void Clamp( );
 		void MakeZero( );
