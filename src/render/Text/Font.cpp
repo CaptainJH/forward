@@ -73,10 +73,93 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 
 	mVertexShader = make_shared<FrameGraphVertexShader>("ArialVS", L"TextEffect.hlsl", L"VSMain");
 	mPixelShader = make_shared<FrameGraphPixelShader>("ArialPS", L"TextEffect.hlsl", L"PSMain");
-	mConstantBuffer = make_shared<FrameGraphConstantBuffer<Vector2f>>("ArialCB");
+	mConstantBufferVS = make_shared<FrameGraphConstantBuffer<Vector2f>>("ArialCB_VS");
+	mConstantBufferPS = make_shared<FrameGraphConstantBuffer<Vector4f>>("ArialCB_PS");
+	mSampler = make_shared<SamplerState>("ArialSamp");
 }
 
-void Font::OnRenderPassBuilding(RenderPass&)
+void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f const& color, std::string const& message) const
 {
+	// Get texel translation units, depends on viewport width and height.
+	auto const vdx = 1.0f / static_cast<f32>(viewportWidth);
+	auto const vdy = 1.0f / static_cast<f32>(viewportHeight);
 
+	// Get texture information.
+	auto tw = static_cast<f32>(mTexture->GetWidth());
+	auto th = static_cast<f32>(mTexture->GetHeight());
+
+	// Get vertex buffer information.
+	auto vertexSize = mVertexBuffer->GetVertexFormat().GetVertexSize();
+	auto data = mVertexBuffer->GetData();
+
+	f32 x0 = 0.0f;
+	auto const length = std::min(static_cast<u32>(message.length()), mMaxMessageLength);
+	for (auto i = 0U; i < length; ++i)
+	{
+		// Get character data.
+		auto c = static_cast<i32>(message[i]);
+		auto const tx0 = mCharacterData[c];
+		auto const tx1 = mCharacterData[c + 1];
+		auto charWidthM1 = (tx1 - tx0)*tw - 1.0f;  // in pixels
+
+		// 0 -- 2   4 -- 6  ...
+		// | \  |   | \  | 
+		// |  \ |   |  \ | 
+		// 1 -- 3   5 -- 7  ...
+		auto* v0 = reinterpret_cast<f32*>(data + (4 * i + 0)*vertexSize);
+		auto* v1 = reinterpret_cast<f32*>(data + (4 * i + 1)*vertexSize);
+		auto* v2 = reinterpret_cast<f32*>(data + (4 * i + 2)*vertexSize);
+		auto* v3 = reinterpret_cast<f32*>(data + (4 * i + 3)*vertexSize);
+
+		// Set bottom left vertex y coordinate.
+		v1[1] = vdy*th;
+
+		// Set x-coordinates.
+		auto x1 = x0 + charWidthM1*vdx;
+		v0[0] = x0;
+		v1[0] = x0;
+		v2[0] = x1;
+		v3[0] = x1;
+
+		// Set bottom right-side y-coordinate.
+		v3[1] = vdy*th;
+
+		// Set the four texture x-coordinates.  The y-coordinates were set in
+		// the constructor.
+		v0[2] = tx0;
+		v1[2] = tx0;
+		v2[2] = tx1;
+		v3[2] = tx1;
+
+		// Update left x coordinate for next quad
+		x0 = x1;
+	}
+
+	//// Update the number of triangles that should be drawn.
+	//mVertexBuffer->SetNumActiveElements(4 * length);
+	//mIndexBuffer->SetNumActivePrimitives(2 * length);
+
+	// Set effect parameters.
+	auto trnX = vdx * static_cast<f32>(x);
+	auto trnY = 1.0f - vdy * static_cast<f32>(y);
+	mConstantBufferVS->SetTypedData(Vector2f(trnX, trnY));
+	mConstantBufferPS->SetTypedData(color);
+}
+
+void Font::OnRenderPassBuilding(RenderPass& pass)
+{
+	auto& pso = pass.GetPSO();
+
+	pso.m_IAState.m_indexBuffer = mIndexBuffer;
+	pso.m_IAState.m_topologyType = mIndexBuffer->GetPrimitiveType();
+
+	pso.m_IAState.m_vertexBuffers[0] = mVertexBuffer;
+	pso.m_IAState.m_vertexLayout = mVertexBuffer->GetVertexFormat();
+
+	pso.m_VSState.m_constantBuffers[0] = mConstantBufferVS;
+	pso.m_VSState.m_shader = mVertexShader;
+
+	pso.m_PSState.m_constantBuffers[0] = mConstantBufferPS;
+	pso.m_PSState.m_shader = mPixelShader;
+	pso.m_PSState.m_samplers[0] = mSampler;
 }

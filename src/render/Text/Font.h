@@ -18,6 +18,10 @@ namespace forward
 		Font(u32 width, u32 height, i8 const* texels, 
 			f32 const* characterData, u32 maxMessageLength);
 
+		// Populate the vertex buffer for the specified string.
+		void Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y,
+			Vector4f const& color, std::string const& message) const;
+
 	protected:
 
 		u32 mMaxMessageLength;
@@ -26,7 +30,9 @@ namespace forward
 		shared_ptr<FrameGraphTexture2D>		mTexture;
 		shared_ptr<FrameGraphVertexShader>	mVertexShader;
 		shared_ptr<FrameGraphPixelShader>	mPixelShader;
-		shared_ptr<FrameGraphConstantBuffer<Vector2f>> mConstantBuffer;
+		shared_ptr<FrameGraphConstantBuffer<Vector2f>> mConstantBufferVS;
+		shared_ptr<FrameGraphConstantBuffer<Vector4f>> mConstantBufferPS;
+		shared_ptr<SamplerState>			mSampler;
 		f32 mCharacterData[257];
 
 	private:

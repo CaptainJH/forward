@@ -301,6 +301,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 			}
 
 			auto deviceVB = device_cast<DeviceVertexBufferDX11*>(vb);
+			deviceVB->SyncCPUToGPU(m_pContext.Get());
 			deviceVB->Bind(m_pContext.Get());
 		}
 	}
@@ -315,6 +316,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		}
 
 		auto deviceIB = device_cast<DeviceIndexBufferDX11*>(ib);
+		deviceIB->SyncCPUToGPU(m_pContext.Get());
 		deviceIB->Bind(m_pContext.Get());
 	}
 	else
