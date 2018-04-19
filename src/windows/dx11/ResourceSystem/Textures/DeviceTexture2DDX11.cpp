@@ -169,8 +169,12 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	Texture2DComPtr dxTexture;
 	if (tex->GetData())
 	{
-		/// TODO: create texture from memory not supported now.
-		HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
+		/// TODO: NO mipmap support
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = tex->GetData();
+		data.SysMemPitch = tex->GetWidth() * tex->GetElementSize();
+		data.SysMemSlicePitch = tex->GetHeight() * data.SysMemPitch;
+		HR(device->CreateTexture2D(&desc, &data, dxTexture.GetAddressOf()));
 	}
 	else
 	{

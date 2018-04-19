@@ -162,4 +162,5 @@ void Font::OnRenderPassBuilding(RenderPass& pass)
 	pso.m_PSState.m_constantBuffers[0] = mConstantBufferPS;
 	pso.m_PSState.m_shader = mPixelShader;
 	pso.m_PSState.m_samplers[0] = mSampler;
+	pso.m_PSState.m_shaderResources[0] = mTexture;
 }
