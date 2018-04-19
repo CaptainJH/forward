@@ -251,8 +251,24 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 		CreateSwapChain(&config);
 	}
 
-	m_textFont = new FontArialW600H36(20);
-	m_textRenderPass = new RenderPass;
+	//m_textFont = new FontArialW600H36(20);
+	m_textFont = new FontTahomaW500H24(20);
+	m_textRenderPass = new RenderPass(RenderPass::CT_Default,
+		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
+		builder << *m_textFont;
+
+		pso.m_RSState.m_rsState.frontCCW = true;
+
+		// setup render states
+		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		pso.m_OMState.m_depthStencilResource = dsPtr;
+
+		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+	},
+		[&](Renderer& render) {
+		render.DrawIndexed(m_textFont->GetIndexCount());
+	});
 
 	return true;
 }
@@ -507,7 +523,11 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		auto res = pso.m_PSState.m_shaderResources[i];
 		if (res)
 		{
-			assert(res->DeviceObject());
+			if (!res->DeviceObject())
+			{
+				auto deviceTex = forward::make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), res.get());
+				res->SetDeviceObject(deviceTex);
+			}
 			auto deviceRes = device_cast<DeviceTexture2DDX11*>(res);
 			ps->BindSRView(m_pContext.Get(), i, deviceRes->GetSRView().Get());
 		}
@@ -654,6 +674,7 @@ void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
 void Renderer2DX11::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
 {
 	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
+	DrawRenderPass(*m_textRenderPass);
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)

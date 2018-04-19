@@ -63,6 +63,7 @@ void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 void BasicGeometryFrameGraph::DrawScene()
 {
 	m_pRender2->DrawRenderPass(*m_renderPass);
+	m_pRender2->DrawScreenText("Hello FrameGraph!", 10, 50, Colors::Red);
 }
 
 bool BasicGeometryFrameGraph::Init()

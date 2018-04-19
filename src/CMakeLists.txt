@@ -72,5 +72,6 @@ remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/appli
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/windows")
 set_source_groups("${forward_COMMON_SOURCE_FILES}")
 
+add_definitions(-DNOMINMAX)
 add_library(libForward STATIC ${forward_COMMON_SOURCE_FILES})
 

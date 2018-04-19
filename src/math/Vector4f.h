@@ -20,6 +20,8 @@ namespace forward
         Vector4f( const Vector3f& vector, f32 w );
 		Vector4f( const Vector4f& Vector );
 
+		static Vector4f Zero();
+
 		// vector operations
 		void Clamp( );
 		f32 Dot( Vector4f& vector );

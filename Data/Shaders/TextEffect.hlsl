@@ -1,6 +1,6 @@
 cbuffer Translate
 {
-    float2 translate;
+    float4 translate;
 };
 struct VS_INPUT
 {

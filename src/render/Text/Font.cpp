@@ -73,7 +73,7 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 
 	mVertexShader = make_shared<FrameGraphVertexShader>("ArialVS", L"TextEffect.hlsl", L"VSMain");
 	mPixelShader = make_shared<FrameGraphPixelShader>("ArialPS", L"TextEffect.hlsl", L"PSMain");
-	mConstantBufferVS = make_shared<FrameGraphConstantBuffer<Vector2f>>("ArialCB_VS");
+	mConstantBufferVS = make_shared<FrameGraphConstantBuffer<Vector4f>>("ArialCB_VS");
 	mConstantBufferPS = make_shared<FrameGraphConstantBuffer<Vector4f>>("ArialCB_PS");
 	mSampler = make_shared<SamplerState>("ArialSamp");
 }
@@ -142,7 +142,7 @@ void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f
 	// Set effect parameters.
 	auto trnX = vdx * static_cast<f32>(x);
 	auto trnY = 1.0f - vdy * static_cast<f32>(y);
-	mConstantBufferVS->SetTypedData(Vector2f(trnX, trnY));
+	mConstantBufferVS->SetTypedData(Vector4f(trnX, trnY, 0.0f, 0.0f));
 	mConstantBufferPS->SetTypedData(color);
 }
 
@@ -163,4 +163,9 @@ void Font::OnRenderPassBuilding(RenderPass& pass)
 	pso.m_PSState.m_shader = mPixelShader;
 	pso.m_PSState.m_samplers[0] = mSampler;
 	pso.m_PSState.m_shaderResources[0] = mTexture;
+}
+
+u32 Font::GetIndexCount() const
+{
+	return mIndexBuffer->GetNumElements();
 }

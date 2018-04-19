@@ -4,6 +4,7 @@
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
 #include "render/Text/FontArialW600H36.h"
+#include "render/Text/FontTahomaW500H24.h"
 
 namespace forward
 {
