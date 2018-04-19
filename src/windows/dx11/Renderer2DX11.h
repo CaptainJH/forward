@@ -3,6 +3,7 @@
 #include "dx11Util.h"
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
+#include "render/Text/FontArialW600H36.h"
 
 namespace forward
 {
@@ -27,6 +28,8 @@ namespace forward
 		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
 
 		void SaveRenderTarget(const std::wstring& filename) override;
+
+		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
@@ -59,5 +62,8 @@ namespace forward
 
 		u32		m_width;
 		u32		m_height;
+
+		Font*	m_textFont;
+		RenderPass* m_textRenderPass;
 	};
 }

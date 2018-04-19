@@ -35,6 +35,9 @@ RendererAPI Renderer2DX11::GetRendererAPI() const
 
 void Renderer2DX11::Shutdown()
 {
+	SAFE_DELETE(m_textRenderPass);
+	SAFE_DELETE(m_textFont);
+
 	for (auto pSwapChain : m_vSwapChains) 
 	{
 		if (pSwapChain->GetSwapChain()) 
@@ -247,6 +250,9 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 		// creation.
 		CreateSwapChain(&config);
 	}
+
+	m_textFont = new FontArialW600H36(20);
+	m_textRenderPass = new RenderPass;
 
 	return true;
 }
@@ -643,6 +649,11 @@ void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
 	FileSaver outfile;
 	outfile.SaveAsBMP(filename, tempBuffer, rtPtr->GetWidth(), rtPtr->GetHeight());
 	SAFE_DELETE_ARRAY(tempBuffer);
+}
+
+void Renderer2DX11::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
+{
+	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)

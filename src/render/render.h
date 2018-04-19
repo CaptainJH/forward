@@ -4,6 +4,7 @@
 #pragma once
 #include "Types.h"
 #include "DataFormat.h"
+#include "Vector4f.h"
 #include "ResourceSystem/DeviceResource.h"
 
 
@@ -56,6 +57,8 @@ namespace forward
 		virtual void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) = 0;
 
 		virtual void SaveRenderTarget(const std::wstring& filename) = 0;
+
+		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 
 	protected:
 		Renderer();
