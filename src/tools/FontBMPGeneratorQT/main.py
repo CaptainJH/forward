@@ -58,7 +58,7 @@ def ExportCPPFile(name, width, height, image):
     fileText += "};"
     fileText += "\n"
 
-    fileText += "f32 {:s}::msCharacterData[257] =\n".format(cn)
+    fileText += "f32 {:s}::msCharacterData[{:d}] =\n".format(cn, len(gGlyphInfo))
     fileText += "{\n"
     numPerRow = 8
     numPerRowM1 = numPerRow - 1
@@ -129,13 +129,13 @@ def ExportBtn_Clicked():
     global gGlyphInfo
     font, ok = QFontDialog.getFont()
     if ok:
-        #msg = '''? !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'''
-        msg = ''
-        i = 0
-        while (i < 128):
-            ch = chr(i)
-            msg += ch
-            i += 1
+        msg = ''' !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'''
+        #msg = ''
+        #i = 0
+        #while (i < 128):
+        #    ch = chr(i)
+        #    msg += ch
+        #    i += 1
 
         print(msg)
         metric = QFontMetrics(font)
@@ -166,7 +166,7 @@ def ExportBtn_Clicked():
             #print('{:s}, {:d}'.format(c, charWidth))
 
             # Place a blank pixel at the start of each character.
-            charWidth += 1 
+            #charWidth += 1 
             end = start + charWidth
             gGlyphInfo.append(( end + 0.5) * dx)
             start += charWidth

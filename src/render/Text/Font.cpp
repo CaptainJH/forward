@@ -33,11 +33,11 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 		auto& v3 = vertices[4 * i + 3];
 
 		v0.Pos[1] = 0.0f;
-		v0.TexCoord[1] = 0.0f;
-		v1.TexCoord[1] = 1.0f;
+		v0.TexCoord[1] = 1.0f;
+		v1.TexCoord[1] = 0.0f;
 		v2.Pos[1] = 0.0f;
-		v2.TexCoord[1] = 0.0f;
-		v3.TexCoord[1] = 1.0f;
+		v2.TexCoord[1] = 1.0f;
+		v3.TexCoord[1] = 0.0f;
 	}
 
 	// Set the x coordinates on the first two vertices to zero, 
@@ -98,6 +98,7 @@ void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f
 	{
 		// Get character data.
 		auto c = static_cast<i32>(message[i]);
+		c -= 32; // starting from ASCII Space
 		auto const tx0 = mCharacterData[c];
 		auto const tx1 = mCharacterData[c + 1];
 		auto charWidthM1 = (tx1 - tx0)*tw - 1.0f;  // in pixels

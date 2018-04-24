@@ -3,8 +3,7 @@
 #include "dx11Util.h"
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
-#include "render/Text/FontArialW600H36.h"
-#include "render/Text/FontTahomaW500H24.h"
+#include "render/Text/FontSegoe_UIW50H12.h"
 
 namespace forward
 {

@@ -252,7 +252,9 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 	}
 
 	//m_textFont = new FontArialW600H36(20);
-	m_textFont = new FontTahomaW500H24(20);
+	//m_textFont = new FontTahomaW500H24(20);
+	//m_textFont = new FontMS_Shell_Dlg_2W50H8(20);
+	m_textFont = new FontSegoe_UIW50H12(20);
 	m_textRenderPass = new RenderPass(RenderPass::CT_Default,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		builder << *m_textFont;
