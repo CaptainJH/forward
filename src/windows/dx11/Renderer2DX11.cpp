@@ -267,6 +267,11 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 
 		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+
+		auto& target = pso.m_OMState.m_blendState.target[0];
+		target.enable = true;
+		target.srcColor	= BlendState::Mode::BM_SRC_ALPHA;
+		target.dstColor	= BlendState::Mode::BM_INV_SRC_ALPHA;
 	},
 		[&](Renderer& render) {
 		render.DrawIndexed(m_textFont->GetIndexCount());

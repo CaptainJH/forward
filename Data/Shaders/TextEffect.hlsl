@@ -47,10 +47,6 @@ PS_OUTPUT PSMain(PS_INPUT input)
 {
     PS_OUTPUT output;
     float bitmapAlpha = baseTexture.Sample(baseSampler, input.vertexTCoord).r;
-    if (bitmapAlpha > 0.5f)
-    {
-        discard;
-    }
-    output.pixelColor0 = textColor;
+    output.pixelColor0 = textColor * (1.0f - bitmapAlpha);
     return output;
 };
