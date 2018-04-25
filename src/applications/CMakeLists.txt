@@ -17,6 +17,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_subdirectory(OffScreenRenderingDemo)
 	#------Dlls-----------------------
 	add_subdirectory(forwardDX11_Dll)
+	add_subdirectory(HelloPyQT)
 endif()
 
 add_subdirectory(CmdApp)

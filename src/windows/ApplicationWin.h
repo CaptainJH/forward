@@ -39,10 +39,18 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
+	enum ApplicationType
+	{
+		AT_Default,
+		AT_OffScreen,
+		AT_Dll
+	};
+
 	class ApplicationWin
 	{
 	public:
 		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
+		ApplicationWin(HWND hwnd, i32 width, i32 height);  // called by PyQT5
 		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
 		virtual ~ApplicationWin();
 
@@ -85,6 +93,7 @@ namespace forward
 		void CalculateFrameStats();
 
 		bool IsOffScreenRendering() const;
+		bool IsDll() const;
 
 	protected:
 
@@ -109,7 +118,7 @@ namespace forward
 		i32 mClientWidth;
 		i32 mClientHeight;
 		bool mEnable4xMsaa;
-		bool mOffScreenRendering;
+		ApplicationType mAppType;
 
 		RendererType RenderType = RendererType::Renderer_Hieroglyph;
 	};

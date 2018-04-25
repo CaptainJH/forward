@@ -43,7 +43,7 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	mMaximized(false),
 	mResizing(false),
 	m4xMsaaQuality(0),
-	mOffScreenRendering(false)
+	mAppType(AT_Default)
 #ifdef USE_LEGACY_RENDERER
 	, m_pRender(nullptr)
 #endif
@@ -66,13 +66,29 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	, mMaximized(false)
 	, mResizing(false)
 	, m4xMsaaQuality(0)
-	, mOffScreenRendering(true)
-#ifdef USE_LEGACY_RENDERER
-	, m_pRender(nullptr)
-#endif
+	, mAppType(AT_OffScreen)
 	, m_pRender2(nullptr)
 {
 	gApplication = this;
+	RenderType = RendererType::Renderer_Forward_DX11;
+}
+
+ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
+	: mMainWndCaption(L"D3D11 Application")
+	, mClientWidth(width)
+	, mClientHeight(height)
+	, mEnable4xMsaa(false)
+	, mhMainWnd(hwnd)
+	, mAppPaused(false)
+	, mMinimized(false)
+	, mMaximized(false)
+	, mResizing(false)
+	, m4xMsaaQuality(0)
+	, mAppType(AT_Dll)
+	, m_pRender2(nullptr)
+{
+	gApplication = this;
+	RenderType = RendererType::Renderer_Forward_DX11;
 }
 
 ApplicationWin::~ApplicationWin()
@@ -114,6 +130,14 @@ i32 ApplicationWin::Run()
 		std::cout << outs.str() << std::endl;
 		return 0;
 	}
+	else if (IsDll())
+	{
+		mTimer.Tick();
+		CalculateFrameStats();
+		UpdateScene(mTimer.Elapsed());
+		DrawScene();
+		return 0;
+	}
 
 	MSG msg = { 0 };
 
@@ -148,7 +172,7 @@ i32 ApplicationWin::Run()
 
 bool ApplicationWin::Init()
 {
-	if (!IsOffScreenRendering())
+	if (!IsOffScreenRendering() && !IsDll())
 	{
 		if (!InitMainWindow())
 			return false;
@@ -421,5 +445,10 @@ void ApplicationWin::RequestTermination()
 
 bool ApplicationWin::IsOffScreenRendering() const
 {
-	return mOffScreenRendering;
+	return mAppType == AT_OffScreen;
+}
+
+bool ApplicationWin::IsDll() const
+{
+	return mAppType == AT_Dll;
 }

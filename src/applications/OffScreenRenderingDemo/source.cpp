@@ -12,7 +12,6 @@ public:
 		: Application(width, height)
 	{
 		mMainWndCaption = L"OffScreenRenderingDemo";
-		RenderType = RendererType::Renderer_Forward_DX11;
 	}
 
 	~OffScreenRenderingDemo()
