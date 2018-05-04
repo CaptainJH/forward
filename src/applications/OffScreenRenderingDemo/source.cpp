@@ -65,7 +65,7 @@ bool OffScreenRenderingDemo::Init()
 	if (!Application::Init())
 		return false;
 
-	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default,
+	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("OffScreenRenderingDemoVS", L"BasicShader.hlsl", L"VSMainQuad");

@@ -72,7 +72,7 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default, 
+	m_renderPass = std::make_unique<RenderPass>(
 	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 
 		// Build the view matrix.

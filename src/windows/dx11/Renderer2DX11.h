@@ -41,6 +41,7 @@ namespace forward
 		bool InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel);
 		i32 CreateSwapChain(SwapChainConfig* pConfig);
 		void Present();
+		void CompileCurrentFrameGraph();
 
 	private:
 		// The main API interfaces used in the renderer.

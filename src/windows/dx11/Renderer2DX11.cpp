@@ -255,7 +255,7 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 	//m_textFont = new FontTahomaW500H24(20);
 	//m_textFont = new FontMS_Shell_Dlg_2W50H8(20);
 	m_textFont = new FontSegoe_UIW50H12(20);
-	m_textRenderPass = new RenderPass(RenderPass::CT_Default,
+	m_textRenderPass = new RenderPass(RenderPass::OF_DEFAULT,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		builder << *m_textFont;
 
@@ -606,11 +606,15 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	}
 	m_pContext->OMSetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, rtvs, dsv);
 
-	if (pass.GetCleanType() == RenderPass::CleanType::CT_Default)
+	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 	{
 		auto color = Colors::LightSteelBlue;
 		f32 clearColours[] = { color.x, color.y, color.z, color.w }; // RGBA
 		m_pContext->ClearRenderTargetView(rtvs[0], clearColours);
+	}
+
+	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
+	{
 		m_pContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0U);
 	}
 
@@ -697,11 +701,11 @@ void Renderer2DX11::BeginDrawFrameGraph(FrameGraph* fg)
 
 void Renderer2DX11::EndDrawFrameGraph()
 {
-	m_currentFrameGraph->Compile();
+	CompileCurrentFrameGraph();
 	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
-	for (auto* renderPass : renderPassDB)
+	for (auto renderPass : renderPassDB)
 	{
-		DrawRenderPass(*renderPass);
+		DrawRenderPass(*renderPass.m_renderPass);
 	}
 
 	if (m_vSwapChains.empty())
@@ -714,4 +718,9 @@ void Renderer2DX11::EndDrawFrameGraph()
 	}
 
 	m_currentFrameGraph = nullptr;
+}
+
+void Renderer2DX11::CompileCurrentFrameGraph()
+{
+
 }

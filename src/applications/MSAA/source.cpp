@@ -95,7 +95,7 @@ bool MSAA_Demo::Init()
 
 	const std::wstring ShaderFile = L"MSAA_Shader.hlsl";
 
-	m_renderPass = std::make_unique<RenderPass>(RenderPass::CT_Default,
+	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("Pass1VS", ShaderFile, L"VSMain");
@@ -130,7 +130,7 @@ bool MSAA_Demo::Init()
 		(*m_constantBuffer).GetTypedData()->distance = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 	});
 
-	m_renderPassMSAA = std::make_unique<RenderPass>(RenderPass::CT_Default,
+	m_renderPassMSAA = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = FrameGraphObject::FindFrameGraphObject<FrameGraphVertexShader>("Pass1VS");
@@ -158,7 +158,7 @@ bool MSAA_Demo::Init()
 	});
 	m_renderPass->AttachRenderPass(m_renderPassMSAA.get());
 
-	m_renderPassResolve = std::make_unique<RenderPass>(RenderPass::CT_Nothing,
+	m_renderPassResolve = std::make_unique<RenderPass>(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("Pass3VS", ShaderFile, L"VSMainQuad");

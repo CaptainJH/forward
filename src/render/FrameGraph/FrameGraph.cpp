@@ -8,19 +8,17 @@ using namespace forward;
 void FrameGraph::Reset()
 {
 	m_passDB.clear();
+	m_allUsedResources.clear();
 }
 
 void FrameGraph::DrawRenderPass(RenderPass* pass)
 {
-	m_passDB.push_back(pass);
+	RenderPassInfo info;
+	info.m_renderPass = pass;
+	m_passDB.push_back(info);
 }
 
-void FrameGraph::Compile()
-{
-
-}
-
-std::vector<RenderPass*>& FrameGraph::GetRenderPassDB()
+std::vector<RenderPassInfo>& FrameGraph::GetRenderPassDB()
 {
 	return m_passDB;
 }

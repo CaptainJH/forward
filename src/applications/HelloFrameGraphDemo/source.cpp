@@ -69,7 +69,7 @@ bool HelloFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_renderPass = new RenderPass(RenderPass::CT_Default, 
+	m_renderPass = new RenderPass(
 	[](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");

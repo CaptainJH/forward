@@ -12,8 +12,17 @@ PipelineStateObject& RenderPass::GetPSO()
 	return m_pso;
 }
 
-RenderPass::RenderPass(CleanType cleanType, SetupFuncType setup, ExecuteFuncType execute)
-	: m_cleanType(cleanType)
+RenderPass::RenderPass(OperationFlags flags, SetupFuncType setup, ExecuteFuncType execute)
+	: m_opFlags(flags)
+	, m_setupCallback(setup)
+	, m_executeCallback(execute)
+{
+	RenderPassBuilder builder(this);
+	m_setupCallback(builder, GetPSO());
+}
+
+RenderPass::RenderPass(SetupFuncType setup, ExecuteFuncType execute)
+	: m_opFlags(RenderPass::OF_DEFAULT)
 	, m_setupCallback(setup)
 	, m_executeCallback(execute)
 {
@@ -22,7 +31,7 @@ RenderPass::RenderPass(CleanType cleanType, SetupFuncType setup, ExecuteFuncType
 }
 
 RenderPass::RenderPass()
-	: m_cleanType(RenderPass::CT_Default)
+	: m_opFlags(RenderPass::OF_DEFAULT)
 	, m_setupCallback(nullptr)
 	, m_executeCallback(nullptr)
 {}
@@ -32,9 +41,9 @@ RenderPass::~RenderPass()
 
 }
 
-RenderPass::CleanType RenderPass::GetCleanType() const
+RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const
 {
-	return m_cleanType;
+	return m_opFlags;
 }
 
 void RenderPass::Execute(Renderer& render)

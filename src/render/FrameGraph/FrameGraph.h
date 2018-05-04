@@ -1,5 +1,5 @@
 //***************************************************************************************
-// FrameGraph.h by Heqi Ju (C) 2017 All Rights Reserved.
+// FrameGraph.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
@@ -9,10 +9,23 @@
 
 namespace forward
 {
+	struct RenderPassInfo;
+
+	struct FrameGraphResourceInfo
+	{
+		FrameGraphResource*	m_resource;
+
+		RenderPassInfo* m_firstUse;
+		RenderPassInfo* m_lastUse;
+		std::vector<RenderPassInfo*> m_updateHistory;
+	};
+
 	struct RenderPassInfo
 	{
 		RenderPass* m_renderPass = nullptr;
-		bool m_enabled = true;
+
+		std::vector<FrameGraphResourceInfo*> m_inputResources;
+		std::vector<FrameGraphResourceInfo*> m_outputResources;
 	};
 
 	class FrameGraph
@@ -20,11 +33,12 @@ namespace forward
 	public:
 
 		void Reset();
-		void Compile();
 		void DrawRenderPass(RenderPass* pass);
-		std::vector<RenderPass*>& GetRenderPassDB();
+		std::vector<RenderPassInfo>& GetRenderPassDB();
 
 	private:
-		std::vector<RenderPass*> m_passDB;
+		std::vector<RenderPassInfo> m_passDB;
+
+		std::vector<FrameGraphResourceInfo> m_allUsedResources;
 	};
 }
