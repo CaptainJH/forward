@@ -217,6 +217,8 @@ namespace forward
 		void ResolveResource(FrameGraphTexture2D*, FrameGraphTexture2D*) override {}
 		void SaveRenderTarget(const std::wstring&) override {}
 		void DrawScreenText(const std::string&, i32, i32, const Vector4f&) override {}
+		void BeginDrawFrameGraph(FrameGraph*) override {}
+		void EndDrawFrameGraph() override {}
 
 	protected:
 

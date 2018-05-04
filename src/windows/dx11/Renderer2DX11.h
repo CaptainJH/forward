@@ -31,6 +31,9 @@ namespace forward
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 
+		void BeginDrawFrameGraph(FrameGraph* fg) override;
+		void EndDrawFrameGraph() override;
+
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 
@@ -65,5 +68,6 @@ namespace forward
 
 		Font*	m_textFont;
 		RenderPass* m_textRenderPass;
+		FrameGraph* m_currentFrameGraph;
 	};
 }

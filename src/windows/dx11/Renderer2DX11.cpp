@@ -17,7 +17,7 @@
 #include "dx11/DrawingStates/DeviceSamplerStateDX11.h"
 #include "render/ResourceSystem/FrameGraphResource.h"
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
-#include "render/FrameGraph/RenderPass.h"
+#include "render/FrameGraph/FrameGraph.h"
 #include "utilities/Utils.h"
 #include "utilities/FileSaver.h"
 
@@ -276,6 +276,8 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 		[&](Renderer& render) {
 		render.DrawIndexed(m_textFont->GetIndexCount());
 	});
+
+	m_currentFrameGraph = nullptr;
 
 	return true;
 }
@@ -619,14 +621,6 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	{
 		DrawRenderPass(*pass.GetNextRenderPass());
 	}
-	else if (m_vSwapChains.empty())
-	{
-		m_pContext->Flush();
-	}
-	else
-	{
-		m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
-	}
 }
 
 void Renderer2DX11::Draw(u32 vertexNum, u32 startVertexLocation)
@@ -691,4 +685,33 @@ void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)
 void Renderer2DX11::OnResize(u32 /*width*/, u32 /*height*/)
 {
 
+}
+
+void Renderer2DX11::BeginDrawFrameGraph(FrameGraph* fg)
+{
+	assert(m_currentFrameGraph == nullptr);
+	m_currentFrameGraph = fg;
+
+	m_currentFrameGraph->Reset();
+}
+
+void Renderer2DX11::EndDrawFrameGraph()
+{
+	m_currentFrameGraph->Compile();
+	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
+	for (auto* renderPass : renderPassDB)
+	{
+		DrawRenderPass(*renderPass);
+	}
+
+	if (m_vSwapChains.empty())
+	{
+		m_pContext->Flush();
+	}
+	else
+	{
+		m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+	}
+
+	m_currentFrameGraph = nullptr;
 }
