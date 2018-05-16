@@ -15,9 +15,8 @@ namespace forward
 	{
 		FrameGraphResource*	m_resource;
 
-		RenderPassInfo* m_firstUse;
-		RenderPassInfo* m_lastUse;
-		std::vector<RenderPassInfo*> m_updateHistory;
+		std::vector<RenderPassInfo*> m_readerPassList;
+		std::vector<RenderPassInfo*> m_writerPassList;
 	};
 
 	struct RenderPassInfo
