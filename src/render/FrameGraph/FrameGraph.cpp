@@ -16,6 +16,17 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 	RenderPassInfo info;
 	info.m_renderPass = pass;
 	m_passDB.push_back(info);
+
+	auto& pso = pass->GetPSO();
+	info.m_vertexFormat = &pso.m_IAState.m_vertexLayout;
+
+	for (auto& vb : pso.m_IAState.m_vertexBuffers)
+	{
+		if (vb)
+		{
+			//info.m_inputResources.push_back(vb.get());
+		}
+	}
 }
 
 std::vector<RenderPassInfo>& FrameGraph::GetRenderPassDB()
