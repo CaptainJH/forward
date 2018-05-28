@@ -138,6 +138,18 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 	auto ds_ptr = &pso.m_OMState.m_dsState;
 	registerDrawingState(ds_ptr, pass);
 
+	auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
+	registerWriteFrameGraphResource(dsRes_ptr, pass);
+
+	for (auto rt : pso.m_OMState.m_renderTargetResources)
+	{
+		if (rt)
+		{
+			auto rt_ptr = rt.get();
+			registerWriteFrameGraphResource(rt_ptr, pass);
+		}
+	}
+
 }
 
 std::vector<RenderPassInfo>& FrameGraph::GetRenderPassDB()
@@ -530,6 +542,30 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	if (it_ds == m_allUsedDrawingStates.end())
 	{
 		m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(ds_ptr));
+	}
+
+	auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
+	auto it_DSRes = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [dsRes_ptr](FrameGraphResourceInfo& info)->bool {
+		return info.m_object == dsRes_ptr;
+	});
+	if (it_DSRes == m_allUsedResources.end())
+	{
+		m_allUsedResources.push_back(FrameGraphResourceInfo(dsRes_ptr));
+	}
+
+	for (auto rt : pso.m_OMState.m_renderTargetResources)
+	{
+		if (rt)
+		{
+			auto rt_ptr = rt.get();
+			auto it_rt = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [rt_ptr](FrameGraphResourceInfo& info)->bool {
+				return info.m_object == rt_ptr;
+			});
+			if (it_rt == m_allUsedResources.end())
+			{
+				m_allUsedResources.push_back(FrameGraphResourceInfo(rt_ptr));
+			}
+		}
 	}
 }
 
