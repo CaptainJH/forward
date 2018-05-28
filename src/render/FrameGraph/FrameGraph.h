@@ -19,6 +19,8 @@ namespace forward
 		FrameGraphShader*		GetFrameGraphShader();
 		VertexFormat*			GetVertexFormat();
 
+		FrameGraphObjectInfo(FrameGraphObject* obj);
+
 		std::vector<RenderPassInfo*> m_readerPassList;
 	};
 
@@ -26,19 +28,23 @@ namespace forward
 	{
 		FrameGraphResource*	GetFrameGraphResource();
 
+		FrameGraphResourceInfo(FrameGraphResource* res);
+
 		std::vector<RenderPassInfo*> m_writerPassList;
 	};
 
 	struct RenderPassInfo
 	{
+		RenderPassInfo(RenderPass* pass);
+
 		RenderPass* m_renderPass = nullptr;
 
-		std::vector<FrameGraphResourceInfo*> m_inputResources;
-		std::vector<FrameGraphResourceInfo*> m_outputResources;
+		std::vector<FrameGraphResourceInfo*>	m_inputResources;
+		std::vector<FrameGraphResourceInfo*>	m_outputResources;
 
-		std::vector<FrameGraphDrawingState*>	m_drawingStates;
-		std::vector<FrameGraphShader*>			m_shaders;
-		VertexFormat*							m_vertexFormat;
+		std::vector<FrameGraphObjectInfo*>		m_drawingStates;
+		std::vector<FrameGraphObjectInfo*>		m_shaders;
+		FrameGraphObjectInfo*					m_vertexFormat;
 	};
 
 	class FrameGraph
@@ -53,10 +59,15 @@ namespace forward
 		std::vector<RenderPassInfo> m_passDB;
 
 		std::vector<FrameGraphResourceInfo> m_allUsedResources;
-		std::vector<FrameGraphObjectInfo*> m_allUsedDrawingStates;
-		std::vector<FrameGraphObjectInfo*> m_allUsedVertexFormats;
-		std::vector<FrameGraphObjectInfo*> m_allUsedShaders;
+		std::vector<FrameGraphObjectInfo>	m_allUsedDrawingStates;
+		std::vector<FrameGraphObjectInfo>	m_allUsedVertexFormats;
+		std::vector<FrameGraphObjectInfo>	m_allUsedShaders;
 
-		void registerFrameGraphResource(FrameGraphResource* res);
+		FrameGraphResourceInfo* registerReadFrameGraphResource(FrameGraphResource* res, RenderPass* pass);
+		FrameGraphResourceInfo* registerWriteFrameGraphResource(FrameGraphResource* res, RenderPass* pass);
+		FrameGraphObjectInfo* registerDrawingState(FrameGraphDrawingState* state, RenderPass* pass);
+		FrameGraphObjectInfo* registerVertexFormat(VertexFormat* vformat, RenderPass* pass);
+		FrameGraphObjectInfo* registerShader(FrameGraphShader* shader, RenderPass* pass);
+		void registerRenderPass(RenderPass* pass);
 	};
 }
