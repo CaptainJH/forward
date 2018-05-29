@@ -56,7 +56,10 @@ void OffScreenRenderingDemo::UpdateScene(f32 /*dt*/)
 
 void OffScreenRenderingDemo::DrawScene()
 {
-	m_pRender2->DrawRenderPass(*m_renderPass);
+	FrameGraph fg;
+	m_pRender2->BeginDrawFrameGraph(&fg);
+	fg.DrawRenderPass(m_renderPass.get());
+	m_pRender2->EndDrawFrameGraph();
 }
 
 bool OffScreenRenderingDemo::Init()

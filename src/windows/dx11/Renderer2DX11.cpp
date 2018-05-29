@@ -704,6 +704,7 @@ void Renderer2DX11::BeginDrawFrameGraph(FrameGraph* fg)
 
 void Renderer2DX11::EndDrawFrameGraph()
 {
+	m_currentFrameGraph->LinkInfo();
 	CompileCurrentFrameGraph();
 	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
 	for (auto renderPass : renderPassDB)

@@ -54,6 +54,7 @@ namespace forward
 		void Reset();
 		void DrawRenderPass(RenderPass* pass);
 		std::vector<RenderPassInfo>& GetRenderPassDB();
+		void LinkInfo();
 
 	private:
 		std::vector<RenderPassInfo> m_passDB;
