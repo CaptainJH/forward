@@ -60,7 +60,10 @@ void HelloFrameGraph::UpdateScene(f32 /*dt*/)
 
 void HelloFrameGraph::DrawScene()
 {
-	m_pRender2->DrawRenderPass(*m_renderPass);
+	FrameGraph fg;
+	m_pRender2->BeginDrawFrameGraph(&fg);
+	fg.DrawRenderPass(m_renderPass);
+	m_pRender2->EndDrawFrameGraph();
 }
 
 bool HelloFrameGraph::Init()

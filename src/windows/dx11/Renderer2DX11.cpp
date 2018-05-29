@@ -255,7 +255,7 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 	//m_textFont = new FontTahomaW500H24(20);
 	//m_textFont = new FontMS_Shell_Dlg_2W50H8(20);
 	m_textFont = new FontSegoe_UIW50H12(20);
-	m_textRenderPass = new RenderPass(RenderPass::OF_DEFAULT,
+	m_textRenderPass = new RenderPass(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		builder << *m_textFont;
 
@@ -679,7 +679,10 @@ void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
 void Renderer2DX11::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
 {
 	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
-	DrawRenderPass(*m_textRenderPass);
+	if (m_currentFrameGraph)
+	{
+		m_currentFrameGraph->DrawRenderPass(m_textRenderPass);
+	}
 }
 
 void Renderer2DX11::DeleteResource(ResourcePtr /*ptr*/)

@@ -75,8 +75,13 @@ void MSAA_Demo::UpdateScene(f32 /*dt*/)
 
 void MSAA_Demo::DrawScene()
 {
+	FrameGraph fg;
+	m_pRender2->BeginDrawFrameGraph(&fg);
 	(*m_constantBuffer).GetTypedData()->distance = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
-	m_pRender2->DrawRenderPass(*m_renderPass);
+	fg.DrawRenderPass(m_renderPass.get());
+	fg.DrawRenderPass(m_renderPassMSAA.get());
+	fg.DrawRenderPass(m_renderPassResolve.get());
+	m_pRender2->EndDrawFrameGraph();
 }
 
 bool MSAA_Demo::Init()
@@ -156,7 +161,7 @@ bool MSAA_Demo::Init()
 		render.DrawIndexed(m_geometry->GetIndexCount());
 		render.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
 	});
-	m_renderPass->AttachRenderPass(m_renderPassMSAA.get());
+	//m_renderPass->AttachRenderPass(m_renderPassMSAA.get());
 
 	m_renderPassResolve = std::make_unique<RenderPass>(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
@@ -184,7 +189,7 @@ bool MSAA_Demo::Init()
 		[&](Renderer& render) {
 		render.Draw(m_quad->GetVertexCount());
 	});
-	m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());
+	//m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());
 
 
 	return true;

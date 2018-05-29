@@ -26,37 +26,43 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 		}
 	}
 
-	registerReadFrameGraphResource(pso.m_IAState.m_indexBuffer.get(), pass);
+	if (pso.m_IAState.m_indexBuffer)
+	{
+		registerReadFrameGraphResource(pso.m_IAState.m_indexBuffer.get(), pass);
+	}
 
 	// vertex shader
 	{
 		auto vs_ptr = pso.m_VSState.m_shader.get();
-		registerShader(vs_ptr, pass);
-
-		for (auto& cb : pso.m_VSState.m_constantBuffers)
+		if (vs_ptr)
 		{
-			if (cb)
+			registerShader(vs_ptr, pass);
+
+			for (auto& cb : pso.m_VSState.m_constantBuffers)
 			{
-				auto cbuffer_ptr = cb.get();
-				registerReadFrameGraphResource(cbuffer_ptr, pass);
+				if (cb)
+				{
+					auto cbuffer_ptr = cb.get();
+					registerReadFrameGraphResource(cbuffer_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& samp : pso.m_VSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_VSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				registerDrawingState(samp_ptr, pass);
+				if (samp)
+				{
+					auto samp_ptr = samp.get();
+					registerDrawingState(samp_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_VSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_VSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				registerReadFrameGraphResource(shaderRes_ptr, pass);
+				if (shaderRes)
+				{
+					auto shaderRes_ptr = shaderRes.get();
+					registerReadFrameGraphResource(shaderRes_ptr, pass);
+				}
 			}
 		}
 	}
@@ -64,32 +70,35 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 	// geometry shader
 	{
 		auto gs_ptr = pso.m_GSState.m_shader.get();
-		registerShader(gs_ptr, pass);
-
-		for (auto& cb : pso.m_GSState.m_constantBuffers)
+		if (gs_ptr)
 		{
-			if (cb)
+			registerShader(gs_ptr, pass);
+
+			for (auto& cb : pso.m_GSState.m_constantBuffers)
 			{
-				auto cbuffer_ptr = cb.get();
-				registerReadFrameGraphResource(cbuffer_ptr, pass);
+				if (cb)
+				{
+					auto cbuffer_ptr = cb.get();
+					registerReadFrameGraphResource(cbuffer_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& samp : pso.m_GSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_GSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				registerDrawingState(samp_ptr, pass);
+				if (samp)
+				{
+					auto samp_ptr = samp.get();
+					registerDrawingState(samp_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_GSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_GSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				registerReadFrameGraphResource(shaderRes_ptr, pass);
+				if (shaderRes)
+				{
+					auto shaderRes_ptr = shaderRes.get();
+					registerReadFrameGraphResource(shaderRes_ptr, pass);
+				}
 			}
 		}
 	}
@@ -101,32 +110,35 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 	// pixel shader
 	{
 		auto ps_ptr = pso.m_PSState.m_shader.get();
-		registerShader(ps_ptr, pass);
-
-		for (auto& cb : pso.m_PSState.m_constantBuffers)
+		if (ps_ptr)
 		{
-			if (cb)
+			registerShader(ps_ptr, pass);
+
+			for (auto& cb : pso.m_PSState.m_constantBuffers)
 			{
-				auto cbuffer_ptr = cb.get();
-				registerReadFrameGraphResource(cbuffer_ptr, pass);
+				if (cb)
+				{
+					auto cbuffer_ptr = cb.get();
+					registerReadFrameGraphResource(cbuffer_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& samp : pso.m_PSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_PSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				registerDrawingState(samp_ptr, pass);
+				if (samp)
+				{
+					auto samp_ptr = samp.get();
+					registerDrawingState(samp_ptr, pass);
+				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_PSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_PSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				registerReadFrameGraphResource(shaderRes_ptr, pass);
+				if (shaderRes)
+				{
+					auto shaderRes_ptr = shaderRes.get();
+					registerReadFrameGraphResource(shaderRes_ptr, pass);
+				}
 			}
 		}
 	}
@@ -139,7 +151,10 @@ void FrameGraph::DrawRenderPass(RenderPass* pass)
 	registerDrawingState(ds_ptr, pass);
 
 	auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
-	registerWriteFrameGraphResource(dsRes_ptr, pass);
+	if (dsRes_ptr)
+	{
+		registerWriteFrameGraphResource(dsRes_ptr, pass);
+	}
 
 	for (auto rt : pso.m_OMState.m_renderTargetResources)
 	{
@@ -335,66 +350,72 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 
 	// index buffer
 	auto ibuffer_ptr = pso.m_IAState.m_indexBuffer.get();
-	auto it_ibuffer = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [ibuffer_ptr](FrameGraphResourceInfo& info)->bool {
-		return info.m_object == ibuffer_ptr;
-	});
-	if (it_ibuffer == m_allUsedResources.end())
+	if (ibuffer_ptr)
 	{
-		m_allUsedResources.push_back(FrameGraphResourceInfo(ibuffer_ptr));
+		auto it_ibuffer = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [ibuffer_ptr](FrameGraphResourceInfo& info)->bool {
+			return info.m_object == ibuffer_ptr;
+		});
+		if (it_ibuffer == m_allUsedResources.end())
+		{
+			m_allUsedResources.push_back(FrameGraphResourceInfo(ibuffer_ptr));
+		}
 	}
 
 	// vertex shader
 	{
 		auto vs_ptr = pso.m_VSState.m_shader.get();
-		auto it_vshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [vs_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == vs_ptr;
-		});
-		if (it_vshader == m_allUsedShaders.end())
+		if (vs_ptr)
 		{
-			m_allUsedShaders.push_back(FrameGraphObjectInfo(vs_ptr));
-		}
-
-		for (auto& cb : pso.m_VSState.m_constantBuffers)
-		{
-			if (cb)
+			auto it_vshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [vs_ptr](FrameGraphObjectInfo& info)->bool {
+				return info.m_object == vs_ptr;
+			});
+			if (it_vshader == m_allUsedShaders.end())
 			{
-				auto cbuffer_ptr = cb.get();
-				auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == cbuffer_ptr;
-				});
-				if (cbuffer_it == m_allUsedResources.end())
+				m_allUsedShaders.push_back(FrameGraphObjectInfo(vs_ptr));
+			}
+
+			for (auto& cb : pso.m_VSState.m_constantBuffers)
+			{
+				if (cb)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					auto cbuffer_ptr = cb.get();
+					auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == cbuffer_ptr;
+					});
+					if (cbuffer_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& samp : pso.m_VSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_VSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-					return info.m_object == samp_ptr;
-				});
-				if (samp_it == m_allUsedDrawingStates.end())
+				if (samp)
 				{
-					m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					auto samp_ptr = samp.get();
+					auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+						return info.m_object == samp_ptr;
+					});
+					if (samp_it == m_allUsedDrawingStates.end())
+					{
+						m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_VSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_VSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == shaderRes_ptr;
-				});
-				if (shaderRes_it == m_allUsedResources.end())
+				if (shaderRes)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					auto shaderRes_ptr = shaderRes.get();
+					auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == shaderRes_ptr;
+					});
+					if (shaderRes_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					}
 				}
 			}
 		}
@@ -403,55 +424,58 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	// geometry shader
 	{
 		auto gs_ptr = pso.m_GSState.m_shader.get();
-		auto it_gshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [gs_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == gs_ptr;
-		});
-		if (it_gshader == m_allUsedShaders.end())
+		if (gs_ptr)
 		{
-			m_allUsedShaders.push_back(FrameGraphObjectInfo(gs_ptr));
-		}
-
-		for (auto& cb : pso.m_GSState.m_constantBuffers)
-		{
-			if (cb)
+			auto it_gshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [gs_ptr](FrameGraphObjectInfo& info)->bool {
+				return info.m_object == gs_ptr;
+			});
+			if (it_gshader == m_allUsedShaders.end())
 			{
-				auto cbuffer_ptr = cb.get();
-				auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == cbuffer_ptr;
-				});
-				if (cbuffer_it == m_allUsedResources.end())
+				m_allUsedShaders.push_back(FrameGraphObjectInfo(gs_ptr));
+			}
+
+			for (auto& cb : pso.m_GSState.m_constantBuffers)
+			{
+				if (cb)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					auto cbuffer_ptr = cb.get();
+					auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == cbuffer_ptr;
+					});
+					if (cbuffer_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& samp : pso.m_GSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_GSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-					return info.m_object == samp_ptr;
-				});
-				if (samp_it == m_allUsedDrawingStates.end())
+				if (samp)
 				{
-					m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					auto samp_ptr = samp.get();
+					auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+						return info.m_object == samp_ptr;
+					});
+					if (samp_it == m_allUsedDrawingStates.end())
+					{
+						m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_GSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_GSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == shaderRes_ptr;
-				});
-				if (shaderRes_it == m_allUsedResources.end())
+				if (shaderRes)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					auto shaderRes_ptr = shaderRes.get();
+					auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == shaderRes_ptr;
+					});
+					if (shaderRes_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					}
 				}
 			}
 		}
@@ -471,55 +495,58 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	// pixel shader
 	{
 		auto ps_ptr = pso.m_PSState.m_shader.get();
-		auto it_pshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [ps_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == ps_ptr;
-		});
-		if (it_pshader == m_allUsedShaders.end())
+		if (ps_ptr)
 		{
-			m_allUsedShaders.push_back(FrameGraphObjectInfo(ps_ptr));
-		}
-
-		for (auto& cb : pso.m_PSState.m_constantBuffers)
-		{
-			if (cb)
+			auto it_pshader = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [ps_ptr](FrameGraphObjectInfo& info)->bool {
+				return info.m_object == ps_ptr;
+			});
+			if (it_pshader == m_allUsedShaders.end())
 			{
-				auto cbuffer_ptr = cb.get();
-				auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == cbuffer_ptr;
-				});
-				if (cbuffer_it == m_allUsedResources.end())
+				m_allUsedShaders.push_back(FrameGraphObjectInfo(ps_ptr));
+			}
+
+			for (auto& cb : pso.m_PSState.m_constantBuffers)
+			{
+				if (cb)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					auto cbuffer_ptr = cb.get();
+					auto cbuffer_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [cbuffer_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == cbuffer_ptr;
+					});
+					if (cbuffer_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(cbuffer_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& samp : pso.m_PSState.m_samplers)
-		{
-			if (samp)
+			for (auto& samp : pso.m_PSState.m_samplers)
 			{
-				auto samp_ptr = samp.get();
-				auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-					return info.m_object == samp_ptr;
-				});
-				if (samp_it == m_allUsedDrawingStates.end())
+				if (samp)
 				{
-					m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					auto samp_ptr = samp.get();
+					auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+						return info.m_object == samp_ptr;
+					});
+					if (samp_it == m_allUsedDrawingStates.end())
+					{
+						m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+					}
 				}
 			}
-		}
 
-		for (auto& shaderRes : pso.m_PSState.m_shaderResources)
-		{
-			if (shaderRes)
+			for (auto& shaderRes : pso.m_PSState.m_shaderResources)
 			{
-				auto shaderRes_ptr = shaderRes.get();
-				auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == shaderRes_ptr;
-				});
-				if (shaderRes_it == m_allUsedResources.end())
+				if (shaderRes)
 				{
-					m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					auto shaderRes_ptr = shaderRes.get();
+					auto shaderRes_it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [shaderRes_ptr](FrameGraphResourceInfo& info)->bool {
+						return info.m_object == shaderRes_ptr;
+					});
+					if (shaderRes_it == m_allUsedResources.end())
+					{
+						m_allUsedResources.push_back(FrameGraphResourceInfo(shaderRes_ptr));
+					}
 				}
 			}
 		}
@@ -585,4 +612,24 @@ FrameGraphResourceInfo::FrameGraphResourceInfo(FrameGraphResource* res)
 	: FrameGraphObjectInfo(res)
 {
 
+}
+
+FrameGraphResource* FrameGraphResourceInfo::GetFrameGraphResource()
+{
+	return dynamic_cast<FrameGraphResource*>(m_object);
+}
+
+FrameGraphDrawingState* FrameGraphObjectInfo::GetFrameGraphDrawingState()
+{
+	return dynamic_cast<FrameGraphDrawingState*>(m_object);
+}
+
+FrameGraphShader* FrameGraphObjectInfo::GetFrameGraphShader()
+{
+	return dynamic_cast<FrameGraphShader*>(m_object);
+}
+
+VertexFormat* FrameGraphObjectInfo::GetVertexFormat()
+{
+	return dynamic_cast<VertexFormat*>(m_object);
 }

@@ -167,7 +167,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	
 	// Create the texture.
 	Texture2DComPtr dxTexture;
-	if (tex->GetData())
+	if (tex->GetData() && desc.SampleDesc.Count == 1)
 	{
 		/// TODO: NO mipmap support
 		D3D11_SUBRESOURCE_DATA data;
@@ -178,6 +178,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	}
 	else
 	{
+		// multi-sampled texture can only go this branch
 		HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
 	}
 
