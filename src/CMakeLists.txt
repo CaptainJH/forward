@@ -34,8 +34,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(RenderAPILibs "d3d11.lib d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
     set(OtherLibs "Dbghelp.lib")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
+    set(ParallelBuild "/MP")
     add_definitions(-DUNICODE -D_UNICODE)
     MESSAGE( STATUS "MSVC")
+
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${ParallelBuild}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ParallelBuild}")
 
     link_directories("../libs/assimp/Win64")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
