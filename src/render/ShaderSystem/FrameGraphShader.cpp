@@ -102,6 +102,12 @@ FrameGraphGeometryShader::FrameGraphGeometryShader(const std::string& name, cons
 	m_type = FGOT_GEOMETRY_SHADER;
 }
 
+FrameGraphComputeShader::FrameGraphComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+	: FrameGraphShader(name, shaderFile, entryFunction)
+{
+	m_type = FGOT_COMPUTE_SHADER;
+}
+
 const std::string& FrameGraphShader::GetShaderText() const
 {
 	return m_shader;

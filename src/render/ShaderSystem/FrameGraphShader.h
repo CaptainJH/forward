@@ -79,4 +79,10 @@ namespace forward
 		FrameGraphGeometryShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 	};
 
+	class FrameGraphComputeShader : public FrameGraphShader
+	{
+	public:
+		FrameGraphComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+	};
+
 }

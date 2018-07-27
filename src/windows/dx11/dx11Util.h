@@ -28,6 +28,7 @@ typedef Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> UnorderedAccessViewCom
 typedef Microsoft::WRL::ComPtr<ID3D11VertexShader> VertexShaderComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11PixelShader> PixelShaderComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11GeometryShader> GeometryShaderComPtr;
+typedef Microsoft::WRL::ComPtr<ID3D11ComputeShader> ComputeShaderComPtr;
 
 typedef Microsoft::WRL::ComPtr<ID3D11BlendState> BlendStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D11DepthStencilState> DepthStencilStateComPtr;

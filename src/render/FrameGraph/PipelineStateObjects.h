@@ -320,6 +320,11 @@ namespace forward
 		shared_ptr<FrameGraphGeometryShader> m_shader;
 	};
 
+	struct ComputeShaderStageState : public ShaderStageState
+	{
+		shared_ptr<FrameGraphComputeShader> m_shader;
+	};
+
 
 	struct PipelineStateObject
 	{
@@ -330,5 +335,6 @@ namespace forward
 		VertexShaderStageState		m_VSState;
 		GeometryShaderStageState	m_GSState;
 		PixelShaderStageState		m_PSState;
+		ComputeShaderStageState		m_CSState;
 	};
 }
