@@ -73,17 +73,236 @@ namespace
 		DDS_MISC_FLAGS2_ALPHA_MODE_MASK = 0x7L,
 	};
 
-	const u32 DDS_HEADER_DXT10_SIZE = 20;
-
 	struct handle_closer { void operator()(HANDLE h) { if (h) CloseHandle(h); } };
 
 	typedef public std::unique_ptr<void, handle_closer> ScopedHandle;
 
 	inline HANDLE safe_handle(HANDLE h) { return (h == INVALID_HANDLE_VALUE) ? 0 : h; }
 
+	struct DDS_HEADER_DXT10
+	{
+		DataFormatType     dxgiFormat;
+		uint32_t        resourceDimension;
+		uint32_t        miscFlag; // see D3D11_RESOURCE_MISC_FLAG
+		uint32_t        arraySize;
+		uint32_t        miscFlags2;
+	};
+
 #pragma pack(pop)
 }
 
+//--------------------------------------------------------------------------------------
+#define ISBITMASK( r,g,b,a ) ( ddpf.RBitMask == r && ddpf.GBitMask == g && ddpf.BBitMask == b && ddpf.ABitMask == a )
+
+static DataFormatType GetDXGIFormat(const DDS_PIXELFORMAT& ddpf)
+{
+	if (ddpf.flags & DDS_RGB)
+	{
+		// Note that sRGB formats are written using the "DX10" extended header
+
+		switch (ddpf.RGBBitCount)
+		{
+		case 32:
+			if (ISBITMASK(0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000))
+			{
+				return DF_R8G8B8A8_UNORM;
+			}
+
+			if (ISBITMASK(0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000))
+			{
+				return DF_B8G8R8A8_UNORM;
+			}
+
+			if (ISBITMASK(0x00ff0000, 0x0000ff00, 0x000000ff, 0x00000000))
+			{
+				return DF_B8G8R8X8_UNORM;
+			}
+
+			// No DXGI format maps to ISBITMASK(0x000000ff,0x0000ff00,0x00ff0000,0x00000000) aka D3DFMT_X8B8G8R8
+
+			// Note that many common DDS reader/writers (including D3DX) swap the
+			// the RED/BLUE masks for 10:10:10:2 formats. We assume
+			// below that the 'backwards' header mask is being used since it is most
+			// likely written by D3DX. The more robust solution is to use the 'DX10'
+			// header extension and specify the DXGI_FORMAT_R10G10B10A2_UNORM format directly
+
+			// For 'correct' writers, this should be 0x000003ff,0x000ffc00,0x3ff00000 for RGB data
+			if (ISBITMASK(0x3ff00000, 0x000ffc00, 0x000003ff, 0xc0000000))
+			{
+				return DF_R10G10B10A2_UNORM;
+			}
+
+			// No DXGI format maps to ISBITMASK(0x000003ff,0x000ffc00,0x3ff00000,0xc0000000) aka D3DFMT_A2R10G10B10
+
+			if (ISBITMASK(0x0000ffff, 0xffff0000, 0x00000000, 0x00000000))
+			{
+				return DF_R16G16_UNORM;
+			}
+
+			if (ISBITMASK(0xffffffff, 0x00000000, 0x00000000, 0x00000000))
+			{
+				// Only 32-bit color channel format in D3D9 was R32F
+				return DF_R32_FLOAT; // D3DX writes this out as a FourCC of 114
+			}
+			break;
+
+		case 24:
+			// No 24bpp DXGI formats aka D3DFMT_R8G8B8
+			break;
+
+		case 16:
+			if (ISBITMASK(0x7c00, 0x03e0, 0x001f, 0x8000))
+			{
+				return DF_B5G5R5A1_UNORM;
+			}
+			if (ISBITMASK(0xf800, 0x07e0, 0x001f, 0x0000))
+			{
+				return DF_B5G6R5_UNORM;
+			}
+
+			// No DXGI format maps to ISBITMASK(0x7c00,0x03e0,0x001f,0x0000) aka D3DFMT_X1R5G5B5
+
+			if (ISBITMASK(0x0f00, 0x00f0, 0x000f, 0xf000))
+			{
+				return DF_B4G4R4A4_UNORM;
+			}
+
+			// No DXGI format maps to ISBITMASK(0x0f00,0x00f0,0x000f,0x0000) aka D3DFMT_X4R4G4B4
+
+			// No 3:3:2, 3:3:2:8, or paletted DXGI formats aka D3DFMT_A8R3G3B2, D3DFMT_R3G3B2, D3DFMT_P8, D3DFMT_A8P8, etc.
+			break;
+		}
+	}
+	else if (ddpf.flags & DDS_LUMINANCE)
+	{
+		if (8 == ddpf.RGBBitCount)
+		{
+			if (ISBITMASK(0x000000ff, 0x00000000, 0x00000000, 0x00000000))
+			{
+				return DF_R8_UNORM; // D3DX10/11 writes this out as DX10 extension
+			}
+
+			// No DXGI format maps to ISBITMASK(0x0f,0x00,0x00,0xf0) aka D3DFMT_A4L4
+		}
+
+		if (16 == ddpf.RGBBitCount)
+		{
+			if (ISBITMASK(0x0000ffff, 0x00000000, 0x00000000, 0x00000000))
+			{
+				return DF_R16_UNORM; // D3DX10/11 writes this out as DX10 extension
+			}
+			if (ISBITMASK(0x000000ff, 0x00000000, 0x00000000, 0x0000ff00))
+			{
+				return DF_R8G8_UNORM; // D3DX10/11 writes this out as DX10 extension
+			}
+		}
+	}
+	else if (ddpf.flags & DDS_ALPHA)
+	{
+		if (8 == ddpf.RGBBitCount)
+		{
+			return DF_A8_UNORM;
+		}
+	}
+	else if (ddpf.flags & DDS_FOURCC)
+	{
+		if (MAKEFOURCC('D', 'X', 'T', '1') == ddpf.fourCC)
+		{
+			return DF_BC1_UNORM;
+		}
+		if (MAKEFOURCC('D', 'X', 'T', '3') == ddpf.fourCC)
+		{
+			return DF_BC2_UNORM;
+		}
+		if (MAKEFOURCC('D', 'X', 'T', '5') == ddpf.fourCC)
+		{
+			return DF_BC3_UNORM;
+		}
+
+		// While pre-multiplied alpha isn't directly supported by the DXGI formats,
+		// they are basically the same as these BC formats so they can be mapped
+		if (MAKEFOURCC('D', 'X', 'T', '2') == ddpf.fourCC)
+		{
+			return DF_BC2_UNORM;
+		}
+		if (MAKEFOURCC('D', 'X', 'T', '4') == ddpf.fourCC)
+		{
+			return DF_BC3_UNORM;
+		}
+
+		if (MAKEFOURCC('A', 'T', 'I', '1') == ddpf.fourCC)
+		{
+			return DF_BC4_UNORM;
+		}
+		if (MAKEFOURCC('B', 'C', '4', 'U') == ddpf.fourCC)
+		{
+			return DF_BC4_UNORM;
+		}
+		if (MAKEFOURCC('B', 'C', '4', 'S') == ddpf.fourCC)
+		{
+			return DF_BC4_SNORM;
+		}
+
+		if (MAKEFOURCC('A', 'T', 'I', '2') == ddpf.fourCC)
+		{
+			return DF_BC5_UNORM;
+		}
+		if (MAKEFOURCC('B', 'C', '5', 'U') == ddpf.fourCC)
+		{
+			return DF_BC5_UNORM;
+		}
+		if (MAKEFOURCC('B', 'C', '5', 'S') == ddpf.fourCC)
+		{
+			return DF_BC5_SNORM;
+		}
+
+		// BC6H and BC7 are written using the "DX10" extended header
+
+		if (MAKEFOURCC('R', 'G', 'B', 'G') == ddpf.fourCC)
+		{
+			return DF_R8G8_B8G8_UNORM;
+		}
+		if (MAKEFOURCC('G', 'R', 'G', 'B') == ddpf.fourCC)
+		{
+			return DF_G8R8_G8B8_UNORM;
+		}
+
+		if (MAKEFOURCC('Y', 'U', 'Y', '2') == ddpf.fourCC)
+		{
+			return DF_YUY2;
+		}
+
+		// Check for D3DFORMAT enums being set here
+		switch (ddpf.fourCC)
+		{
+		case 36: // D3DFMT_A16B16G16R16
+			return DF_R16G16B16A16_UNORM;
+
+		case 110: // D3DFMT_Q16W16V16U16
+			return DF_R16G16B16A16_SNORM;
+
+		case 111: // D3DFMT_R16F
+			return DF_R16_FLOAT;
+
+		case 112: // D3DFMT_G16R16F
+			return DF_R16G16_FLOAT;
+
+		case 113: // D3DFMT_A16B16G16R16F
+			return DF_R16G16B16A16_FLOAT;
+
+		case 114: // D3DFMT_R32F
+			return DF_R32_FLOAT;
+
+		case 115: // D3DFMT_G32R32F
+			return DF_R32G32_FLOAT;
+
+		case 116: // D3DFMT_A32B32G32R32F
+			return DF_R32G32B32A32_FLOAT;
+		}
+	}
+
+	return DF_UNKNOWN;
+}
 
 FileLoader::FileLoader()
 	: m_pData(nullptr)
@@ -136,8 +355,8 @@ u32 FileLoader::GetDataSize()
 //--------------------------------------------------------------------------------
 
 DDSFileLoader::DDSFileLoader()
-	: m_bitData(nullptr)
-	, m_bitSize(0)
+	: m_contentDataPtr(nullptr)
+	, m_contentSize(0)
 {
 	memset(&m_header, 0, sizeof(m_header));
 }
@@ -150,18 +369,18 @@ DDSFileLoader::~DDSFileLoader()
 EResult DDSFileLoader::Open(const std::wstring& filename)
 {
 	// open the file
-	//ScopedHandle hFile(safe_handle(CreateFile2(filename.c_str(),
-	//	GENERIC_READ,
-	//	FILE_SHARE_READ,
-	//	OPEN_EXISTING, nullptr)));
-
-	ScopedHandle hFile(safe_handle(CreateFileW(filename.c_str(),
+	ScopedHandle hFile(safe_handle(CreateFile2(filename.c_str(),
 		GENERIC_READ,
 		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		nullptr)));
+		OPEN_EXISTING, nullptr)));
+
+	//ScopedHandle hFile(safe_handle(CreateFileW(filename.c_str(),
+	//	GENERIC_READ,
+	//	FILE_SHARE_READ,
+	//	nullptr,
+	//	OPEN_EXISTING,
+	//	FILE_ATTRIBUTE_NORMAL,
+	//	nullptr)));
 
 	if (!hFile)
 	{
@@ -199,11 +418,7 @@ EResult DDSFileLoader::Open(const std::wstring& filename)
 
 	// read the data in
 	DWORD BytesRead = 0;
-	if (!ReadFile(hFile.get(),
-		m_pData,
-		FileSize.LowPart,
-		&BytesRead,
-		nullptr))
+	if (!ReadFile(hFile.get(), m_pData, FileSize.LowPart, &BytesRead, nullptr))
 	{
 		return E_RESULT_UNKNOWN_ERROR;
 	}
@@ -235,7 +450,7 @@ EResult DDSFileLoader::Open(const std::wstring& filename)
 		(MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC))
 	{
 		// Must be long enough for both headers and magic value
-		if (FileSize.LowPart < (sizeof(DDS_HEADER) + sizeof(uint32_t) + DDS_HEADER_DXT10_SIZE))
+		if (FileSize.LowPart < (sizeof(DDS_HEADER) + sizeof(uint32_t) + sizeof(DDS_HEADER_DXT10)))
 		{
 			return E_RESULT_UNKNOWN_ERROR;
 		}
@@ -246,11 +461,80 @@ EResult DDSFileLoader::Open(const std::wstring& filename)
 	// setup the pointers in the process request
 	memcpy(&m_header, hdr, sizeof(m_header));
 	ptrdiff_t offset = sizeof(uint32_t) + sizeof(DDS_HEADER)
-		+ (bDXT10Header ? DDS_HEADER_DXT10_SIZE : 0);
-	m_bitData = m_pData + offset;
-	m_bitSize = FileSize.LowPart - offset;
+		+ (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0);
+	m_contentDataPtr = m_pData + offset;
+	m_contentSize = static_cast<u32>(FileSize.LowPart - offset);
 
 	return EResult::E_RESULT_NO_ERROR;
+}
+
+u32 DDSFileLoader::GetImageContentSize() const
+{
+	return m_contentSize;
+}
+
+i8* DDSFileLoader::GetImageContentDataPtr() const
+{
+	return m_contentDataPtr;
+}
+
+u32 DDSFileLoader::GetImageHeight() const
+{
+	return m_header.height;
+}
+
+u32 DDSFileLoader::GetImageWidth() const
+{
+	return m_header.width;
+}
+
+DataFormatType DDSFileLoader::GetImageFormat() const
+{
+	DataFormatType format = DataFormatType::DF_UNKNOWN;
+
+	auto mipCount = m_header.mipMapCount;
+	if (0 == mipCount)
+	{
+		mipCount = 1;
+	}
+
+	if ((m_header.ddspf.flags & DDS_FOURCC) &&
+		(MAKEFOURCC('D', 'X', '1', '0') == m_header.ddspf.fourCC))
+	{
+		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>((const i8*)(m_pData + sizeof(DDS_HEADER)));
+
+		auto arraySize = d3d10ext->arraySize;
+		assert(arraySize != 0);
+
+		switch (d3d10ext->dxgiFormat)
+		{
+		case DF_AI44:
+		case DF_IA44:
+		case DF_P8:
+		case DF_A8P8:
+			return format;
+
+		default:
+			if (DataFormat::GetNumBytesPerStruct(d3d10ext->dxgiFormat) == 0)
+			{
+				return format;
+			}
+		}
+
+		format = d3d10ext->dxgiFormat;
+	}
+	else
+	{
+		format = GetDXGIFormat(m_header.ddspf);
+
+		if (format == DataFormatType::DF_UNKNOWN)
+		{
+			return format;
+		}
+
+		assert(DataFormat::GetNumBytesPerStruct(format) != 0);
+	}
+	return DataFormatType::DF_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------

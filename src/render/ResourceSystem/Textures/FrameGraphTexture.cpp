@@ -3,6 +3,7 @@
 //***************************************************************************************
 
 #include "FrameGraphTexture.h"
+#include "FileLoader.h"
 
 using namespace forward;
 
@@ -52,6 +53,33 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType
 	m_numElements = width * height;
 	m_elementSize = DataFormat::GetNumBytesPerStruct(format);
 	Initialize(GetTotalElements(1, width, height, 1), DataFormat::GetNumBytesPerStruct(format));
+}
+
+FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name)
+	: FrameGraphTexture(name, DF_UNKNOWN, TBP_Shader)
+	, m_sampCount(1)
+	, m_sampQuality(0)
+{
+	m_type = FGOT_TEXTURE2;
+}
+
+void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
+{
+	DDSFileLoader loader;	
+	if (loader.Open(filename))
+	{
+		return;
+	}
+
+	m_width = loader.GetImageWidth();
+	m_height = loader.GetImageHeight();
+	m_format = loader.GetImageFormat();
+	assert(m_format != DataFormatType::DF_UNKNOWN);
+
+	m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
+	m_numElements = loader.GetImageContentSize() / m_elementSize;
+	Initialize(m_numElements, m_elementSize);
+	memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 }
 
 ResourceType FrameGraphTexture2D::GetResourceType() const

@@ -19,6 +19,7 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "Utils.h"
+#include "DataFormat.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -77,11 +78,16 @@ namespace forward
 		virtual ~DDSFileLoader();
 
 		EResult Open(const std::wstring& filename) override;
+		u32 GetImageContentSize() const;
+		i8* GetImageContentDataPtr() const;
+		u32 GetImageWidth() const;
+		u32 GetImageHeight() const;
+		DataFormatType GetImageFormat() const;
 
 	protected:
 		DDS_HEADER	m_header;
-		size_t		m_bitSize;
-		i8*			m_bitData;
+		u32			m_contentSize;
+		i8*			m_contentDataPtr;
 	};
 };
 //--------------------------------------------------------------------------------

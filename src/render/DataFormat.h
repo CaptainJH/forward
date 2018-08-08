@@ -139,6 +139,8 @@ namespace forward
 		// The number of bytes per struct.
 		inline static u32 GetNumBytesPerStruct(DataFormatType type);
 
+		inline static u32 GetNumBitsPerStruct(DataFormatType type);
+
 		// The number of channels per struct.
 		inline static u32 GetNumChannels(DataFormatType type);
 
@@ -176,6 +178,11 @@ namespace forward
 	inline u32 DataFormat::GetNumBytesPerStruct(DataFormatType type)
 	{
 		return msNumBytesPerStruct[type];
+	}
+
+	inline u32 DataFormat::GetNumBitsPerStruct(DataFormatType type)
+	{
+		return 8 * GetNumBytesPerStruct(type);
 	}
 
 	inline u32 DataFormat::GetNumChannels(DataFormatType type)
