@@ -18,6 +18,7 @@
 #define FileLoader_h
 //--------------------------------------------------------------------------------
 #include "PCH.h"
+#include "Utils.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -25,18 +26,62 @@ namespace forward
 	{
 	public:
 		FileLoader();
-		~FileLoader();
+		virtual ~FileLoader();
 
-		bool Open( const std::wstring& filename );
+		virtual EResult Open( const std::wstring& filename );
 		bool Close( );
 
-		char* GetDataPtr();
+		i8* GetDataPtr();
 		u32 GetDataSize();
 
 	protected:
-		char*			m_pData;
+		i8*			m_pData;
 		u32	m_uiSize;
 
+	};
+
+	struct DDS_PIXELFORMAT
+	{
+		u32    size;
+		u32    flags;
+		u32    fourCC;
+		u32    RGBBitCount;
+		u32    RBitMask;
+		u32    GBitMask;
+		u32    BBitMask;
+		u32    ABitMask;
+	};
+
+	struct DDS_HEADER
+	{
+		u32        size;
+		u32        flags;
+		u32        height;
+		u32        width;
+		u32        pitchOrLinearSize;
+		u32        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
+		u32        mipMapCount;
+		u32        reserved1[11];
+		DDS_PIXELFORMAT ddspf;
+		u32        caps;
+		u32        caps2;
+		u32        caps3;
+		u32        caps4;
+		u32        reserved2;
+	};
+
+	class DDSFileLoader : public FileLoader
+	{
+	public:
+		DDSFileLoader();
+		virtual ~DDSFileLoader();
+
+		EResult Open(const std::wstring& filename) override;
+
+	protected:
+		DDS_HEADER	m_header;
+		size_t		m_bitSize;
+		i8*			m_bitData;
 	};
 };
 //--------------------------------------------------------------------------------

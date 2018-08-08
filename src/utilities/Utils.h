@@ -74,5 +74,36 @@ namespace forward
 		extern Vector4f LightSteelBlue;
 	}
 
+	// Description:
+	// The EResult enumeration defines acceptable return values from functions that can fail to complete successfully.
+	enum EResult
+	{
+		E_RESULT_NO_ERROR = 0,				// The function completed successfully.
+		E_RESULT_NULL_POINTER_ARGUMENT = 1,	// An argument to the function was NULL, but should be non-NULL to behave correctly.
+		E_RESULT_NEGATIVE_ARGUMENT = 2,		// An argument to the function was negative, but should be positive to behave correctly.
+		E_RESULT_ARGUMENT_OUT_OF_RANGE = 3,	// An argument to the function was outside of the accepted range.
+		E_RESULT_EMPTY_ARGUMENT = 4,		// A string passed to the function was empty.
+		E_RESULT_INVALID_ARGUMENT = 5,		// A passed object was of the wrong type.
+		E_RESULT_CORRUPT_DATA_SOURCE = 6,	// An error was generated while parsing.
+		E_RESULT_INSUFFICIENT_INFORMATION = 7,	// A matching type could not be found, or the required handler is not registered.
+		E_RESULT_FUNCTION_OBSOLETE = 8,		// The function is now obsolete.
+		E_RESULT_UNKNOWN_ERROR = 9,			// An unknown error occurred.
+		E_RESULT_FILE_DOES_NOT_EXIST = 10,	// The requested file does not exist.
+		E_RESULT_FILE_ACCESS_DENIED = 11,	// Access to the requested file was denied.
+		E_RESULT_FILE_WRITE_PROTECTED = 12,	// The file cannot be written to because it is read only.
+		E_RESULT_OUT_OF_MEMORY = 13,		// The function could not complete successfully due to a lack of memory.
+		E_RESULT_UNABLE_TO_ALLOCATE = 14,	// The function could not complete successfully because it was unable to allocate or lock a required resource.
+		E_RESULT_DLL_NOT_LOADED = 15,		// The DLL required is not loaded.
+		E_RESULT_DLL_INCORRECT_VERSION = 16,	// The loaded DLL is an incorrect version.
+		E_RESULT_INSUFFICIENT_DATA = 17,	// The file was truncated, or the array was not long enough.
+		E_RESULT_OBJECT_OF_SAME_NAME_EXISTS = 18,	// An object with the same name already exists.
+		E_RESULT_OBJECT_NOT_FOUND = 19,		// The requested object was not found.
+		E_RESULT_OBJECT_OF_WRONG_TYPE = 20,	// The object was of the wrong type.
+		E_RESULT_UNINITIALIZED_DATA = 21,	// Some data required has not been correctly initialized before use.
+		E_RESULT_VALUE_ALREADY_SET = 22,	// The function is trying to update a value that can only be set once.
+		E_RESULT_FEATURE_NOT_AVAILABLE = 23,	// The function could not complete because it tries to use a feature (or set of features) not currently supported.
+		E_RESULT_COUNT						// The number of Phyre results.
+	};
+
 
 }

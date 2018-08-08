@@ -56,7 +56,7 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstri
 	// Load the file into memory
 
 	FileLoader SourceFile;
-	if (!SourceFile.Open(filepath)) 
+	if (SourceFile.Open(filepath)) 
 	{
 		message << "Unable to load shader from file: " << filepath;
 		Log::Get().Write(message.str());

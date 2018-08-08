@@ -21,7 +21,7 @@ FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& 
 	// Load the file into memory
 
 	FileLoader SourceFile;
-	if (!SourceFile.Open(filepath))
+	if (SourceFile.Open(filepath))
 	{
 		assert(false);
 	}
