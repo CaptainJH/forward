@@ -540,6 +540,100 @@ DataFormatType DDSFileLoader::GetImageFormat() const
 	return DataFormatType::DF_UNKNOWN;
 }
 
+u32 DDSFileLoader::GetMipCount() const
+{
+	assert(m_header);
+	if (m_header->mipMapCount == 0)
+	{
+		return 1;
+	}
+
+	return m_header->mipMapCount;
+}
+
+EResult DDSFileLoader::GetTextureDimension(u32& dimension, bool& isCube) const
+{
+	assert(m_header);
+	u32 arraySize = 1;
+	isCube = false;
+	auto height = GetImageHeight();
+
+	if ((m_header->ddspf.flags & DDS_FOURCC) &&
+		(MAKEFOURCC('D', 'X', '1', '0') == m_header->ddspf.fourCC))
+	{
+		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>((const i8*)m_header + sizeof(DDS_HEADER));
+
+		arraySize = d3d10ext->arraySize;
+		if (arraySize == 0)
+		{
+			return E_RESULT_INVALID_VALUE;
+		}
+
+		switch (d3d10ext->resourceDimension)
+		{
+		case 2://D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+			// D3DX writes 1D textures with a fixed Height of 1
+			if ((m_header->flags & DDS_HEIGHT) && height != 1)
+			{
+				return E_RESULT_INVALID_VALUE;
+			}
+			break;
+
+		case 3://D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+			if (d3d10ext->miscFlag & 4/*D3D11_RESOURCE_MISC_TEXTURECUBE*/)
+			{
+				arraySize *= 6;
+				isCube = true;
+			}
+			break;
+
+		case 4://D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+			if (!(m_header->flags & DDS_HEADER_FLAGS_VOLUME))
+			{
+				return E_RESULT_INVALID_VALUE;
+			}
+
+			if (arraySize > 1)
+			{
+				return E_RESULT_INVALID_VALUE;
+			}
+			break;
+
+		default:
+			return E_RESULT_UNKNOWN_ERROR;
+		}
+
+		dimension = d3d10ext->resourceDimension - 1;
+	}
+	else
+	{
+		if (m_header->flags & DDS_HEADER_FLAGS_VOLUME)
+		{
+			dimension = 3;
+		}
+		else
+		{
+			if (m_header->caps2 & DDS_CUBEMAP)
+			{
+				// We require all six faces to be defined
+				if ((m_header->caps2 & DDS_CUBEMAP_ALLFACES) != DDS_CUBEMAP_ALLFACES)
+				{
+					return E_RESULT_INVALID_VALUE;
+				}
+
+				arraySize = 6;
+				isCube = true;
+			}
+
+			dimension = 2;
+
+			// Note there's no way for a legacy Direct3D 9 DDS to express a '1D' texture
+		}
+	}
+
+	return EResult::E_RESULT_NO_ERROR;
+}
+
 //--------------------------------------------------------------------------------
 
 

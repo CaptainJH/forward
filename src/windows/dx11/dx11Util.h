@@ -46,5 +46,5 @@ typedef Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> UserDefinedAnnotationC
 namespace forward
 {
 	EResult FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount, u32 arraySize, DataFormatType format,
-		u32 maxSize, u32 bitSize, const i8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D11_SUBRESOURCE_DATA* initData);
+		u32 maxSize, u32 bitSize, const u8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D11_SUBRESOURCE_DATA* initData);
 }

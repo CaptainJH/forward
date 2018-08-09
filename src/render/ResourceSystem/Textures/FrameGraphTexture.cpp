@@ -98,6 +98,29 @@ void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
 	m_width = loader.GetImageWidth();
 	m_height = loader.GetImageHeight();
 	m_format = loader.GetImageFormat();
+	m_mipLevelNum = loader.GetMipCount();
+
+	bool isCubeMap = false;
+	std::wstringstream wss;
+	u32 dimension = 0;
+	if (!loader.GetTextureDimension(dimension, isCubeMap))
+	{
+		assert(dimension == 2);
+		assert(!isCubeMap);
+		if (dimension != 2 || isCubeMap)
+		{
+			wss << L"Get Texture Dimension Failed! (" << filename << ")";
+			auto text = wss.str();
+			Log::Get().Write(text);
+		}
+	}
+	else
+	{	
+		wss << L"Get Texture Dimension Failed! (" << filename << ")";
+		auto text = wss.str();
+		Log::Get().Write(text);
+	}
+
 	assert(m_format != DataFormatType::DF_UNKNOWN);
 
 	m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);

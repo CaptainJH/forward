@@ -6,7 +6,7 @@
 
 using namespace forward;
 
-void GetSurfaceInfo(u32 width, u32 height, DataFormatType df, u32* outNumBytes, u32* outRowBytes, u32* outNumRows)
+void forward::GetSurfaceInfo(u32 width, u32 height, DataFormatType df, u32* outNumBytes, u32* outRowBytes, u32* outNumRows)
 {
 	DXGI_FORMAT fmt = (DXGI_FORMAT)df;
 	u32 numBytes = 0;

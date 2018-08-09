@@ -103,6 +103,9 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 
 	const auto TBP = tex->GetBindPosition();
 
+	ID3D11DeviceContext* context;
+	device->GetImmediateContext(&context);
+
 	if (TBP & TBP_RT)
 	{
 		desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
@@ -167,14 +170,36 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	
 	// Create the texture.
 	Texture2DComPtr dxTexture;
-	if (tex->GetData() && desc.SampleDesc.Count == 1)
+	if ( tex->IsFileTexture() && tex->GetData() && desc.SampleDesc.Count == 1 )
 	{
-		/// TODO: NO mipmap support
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = tex->GetData();
-		data.SysMemPitch = tex->GetWidth() * tex->GetElementSize();
-		data.SysMemSlicePitch = tex->GetHeight() * data.SysMemPitch;
-		HR(device->CreateTexture2D(&desc, &data, dxTexture.GetAddressOf()));
+		auto autogen = CanAutoGenerateMips(tex, device);
+
+		if (autogen)
+		{
+			desc.MipLevels = 0;
+			HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
+
+			u32 numBytes = 0;
+			u32 rowBytes = 0;
+			GetSurfaceInfo(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), &numBytes, &rowBytes);
+			assert(numBytes <= tex->GetNumBytes());
+
+			context->UpdateSubresource(dxTexture.Get(), 0, nullptr, tex->GetData(), rowBytes, numBytes);
+		}
+		else
+		{
+			std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[tex->GetMipLevelNum()]);
+			assert(initData);
+			
+			u32 skipMip = 0;
+			u32 twidth = 0;
+			u32 theight = 0;
+			u32 tdepth = 0;
+			FillInitDataDX11(tex->GetWidth(), tex->GetHeight(), 1, tex->GetMipLevelNum(), 1, tex->GetFormat(), 0, tex->GetNumBytes(),
+				tex->GetData(), twidth, theight, tdepth, skipMip, initData.get());
+
+			HR(device->CreateTexture2D(&desc, initData.get(), dxTexture.GetAddressOf()));
+		}
 	}
 	else
 	{
@@ -220,8 +245,6 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	// Generate mipmaps if requested.
 	if (tex->WantAutoGenerateMips() && m_srv)
 	{
-		ID3D11DeviceContext* context;
-		device->GetImmediateContext(&context);
 		context->GenerateMips(m_srv.Get());
 		context->Release();
 	}

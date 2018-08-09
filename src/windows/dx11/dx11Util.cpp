@@ -5,8 +5,8 @@
 
 using namespace forward;
 
-EResult FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount, u32 arraySize, DataFormatType format,
-	u32 maxSize, u32 bitSize, const i8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D11_SUBRESOURCE_DATA* initData)
+EResult forward::FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount, u32 arraySize, DataFormatType format,
+	u32 maxSize, u32 bitSize, const u8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D11_SUBRESOURCE_DATA* initData)
 {
 	if (!bitData || !initData)
 	{
@@ -20,8 +20,8 @@ EResult FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount, u32 arr
 
 	u32 NumBytes = 0;
 	u32 RowBytes = 0;
-	const i8* pSrcBits = bitData;
-	const i8* pEndBits = bitData + bitSize;
+	const u8* pSrcBits = bitData;
+	const u8* pEndBits = bitData + bitSize;
 
 	u32 index = 0;
 	for (u32 j = 0; j < arraySize; ++j)

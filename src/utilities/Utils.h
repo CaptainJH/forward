@@ -102,6 +102,7 @@ namespace forward
 		E_RESULT_UNINITIALIZED_DATA = 21,	// Some data required has not been correctly initialized before use.
 		E_RESULT_VALUE_ALREADY_SET = 22,	// The function is trying to update a value that can only be set once.
 		E_RESULT_FEATURE_NOT_AVAILABLE = 23,	// The function could not complete because it tries to use a feature (or set of features) not currently supported.
+		E_RESULT_INVALID_VALUE = 24,		// The value is abnormal.
 		E_RESULT_COUNT						// The number of Phyre results.
 	};
 

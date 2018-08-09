@@ -82,6 +82,8 @@ namespace forward
 		i8* GetImageContentDataPtr() const;
 		u32 GetImageWidth() const;
 		u32 GetImageHeight() const;
+		u32 GetMipCount() const;
+		EResult GetTextureDimension(u32& dimension, bool& isCube) const;
 		DataFormatType GetImageFormat() const;
 
 	protected:
