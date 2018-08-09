@@ -25,12 +25,17 @@ namespace forward
 		u32				GetMipLevelNum() const;
 		bool			WantAutoGenerateMips() const;
 		u32				GetBindPosition() const;
+		bool			IsFileTexture() const;
+
+		virtual void	LoadFromDDS(const std::wstring& filename);
 
 	protected:
 		DataFormatType	m_format = DF_UNKNOWN;
 		u32				m_mipLevelNum = 1;
 		bool			m_autoGenerateMip = false;
 		u32				m_bindPosition;
+
+		std::wstring	m_fileFullPath;
 
 		u32				GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 dim2) const;
 	};
@@ -47,7 +52,7 @@ namespace forward
 		void EnableMSAA();
 		u32 GetSampCount() const;
 
-		void LoadFromDDS(const std::wstring& filename);
+		void LoadFromDDS(const std::wstring& filename) override;
 
 	protected:
 		u32 m_width;

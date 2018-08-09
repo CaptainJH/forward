@@ -85,7 +85,7 @@ namespace forward
 		DataFormatType GetImageFormat() const;
 
 	protected:
-		DDS_HEADER	m_header;
+		DDS_HEADER*	m_header;
 		u32			m_contentSize;
 		i8*			m_contentDataPtr;
 	};

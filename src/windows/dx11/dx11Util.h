@@ -5,6 +5,7 @@
 
 #include <d3d11_2.h>
 #include <wrl.h>
+#include "utilities/Utils.h"
 #include "dxCommon/d3dUtil.h"
 #include "utilities/Log.h"
 
@@ -41,3 +42,9 @@ typedef Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> UserDefinedAnnotationC
 #define D3D11_RESOURCE_MISC_NONE	0
 #define D3D11_CPU_ACCESS_NONE		0
 #define D3D11_BIND_NONE				0
+
+namespace forward
+{
+	EResult FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount, u32 arraySize, DataFormatType format,
+		u32 maxSize, u32 bitSize, const i8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D11_SUBRESOURCE_DATA* initData);
+}

@@ -4,6 +4,8 @@
 
 #include "FrameGraphTexture.h"
 #include "FileLoader.h"
+#include "FileSystem.h"
+#include "Log.h"
 
 using namespace forward;
 
@@ -11,6 +13,7 @@ FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType for
 	: FrameGraphResource(name)
 	, m_format(format)
 	, m_bindPosition(bind)
+	, m_fileFullPath(L"")
 {
 	m_type = FGOT_TEXTURE;
 }
@@ -41,6 +44,25 @@ u32 FrameGraphTexture::GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 di
 	return numItems * numElementsPerItem;
 }
 
+void FrameGraphTexture::LoadFromDDS(const std::wstring& filename)
+{
+	m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
+	if (!forward::FileSystem::getSingletonPtr()->FileExists(m_fileFullPath))
+	{
+		m_fileFullPath = L"";
+
+		std::wstringstream wss;
+		wss << L"DDS file: " << filename << L" doesn't exist.";
+		auto text = wss.str();
+		Log::Get().Write(text);
+	}
+}
+
+bool FrameGraphTexture::IsFileTexture() const
+{
+	return m_fileFullPath != L"";
+}
+
 FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType format, 
 	u32 width, u32 height, u32 bind, bool enableMSAA/*=false*/)
 	: FrameGraphTexture(name, format, bind)
@@ -65,8 +87,10 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name)
 
 void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
 {
-	DDSFileLoader loader;	
-	if (loader.Open(filename))
+	FrameGraphTexture::LoadFromDDS(filename);
+
+	DDSFileLoader loader;
+	if (loader.Open(m_fileFullPath))
 	{
 		return;
 	}

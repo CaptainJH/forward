@@ -356,9 +356,9 @@ u32 FileLoader::GetDataSize()
 
 DDSFileLoader::DDSFileLoader()
 	: m_contentDataPtr(nullptr)
+	, m_header(nullptr)
 	, m_contentSize(0)
 {
-	memset(&m_header, 0, sizeof(m_header));
 }
 
 DDSFileLoader::~DDSFileLoader()
@@ -459,7 +459,7 @@ EResult DDSFileLoader::Open(const std::wstring& filename)
 	}
 
 	// setup the pointers in the process request
-	memcpy(&m_header, hdr, sizeof(m_header));
+	m_header = hdr;
 	ptrdiff_t offset = sizeof(uint32_t) + sizeof(DDS_HEADER)
 		+ (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0);
 	m_contentDataPtr = m_pData + offset;
@@ -480,26 +480,29 @@ i8* DDSFileLoader::GetImageContentDataPtr() const
 
 u32 DDSFileLoader::GetImageHeight() const
 {
-	return m_header.height;
+	assert(m_header);
+	return m_header->height;
 }
 
 u32 DDSFileLoader::GetImageWidth() const
 {
-	return m_header.width;
+	assert(m_header);
+	return m_header->width;
 }
 
 DataFormatType DDSFileLoader::GetImageFormat() const
 {
 	DataFormatType format = DataFormatType::DF_UNKNOWN;
 
-	auto mipCount = m_header.mipMapCount;
+	assert(m_header);
+	auto mipCount = m_header->mipMapCount;
 	if (0 == mipCount)
 	{
 		mipCount = 1;
 	}
 
-	if ((m_header.ddspf.flags & DDS_FOURCC) &&
-		(MAKEFOURCC('D', 'X', '1', '0') == m_header.ddspf.fourCC))
+	if ((m_header->ddspf.flags & DDS_FOURCC) &&
+		(MAKEFOURCC('D', 'X', '1', '0') == m_header->ddspf.fourCC))
 	{
 		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>((const i8*)(m_pData + sizeof(DDS_HEADER)));
 
@@ -525,7 +528,7 @@ DataFormatType DDSFileLoader::GetImageFormat() const
 	}
 	else
 	{
-		format = GetDXGIFormat(m_header.ddspf);
+		format = GetDXGIFormat(m_header->ddspf);
 
 		if (format == DataFormatType::DF_UNKNOWN)
 		{

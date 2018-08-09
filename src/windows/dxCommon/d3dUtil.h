@@ -1,5 +1,5 @@
 //***************************************************************************************
-// d3dUtil.h by Frank Luna (C) 2011 All Rights Reserved.
+// d3dUtil.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 
 #ifndef D3DUTIL_H
@@ -19,6 +19,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include "DataFormat.h"
 
 namespace forward
 {
@@ -51,6 +52,11 @@ namespace forward
 #define HR(x) (x)
 #endif
 #endif 
+
+	//--------------------------------------------------------------------------------------
+	// Get surface information for a particular format
+	//--------------------------------------------------------------------------------------
+	void GetSurfaceInfo(u32 width, u32 height, DataFormatType df, u32* outNumBytes=nullptr, u32* outRowBytes=nullptr, u32* outNumRows=nullptr);
 
 }
 
