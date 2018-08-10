@@ -170,27 +170,25 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	
 	// Create the texture.
 	Texture2DComPtr dxTexture;
-	if ( tex->IsFileTexture() && tex->GetData() && desc.SampleDesc.Count == 1 )
+	if ( tex->GetData() && desc.SampleDesc.Count == 1 )
 	{
-		auto autogen = CanAutoGenerateMips(tex, device);
-
-		if (autogen)
+		if (tex->IsFileTexture() && CanAutoGenerateMips(tex, device))
 		{
-			desc.MipLevels = 0;
-			HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
+				desc.MipLevels = 0;
+				HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
 
-			u32 numBytes = 0;
-			u32 rowBytes = 0;
-			GetSurfaceInfo(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), &numBytes, &rowBytes);
-			assert(numBytes <= tex->GetNumBytes());
+				u32 numBytes = 0;
+				u32 rowBytes = 0;
+				GetSurfaceInfo(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), &numBytes, &rowBytes);
+				assert(numBytes <= tex->GetNumBytes());
 
-			context->UpdateSubresource(dxTexture.Get(), 0, nullptr, tex->GetData(), rowBytes, numBytes);
+				context->UpdateSubresource(dxTexture.Get(), 0, nullptr, tex->GetData(), rowBytes, numBytes);
 		}
 		else
 		{
 			std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[tex->GetMipLevelNum()]);
 			assert(initData);
-			
+
 			u32 skipMip = 0;
 			u32 twidth = 0;
 			u32 theight = 0;

@@ -29,7 +29,7 @@ EResult forward::FillInitDataDX11(u32 width, u32 height, u32 depth, u32 mipCount
 		u32 w = width;
 		u32 h = height;
 		u32 d = depth;
-		for (u32 i = 0; i < mipCount; ++j)
+		for (u32 i = 0; i < mipCount; ++i)
 		{
 			GetSurfaceInfo(w,
 				h,
