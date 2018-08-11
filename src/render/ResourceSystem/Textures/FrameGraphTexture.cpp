@@ -56,6 +56,8 @@ void FrameGraphTexture::LoadFromDDS(const std::wstring& filename)
 		auto text = wss.str();
 		Log::Get().Write(text);
 	}
+
+	DestroyStorage();
 }
 
 bool FrameGraphTexture::IsFileTexture() const

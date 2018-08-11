@@ -159,7 +159,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
 		}
 
-		if (tex->WantAutoGenerateMips())
+		if (tex->WantAutoGenerateMips() && CanAutoGenerateMips(tex, device))
 		{
 			desc.Usage = D3D11_USAGE_DEFAULT;
 			desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
@@ -172,7 +172,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	Texture2DComPtr dxTexture;
 	if ( tex->GetData() && desc.SampleDesc.Count == 1 )
 	{
-		if (tex->IsFileTexture() && CanAutoGenerateMips(tex, device))
+		if (tex->IsFileTexture())
 		{
 				desc.MipLevels = 0;
 				HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
