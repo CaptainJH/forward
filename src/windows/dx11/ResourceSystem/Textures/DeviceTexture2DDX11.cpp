@@ -103,8 +103,8 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 
 	const auto TBP = tex->GetBindPosition();
 
-	ID3D11DeviceContext* context;
-	device->GetImmediateContext(&context);
+	DeviceContextComPtr context;
+	device->GetImmediateContext(context.GetAddressOf());
 
 	if (TBP & TBP_RT)
 	{
