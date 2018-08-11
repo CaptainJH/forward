@@ -105,6 +105,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 
 	DeviceContextComPtr context;
 	device->GetImmediateContext(context.GetAddressOf());
+	bool autoGenMip = false;
 
 	if (TBP & TBP_RT)
 	{
@@ -165,6 +166,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 			desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_NONE;
 			desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			autoGenMip = true;
 		}
 	}
 	
@@ -172,7 +174,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	Texture2DComPtr dxTexture;
 	if ( tex->GetData() && desc.SampleDesc.Count == 1 )
 	{
-		if (tex->IsFileTexture())
+		if (tex->IsFileTexture() && autoGenMip)
 		{
 				desc.MipLevels = 0;
 				HR(device->CreateTexture2D(&desc, nullptr, dxTexture.GetAddressOf()));
@@ -241,10 +243,9 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	}
 
 	// Generate mipmaps if requested.
-	if (tex->WantAutoGenerateMips() && m_srv)
+	if (autoGenMip && m_srv)
 	{
 		context->GenerateMips(m_srv.Get());
-		context->Release();
 	}
 }
 
