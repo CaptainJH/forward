@@ -20,11 +20,6 @@ FrameGraphIndexBuffer::FrameGraphIndexBuffer(const std::string& name, PrimitiveT
 	Initialize(primitive_count, sizeof(u32));
 }
 
-ResourceType FrameGraphIndexBuffer::GetResourceType() const
-{
-	return RT_INDEXBUFFER;
-}
-
 PrimitiveTopologyType FrameGraphIndexBuffer::GetPrimitiveType() const
 {
 	return m_primitiveType;
@@ -97,11 +92,6 @@ FrameGraphVertexBuffer::FrameGraphVertexBuffer(const std::string& name, const Ve
 	Initialize(numVertices, m_vertexFormat.GetVertexSize());
 }
 
-ResourceType FrameGraphVertexBuffer::GetResourceType() const
-{
-	return RT_VERTEXBUFFER;
-}
-
 const VertexFormat& FrameGraphVertexBuffer::GetVertexFormat() const
 {
 	return m_vertexFormat;
@@ -111,9 +101,4 @@ FrameGraphConstantBufferBase::FrameGraphConstantBufferBase(const std::string& na
 	: FrameGraphBuffer(name)
 {
 	m_usage = RU_DYNAMIC_UPDATE;
-}
-
-ResourceType FrameGraphConstantBufferBase::GetResourceType() const
-{
-	return RT_CONSTANTBUFFER;
 }

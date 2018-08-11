@@ -7,11 +7,6 @@
 
 using namespace forward;
 
-ResourceType	DeviceIndexBufferDX11::GetType()
-{
-	return RT_INDEXBUFFER;
-}
-
 DeviceIndexBufferDX11::DeviceIndexBufferDX11(ID3D11Device* device, FrameGraphIndexBuffer* ib)
 	: DeviceBufferDX11(ib)
 	, m_format(ib->GetElementSize() == sizeof(u32) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT)

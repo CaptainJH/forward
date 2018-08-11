@@ -20,7 +20,9 @@ namespace forward
 					FGOT_VERTEX_BUFFER,
 					FGOT_INDEX_BUFFER,
 				FGOT_TEXTURE,  // abstract
+					FGOT_TEXTURE1,
 					FGOT_TEXTURE2,
+					FGOT_TEXTURECUBE,
 			FGOT_SHADER,  // abstract
 				FGOT_VERTEX_SHADER,
 				FGOT_GEOMETRY_SHADER,

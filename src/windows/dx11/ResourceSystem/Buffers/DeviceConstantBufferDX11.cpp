@@ -6,11 +6,6 @@
 
 using namespace forward;
 
-ResourceType DeviceConstantBufferDX11::GetType()
-{
-	return RT_CONSTANTBUFFER;
-}
-
 DeviceConstantBufferDX11::DeviceConstantBufferDX11(ID3D11Device* device, FrameGraphConstantBufferBase* cb)
 	: DeviceBufferDX11(cb)
 {

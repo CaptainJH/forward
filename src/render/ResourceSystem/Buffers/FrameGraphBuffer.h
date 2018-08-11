@@ -25,7 +25,6 @@ namespace forward
 	{
 	public:
 		FrameGraphIndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count);
-		ResourceType GetResourceType() const override;
 
 		PrimitiveTopologyType GetPrimitiveType() const;
 
@@ -44,7 +43,6 @@ namespace forward
 	{
 	public:
 		FrameGraphVertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices);
-		ResourceType GetResourceType() const override;
 
 		const VertexFormat& GetVertexFormat() const;
 
@@ -70,7 +68,6 @@ namespace forward
 	{
 	public:
 		FrameGraphConstantBufferBase(const std::string& name);
-		ResourceType GetResourceType() const override;
 	};
 
 	template<class T>

@@ -28,7 +28,6 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-
 	class ResourceDX11 : public DeviceResource
 	{
 	public:
@@ -37,6 +36,8 @@ namespace forward
 		virtual ~ResourceDX11();
 
 		virtual ID3D11Resource*				GetResource() = 0;
+
+		virtual ResourceType				GetType() = 0;
 
 		i32		GetResourceID() const;
 		void	SetResourceID(i32 id);

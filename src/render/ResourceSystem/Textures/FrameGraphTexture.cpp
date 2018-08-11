@@ -77,14 +77,6 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType
 	Initialize(GetTotalElements(1, width, height, 1), DataFormat::GetNumBytesPerStruct(format));
 }
 
-FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name)
-	: FrameGraphTexture(name, DF_UNKNOWN, TBP_Shader)
-	, m_sampCount(1)
-	, m_sampQuality(0)
-{
-	m_type = FGOT_TEXTURE2;
-}
-
 void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
 {
 	FrameGraphTexture::LoadFromDDS(filename);
@@ -129,11 +121,6 @@ void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
 	memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 }
 
-ResourceType FrameGraphTexture2D::GetResourceType() const
-{
-	return RT_TEXTURE2D;
-}
-
 u32 FrameGraphTexture2D::GetWidth() const
 {
 	return m_width;
@@ -152,4 +139,70 @@ void FrameGraphTexture2D::EnableMSAA()
 u32 FrameGraphTexture2D::GetSampCount() const
 {
 	return m_sampCount;
+}
+
+
+FrameGraphTextureCube::FrameGraphTextureCube(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bind)
+	: FrameGraphTexture(name, format, bind)
+	, m_width(width)
+	, m_height(height)
+{
+	m_type = FGOT_TEXTURECUBE;
+	m_numElements = width * height * m_arraySize;
+	m_elementSize = DataFormat::GetNumBytesPerStruct(format);
+	Initialize(GetTotalElements(m_arraySize, width, height, 1), DataFormat::GetNumBytesPerStruct(format));
+}
+
+u32 FrameGraphTextureCube::GetWidth() const
+{
+	return m_width;
+}
+
+u32 FrameGraphTextureCube::GetHeight() const
+{
+	return m_height;
+}
+
+void FrameGraphTextureCube::LoadFromDDS(const std::wstring& filename)
+{
+	FrameGraphTexture::LoadFromDDS(filename);
+
+	DDSFileLoader loader;
+	if (loader.Open(m_fileFullPath))
+	{
+		return;
+	}
+
+	m_width = loader.GetImageWidth();
+	m_height = loader.GetImageHeight();
+	m_format = loader.GetImageFormat();
+	m_mipLevelNum = loader.GetMipCount();
+
+	bool isCubeMap = false;
+	std::wstringstream wss;
+	u32 dimension = 0;
+	if (!loader.GetTextureDimension(dimension, isCubeMap))
+	{
+		assert(dimension == 2);
+		assert(isCubeMap);
+		if (dimension != 2 || !isCubeMap)
+		{
+			wss << L"Get Texture Dimension Failed! (" << filename << ")";
+			auto text = wss.str();
+			Log::Get().Write(text);
+		}
+	}
+	else
+	{
+		wss << L"Get Texture Dimension Failed! (" << filename << ")";
+		auto text = wss.str();
+		Log::Get().Write(text);
+	}
+
+	assert(m_format != DataFormatType::DF_UNKNOWN);
+
+	m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
+	m_numElements = loader.GetImageContentSize() / m_elementSize;
+	Initialize(m_numElements, m_elementSize);
+	memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 }

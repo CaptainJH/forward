@@ -20,7 +20,6 @@ namespace forward
 		DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex);
 		DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex);
 
-		ResourceType	GetType() override;
 		ID3D11Texture2D* GetDXTexture2DPtr();
 		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
 

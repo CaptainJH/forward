@@ -10,6 +10,25 @@ namespace forward
 	class FrameGraphObject;
 	class FrameGraphResource;
 
+	class DeviceResource : public DeviceObject
+	{
+	public:
+		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
+		DeviceResource();
+		DeviceResource(forward::FrameGraphObject* obj);
+
+		virtual ~DeviceResource();
+
+		FrameGraphResource* GetFrameGraphResource();
+
+		virtual u32				GetEvictionPriority() = 0;
+		virtual void			SetEvictionPriority( u32 EvictionPriority ) = 0;
+
+		virtual void			SyncCPUToGPU() = 0;
+	};
+
+
+	/// TODO: only used by forwardDX11_Hieroglyph
 	enum ResourceType
 	{
 		RT_VERTEXBUFFER = 0x010000,
@@ -23,25 +42,7 @@ namespace forward
 		RT_TEXTURE3D = 0x090000
 	};
 
-	class DeviceResource : public DeviceObject
-	{
-	public:
-		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
-		DeviceResource();
-		DeviceResource(forward::FrameGraphObject* obj);
-
-		virtual ~DeviceResource();
-
-		FrameGraphResource* GetFrameGraphResource();
-
-		virtual ResourceType	GetType() = 0;
-
-		virtual u32				GetEvictionPriority() = 0;
-		virtual void			SetEvictionPriority( u32 EvictionPriority ) = 0;
-
-		virtual void			SyncCPUToGPU() = 0;
-	};
-
 	typedef std::shared_ptr<DeviceResource> ResourcePtr;
+	///
 
 };

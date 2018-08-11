@@ -15,8 +15,6 @@ namespace forward
 
 		DeviceVertexBufferDX11(ID3D11Device* device, FrameGraphVertexBuffer* vb);
 
-		ResourceType	GetType() override;
-
 		void Bind(ID3D11DeviceContext* context);
 		void Unbind(ID3D11DeviceContext* context);
 	};

@@ -14,7 +14,5 @@ namespace forward
 	public:
 
 		DeviceConstantBufferDX11(ID3D11Device* device, FrameGraphConstantBufferBase* cb);
-
-		ResourceType	GetType() override;
 	};
 }

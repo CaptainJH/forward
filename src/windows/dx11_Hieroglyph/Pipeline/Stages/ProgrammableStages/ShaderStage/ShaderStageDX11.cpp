@@ -111,16 +111,17 @@ bool ShaderStageDX11::extractShaderResourceViews(const u32 length, ID3D11ShaderR
 	for (u32 i = 0; i < length; ++i)
 	{
 		ResourcePtr ptr = DesiredState.ShaderResources.GetState(i);
+		ResourceDX11* resDX11Ptr = dynamic_cast<ResourceDX11*>(ptr.get());
 		if (ptr == nullptr)
 			continue;
 
 		i32 shaderViewID = -1;
-		if (ptr->GetType() == ResourceType::RT_TEXTURE2D)
+		if (resDX11Ptr->GetType() == ResourceType::RT_TEXTURE2D)
 		{
 			Texture2dDX11* texPtr = dynamic_cast<Texture2dDX11*>(ptr.get());
 			shaderViewID = texPtr->GetSRVID();
 		}
-		else if (ptr->GetType() == ResourceType::RT_TEXTURE3D)
+		else if (resDX11Ptr->GetType() == ResourceType::RT_TEXTURE3D)
 		{
 			Texture3dDX11* texPtr = dynamic_cast<Texture3dDX11*>(ptr.get());
 			shaderViewID = texPtr->GetSRVID();

@@ -6,11 +6,6 @@
 
 using namespace forward;
 
-ResourceType DeviceVertexBufferDX11::GetType()
-{
-	return RT_VERTEXBUFFER;
-}
-
 DeviceVertexBufferDX11::DeviceVertexBufferDX11(ID3D11Device* device, FrameGraphVertexBuffer* vb)
 	: DeviceBufferDX11(vb)
 {

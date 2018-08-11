@@ -25,8 +25,6 @@ namespace forward
 		FrameGraphResource(const std::string& name);
 		virtual ~FrameGraphResource();
 
-		virtual ResourceType GetResourceType() const = 0;
-
 		DeviceResource*		GetResource();
 
 		void SetUsage(ResourceUsage usage);

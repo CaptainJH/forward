@@ -248,11 +248,6 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture
 	}
 }
 
-ResourceType DeviceTexture2DDX11::GetType()
-{
-	return RT_TEXTURE2D;
-}
-
 ID3D11Texture2D* DeviceTexture2DDX11::GetDXTexture2DPtr()
 {
 	if (m_deviceResPtr)
@@ -424,19 +419,19 @@ void DeviceTexture2DDX11::SyncGPUToCPU(ID3D11DeviceContext* context)
 
 		// Copy from staging texture to CPU memory.
 		auto fgRes = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
-		if (GetType() == ResourceType::RT_TEXTURE1D)
+		if (GetFrameGraphResource()->GetType() == FGOT_TEXTURE1)
 		{
 			memcpy(fgRes->GetData(), sub.pData, fgRes->GetNumBytes());
 		}
-		else if (GetType() == ResourceType::RT_TEXTURE2D)
+		else if (GetFrameGraphResource()->GetType() == FGOT_TEXTURE2)
 		{
 			auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
 			CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
 		}
-		else if (GetType() == ResourceType::RT_TEXTURE3D)
-		{
-			/// TODO
-		}
+		//else if (GetType() == ResourceType::RT_TEXTURE3D)
+		//{
+		//	/// TODO
+		//}
 
 		context->Unmap(m_stagingResPtr.Get(), 0);
 	}
