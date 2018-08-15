@@ -11,6 +11,15 @@ namespace forward
 	{
 		Vector3f Pos;
 		Vector4f Color;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+
+			return vf;
+		}
 	};
 
 	/// Position_Normal_Tangent_TextureUV
@@ -20,6 +29,17 @@ namespace forward
 		Vector3f Normal;
 		Vector3f Tangent;
 		Vector2f UV;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_NORMAL, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_TANGENT, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
+
+			return vf;
+		}
 	};
 
 	enum GeometryPrefab
@@ -69,7 +89,7 @@ namespace forward
 
 		template<class BuilderType> 
 		SimpleGeometry(const std::string& name, BuilderType builder)
-			: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", BuilderType::GetVertexFormat(), builder.GetVertexCount()))
+			: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", BuilderType::VertexType::GetVertexFormat(), builder.GetVertexCount()))
 			, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", BuilderType::Topology, builder.GetIndexCount()))
 		{
 			m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
@@ -117,6 +137,8 @@ namespace forward
 		static const u32 IndexCount = 0;
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLESTRIP;
 
+		typedef Vertex_POS_COLOR VertexType;
+
 		u32 GetVertexCount() const
 		{
 			return VertexCount;
@@ -125,15 +147,6 @@ namespace forward
 		u32 GetIndexCount() const
 		{
 			return IndexCount;
-		}
-
-		static forward::VertexFormat GetVertexFormat()
-		{
-			VertexFormat vf;
-			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
-
-			return vf;
 		}
 
 		void Initializer(forward::SimpleGeometry* geometry)
@@ -152,6 +165,8 @@ namespace forward
 		static const u32 IndexCount = 36;
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
 
+		typedef Vertex_POS_COLOR VertexType;
+
 		u32 GetVertexCount() const
 		{
 			return VertexCount;
@@ -160,15 +175,6 @@ namespace forward
 		u32 GetIndexCount() const
 		{
 			return IndexCount;
-		}
-
-		static forward::VertexFormat GetVertexFormat()
-		{
-			VertexFormat vf;
-			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
-
-			return vf;
 		}
 
 		void Initializer(forward::SimpleGeometry* geometry)
@@ -206,17 +212,6 @@ namespace forward
 	struct GeometryBuilder<GeometryPrefab::GP_SPHERE>
 	{
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
-
-		static forward::VertexFormat GetVertexFormat()
-		{
-			VertexFormat vf;
-			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_NORMAL, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_TANGENT, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
-
-			return vf;
-		}
 
 		typedef Vertex_P_N_T_UV VertexType;
 
@@ -362,7 +357,9 @@ namespace forward
 	template<>
 	struct GeometryBuilder<GP_GRID>
 	{
-		MeshData<Vertex_P_N_T_UV> meshData;
+		typedef Vertex_P_N_T_UV VertexType;
+
+		MeshData<VertexType> meshData;
 
 		///<summary>
 		/// Creates an mxn grid in the xz-plane with m rows and n columns, centered
@@ -460,10 +457,10 @@ namespace forward
 	template<>
 	struct GeometryBuilder<GP_CYLINDER>
 	{
-		MeshData<Vertex_P_N_T_UV> meshData;
-
 		typedef Vertex_P_N_T_UV VertexType;
 		typedef MeshData<VertexType> MeshDataType;
+
+		MeshDataType meshData;
 
 		///<summary>
 		/// Creates a cylinder parallel to the y-axis, and centered about the origin.  
