@@ -194,21 +194,21 @@ const u32 DataFormat::msNumBytesPerStruct[DF_NUM_FORMATS] =
 	2,  // DF_R9G9B9E5_SHAREDEXP
 	2,  // DF_R8G8_B8G8_UNORM
 	2,  // DF_G8R8_G8B8_UNORM
-	0,  // DF_BC1_TYPELESS
-	0,  // DF_BC1_UNORM
-	0,  // DF_BC1_UNORM_SRGB
-	0,  // DF_BC2_TYPELESS
-	0,  // DF_BC2_UNORM
-	0,  // DF_BC2_UNORM_SRGB
-	0,  // DF_BC3_TYPELESS
-	0,  // DF_BC3_UNORM
-	0,  // DF_BC3_UNORM_SRGB
-	0,  // DF_BC4_TYPELESS
-	0,  // DF_BC4_UNORM
-	0,  // DF_BC4_SNORM
-	0,  // DF_BC5_TYPELESS
-	0,  // DF_BC5_UNORM
-	0,  // DF_BC5_SNORM
+	4,  // DF_BC1_TYPELESS
+	4,  // DF_BC1_UNORM
+	4,  // DF_BC1_UNORM_SRGB
+	8,  // DF_BC2_TYPELESS
+	8,  // DF_BC2_UNORM
+	8,  // DF_BC2_UNORM_SRGB
+	8,  // DF_BC3_TYPELESS
+	8,  // DF_BC3_UNORM
+	8,  // DF_BC3_UNORM_SRGB
+	4,  // DF_BC4_TYPELESS
+	4,  // DF_BC4_UNORM
+	4,  // DF_BC4_SNORM
+	8,  // DF_BC5_TYPELESS
+	8,  // DF_BC5_UNORM
+	8,  // DF_BC5_SNORM
 	2,  // DF_B5G6R5_UNORM
 	2,  // DF_B5G5R5A1_UNORM
 	4,  // DF_B8G8R8A8_UNORM
@@ -218,12 +218,12 @@ const u32 DataFormat::msNumBytesPerStruct[DF_NUM_FORMATS] =
 	4,  // DF_B8G8R8A8_UNORM_SRGB
 	4,  // DF_B8G8R8X8_TYPELESS
 	4,  // DF_B8G8R8X8_UNORM_SRGB
-	0,  // DF_BC6H_TYPELESS
-	0,  // DF_BC6H_UF16
-	0,  // DF_BC6H_SF16
-	0,  // DF_BC7_TYPELESS
-	0,  // DF_BC7_UNORM
-	0,  // DF_BC7_UNORM_SRGB
+	8,  // DF_BC6H_TYPELESS
+	8,  // DF_BC6H_UF16
+	8,  // DF_BC6H_SF16
+	8,  // DF_BC7_TYPELESS
+	8,  // DF_BC7_UNORM
+	8,  // DF_BC7_UNORM_SRGB
 		// DX11.1 formats (TODO: Determine bytes per channel)
 		0,  // DF_AYUV
 		0,  // DF_Y410
@@ -678,21 +678,21 @@ bool const DataFormat::msSupported[DF_NUM_FORMATS] =
 	true,   // DF_R9G9B9E5_SHAREDEXP
 	true,   // DF_R8G8_B8G8_UNORM
 	true,   // DF_G8R8_G8B8_UNORM
-	false,  // DF_BC1_TYPELESS
-	false,  // DF_BC1_UNORM
-	false,  // DF_BC1_UNORM_SRGB
-	false,  // DF_BC2_TYPELESS
-	false,  // DF_BC2_UNORM
-	false,  // DF_BC2_UNORM_SRGB
-	false,  // DF_BC3_TYPELESS
-	false,  // DF_BC3_UNORM
-	false,  // DF_BC3_UNORM_SRGB
-	false,  // DF_BC4_TYPELESS
-	false,  // DF_BC4_UNORM
-	false,  // DF_BC4_SNORM
-	false,  // DF_BC5_TYPELESS
-	false,  // DF_BC5_UNORM
-	false,  // DF_BC5_SNORM
+	true,  // DF_BC1_TYPELESS
+	true,  // DF_BC1_UNORM
+	true,  // DF_BC1_UNORM_SRGB
+	true,  // DF_BC2_TYPELESS
+	true,  // DF_BC2_UNORM
+	true,  // DF_BC2_UNORM_SRGB
+	true,  // DF_BC3_TYPELESS
+	true,  // DF_BC3_UNORM
+	true,  // DF_BC3_UNORM_SRGB
+	true,  // DF_BC4_TYPELESS
+	true,  // DF_BC4_UNORM
+	true,  // DF_BC4_SNORM
+	true,  // DF_BC5_TYPELESS
+	true,  // DF_BC5_UNORM
+	true,  // DF_BC5_SNORM
 	true,   // DF_B5G6R5_UNORM
 	true,   // DF_B5G5R5A1_UNORM
 	true,   // DF_B8G8R8A8_UNORM
@@ -702,12 +702,12 @@ bool const DataFormat::msSupported[DF_NUM_FORMATS] =
 	true,   // DF_B8G8R8A8_UNORM_SRGB
 	true,   // DF_B8G8R8X8_TYPELESS
 	true,   // DF_B8G8R8X8_UNORM_SRGB
-	false,  // DF_BC6H_TYPELESS
-	false,  // DF_BC6H_UF16
-	false,  // DF_BC6H_SF16
-	false,  // DF_BC7_TYPELESS
-	false,  // DF_BC7_UNORM
-	false,  // DF_BC7_UNORM_SRGB
+	true,  // DF_BC6H_TYPELESS
+	true,  // DF_BC6H_UF16
+	true,  // DF_BC6H_SF16
+	true,  // DF_BC7_TYPELESS
+	true,  // DF_BC7_UNORM
+	true,  // DF_BC7_UNORM_SRGB
 			// DX11.1 formats (TODO: Determine whether we will support these)
 			false,  // DF_AYUV
 			false,  // DF_Y410

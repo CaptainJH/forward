@@ -530,12 +530,11 @@ DataFormatType DDSFileLoader::GetImageFormat() const
 	{
 		format = GetDXGIFormat(m_header->ddspf);
 
-		if (format == DataFormatType::DF_UNKNOWN)
+		if (format != DataFormatType::DF_UNKNOWN)
 		{
+			assert(DataFormat::GetNumBytesPerStruct(format) != 0);
 			return format;
 		}
-
-		assert(DataFormat::GetNumBytesPerStruct(format) != 0);
 	}
 	return DataFormatType::DF_UNKNOWN;
 }
