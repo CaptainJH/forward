@@ -18,6 +18,24 @@ FrameGraphTexture::FrameGraphTexture(const std::string& name, DataFormatType for
 	m_type = FGOT_TEXTURE;
 }
 
+FrameGraphTexture::FrameGraphTexture(const std::string& name, const std::wstring& filename)
+	: FrameGraphResource(name)
+	, m_bindPosition(TBP_Shader)
+{
+	m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
+	if (!forward::FileSystem::getSingletonPtr()->FileExists(m_fileFullPath))
+	{
+		m_fileFullPath = L"";
+
+		std::wstringstream wss;
+		wss << L"DDS file: " << filename << L" doesn't exist.";
+		auto text = wss.str();
+		Log::Get().Write(text);
+	}
+
+	m_type = FGOT_TEXTURE;
+}
+
 DataFormatType FrameGraphTexture::GetFormat() const
 {
 	return m_format;
@@ -44,22 +62,6 @@ u32 FrameGraphTexture::GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 di
 	return numItems * numElementsPerItem;
 }
 
-void FrameGraphTexture::LoadFromDDS(const std::wstring& filename)
-{
-	m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
-	if (!forward::FileSystem::getSingletonPtr()->FileExists(m_fileFullPath))
-	{
-		m_fileFullPath = L"";
-
-		std::wstringstream wss;
-		wss << L"DDS file: " << filename << L" doesn't exist.";
-		auto text = wss.str();
-		Log::Get().Write(text);
-	}
-
-	DestroyStorage();
-}
-
 bool FrameGraphTexture::IsFileTexture() const
 {
 	return m_fileFullPath != L"";
@@ -79,9 +81,12 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, DataFormatType
 	Initialize(GetTotalElements(1, width, height, 1), DataFormat::GetNumBytesPerStruct(format));
 }
 
-void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
+FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, const std::wstring& filename)
+	: FrameGraphTexture(name, filename)
+	, m_sampCount(1)
+	, m_sampQuality(0)
 {
-	FrameGraphTexture::LoadFromDDS(filename);
+	m_type = FGOT_TEXTURE2;
 
 	DDSFileLoader loader;
 	if (loader.Open(m_fileFullPath))
@@ -109,7 +114,7 @@ void FrameGraphTexture2D::LoadFromDDS(const std::wstring& filename)
 		}
 	}
 	else
-	{	
+	{
 		wss << L"Get Texture Dimension Failed! (" << filename << ")";
 		auto text = wss.str();
 		Log::Get().Write(text);
@@ -165,9 +170,10 @@ u32 FrameGraphTextureCube::GetHeight() const
 	return m_height;
 }
 
-void FrameGraphTextureCube::LoadFromDDS(const std::wstring& filename)
+FrameGraphTextureCube::FrameGraphTextureCube(const std::string& name, const std::wstring& filename)
+	: FrameGraphTexture(name, filename)
 {
-	FrameGraphTexture::LoadFromDDS(filename);
+	m_type = FGOT_TEXTURECUBE;
 
 	DDSFileLoader loader;
 	if (loader.Open(m_fileFullPath))

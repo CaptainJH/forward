@@ -20,14 +20,13 @@ namespace forward
 	{
 	public:
 		FrameGraphTexture(const std::string& name, DataFormatType format, u32 bind=TBP_Shader);
+		FrameGraphTexture(const std::string& name, const std::wstring& filename);
 
 		DataFormatType	GetFormat() const;
 		u32				GetMipLevelNum() const;
 		bool			WantAutoGenerateMips() const;
 		u32				GetBindPosition() const;
 		bool			IsFileTexture() const;
-
-		virtual void	LoadFromDDS(const std::wstring& filename);
 
 	protected:
 		DataFormatType	m_format = DF_UNKNOWN;
@@ -44,13 +43,12 @@ namespace forward
 	{
 	public:
 		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp, bool enableMSAA=false);
+		FrameGraphTexture2D(const std::string& name, const std::wstring& filename);
 
 		u32 GetWidth() const;
 		u32 GetHeight() const;
 		void EnableMSAA();
 		u32 GetSampCount() const;
-
-		void LoadFromDDS(const std::wstring& filename) override;
 
 	protected:
 		u32 m_width;
@@ -64,11 +62,10 @@ namespace forward
 	{
 	public:
 		FrameGraphTextureCube(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bind);
+		FrameGraphTextureCube(const std::string& name, const std::wstring& filename);
 
 		u32 GetWidth() const;
 		u32 GetHeight() const;
-
-		void LoadFromDDS(const std::wstring& filename) override;
 
 	protected:
 		u32 m_width;

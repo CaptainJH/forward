@@ -90,8 +90,7 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
 
-		pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", DF_R8G8B8A8_UNORM, 0, 0, TextureBindPosition::TBP_Shader);
-		pso.m_PSState.m_shaderResources[0]->LoadFromDDS(L"bricks.dds");
+		pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
 
 		// setup geometry
 		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
