@@ -87,13 +87,14 @@ bool BasicGeometryFrameGraph::Init()
 		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
+		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain_P_N_T_UV");
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
 
 		pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
 
 		// setup geometry
-		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
+		//m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
+		m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
 		builder << *m_geometry;
 
 		// setup constant buffer
