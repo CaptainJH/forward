@@ -359,6 +359,8 @@ namespace forward
 	{
 		typedef Vertex_P_N_T_UV VertexType;
 
+		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+
 		MeshData<VertexType> meshData;
 
 		///<summary>
@@ -459,6 +461,8 @@ namespace forward
 	{
 		typedef Vertex_P_N_T_UV VertexType;
 		typedef MeshData<VertexType> MeshDataType;
+
+		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
 
 		MeshDataType meshData;
 
