@@ -11,6 +11,7 @@
 #include "dx11/ResourceSystem/Buffers/DeviceIndexBufferDX11.h"
 #include "dx11/ResourceSystem/Buffers/DeviceConstantBufferDX11.h"
 #include "dx11/ResourceSystem/Textures/DeviceTexture2DDX11.h"
+#include "dx11/ResourceSystem/Textures/DeviceTextureCubeDX11.h"
 #include "dx11/DrawingStates/DeviceRasterizerStateDX11.h"
 #include "dx11/DrawingStates/DeviceDepthStencilStateDX11.h"
 #include "dx11/DrawingStates/DeviceBlendStateDX11.h"
@@ -534,8 +535,16 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (!res->DeviceObject())
 			{
-				auto deviceTex = forward::make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), res.get());
-				res->SetDeviceObject(deviceTex);
+				if (dynamic_cast<FrameGraphTexture2D*>(res.get()))
+				{
+					auto deviceTex = forward::make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), dynamic_cast<FrameGraphTexture2D*>(res.get()));
+					res->SetDeviceObject(deviceTex);
+				}
+				else if (dynamic_cast<FrameGraphTextureCube*>(res.get()))
+				{
+					auto deviceTex = forward::make_shared<DeviceTextureCubeDX11>(m_pDevice.Get(), dynamic_cast<FrameGraphTextureCube*>(res.get()));
+					res->SetDeviceObject(deviceTex);
+				}
 			}
 			auto deviceRes = device_cast<DeviceTexture2DDX11*>(res);
 			ps->BindSRView(m_pContext.Get(), i, deviceRes->GetSRView().Get());

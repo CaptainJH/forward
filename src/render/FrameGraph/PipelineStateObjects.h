@@ -301,7 +301,7 @@ namespace forward
 	struct ShaderStageState : public PipelineStageState
 	{
 		std::array<shared_ptr<FrameGraphConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
-		std::array<shared_ptr<FrameGraphTexture2D>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
+		std::array<shared_ptr<FrameGraphTexture>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
 		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 	};
 

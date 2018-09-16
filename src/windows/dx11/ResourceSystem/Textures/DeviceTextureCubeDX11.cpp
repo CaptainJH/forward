@@ -20,6 +20,8 @@ DeviceTextureCubeDX11::DeviceTextureCubeDX11(ID3D11Device* device, FrameGraphTex
 
 	const auto TBP = tex->GetBindPosition();
 	assert(TBP == TBP_Shader);
+	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 	DeviceContextComPtr context;
 	device->GetImmediateContext(context.GetAddressOf());
@@ -63,7 +65,7 @@ DeviceTextureCubeDX11::DeviceTextureCubeDX11(ID3D11Device* device, FrameGraphTex
 		}
 		else
 		{
-			std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[tex->GetMipLevelNum()]);
+			std::unique_ptr<D3D11_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D11_SUBRESOURCE_DATA[tex->GetMipLevelNum() * 6]);
 			assert(initData);
 
 			u32 skipMip = 0;
@@ -140,4 +142,9 @@ void DeviceTextureCubeDX11::CreateUAView(ID3D11Device* device, const D3D11_TEXTU
 	desc.Texture2DArray.ArraySize = tx.ArraySize;
 
 	HR(device->CreateUnorderedAccessView(GetDXTexture2DPtr(), &desc, m_uav.GetAddressOf()));
+}
+
+void DeviceTextureCubeDX11::SyncCPUToGPU()
+{
+
 }

@@ -20,7 +20,7 @@ namespace forward
 		ID3D11Texture2D* GetDXTexture2DPtr();
 		shared_ptr<FrameGraphTextureCube> GetFrameGraphTextureCube();
 
-		//void					SyncCPUToGPU() override;
+		void					SyncCPUToGPU() override;
 		//void					SyncGPUToCPU(ID3D11DeviceContext* context);
 
 	private:
