@@ -12,6 +12,7 @@
 #include "dxCommon/SwapChain.h"
 
 #include "d3dx12.h"
+#include "utilities/Utils.h"
 
 using Microsoft::WRL::ComPtr;
 

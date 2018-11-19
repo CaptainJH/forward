@@ -7,17 +7,17 @@
 
 using namespace forward;
 
-D3D12_SUBRESOURCE_DATA forward::ConvertSubResource(const Subresource* pData)
-{
-	assert(pData);
-
-	D3D12_SUBRESOURCE_DATA data;
-	data.pData = pData->data;
-	data.RowPitch = pData->rowPitch;
-	data.SlicePitch = pData->slicePitch;
-
-	return data;
-}
+//D3D12_SUBRESOURCE_DATA forward::ConvertSubResource(const Subresource* pData)
+//{
+//	assert(pData);
+//
+//	D3D12_SUBRESOURCE_DATA data;
+//	data.pData = pData->data;
+//	data.RowPitch = pData->rowPitch;
+//	data.SlicePitch = pData->slicePitch;
+//
+//	return data;
+//}
 
 u32 forward::CalcConstantBufferByteSize(u32 byteSize)
 {

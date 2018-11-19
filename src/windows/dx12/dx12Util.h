@@ -37,7 +37,7 @@ typedef Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineStateComPtr;
 
 namespace forward
 {
-	D3D12_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
+	//D3D12_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
 
 	u32 CalcConstantBufferByteSize(u32 byteSize);
 
