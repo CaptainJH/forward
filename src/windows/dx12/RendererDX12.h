@@ -13,7 +13,8 @@
 #include "dx12Util.h"
 
 #include "render.h"
-
+#include "dxCommon/SwapChain.h"
+#include "render/FrameGraph/FrameGraphObject.h"
 #include <dxgi1_4.h>
 
 namespace forward
@@ -33,10 +34,30 @@ namespace forward
         // Access to the renderer.  There should only be a single instance
 		// of the renderer at any given time.
 
-		static RendererDX12* Get();
-
 		RendererAPI GetRendererAPI() const override { return DirectX12; }
 
+		void DrawRenderPass(RenderPass& pass) override;
+
+		void DeleteResource(ResourcePtr ptr) override;
+
+		void OnResize(u32 width, u32 height) override;
+
+		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
+		void Shutdown() override;
+
+		void Draw(u32 vertexNum, u32 startVertexLocation = 0) override;
+		void DrawIndexed(u32 indexCount) override;
+
+		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
+
+		void SaveRenderTarget(const std::wstring& filename) override;
+
+		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
+
+		void BeginDrawFrameGraph(FrameGraph* fg) override;
+		void EndDrawFrameGraph() override;
+
+	private:
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
 
@@ -51,8 +72,7 @@ namespace forward
 		// obtain and release all of the hardware specific resources that
 		// are used during rendering.
 
-		bool Initialize( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
-		void Shutdown();
+		bool InitializeD3D( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
 
 		// These methods provide rendering frame control.  They are closely
 		// related to the API for sequencing rendering batches.
@@ -100,7 +120,7 @@ namespace forward
 
     protected:
     	// The main API interfaces used in the renderer.
-		DeviceComPtr							m_pDevice = nullptr;
+		DeviceCom12Ptr							m_pDevice = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12Debug>		m_pDebugger = nullptr;
 		D3D_DRIVER_TYPE							m_driverType = D3D_DRIVER_TYPE_NULL;
 
@@ -135,5 +155,8 @@ namespace forward
 		// Set true to use 4X MSAA.  The default is false.
 		bool     m_4xMsaaState = false;    // 4X MSAA enabled
 		u32      m_4xMsaaQuality = 0;      // quality level of 4X MSAA
+
+		u32		m_width;
+		u32		m_height;
 	};
 };

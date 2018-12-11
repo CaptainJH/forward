@@ -11,7 +11,8 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"HelloFrameGraph";
-		RenderType = RendererType::Renderer_Forward_DX11;
+		//RenderType = RendererType::Renderer_Forward_DX11;
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~HelloFrameGraph()

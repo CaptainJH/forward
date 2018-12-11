@@ -28,11 +28,6 @@ RendererDX12::~RendererDX12()
 {
 }
 //--------------------------------------------------------------------------------
-RendererDX12* RendererDX12::Get()
-{
-	return dynamic_cast<RendererDX12*>(m_spRenderer);
-}
-//--------------------------------------------------------------------------------
 D3D_FEATURE_LEVEL RendererDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*DriverType*/)
 {
 	D3D_FEATURE_LEVEL FeatureLevel = m_FeatureLevel;
@@ -84,7 +79,7 @@ u64 RendererDX12::GetAvailableVideoMemory()
 	return(availableVideoMem);
 }
 //--------------------------------------------------------------------------------
-bool RendererDX12::Initialize(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel)
+bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel)
 {
 	HRESULT hr = S_OK;
 
@@ -543,4 +538,88 @@ void RendererDX12::EndPresent()
 void RendererDX12::ResetCommandList()
 {
 	m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr);
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::DrawRenderPass(RenderPass& /*pass*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::DeleteResource(ResourcePtr /*ptr*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::OnResize(u32 /*width*/, u32 /*height*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
+{
+	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_12_0))
+	{
+		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
+
+		if (!InitializeD3D(D3D_DRIVER_TYPE_REFERENCE, D3D_FEATURE_LEVEL_11_0))
+		{
+			return false;
+		}
+	}
+
+	CreateCommandObjects();
+	CreateRtvAndDsvDescriptorHeaps();
+
+	m_width = config.GetWidth();
+	m_height = config.GetHeight();
+
+	if (!bOffScreen)
+	{
+		// Create a swap chain for the window that we started out with.  This
+		// demonstrates using a configuration object for fast and concise object
+		// creation.
+		CreateSwapChain(&config);
+	}
+
+	/// Font stuff
+
+
+	ResetCommandList();
+
+	return true;
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::Draw(u32 /*vertexNum*/, u32 /*startVertexLocation*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::DrawIndexed(u32 /*indexCount*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTexture2D* /*src*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::SaveRenderTarget(const std::wstring& /*filename*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::DrawScreenText(const std::string& /*msg*/, i32 /*x*/, i32 /*y*/, const Vector4f& /*color*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::BeginDrawFrameGraph(FrameGraph* /*fg*/)
+{
+
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::EndDrawFrameGraph()
+{
+
 }

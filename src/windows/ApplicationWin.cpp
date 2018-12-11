@@ -9,6 +9,7 @@
 #include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
 #else
 #include "dx11/Renderer2DX11.h"
+#include "dx12/RendererDX12.h"
 #endif
 
 //--------------------------------------------------------------------------------
@@ -406,6 +407,10 @@ bool ApplicationWin::ConfigureRendererComponents()
 #ifndef USE_LEGACY_RENDERER
 		m_pRender2 = new Renderer2DX11;
 #endif
+		break;
+
+	case Renderer_Forward_DX12:
+		m_pRender2 = new RendererDX12;
 		break;
 
 	default:
