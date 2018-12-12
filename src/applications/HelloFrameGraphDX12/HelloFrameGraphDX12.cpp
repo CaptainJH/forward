@@ -22,6 +22,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"Hello DirectX12!";
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~HelloDX12()
@@ -100,7 +101,7 @@ void HelloDX12::DrawScene()
 bool HelloDX12::Init()
 {
 	Log::Get().Open();
-	if (!ApplicationDX12::Init())
+	if (!Application::Init())
 		return false;
 
 	m_pRender->ResetCommandList();
@@ -140,7 +141,7 @@ void HelloDX12::BuildShadersAndInputLayout()
 
 void HelloDX12::OnResize()
 {
-	ApplicationDX12::OnResize();
+	Application::OnResize();
 }
 
 void HelloDX12::BuildGeometry()
