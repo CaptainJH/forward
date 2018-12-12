@@ -1,4 +1,4 @@
-#include "dx12/ApplicationDX12.h"
+#include "ApplicationWin.h"
 #include "Vector3f.h"
 #include "dx12/UploadBuffer.h"
 #include "dxCommon/ShaderFactoryDX.h"
@@ -15,11 +15,11 @@ struct Vertex
 	Vector4f Color;
 };
 
-class HelloDX12 : public ApplicationDX12
+class HelloDX12 : public Application
 {
 public:
 	HelloDX12(HINSTANCE hInstance, i32 width, i32 height)
-		: ApplicationDX12(hInstance, width, height)
+		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"Hello DirectX12!";
 	}
