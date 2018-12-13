@@ -57,7 +57,8 @@ namespace forward
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 
-	private:
+	//private:
+	public:
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
 

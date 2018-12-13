@@ -2,6 +2,7 @@
 #include "Vector3f.h"
 #include "dx12/UploadBuffer.h"
 #include "dxCommon/ShaderFactoryDX.h"
+#include "dx12/RendererDX12.h"
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
@@ -55,6 +56,8 @@ private:
 	PipelineStateComPtr m_pso = nullptr;
 
 	std::unique_ptr<MeshGeometry> m_geometry = nullptr;
+
+	RendererDX12* m_pRender = nullptr;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -103,6 +106,8 @@ bool HelloDX12::Init()
 	Log::Get().Open();
 	if (!Application::Init())
 		return false;
+
+	m_pRender = dynamic_cast<RendererDX12*>(m_pRender2);
 
 	m_pRender->ResetCommandList();
 
