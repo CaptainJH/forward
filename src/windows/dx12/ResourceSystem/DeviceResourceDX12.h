@@ -1,0 +1,29 @@
+//***************************************************************************************
+// DeviceResourceDX12.h by Heqi Ju (C) 2018 All Rights Reserved.
+//***************************************************************************************
+#pragma once
+#include "Types.h"
+#include "render/ResourceSystem/DeviceResource.h"
+#include "dx12/dx12Util.h"
+
+namespace forward
+{
+	class DeviceResourceDX12 : public DeviceResource
+	{
+	public:
+		DeviceResourceDX12(forward::FrameGraphObject* obj);
+
+		virtual ~DeviceResourceDX12();
+
+		DeviceResCom12Ptr		GetDeviceResource();
+
+		u32					GetEvictionPriority() override;
+		void				SetEvictionPriority(u32 EvictionPriority) override;
+
+	protected:
+		DeviceResCom12Ptr		m_deviceResPtr;
+		DeviceResCom12Ptr		m_stagingResPtr;
+
+		bool				PrepareForSync();
+	};
+}

@@ -7,6 +7,7 @@
 #include <wrl.h>
 #include "dx12/d3dx12.h"
 #include "dxCommon/d3dUtil.h"
+#include "utilities/Log.h"
 #include <unordered_map>
 
 typedef Microsoft::WRL::ComPtr<ID3D12Device> DeviceCom12Ptr;
@@ -15,7 +16,7 @@ typedef Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandAllocatorComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CommandListComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12Fence> FenceComPtr;
 
-typedef Microsoft::WRL::ComPtr<ID3D12Resource> ResourceCom12Ptr;
+typedef Microsoft::WRL::ComPtr<ID3D12Resource> DeviceResCom12Ptr;
 //typedef Microsoft::WRL::ComPtr<ID3D12Buffer> BufferComPtr;
 //typedef Microsoft::WRL::ComPtr<ID3D12Texture1D> Texture1DComPtr;
 //typedef Microsoft::WRL::ComPtr<ID3D12Texture2D> Texture2DComPtr;
@@ -41,12 +42,12 @@ namespace forward
 
 	u32 CalcConstantBufferByteSize(u32 byteSize);
 
-	ResourceCom12Ptr CreateDefaultBuffer(
+	DeviceResCom12Ptr CreateDefaultBuffer(
 		ID3D12Device* device,
 		ID3D12GraphicsCommandList* cmdList,
 		const void* initData,
 		UINT64 byteSize,
-		ResourceCom12Ptr& uploadBuffer);
+		DeviceResCom12Ptr& uploadBuffer);
 
 	// Defines a subrange of geometry in a MeshGeometry.  This is for when multiple
 	// geometries are stored in one vertex and index buffer.  It provides the offsets
@@ -73,11 +74,11 @@ namespace forward
 		Microsoft::WRL::ComPtr<ID3DBlob> VertexBufferCPU = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU = nullptr;
 
-		ResourceCom12Ptr VertexBufferGPU = nullptr;
-		ResourceCom12Ptr IndexBufferGPU = nullptr;
+		DeviceResCom12Ptr VertexBufferGPU = nullptr;
+		DeviceResCom12Ptr IndexBufferGPU = nullptr;
 
-		ResourceCom12Ptr VertexBufferUploader = nullptr;
-		ResourceCom12Ptr IndexBufferUploader = nullptr;
+		DeviceResCom12Ptr VertexBufferUploader = nullptr;
+		DeviceResCom12Ptr IndexBufferUploader = nullptr;
 
 		// Data about the buffers.
 		u32 VertexByteStride = 0;

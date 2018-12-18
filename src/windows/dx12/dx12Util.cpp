@@ -35,14 +35,14 @@ u32 forward::CalcConstantBufferByteSize(u32 byteSize)
 	return (byteSize + 255) & ~255;
 }
 
-ResourceCom12Ptr forward::CreateDefaultBuffer(
+DeviceResCom12Ptr forward::CreateDefaultBuffer(
 	ID3D12Device* device,
 	ID3D12GraphicsCommandList* cmdList,
 	const void* initData,
 	UINT64 byteSize,
-	ResourceCom12Ptr& uploadBuffer)
+	DeviceResCom12Ptr& uploadBuffer)
 {
-	ResourceCom12Ptr defaultBuffer;
+	DeviceResCom12Ptr defaultBuffer;
 
 	// Create the actual default buffer resource.
 	HR(device->CreateCommittedResource(
