@@ -64,6 +64,9 @@ namespace forward
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const = 0;
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const = 0;
+
 	protected:
 		Renderer();
 

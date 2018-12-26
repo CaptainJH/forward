@@ -57,6 +57,9 @@ namespace forward
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const override;
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const override;
+
 	//private:
 	public:
         // Provide the feature level of the current machine.  This can be

@@ -34,6 +34,9 @@ namespace forward
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const override;
+		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const override;
+
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();
 

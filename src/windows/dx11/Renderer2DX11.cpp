@@ -737,3 +737,16 @@ void Renderer2DX11::CompileCurrentFrameGraph()
 {
 
 }
+
+shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultRT() const
+{
+	assert(m_vSwapChains.size() >= 1);
+	FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentRT().get());
+	return shared_ptr<FrameGraphTexture2D>(tex);
+}
+
+shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultDS() const
+{
+	FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentDS().get());
+	return shared_ptr<FrameGraphTexture2D>(tex);
+}

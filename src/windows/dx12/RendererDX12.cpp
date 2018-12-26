@@ -14,6 +14,8 @@
 #include "d3dx12.h"
 #include "utilities/Utils.h"
 
+#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+
 using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------
@@ -622,4 +624,14 @@ void RendererDX12::BeginDrawFrameGraph(FrameGraph* /*fg*/)
 void RendererDX12::EndDrawFrameGraph()
 {
 
+}
+//--------------------------------------------------------------------------------
+shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const
+{
+	return nullptr;
+}
+
+shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultDS() const
+{
+	return nullptr;
 }
