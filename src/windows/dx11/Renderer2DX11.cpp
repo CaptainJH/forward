@@ -220,7 +220,7 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 		pConfig->GetWidth(), pConfig->GetHeight(), TextureBindPosition::TBP_DS);
 	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr.get());
 	dsPtr->SetDeviceObject(dsDevicePtr);
-	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtPtr->FrameGraphObject(), dsPtr));
+	m_vSwapChains.push_back(new SwapChain(pSwapChain, rtPtr->GetFrameGraphTexture2D(), dsPtr));
 
 	m_width = pConfig->GetWidth();
 	m_height = pConfig->GetHeight();
