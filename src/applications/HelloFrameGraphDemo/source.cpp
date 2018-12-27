@@ -74,7 +74,7 @@ bool HelloFrameGraph::Init()
 		return false;
 
 	m_renderPass = new RenderPass(
-	[](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+	[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMainQuad");
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMainQuad");
@@ -106,10 +106,10 @@ bool HelloFrameGraph::Init()
 		pso.m_IAState.m_vertexBuffers[0] = vb;
 
 		// setup render states
-		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		auto dsPtr = m_pRender2->GetDefaultDS();
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = m_pRender2->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[](Renderer& render) {
