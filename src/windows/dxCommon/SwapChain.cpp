@@ -15,6 +15,13 @@ SwapChain::SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, shared_p
 	m_rts.push_back(rt);
 	m_ds = ds;
 }
+SwapChain::SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain> pSwapChain, shared_ptr<FrameGraphTexture2D> rt0, shared_ptr<FrameGraphTexture2D> rt1, shared_ptr<FrameGraphTexture2D> ds)
+{
+	m_pSwapChain = pSwapChain;
+	m_rts.push_back(rt0);
+	m_rts.push_back(rt1);
+	m_ds = ds;
+}
 //--------------------------------------------------------------------------------
 SwapChain::~SwapChain()
 {
@@ -33,7 +40,10 @@ ResourcePtr SwapChain::GetResourcePtr()
 shared_ptr<FrameGraphTexture2D> SwapChain::GetCurrentRT() const
 {
 	assert(!m_rts.empty());
-	return m_rts.front();
+	const auto N = m_rts.size();
+	auto ret = m_rts[m_currentBackBufferIndex % N];
+	m_currentBackBufferIndex = (m_currentBackBufferIndex + 1) % N;
+	return ret;
 }
 //--------------------------------------------------------------------------------
 shared_ptr<FrameGraphTexture2D> SwapChain::GetCurrentDS() const
