@@ -18,7 +18,7 @@ namespace forward
 	public:
 		explicit SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource );
 		explicit SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, shared_ptr<FrameGraphTexture2D> rt, shared_ptr<FrameGraphTexture2D> ds);
-		virtual ~SwapChain();
+		~SwapChain();
 
 		IDXGISwapChain* GetSwapChain();
 		ResourcePtr GetResourcePtr();
