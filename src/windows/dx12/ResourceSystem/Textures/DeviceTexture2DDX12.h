@@ -13,9 +13,20 @@ namespace forward
 	class DeviceTexture2DDX12 : public DeviceTextureDX12
 	{
 	public:
-		DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex);
-		//DeviceTexture2DDX12(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex);
+		static DeviceTexture2DDX12* BuildDeviceTexture2DDX12(const std::string& name, ID3D12Resource* tex, ResourceUsage usage = RU_IMMUTABLE);
 
-	protected:
+		DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex);
+		DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex);
+
+		void					SyncCPUToGPU() override;
+
+	private:
+	private:
+		void CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+		void CreateUAView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+		void CreateDSView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+		void CreateDSSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+		void CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+		void CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
 	};
 }

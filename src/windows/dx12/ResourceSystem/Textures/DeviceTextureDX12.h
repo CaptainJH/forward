@@ -15,6 +15,7 @@ namespace forward
 		DeviceTextureDX12(FrameGraphTexture* tex);
 
 	protected:
+		CD3DX12_CPU_DESCRIPTOR_HANDLE	m_hCpuDescriptorHandle;
 
 	};
 }
