@@ -16,17 +16,17 @@ struct Vertex
 	Vector4f Color;
 };
 
-class HelloDX12 : public Application
+class HelloFrameGraphDX12 : public Application
 {
 public:
-	HelloDX12(HINSTANCE hInstance, i32 width, i32 height)
+	HelloFrameGraphDX12(HINSTANCE hInstance, i32 width, i32 height)
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"Hello DirectX12!";
 		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
-	~HelloDX12()
+	~HelloFrameGraphDX12()
 	{
 		Log::Get().Close();
 	}
@@ -68,7 +68,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	HelloDX12 theApp(hInstance, 800, 600);
+	HelloFrameGraphDX12 theApp(hInstance, 800, 600);
 
 	if (!theApp.Init())
 		return 0;
@@ -76,11 +76,11 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	return theApp.Run();
 }
 
-void HelloDX12::UpdateScene(f32 /*dt*/)
+void HelloFrameGraphDX12::UpdateScene(f32 /*dt*/)
 {
 }
 
-void HelloDX12::DrawScene()
+void HelloFrameGraphDX12::DrawScene()
 {
 	m_pRender->BeginPresent(m_pso.Get());
 
@@ -101,7 +101,7 @@ void HelloDX12::DrawScene()
 	m_pRender->EndPresent();
 }
 
-bool HelloDX12::Init()
+bool HelloFrameGraphDX12::Init()
 {
 	Log::Get().Open();
 	if (!Application::Init())
@@ -128,7 +128,7 @@ bool HelloDX12::Init()
 	return true;
 }
 
-void HelloDX12::BuildShadersAndInputLayout()
+void HelloFrameGraphDX12::BuildShadersAndInputLayout()
 {
 	const std::wstring shaderfile = L"BasicShader.hlsl";
 	const std::wstring VSMain = L"VSMainQuad";
@@ -144,12 +144,12 @@ void HelloDX12::BuildShadersAndInputLayout()
 	};
 }
 
-void HelloDX12::OnResize()
+void HelloFrameGraphDX12::OnResize()
 {
 	Application::OnResize();
 }
 
-void HelloDX12::BuildGeometry()
+void HelloFrameGraphDX12::BuildGeometry()
 {
 	// create the vertex buffer resource (this is usually done by GeometryDX11)
 	{
@@ -185,7 +185,7 @@ void HelloDX12::BuildGeometry()
 	}
 }
 
-void HelloDX12::BuildDescriptorHeaps()
+void HelloFrameGraphDX12::BuildDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
 	cbvHeapDesc.NumDescriptors = 1;
@@ -195,7 +195,7 @@ void HelloDX12::BuildDescriptorHeaps()
 	HR(m_pRender->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap)));
 }
 
-void HelloDX12::BuildRootSignature()
+void HelloFrameGraphDX12::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER slotRootParameter[1];
 
@@ -225,7 +225,7 @@ void HelloDX12::BuildRootSignature()
 		IID_PPV_ARGS(&m_rootSignature)));
 }
 
-void HelloDX12::BuildPSO()
+void HelloFrameGraphDX12::BuildPSO()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
