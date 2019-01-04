@@ -2,6 +2,7 @@
 // DeviceTexture2DDX12.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceTexture2DDX12.h"
+#include "dx12/RendererDX12.h"
 
 using namespace forward;
 
@@ -88,12 +89,25 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 
 }
 
-void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
+void DeviceTexture2DDX12::CreateStaging(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
 {
 
 }
 
-void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
+void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
 {
-	HR(device->CreateRenderTargetView(GetDeviceResource().Get(), nullptr, ))
+	m_rtvHandle = RendererContext::GetCurrentRender()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	device->CreateRenderTargetView(GetDeviceResource().Get(), nullptr, m_rtvHandle);
+}
+
+void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
+{
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Format = tx.Format;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+	m_dsvHandle = RendererContext::GetCurrentRender()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
 }

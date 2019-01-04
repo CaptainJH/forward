@@ -21,6 +21,51 @@ using Microsoft::WRL::ComPtr;
 //--------------------------------------------------------------------------------
 using namespace forward;
 
+//
+// DescriptorAllocator implementation
+//
+std::mutex DescriptorAllocator::sm_AllocationMutex;
+std::vector<Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> DescriptorAllocator::sm_DescriptorHeapPool;
+
+void DescriptorAllocator::DestroyAll(void)
+{
+	sm_DescriptorHeapPool.clear();
+}
+
+ID3D12DescriptorHeap* DescriptorAllocator::RequestNewHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, ID3D12Device* device)
+{
+	std::lock_guard<std::mutex> LockGuard(sm_AllocationMutex);
+
+	D3D12_DESCRIPTOR_HEAP_DESC Desc;
+	Desc.Type = Type;
+	Desc.NumDescriptors = sm_NumDescriptorsPerHeap;
+	Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	Desc.NodeMask = 1;
+
+	DescriptorHeapComPtr pHeap;
+	assert(device->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&pHeap)));
+	sm_DescriptorHeapPool.emplace_back(pHeap);
+	return pHeap.Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocator::Allocate(u32 Count, ID3D12Device* device)
+{
+	if (m_CurrentHeap == nullptr || m_RemainingFreeHandles < Count)
+	{
+		m_CurrentHeap = RequestNewHeap(m_Type, device);
+		m_CurrentHandle = m_CurrentHeap->GetCPUDescriptorHandleForHeapStart();
+		m_RemainingFreeHandles = sm_NumDescriptorsPerHeap;
+
+		if (m_DescriptorSize == 0)
+			m_DescriptorSize = device->GetDescriptorHandleIncrementSize(m_Type);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE ret = m_CurrentHandle;
+	m_CurrentHandle.ptr += Count * m_DescriptorSize;
+	m_RemainingFreeHandles -= Count;
+	return ret;
+}
+
 //--------------------------------------------------------------------------------
 RendererDX12::RendererDX12()
 {
@@ -634,4 +679,21 @@ shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultDS() const
 {
 	return nullptr;
+}
+//--------------------------------------------------------------------------------
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)
+{
+	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
+}
+//--------------------------------------------------------------------------------
+RendererDX12* RendererContext::CurrentRender = nullptr;
+RendererDX12* RendererContext::GetCurrentRender()
+{
+	assert(CurrentRender);
+	return CurrentRender;
+}
+
+void RendererContext::SetCurrentRender(RendererDX12* render)
+{
+	CurrentRender = render;
 }

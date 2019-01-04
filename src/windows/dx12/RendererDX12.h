@@ -16,11 +16,39 @@
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
 #include <dxgi1_4.h>
+#include <mutex>
 
 namespace forward
 {
 	class SwapChainConfig;
 	class SwapChain;
+
+
+	// This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible resource descriptors
+	// as resources are created.  For those that need to be made shader-visible, they will need to be copied to a UserDescriptorHeap
+	// or a DynamicDescriptorHeap.
+	class DescriptorAllocator
+	{
+	public:
+		DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type) : m_Type(Type), m_CurrentHeap(nullptr) {}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE Allocate(u32 Count, ID3D12Device* device);
+
+		static void DestroyAll(void);
+
+	protected:
+
+		static const u32 sm_NumDescriptorsPerHeap = 256;
+		static std::mutex sm_AllocationMutex;
+		static std::vector<DescriptorHeapComPtr> sm_DescriptorHeapPool;
+		static ID3D12DescriptorHeap* RequestNewHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, ID3D12Device* device);
+
+		D3D12_DESCRIPTOR_HEAP_TYPE m_Type;
+		ID3D12DescriptorHeap* m_CurrentHeap;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_CurrentHandle;
+		u32 m_DescriptorSize;
+		u32 m_RemainingFreeHandles;
+	};
 
 
     class RendererDX12 : public Renderer
@@ -59,6 +87,10 @@ namespace forward
 
 		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const override;
 		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const override;
+
+		///////////////////////////////////////////////////////////////////////
+
+		D3D12_CPU_DESCRIPTOR_HANDLE AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
 
 	//private:
 	public:
@@ -143,6 +175,14 @@ namespace forward
 		DescriptorHeapComPtr				m_RtvHeap;
 		DescriptorHeapComPtr				m_DsvHeap;
 
+		DescriptorAllocator					m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = 
+		{
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		};
+
 		FenceComPtr							m_pFence = nullptr;
 		u32		m_CurrentFence = 0;
 
@@ -162,5 +202,15 @@ namespace forward
 
 		u32		m_width;
 		u32		m_height;
+	};
+
+	class RendererContext
+	{
+	public:
+		static RendererDX12* GetCurrentRender();
+		static void SetCurrentRender(RendererDX12* render);
+
+	private:
+		static RendererDX12* CurrentRender;
 	};
 };

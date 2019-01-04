@@ -26,7 +26,10 @@ namespace forward
 
 		D3D12_RESOURCE_STATES				m_currentUsageState;
 		D3D12_RESOURCE_STATES				m_transitioningState;
-		D3D12_GPU_VIRTUAL_ADDRESS	m_gpuVirtualAddress;
+		D3D12_GPU_VIRTUAL_ADDRESS			m_gpuVirtualAddress;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_rtvHandle;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE		m_dsvHandle;
 
 		bool				PrepareForSync();
 	};
