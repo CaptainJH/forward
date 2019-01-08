@@ -20,6 +20,10 @@ namespace forward
 
 		void					SyncCPUToGPU() override;
 
+		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetViewHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilViewHandle();
+
 	private:
 	private:
 		void CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
@@ -28,5 +32,8 @@ namespace forward
 		void CreateDSSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
 		void CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
 		void CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_rtvHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_dsvHandle;
 	};
 }

@@ -27,6 +27,7 @@ namespace forward
 		ResourcePtr GetResourcePtr();
 		shared_ptr<FrameGraphTexture2D> GetCurrentRT() const;
 		shared_ptr<FrameGraphTexture2D> GetCurrentDS() const;
+		void Present() const;
 
 	private:
 		Microsoft::WRL::ComPtr<IDXGISwapChain>	m_pSwapChain;

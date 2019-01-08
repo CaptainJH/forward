@@ -31,6 +31,72 @@ DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::st
 	return ret;
 }
 
+DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex)
+	: DeviceTextureDX12(tex)
+{
+	D3D12_RESOURCE_DESC desc;
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	desc.Alignment = 0;
+	desc.Width = tex->GetWidth();
+	desc.Height = tex->GetHeight();
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = static_cast<u16>(tex->GetMipLevelNum());
+	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+	desc.SampleDesc.Count = tex->GetSampCount();
+	desc.SampleDesc.Quality = 0;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+	D3D12_CLEAR_VALUE optClear;
+	optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+
+	const auto TBP = tex->GetBindPosition();
+
+	if (TBP & TBP_DS)
+	{
+		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	}
+
+	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
+	HR(device->CreateCommittedResource(
+		&properties,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&optClear,
+		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())
+	));
+
+	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	{
+		CreateStaging(device, desc);
+	}
+
+	// Create views of the texture.
+	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
+	{
+		CreateSRView(device, desc);
+	}
+
+	if (TBP & TBP_RT)
+	{
+		CreateRTView(device, desc);
+	}
+
+	if (TBP & TBP_DS)
+	{
+		if (TBP & TBP_Shader)
+		{
+			CreateDSSRView(device, desc);
+		}
+		else
+		{
+			CreateDSView(device, desc);
+		}
+	}
+}
+
 DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex)
 	: DeviceTextureDX12(tex)
 {
@@ -89,6 +155,15 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 
 }
 
+shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
+{
+	auto ptr = FrameGraphObject();
+	forward::FrameGraphObject* p_obj = ptr.get();
+	auto p = dynamic_cast<FrameGraphTexture2D*>(p_obj);
+
+	return shared_ptr<FrameGraphTexture2D>(p);
+}
+
 void DeviceTexture2DDX12::CreateStaging(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
 {
 
@@ -110,4 +185,14 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 
 	m_dsvHandle = RendererContext::GetCurrentRender()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetDepthStencilViewHandle()
+{
+	return m_dsvHandle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetRenderTargetViewHandle()
+{
+	return m_rtvHandle;
 }

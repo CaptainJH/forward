@@ -118,7 +118,7 @@ namespace forward
 		i32 CreateSwapChain( SwapChainConfig* pConfig );
 
 		void CreateCommandObjects();
-		void CreateRtvAndDsvDescriptorHeaps();
+		//void CreateRtvAndDsvDescriptorHeaps();
 
 		void FlushCommandQueue();
 		void OnResize();
@@ -131,8 +131,8 @@ namespace forward
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 		i32 m_currentBackBuffer = 0;
-		Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
+		//DeviceResCom12Ptr mSwapChainBuffer[SwapChainBufferCount];
+		//DeviceResCom12Ptr mDepthStencilBuffer;
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------
@@ -164,7 +164,8 @@ namespace forward
 		// wrapper objects.  The position within the array is used to provide fast
 		// random access to the renderer clients.
 
-		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
+		//Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
+		SwapChain*	m_SwapChain = nullptr;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory4> m_Factory;
 
@@ -172,8 +173,8 @@ namespace forward
 		CommandAllocatorComPtr				m_DirectCmdListAlloc;
 		CommandListComPtr					m_CommandList;
 
-		DescriptorHeapComPtr				m_RtvHeap;
-		DescriptorHeapComPtr				m_DsvHeap;
+		//DescriptorHeapComPtr				m_RtvHeap;
+		//DescriptorHeapComPtr				m_DsvHeap;
 
 		DescriptorAllocator					m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = 
 		{
@@ -191,7 +192,6 @@ namespace forward
 		u32 m_CbvSrvUavDescriptorSize	= 0;
 
         i32							GetUnusedResourceIndex();
-        //i32							StoreNewResource( ResourceDX12* pResource );
 
         D3D_FEATURE_LEVEL			m_FeatureLevel = D3D_FEATURE_LEVEL_11_0;
 		DataFormatType				m_BackBufferFormat = DF_R8G8B8A8_UNORM;

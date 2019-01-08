@@ -9,7 +9,6 @@ using namespace forward;
 
 DeviceTextureDX12::DeviceTextureDX12(FrameGraphTexture* tex)
 	: DeviceResourceDX12(tex)
-	, m_hCpuDescriptorHandle(CD3DX12_DEFAULT())
 {
 
 }
