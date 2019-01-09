@@ -11,10 +11,9 @@ using namespace forward;
 //	return m_inputLayout;
 //}
 
-DeviceInputLayoutDX12::DeviceInputLayoutDX12(ID3D12Device* device, const FrameGraphVertexBuffer* vbuffer, FrameGraphVertexShader* vshader)
+DeviceInputLayoutDX12::DeviceInputLayoutDX12(ID3D12Device* /*device*/, const FrameGraphVertexBuffer* vbuffer, FrameGraphVertexShader* vshader)
 	: DeviceObject(const_cast<VertexFormat*>(&vbuffer->GetVertexFormat()))
 	, m_numElements(0)
-	, m_inputLayout(nullptr)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 
@@ -35,7 +34,7 @@ DeviceInputLayoutDX12::DeviceInputLayoutDX12(ID3D12Device* device, const FrameGr
 			element.Format = static_cast<DXGI_FORMAT>(type);
 			element.InputSlot = 0;  // TODO: Streams not yet supported.
 			element.AlignedByteOffset = offset;
-			element.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			element.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 			element.InstanceDataStepRate = 0;
 		}
 
