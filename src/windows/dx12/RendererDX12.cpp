@@ -196,8 +196,6 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 		return false;
 	}
 
-	m_RtvDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	m_DsvDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	m_CbvSrvUavDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check 4X MSAA quality support for our back buffer format.
@@ -225,7 +223,13 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 //--------------------------------------------------------------------------------
 void RendererDX12::Shutdown()
 {
+	if (m_SwapChain->GetSwapChain())
+	{
+		m_SwapChain->GetSwapChain()->SetFullscreenState(false, NULL);
+	}
+	SAFE_DELETE(m_SwapChain);
 
+	FrameGraphObject::CheckMemoryLeak();
 }
 //--------------------------------------------------------------------------------
 ID3D12Device* RendererDX12::GetDevice()
@@ -259,18 +263,6 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
 	HR(m_Factory->CreateSwapChain(m_CommandQueue.Get(), &pConfig->GetSwapChainDesc(), SwapChain.GetAddressOf()));
 
-	//m_currentBackBuffer = 0;
-
-	// Acquire the texture interface from the swap chain.
-
-	//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart());
-	//for (UINT i = 0; i < SwapChainBufferCount; i++)
-	//{
-	//	HR(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
-	//	m_pDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
-	//	rtvHeapHandle.Offset(1, m_RtvDescriptorSize);
-	//}
-
 	std::vector<DeviceTexture2DDX12*> texVector;
 	for (auto i = 0; i < SwapChainBufferCount; ++i)
 	{
@@ -292,47 +284,9 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	assert(m_SwapChain == nullptr);
 	m_SwapChain = new forward::SwapChain(SwapChain, texVector[0]->GetFrameGraphTexture2D(), texVector[1]->GetFrameGraphTexture2D(), dsPtr);
 
-	//D3D12_RESOURCE_DESC depthStencilDesc;
-	//depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	//depthStencilDesc.Alignment = 0;
-	//depthStencilDesc.Width = Width;
-	//depthStencilDesc.Height = Height;
-	//depthStencilDesc.DepthOrArraySize = 1;
-	//depthStencilDesc.MipLevels = 1;
-	//depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	//depthStencilDesc.SampleDesc.Count = pConfig->GetSwapChainDesc().SampleDesc.Count;
-	//depthStencilDesc.SampleDesc.Quality = pConfig->GetSwapChainDesc().SampleDesc.Quality;
-	//depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	//depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-	//D3D12_CLEAR_VALUE optClear;
-	//optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	//optClear.DepthStencil.Depth = 1.0f;
-	//optClear.DepthStencil.Stencil = 0;
-
-	//CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
-	//HR(m_pDevice->CreateCommittedResource(
-	//	&properties,
-	//	D3D12_HEAP_FLAG_NONE,
-	//	&depthStencilDesc,
-	//	D3D12_RESOURCE_STATE_COMMON,
-	//	&optClear,
-	//	IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())
-	//));
-
-	//// Create descriptor to mip level 0 of entire resource using the format of the resource.
-	//D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	//dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	//dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	//dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	//dsvDesc.Texture2D.MipSlice = 0;
-	//m_pDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
-
 	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
 	// Transition the resource from its initial state to be used as a depth buffer.
-	//D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
-	//	D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(dsDevicePtr->GetDeviceResource().Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	m_CommandList->ResourceBarrier(1, &barrier);
@@ -378,33 +332,6 @@ void RendererDX12::CreateCommandObjects()
 	// calling Reset.
 	HR(m_CommandList->Close());
 }
-//--------------------------------------------------------------------------------
-//void RendererDX12::CreateRtvAndDsvDescriptorHeaps()
-//{
-//	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-//	rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
-//	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-//	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-//	rtvHeapDesc.NodeMask = 0;
-//
-//	auto hr = m_pDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(m_RtvHeap.GetAddressOf()));
-//	if (FAILED(hr))
-//	{
-//		Log::Get().Write(L"Create descriptor heap(RTV) failed!");
-//	}
-//
-//	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-//	dsvHeapDesc.NumDescriptors = 1;
-//	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-//	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-//	dsvHeapDesc.NodeMask = 0;
-//
-//	hr = m_pDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_DsvHeap.GetAddressOf()));
-//	if (FAILED(hr))
-//	{
-//		Log::Get().Write(L"Create descriptor heap(DSV) failed!");
-//	}
-//}
 //--------------------------------------------------------------------------------
 void RendererDX12::FlushCommandQueue()
 {
@@ -456,10 +383,6 @@ ID3D12Resource* RendererDX12::CurrentBackBuffer() const
 
 D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView() const
 {
-	//return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-	//	m_RtvHeap->GetCPUDescriptorHandleForHeapStart(),
-	//	m_currentBackBuffer,
-	//	m_RtvDescriptorSize);
 	auto rtPtr = m_SwapChain->GetCurrentRT();
 	auto deviceRes = rtPtr->GetResource();
 	DeviceTexture2DDX12* tex12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
@@ -469,7 +392,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView() const
 
 D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView() const
 {
-	//return m_DsvHeap->GetCPUDescriptorHandleForHeapStart();
 	auto dsPtr = m_SwapChain->GetCurrentDS();
 	auto deviceRes = dsPtr->GetResource();
 	DeviceTexture2DDX12* tex12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
@@ -523,9 +445,7 @@ void RendererDX12::EndPresent()
 	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// swap the back and front buffers
-	//HR(m_SwapChain->GetSwapChain()->Present(0, 0));
 	m_SwapChain->Present();
-	//m_currentBackBuffer = (m_currentBackBuffer + 1) % SwapChainBufferCount;
 
 	// Wait until frame commands are complete.  This waiting is inefficient and is
 	// done for simplicity.  Later we will show how to organize our rendering code

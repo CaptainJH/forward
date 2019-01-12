@@ -133,9 +133,6 @@ namespace forward
 		ID3D12Resource* CurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
-		i32 m_currentBackBuffer = 0;
-		//DeviceResCom12Ptr mSwapChainBuffer[SwapChainBufferCount];
-		//DeviceResCom12Ptr mDepthStencilBuffer;
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------
@@ -163,11 +160,6 @@ namespace forward
 		Microsoft::WRL::ComPtr<ID3D12Debug>		m_pDebugger = nullptr;
 		D3D_DRIVER_TYPE							m_driverType = D3D_DRIVER_TYPE_NULL;
 
-		// In general, all resources and API objects are housed in expandable arrays
-		// wrapper objects.  The position within the array is used to provide fast
-		// random access to the renderer clients.
-
-		//Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 		SwapChain*	m_SwapChain = nullptr;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory4> m_Factory;
@@ -175,9 +167,6 @@ namespace forward
 		CommandQueueComPtr					m_CommandQueue;
 		CommandAllocatorComPtr				m_DirectCmdListAlloc;
 		CommandListComPtr					m_CommandList;
-
-		//DescriptorHeapComPtr				m_RtvHeap;
-		//DescriptorHeapComPtr				m_DsvHeap;
 
 		DescriptorAllocator					m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = 
 		{
@@ -190,8 +179,6 @@ namespace forward
 		FenceComPtr							m_pFence = nullptr;
 		u32		m_CurrentFence = 0;
 
-		u32 m_RtvDescriptorSize			= 0;
-		u32 m_DsvDescriptorSize			= 0;
 		u32 m_CbvSrvUavDescriptorSize	= 0;
 
         i32							GetUnusedResourceIndex();
