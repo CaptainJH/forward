@@ -648,7 +648,7 @@ void Renderer2DX11::DrawIndexed(u32 indexCount)
 
 void Renderer2DX11::Present()
 {
-	m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+	m_vSwapChains[0]->Present();
 }
 
 void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src)
@@ -727,7 +727,7 @@ void Renderer2DX11::EndDrawFrameGraph()
 	}
 	else
 	{
-		m_vSwapChains[0]->GetSwapChain()->Present(0, 0);
+		m_vSwapChains[0]->Present();
 	}
 
 	m_currentFrameGraph = nullptr;

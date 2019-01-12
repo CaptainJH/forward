@@ -1,5 +1,6 @@
 //--------------------------------------------------------------------------------
 #include "SwapChain.h"
+#include "d3dUtil.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -53,6 +54,6 @@ void SwapChain::Present() const
 {
 	assert(!m_rts.empty());
 	const auto N = m_rts.size();
-
+	HR(m_pSwapChain->Present(0, 0));
 	m_currentBackBufferIndex = (m_currentBackBufferIndex + 1) % N;
 }

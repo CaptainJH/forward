@@ -44,7 +44,7 @@ ID3D12DescriptorHeap* DescriptorAllocator::RequestNewHeap(D3D12_DESCRIPTOR_HEAP_
 	Desc.NodeMask = 1;
 
 	DescriptorHeapComPtr pHeap;
-	assert(device->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&pHeap)));
+	HR(device->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&pHeap)));
 	sm_DescriptorHeapPool.emplace_back(pHeap);
 	return pHeap.Get();
 }
@@ -226,73 +226,6 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 void RendererDX12::Shutdown()
 {
 
-}
-//--------------------------------------------------------------------------------
-void RendererDX12::Present(HWND /*hWnd*/, i32 /*SwapChain*/, u32 /*SyncInterval*/, u32 /*PresentFlags*/)
-{
-	// Present to the window
-
-	//u32 index = static_cast<u32>(SwapChain);
-
-	//if (index < m_vSwapChains.size()) 
-	//{
-	//	SwapChainDX11* pSwapChain = m_vSwapChains[SwapChain];
-	//	HRESULT hr = pSwapChain->m_pSwapChain->Present(SyncInterval, PresentFlags);
-	//}
-	//else 
-	//{
-	//	Log::Get().Write(L"Tried to present an invalid swap chain index!");
-	//}
-
-
-	//==============================================================
-	// Reuse the memory associated with command recording.
-	// We can only reset when the associated command lists have finished execution on the GPU.
-	HR(m_DirectCmdListAlloc->Reset());
-
-	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-	// Reusing the command list reuses memory.
-	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
-
-	// Indicate a state transition on the resource usage.
-	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_CommandList->ResourceBarrier(1, &barrier);
-
-	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-	m_CommandList->RSSetViewports(1, &mScreenViewport);
-	m_CommandList->RSSetScissorRects(1, &mScissorRect);
-
-	// Clear the back buffer and depth buffer.
-	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
-	m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
-	m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-	// Specify the buffers we are going to render to.
-	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView();
-	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView();
-	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
-
-	// Indicate a state transition on the resource usage.
-	barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	m_CommandList->ResourceBarrier(1, &barrier);
-
-	// Done recording commands.
-	HR(m_CommandList->Close());
-
-	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
-	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	// swap the back and front buffers
-	//HR(m_SwapChain->Present(0, 0));
-	//m_currentBackBuffer = (m_currentBackBuffer + 1) % SwapChainBufferCount;
-
-	// Wait until frame commands are complete.  This waiting is inefficient and is
-	// done for simplicity.  Later we will show how to organize our rendering code
-	// so we do not have to wait per frame.
-	FlushCommandQueue();
 }
 //--------------------------------------------------------------------------------
 ID3D12Device* RendererDX12::GetDevice()
@@ -590,7 +523,8 @@ void RendererDX12::EndPresent()
 	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// swap the back and front buffers
-	HR(m_SwapChain->GetSwapChain()->Present(0, 0));
+	//HR(m_SwapChain->GetSwapChain()->Present(0, 0));
+	m_SwapChain->Present();
 	//m_currentBackBuffer = (m_currentBackBuffer + 1) % SwapChainBufferCount;
 
 	// Wait until frame commands are complete.  This waiting is inefficient and is

@@ -30,7 +30,12 @@ namespace forward
 	class DescriptorAllocator
 	{
 	public:
-		DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type) : m_Type(Type), m_CurrentHeap(nullptr) {}
+		DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type) 
+			: m_Type(Type)
+			, m_CurrentHeap(nullptr) 
+			, m_DescriptorSize(0)
+			, m_RemainingFreeHandles(0)
+		{}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE Allocate(u32 Count, ID3D12Device* device);
 
@@ -112,8 +117,6 @@ namespace forward
 
 		// These methods provide rendering frame control.  They are closely
 		// related to the API for sequencing rendering batches.
-
-		void Present( HWND hWnd = 0, i32 SwapChain = -1, u32 SyncInterval = 0, u32 PresentFlags = 0 );
 
 		i32 CreateSwapChain( SwapChainConfig* pConfig );
 

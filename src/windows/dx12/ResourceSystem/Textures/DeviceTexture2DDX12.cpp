@@ -187,6 +187,21 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
 }
 
+void DeviceTexture2DDX12::CreateSRView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+{
+
+}
+
+void DeviceTexture2DDX12::CreateUAView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+{
+
+}
+
+void DeviceTexture2DDX12::CreateDSSRView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+{
+
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetDepthStencilViewHandle()
 {
 	return m_dsvHandle;

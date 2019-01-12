@@ -410,9 +410,12 @@ bool ApplicationWin::ConfigureRendererComponents()
 		break;
 
 	case Renderer_Forward_DX12:
-		m_pRender2 = new RendererDX12;
+	{
+		auto renderDX12 = new RendererDX12;
+		m_pRender2 = renderDX12;
+		RendererContext::SetCurrentRender(renderDX12);
 		break;
-
+	}
 	default:
 		assert(false);
 	}
