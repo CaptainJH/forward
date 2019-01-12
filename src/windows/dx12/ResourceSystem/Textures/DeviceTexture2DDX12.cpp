@@ -63,7 +63,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 		&properties,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
-		D3D12_RESOURCE_STATE_COMMON,
+		GetResourceState(),
 		&optClear,
 		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())
 	));

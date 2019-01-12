@@ -22,6 +22,7 @@ namespace forward
 {
 	class SwapChainConfig;
 	class SwapChain;
+	class DeviceResourceDX12;
 
 
 	// This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible resource descriptors
@@ -129,8 +130,10 @@ namespace forward
 		void BeginPresent(ID3D12PipelineState* pso);
 		void EndPresent();
 
+		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
+
 		//--------------------------------------------------------
-		ID3D12Resource* CurrentBackBuffer() const;
+		DeviceResourceDX12* CurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 		D3D12_VIEWPORT	mScreenViewport;

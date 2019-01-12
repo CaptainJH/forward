@@ -275,7 +275,6 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		texVector.push_back(rtPtr);
 	}
 
-
 	// Create the depth/stencil buffer and view.
 	auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D24_UNORM_S8_UINT,
 		pConfig->GetWidth(), pConfig->GetHeight(), TextureBindPosition::TBP_DS);
@@ -287,10 +286,7 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
 	// Transition the resource from its initial state to be used as a depth buffer.
-	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(dsDevicePtr->GetDeviceResource().Get(),
-		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	m_CommandList->ResourceBarrier(1, &barrier);
-
+	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	HR(m_CommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
@@ -372,13 +368,13 @@ void RendererDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-ID3D12Resource* RendererDX12::CurrentBackBuffer() const
+DeviceResourceDX12* RendererDX12::CurrentBackBuffer() const
 {
 	auto rtPtr = m_SwapChain->GetCurrentRT();
 	auto deviceRes = rtPtr->GetResource();
 	DeviceResourceDX12* deviceRes12 = dynamic_cast<DeviceResourceDX12*>(deviceRes);
 	assert(deviceRes12);
-	return deviceRes12->GetDeviceResource().Get();
+	return deviceRes12;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView() const
@@ -415,9 +411,7 @@ void RendererDX12::BeginPresent(ID3D12PipelineState* pso)
 	m_CommandList->RSSetScissorRects(1, &mScissorRect);
 
 	// Indicate a state transition on the resource usage.
-	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_CommandList->ResourceBarrier(1, &barrier);
+	TransitionResource(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
@@ -433,9 +427,7 @@ void RendererDX12::BeginPresent(ID3D12PipelineState* pso)
 void RendererDX12::EndPresent()
 {
 	// Indicate a state transition on the resource usage.
-	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	m_CommandList->ResourceBarrier(1, &barrier);
+	TransitionResource(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
 	// Done recording commands.
 	HR(m_CommandList->Close());
@@ -550,6 +542,17 @@ shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultDS() const
 {
 	return nullptr;
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState)
+{
+	if (resource->GetResourceState() == newState)
+		return;
+
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetDeviceResource().Get(),
+		resource->GetResourceState(), newState);
+	m_CommandList->ResourceBarrier(1, &barrier);
+	resource->SetResourceState(newState);
 }
 //--------------------------------------------------------------------------------
 D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)

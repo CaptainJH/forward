@@ -10,7 +10,7 @@ using namespace forward;
 DeviceResourceDX12::DeviceResourceDX12(forward::FrameGraphObject* obj)
 	: DeviceResource(obj)
 	, m_currentUsageState(D3D12_RESOURCE_STATE_COMMON)
-	, m_transitioningState((D3D12_RESOURCE_STATES)-1)
+	//, m_transitioningState((D3D12_RESOURCE_STATES)-1)
 {
 }
 
@@ -61,4 +61,14 @@ bool DeviceResourceDX12::PrepareForSync()
 		Log::Get().Write(L"Current resource usage setting doesn't support staging!");
 		return false;
 	}
+}
+
+D3D12_RESOURCE_STATES	DeviceResourceDX12::GetResourceState() const
+{
+	return m_currentUsageState;
+}
+
+void DeviceResourceDX12::SetResourceState(D3D12_RESOURCE_STATES state)
+{
+	m_currentUsageState = state;
 }
