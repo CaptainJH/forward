@@ -325,7 +325,6 @@ namespace forward
 		shared_ptr<FrameGraphComputeShader> m_shader;
 	};
 
-
 	struct PipelineStateObject
 	{
 		InputAssemblerStageState	m_IAState;
@@ -336,5 +335,8 @@ namespace forward
 		GeometryShaderStageState	m_GSState;
 		PixelShaderStageState		m_PSState;
 		ComputeShaderStageState		m_CSState;
+
+		// For DirectX12
+		shared_ptr<DeviceObject>	m_devicePSO;
 	};
 }
