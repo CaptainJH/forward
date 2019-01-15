@@ -23,6 +23,7 @@ namespace forward
 	class SwapChainConfig;
 	class SwapChain;
 	class DeviceResourceDX12;
+	struct PipelineStateObject;
 
 
 	// This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible resource descriptors
@@ -131,6 +132,8 @@ namespace forward
 		void EndPresent();
 
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
+
+		void BuildPSO(PipelineStateObject& pso);
 
 		//--------------------------------------------------------
 		DeviceResourceDX12* CurrentBackBuffer() const;

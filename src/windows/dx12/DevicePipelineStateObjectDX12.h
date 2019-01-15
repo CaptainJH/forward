@@ -23,9 +23,10 @@ namespace forward
 		u32							m_numElements;
 		D3D12_INPUT_ELEMENT_DESC	m_elements[VA_MAX_ATTRIBUTES];
 
-		// Conversions from FrameGraph values to DX11 values.
+		// Conversions from FrameGraph values to DX12 values.
 		static i8 const* msSemantic[VA_NUM_SEMANTICS];
 
 		PipelineStateComPtr			m_devicePSO;
+		RootSignatureComPtr			m_rootSignature;
 	};
 }

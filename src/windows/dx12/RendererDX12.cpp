@@ -560,6 +560,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateDescriptor(D3D12_DESCRIPTOR_HE
 	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
 }
 //--------------------------------------------------------------------------------
+void RendererDX12::BuildPSO(PipelineStateObject& pso)
+{
+	/// TODO: not implement yet
+}
+//--------------------------------------------------------------------------------
 RendererDX12* RendererContext::CurrentRender = nullptr;
 RendererDX12* RendererContext::GetCurrentRender()
 {
