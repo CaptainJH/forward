@@ -44,3 +44,22 @@ DevicePipelineStateObjectDX12::~DevicePipelineStateObjectDX12()
 {
 
 }
+
+i8 const* DevicePipelineStateObjectDX12::msSemantic[VA_NUM_SEMANTICS] =
+{
+	"",
+	"POSITION",
+	"BLENDWEIGHT",
+	"BLENDINDICES",
+	"NORMAL",
+	"PSIZE",
+	"TEXCOORD",
+	"TANGENT",
+	"BINORMAL",
+	"TESSFACTOR",
+	"POSITIONT",
+	"COLOR",
+	"FOG",
+	"DEPTH",
+	"SAMPLE"
+};
