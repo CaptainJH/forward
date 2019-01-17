@@ -11,7 +11,7 @@ namespace forward
 	class DeviceBufferDX12 : public DeviceResourceDX12
 	{
 	public:
-		DeviceBufferDX12(ID3D12Device* device, forward::FrameGraphObject* obj);
+		DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::FrameGraphObject* obj);
 
 		//ID3D11Buffer*			GetDXBufferPtr();
 
@@ -23,6 +23,9 @@ namespace forward
 		//u32						GetCPUAccessFlags();
 		//u32						GetMiscFlags();
 		//u32						GetStructureByteStride();
+
+		D3D12_VERTEX_BUFFER_VIEW	VertexBufferView();
+		D3D12_INDEX_BUFFER_VIEW		IndexBufferView();
 
 		void					SyncCPUToGPU() override;
 		//void					SyncCPUToGPU(ID3D11DeviceContext* context);
