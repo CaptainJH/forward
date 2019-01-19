@@ -79,3 +79,4 @@ $RECYCLE.BIN/
 **/Log
 libs/forwardDX11_Dll.dll
 src/applications/HelloPyQT/HelloPyQT.dll
+.vscode/launch.json
