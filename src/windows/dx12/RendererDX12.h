@@ -160,6 +160,8 @@ namespace forward
 		ID3D12CommandQueue* CommandQueue() { return m_CommandQueue.Get(); }
 		void ResetCommandList();
 
+		void PrepareRenderPass(RenderPass& pass);
+
     protected:
     	// The main API interfaces used in the renderer.
 		DeviceCom12Ptr							m_pDevice = nullptr;

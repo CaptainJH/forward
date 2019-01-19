@@ -12,12 +12,15 @@
 namespace forward
 {
 	struct PipelineStateObject;
+	class RendererDX12;
 
 	class DevicePipelineStateObjectDX12 : public DeviceObject
 	{
 	public:
-		DevicePipelineStateObjectDX12(ID3D12Device* device, const PipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(RendererDX12* render, const PipelineStateObject& pso);
 		virtual ~DevicePipelineStateObjectDX12();
+
+		ID3D12PipelineState* GetDevicePSO();
 
 	private:
 		u32							m_numElements;

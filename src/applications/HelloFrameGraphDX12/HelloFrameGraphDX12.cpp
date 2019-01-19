@@ -107,11 +107,16 @@ bool HelloFrameGraphDX12::Init()
 
 	m_pRender = dynamic_cast<RendererDX12*>(m_pRender2);
 
-	//BuildDescriptorHeaps();
 	BuildRootSignature();
 	BuildShadersAndInputLayout();
-	BuildGeometry();
 	BuildPSO();
+
+	m_pRender->ResetCommandList();
+	//BuildDescriptorHeaps();
+	//BuildRootSignature();
+	//BuildShadersAndInputLayout();
+	BuildGeometry();
+	//BuildPSO();
 
 	// Execute the initialization commands
 	HR(m_pRender->CommandList()->Close());
@@ -120,7 +125,6 @@ bool HelloFrameGraphDX12::Init()
 
 	// Wait until initialization is complete.
 	m_pRender->FlushCommandQueue();
-
 
 	return true;
 }

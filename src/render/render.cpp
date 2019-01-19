@@ -2,6 +2,7 @@
 // render.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #include "render.h"
+#include "render/FrameGraph/FrameGraph.h"
 
 using namespace forward;
 
@@ -18,4 +19,12 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 
+}
+
+void Renderer::BeginDrawFrameGraph(FrameGraph* fg)
+{
+	assert(m_currentFrameGraph == nullptr);
+	m_currentFrameGraph = fg;
+
+	m_currentFrameGraph->Reset();
 }

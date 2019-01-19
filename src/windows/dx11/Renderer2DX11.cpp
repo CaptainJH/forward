@@ -703,14 +703,6 @@ void Renderer2DX11::OnResize(u32 /*width*/, u32 /*height*/)
 
 }
 
-void Renderer2DX11::BeginDrawFrameGraph(FrameGraph* fg)
-{
-	assert(m_currentFrameGraph == nullptr);
-	m_currentFrameGraph = fg;
-
-	m_currentFrameGraph->Reset();
-}
-
 void Renderer2DX11::EndDrawFrameGraph()
 {
 	m_currentFrameGraph->LinkInfo();

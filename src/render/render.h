@@ -55,7 +55,7 @@ namespace forward
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation=0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
 
-		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;
+		virtual void BeginDrawFrameGraph(FrameGraph* fg);
 		virtual void EndDrawFrameGraph() = 0;
 
 		virtual void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) = 0;
@@ -70,9 +70,10 @@ namespace forward
 	protected:
 		Renderer();
 
+		FrameGraph* m_currentFrameGraph = nullptr;
+
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.
-
 		static Renderer*					m_spRenderer;
 	};
 }

@@ -15,7 +15,9 @@
 #include "utilities/Utils.h"
 
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/FrameGraph/FrameGraph.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "dx12/DevicePipelineStateObjectDX12.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -450,9 +452,26 @@ void RendererDX12::ResetCommandList()
 	m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawRenderPass(RenderPass& /*pass*/)
+void RendererDX12::PrepareRenderPass(RenderPass& pass)
 {
+	auto& pso = pass.GetPSO();
 
+	if (!pso.m_devicePSO)
+	{
+		pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
+	}
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::DrawRenderPass(RenderPass& pass)
+{
+	auto& pso = pass.GetPSO();
+	auto devicePSO = dynamic_cast<DevicePipelineStateObjectDX12*>(pso.m_devicePSO.get())->GetDevicePSO();
+
+	BeginPresent(devicePSO);
+
+	//CommandList()->SetGraphicsRootSignature()
+
+	EndPresent();
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DeleteResource(ResourcePtr /*ptr*/)
@@ -494,8 +513,6 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	/// Font stuff
 
 
-	ResetCommandList();
-
 	return true;
 }
 //--------------------------------------------------------------------------------
@@ -524,14 +541,25 @@ void RendererDX12::DrawScreenText(const std::string& /*msg*/, i32 /*x*/, i32 /*y
 
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::BeginDrawFrameGraph(FrameGraph* /*fg*/)
+void RendererDX12::BeginDrawFrameGraph(FrameGraph* fg)
 {
-
+	Renderer::BeginDrawFrameGraph(fg);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::EndDrawFrameGraph()
 {
+	m_currentFrameGraph->LinkInfo();
+	//CompileCurrentFrameGraph();
+	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
+	for (auto renderPass : renderPassDB)
+	{
+		PrepareRenderPass(*renderPass.m_renderPass);
+		DrawRenderPass(*renderPass.m_renderPass);
+	}
 
+	//m_SwapChain->Present();
+
+	m_currentFrameGraph = nullptr;
 }
 //--------------------------------------------------------------------------------
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const

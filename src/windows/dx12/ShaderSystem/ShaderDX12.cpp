@@ -4,10 +4,10 @@
 
 using namespace forward;
 
-ShaderDX12::ShaderDX12(forward::FrameGraphObject* obj)
-	: ShaderDX(obj)
+ShaderDX12::ShaderDX12(forward::FrameGraphShader* shader)
+	: ShaderDX(shader)
 {
-	auto type = m_frameGraphObjPtr.lock_down<FrameGraphShader>()->GetType();
+	auto type = shader->GetType();
 	switch (type)
 	{
 	case FGOT_VERTEX_SHADER:
@@ -35,10 +35,9 @@ ShaderDX12::ShaderDX12(forward::FrameGraphObject* obj)
 	}
 
 	ShaderModel += L"_5_0";
-	auto pShader = dynamic_cast<FrameGraphShader*>(obj);
 
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
-		pShader->GetShaderFile(), pShader->GetShaderEntry(), ShaderModel);
+		shader->GetShaderFile(), shader->GetShaderEntry(), ShaderModel);
 	assert(m_pCompiledShader);
 }
 

@@ -31,7 +31,6 @@ namespace forward
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 
-		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 
 		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const override;
@@ -72,6 +71,5 @@ namespace forward
 
 		Font*	m_textFont;
 		RenderPass* m_textRenderPass;
-		FrameGraph* m_currentFrameGraph;
 	};
 }
