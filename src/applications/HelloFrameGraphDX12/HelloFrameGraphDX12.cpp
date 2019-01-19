@@ -4,8 +4,6 @@
 #include "dxCommon/ShaderFactoryDX.h"
 #include "dx12/RendererDX12.h"
 
-//#include "ResourceSystem\Buffer\BufferConfigDX11.h"
-
 using namespace forward;
 
 //--------------------------------------------------------------------------------
@@ -85,8 +83,8 @@ void HelloFrameGraphDX12::DrawScene()
 	m_pRender->BeginPresent(m_pso.Get());
 
 	auto commandList = m_pRender->CommandList();
-	ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
-	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	//ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
+	//commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
@@ -94,7 +92,7 @@ void HelloFrameGraphDX12::DrawScene()
 	commandList->IASetVertexBuffers(0, 1, &vbv);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	//commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	commandList->DrawInstanced(4, 1, 0, 0);
 
@@ -109,9 +107,7 @@ bool HelloFrameGraphDX12::Init()
 
 	m_pRender = dynamic_cast<RendererDX12*>(m_pRender2);
 
-	m_pRender->ResetCommandList();
-
-	BuildDescriptorHeaps();
+	//BuildDescriptorHeaps();
 	BuildRootSignature();
 	BuildShadersAndInputLayout();
 	BuildGeometry();
@@ -124,6 +120,7 @@ bool HelloFrameGraphDX12::Init()
 
 	// Wait until initialization is complete.
 	m_pRender->FlushCommandQueue();
+
 
 	return true;
 }
@@ -168,8 +165,8 @@ void HelloFrameGraphDX12::BuildGeometry()
 		m_geometry = std::make_unique<MeshGeometry>();
 		m_geometry->Name = "screen";
 
-		HR(D3DCreateBlob(vbByteSize, &m_geometry->VertexBufferCPU));
-		CopyMemory(m_geometry->VertexBufferCPU->GetBufferPointer(), quadVertices, vbByteSize);
+		//HR(D3DCreateBlob(vbByteSize, &m_geometry->VertexBufferCPU));
+		//CopyMemory(m_geometry->VertexBufferCPU->GetBufferPointer(), quadVertices, vbByteSize);
 		m_geometry->VertexBufferGPU = CreateDefaultBuffer(m_pRender->GetDevice(),
 			m_pRender->CommandList(), quadVertices, vbByteSize, m_geometry->VertexBufferUploader);
 
