@@ -13,6 +13,7 @@ using namespace forward;
 DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* render, const PipelineStateObject& pso)
 	: DeviceObject(nullptr)
 	, m_numElements(0)
+	, m_pso(pso)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = render->GetDevice();
@@ -156,6 +157,14 @@ ID3D12PipelineState* DevicePipelineStateObjectDX12::GetDevicePSO()
 {
 	assert(m_devicePSO.Get());
 	return m_devicePSO.Get();
+}
+
+void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
+{
+	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+	auto vbv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_vertexBuffers[0])->VertexBufferView();
+	commandList->IASetVertexBuffers(0, 1, &vbv);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
 i8 const* DevicePipelineStateObjectDX12::msSemantic[VA_NUM_SEMANTICS] =

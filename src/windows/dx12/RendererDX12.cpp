@@ -464,13 +464,12 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 //--------------------------------------------------------------------------------
 void RendererDX12::DrawRenderPass(RenderPass& pass)
 {
-	auto& pso = pass.GetPSO();
-	auto devicePSO = dynamic_cast<DevicePipelineStateObjectDX12*>(pso.m_devicePSO.get())->GetDevicePSO();
+	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
+	auto devicePSO = pso->GetDevicePSO();
 
 	BeginPresent(devicePSO);
-
-	//CommandList()->SetGraphicsRootSignature()
-
+	pso->Bind(CommandList());
+	CommandList()->DrawInstanced(4, 1, 0, 0);
 	EndPresent();
 }
 //--------------------------------------------------------------------------------

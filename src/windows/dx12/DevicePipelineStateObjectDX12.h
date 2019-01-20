@@ -21,6 +21,7 @@ namespace forward
 		virtual ~DevicePipelineStateObjectDX12();
 
 		ID3D12PipelineState* GetDevicePSO();
+		void Bind(ID3D12GraphicsCommandList* commandList);
 
 	private:
 		u32							m_numElements;
@@ -31,5 +32,6 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
+		const PipelineStateObject& m_pso;
 	};
 }
