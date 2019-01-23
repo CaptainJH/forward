@@ -496,7 +496,6 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	}
 
 	CreateCommandObjects();
-	//CreateRtvAndDsvDescriptorHeaps();
 
 	m_width = config.GetWidth();
 	m_height = config.GetHeight();
@@ -582,7 +581,7 @@ void RendererDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOUR
 	resource->SetResourceState(newState);
 }
 //--------------------------------------------------------------------------------
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)
 {
 	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
 }

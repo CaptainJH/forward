@@ -25,50 +25,70 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 
 	FrameGraphResource* res = dynamic_cast<FrameGraphResource*>(obj);
 	auto byteSize = res->GetNumBytes();
+	ResourceUsage usage = res->GetUsage();
 
-	CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
-	HR(device->CreateCommittedResource(
-		&heap_properties,
-		D3D12_HEAP_FLAG_NONE,
-		&resource_desc,
-		D3D12_RESOURCE_STATE_COMMON,
-		nullptr,
-		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
+	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
+	{
+		CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
+		assert(GetResourceState() == D3D12_RESOURCE_STATE_COMMON);
+		HR(device->CreateCommittedResource(
+			&heap_properties,
+			D3D12_HEAP_FLAG_NONE,
+			&resource_desc,
+			GetResourceState(),
+			nullptr,
+			IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
 
-	// In order to copy CPU memory data into our default buffer, we need to create
-	// an intermediate upload heap. 
-	CD3DX12_HEAP_PROPERTIES heap_staging_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	HR(device->CreateCommittedResource(
-		&heap_staging_properties,
-		D3D12_HEAP_FLAG_NONE,
-		&resource_desc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
+		// In order to copy CPU memory data into our default buffer, we need to create
+		// an intermediate upload heap. 
+		CD3DX12_HEAP_PROPERTIES heap_staging_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		HR(device->CreateCommittedResource(
+			&heap_staging_properties,
+			D3D12_HEAP_FLAG_NONE,
+			&resource_desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
+
+		SyncCPUToGPU(cmdList);
+	}
+	else if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
+	{
+
+	}
+	else
+	{
+		assert(false && "Not Implemented yet!");
+	}
+}
+
+void DeviceBufferDX12::SyncCPUToGPU()
+{
+}
+
+void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList)
+{
+	auto res = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
 
 	// Describe the data we want to copy into the default buffer.
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
 	subResourceData.pData = res->GetData();
-	subResourceData.RowPitch = byteSize;
+	subResourceData.RowPitch = res->GetNumBytes();
 	subResourceData.SlicePitch = subResourceData.RowPitch;
 
 	// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
 	// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
 	// the intermediate upload heap data will be copied to mBuffer.
 	auto transitionToCopyDest = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
-		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+		GetResourceState()/*D3D12_RESOURCE_STATE_COMMON*/
+		, D3D12_RESOURCE_STATE_COPY_DEST);
 	cmdList->ResourceBarrier(1, &transitionToCopyDest);
 	UpdateSubresources<1>(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, &subResourceData);
 	auto transitionBack = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 	cmdList->ResourceBarrier(1, &transitionBack);
-
-}
-
-void DeviceBufferDX12::SyncCPUToGPU()
-{
-
+	SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
 D3D12_VERTEX_BUFFER_VIEW DeviceBufferDX12::VertexBufferView()

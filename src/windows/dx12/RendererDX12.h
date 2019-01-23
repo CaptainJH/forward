@@ -97,7 +97,7 @@ namespace forward
 
 		///////////////////////////////////////////////////////////////////////
 
-		D3D12_CPU_DESCRIPTOR_HANDLE AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
+		D3D12_CPU_DESCRIPTOR_HANDLE AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
 
 	//private:
 	public:
@@ -123,7 +123,6 @@ namespace forward
 		i32 CreateSwapChain( SwapChainConfig* pConfig );
 
 		void CreateCommandObjects();
-		//void CreateRtvAndDsvDescriptorHeaps();
 
 		void FlushCommandQueue();
 		void OnResize();
@@ -142,17 +141,6 @@ namespace forward
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------
-
-
-        // Each programmable shader stage can be loaded from file, and stored in a list for
-		// later use.  Either an application can directly set these values or a render effect
-		// can encapsulate the entire pipeline configuration.
-
-		//i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
-		//	const std::wstring& model, bool enablelogging = true );
-
-  //      i32 LoadShader( ShaderType type, const std::wstring& filename, const std::wstring& function,
-  //          const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging = true );
 
         ID3D12Device* GetDevice();
 

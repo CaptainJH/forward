@@ -171,7 +171,7 @@ void DeviceTexture2DDX12::CreateStaging(ID3D12Device* /*device*/, const D3D12_RE
 
 void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
 {
-	m_rtvHandle = RendererContext::GetCurrentRender()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	m_rtvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device->CreateRenderTargetView(GetDeviceResource().Get(), nullptr, m_rtvHandle);
 }
 
@@ -183,7 +183,7 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 	dsvDesc.Format = tx.Format;
 	dsvDesc.Texture2D.MipSlice = 0;
 
-	m_dsvHandle = RendererContext::GetCurrentRender()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	m_dsvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
 }
 

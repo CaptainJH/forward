@@ -28,7 +28,7 @@ namespace forward
 		D3D12_INDEX_BUFFER_VIEW		IndexBufferView();
 
 		void					SyncCPUToGPU() override;
-		//void					SyncCPUToGPU(ID3D11DeviceContext* context);
+		void					SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList);
 		//void					SyncGPUToCPU(ID3D11DeviceContext* context);
 
 	protected:
