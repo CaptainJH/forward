@@ -10,7 +10,7 @@ using namespace forward;
 DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::FrameGraphObject* obj)
 	: DeviceResourceDX12(obj)
 {
-	m_srvHandle.ptr = 0;
+	m_cbvHandle.ptr = 0;
 	m_uavHandle.ptr = 0;
 
 	auto type = obj->GetType();
@@ -52,6 +52,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 			IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
 
 		SyncCPUToGPU(cmdList);
+		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 	}
 	else if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
 	{
@@ -97,7 +98,7 @@ D3D12_VERTEX_BUFFER_VIEW DeviceBufferDX12::VertexBufferView()
 	assert(res->GetType() == FGOT_VERTEX_BUFFER);
 
 	D3D12_VERTEX_BUFFER_VIEW vbv;
-	vbv.BufferLocation = m_deviceResPtr->GetGPUVirtualAddress();
+	vbv.BufferLocation = m_gpuVirtualAddress;
 	vbv.StrideInBytes = res->GetElementSize();
 	vbv.SizeInBytes = res->GetNumBytes();
 
@@ -110,7 +111,7 @@ D3D12_INDEX_BUFFER_VIEW DeviceBufferDX12::IndexBufferView()
 	assert(res->GetType() == FGOT_INDEX_BUFFER);
 
 	D3D12_INDEX_BUFFER_VIEW ibv;
-	ibv.BufferLocation = m_deviceResPtr->GetGPUVirtualAddress();
+	ibv.BufferLocation = m_gpuVirtualAddress;
 	ibv.Format = res->GetElementSize() == sizeof(u32) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 	ibv.SizeInBytes = res->GetNumBytes();
 

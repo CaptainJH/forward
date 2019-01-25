@@ -32,7 +32,7 @@ namespace forward
 		//void					SyncGPUToCPU(ID3D11DeviceContext* context);
 
 	protected:
-		D3D12_CPU_DESCRIPTOR_HANDLE		m_srvHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_cbvHandle;
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_uavHandle;
 
 		//void					CreateStaging(ID3D11Device* device, const D3D11_BUFFER_DESC& descIn);
