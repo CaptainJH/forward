@@ -76,6 +76,7 @@ RendererDX12::RendererDX12()
 //--------------------------------------------------------------------------------
 RendererDX12::~RendererDX12()
 {
+	DescriptorAllocator::DestroyAll();
 }
 //--------------------------------------------------------------------------------
 D3D_FEATURE_LEVEL RendererDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*DriverType*/)

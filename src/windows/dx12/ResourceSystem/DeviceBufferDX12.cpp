@@ -12,6 +12,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 	: DeviceResourceDX12(obj)
 {
 	m_cbvHandle.ptr = 0;
+	m_cbvHandleGPU.ptr = 0;
 	m_uavHandle.ptr = 0;
 
 	auto type = obj->GetType();
@@ -164,5 +165,17 @@ void DeviceBufferDX12::CreateCBView(ID3D12Device* device, const D3D12_CONSTANT_B
 
 D3D12_CPU_DESCRIPTOR_HANDLE	DeviceBufferDX12::GetCBViewCPUHandle()
 {
+	assert(m_cbvHandle.ptr);
 	return m_cbvHandle;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DeviceBufferDX12::GetCBViewGPUHandle()
+{
+	assert(m_cbvHandleGPU.ptr);
+	return m_cbvHandleGPU;
+}
+
+void DeviceBufferDX12::SetCBViewGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE inHandle)
+{
+	m_cbvHandleGPU = inHandle;
 }

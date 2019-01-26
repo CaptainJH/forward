@@ -29,6 +29,8 @@ namespace forward
 		D3D12_INDEX_BUFFER_VIEW		IndexBufferView();
 
 		D3D12_CPU_DESCRIPTOR_HANDLE	GetCBViewCPUHandle();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetCBViewGPUHandle();
+		void SetCBViewGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE inHandle);
 
 		void					SyncCPUToGPU() override;
 		void					SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList);
@@ -36,6 +38,7 @@ namespace forward
 
 	protected:
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_cbvHandle;
+		D3D12_GPU_DESCRIPTOR_HANDLE		m_cbvHandleGPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_uavHandle;
 
 		u8*														m_mappedData = nullptr;
