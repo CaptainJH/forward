@@ -12,6 +12,7 @@ namespace forward
 	{
 	public:
 		DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::FrameGraphObject* obj);
+		virtual ~DeviceBufferDX12();
 
 		//ID3D11Buffer*			GetDXBufferPtr();
 
@@ -24,8 +25,10 @@ namespace forward
 		//u32						GetMiscFlags();
 		//u32						GetStructureByteStride();
 
-		D3D12_VERTEX_BUFFER_VIEW	VertexBufferView();
+		D3D12_VERTEX_BUFFER_VIEW		VertexBufferView();
 		D3D12_INDEX_BUFFER_VIEW		IndexBufferView();
+
+		D3D12_CPU_DESCRIPTOR_HANDLE	GetCBViewCPUHandle();
 
 		void					SyncCPUToGPU() override;
 		void					SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList);
@@ -35,6 +38,8 @@ namespace forward
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_cbvHandle;
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_uavHandle;
 
-		//void					CreateStaging(ID3D11Device* device, const D3D11_BUFFER_DESC& descIn);
+		u8*														m_mappedData = nullptr;
+
+		void CreateCBView(ID3D12Device* device, const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc);
 	};
 }

@@ -25,7 +25,6 @@ namespace forward
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilViewHandle();
 
 	private:
-	private:
 		void CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
 		void CreateUAView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
 		void CreateDSView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);
