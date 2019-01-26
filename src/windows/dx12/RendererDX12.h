@@ -98,6 +98,7 @@ namespace forward
 		///////////////////////////////////////////////////////////////////////
 
 		D3D12_CPU_DESCRIPTOR_HANDLE AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
+		u32 GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const;
 
 	//private:
 	public:

@@ -592,6 +592,11 @@ void RendererDX12::BuildPSO(PipelineStateObject& /*pso*/)
 	/// TODO: not implement yet
 }
 //--------------------------------------------------------------------------------
+u32 RendererDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const
+{
+	return m_pDevice->GetDescriptorHandleIncrementSize(type);
+}
+//--------------------------------------------------------------------------------
 RendererDX12* RendererContext::CurrentRender = nullptr;
 RendererDX12* RendererContext::GetCurrentRender()
 {
