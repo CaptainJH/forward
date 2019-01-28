@@ -33,5 +33,8 @@ namespace forward
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
 		const PipelineStateObject& m_pso;
+
+	private:
+		void BuildRootSignature(ID3D12Device* device);
 	};
 }

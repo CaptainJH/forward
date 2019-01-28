@@ -63,32 +63,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 	// setup root signature
 	if (!m_rootSignature.Get())
 	{
-		CD3DX12_ROOT_PARAMETER slotRootParameter[1];
-
-		// Create a single descriptor table of CBVs.
-		CD3DX12_DESCRIPTOR_RANGE cbvTable;
-		cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-		slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
-
-		// A root signature is an array of root parameters.
-		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr,
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-		Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-		HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
-
-		if (errorBlob != nullptr)
-		{
-			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-		}
-
-		HR(device->CreateRootSignature(0,
-			serializedRootSig->GetBufferPointer(),
-			serializedRootSig->GetBufferSize(),
-			IID_PPV_ARGS(&m_rootSignature)));
+		BuildRootSignature(device);
 	}
 
 	// setup pso
@@ -165,6 +140,62 @@ void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 	auto vbv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_vertexBuffers[0])->VertexBufferView();
 	commandList->IASetVertexBuffers(0, 1, &vbv);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+}
+
+void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
+{
+	std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters;
+
+	if (m_pso.m_VSState.m_shader)
+	{
+		for (auto i = 0U; i < m_pso.m_VSState.m_constantBuffers.size(); ++i)
+		{
+			if (m_pso.m_VSState.m_constantBuffers[i])
+			{
+				CD3DX12_DESCRIPTOR_RANGE cbvTable;
+				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
+				CD3DX12_ROOT_PARAMETER param;
+				param.InitAsDescriptorTable(1, &cbvTable);
+				slotRootParameters.push_back(param);
+			}
+		}
+	}
+
+	if (m_pso.m_PSState.m_shader)
+	{
+		for (auto i = 0U; i < m_pso.m_PSState.m_constantBuffers.size(); ++i)
+		{
+			if (m_pso.m_PSState.m_constantBuffers[i])
+			{
+				CD3DX12_DESCRIPTOR_RANGE cbvTable;
+				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
+				CD3DX12_ROOT_PARAMETER param;
+				param.InitAsDescriptorTable(1, &cbvTable);
+				slotRootParameters.push_back(param);
+			}
+		}
+	}
+
+	// A root signature is an array of root parameters.
+	const u32 numParameters = static_cast<u32>(slotRootParameters.size());
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, numParameters > 0 ? &*slotRootParameters.begin() : nullptr, 
+		0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+	HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
+
+	if (errorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+	}
+
+	HR(device->CreateRootSignature(0,
+		serializedRootSig->GetBufferPointer(),
+		serializedRootSig->GetBufferSize(),
+		IID_PPV_ARGS(&m_rootSignature)));
 }
 
 i8 const* DevicePipelineStateObjectDX12::msSemantic[VA_NUM_SEMANTICS] =

@@ -15,6 +15,7 @@
 #include "render.h"
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
+#include "DynamicDescriptorHeapDX12.h"
 #include <dxgi1_4.h>
 #include <mutex>
 
@@ -171,6 +172,12 @@ namespace forward
 			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		};
+
+		DynamicDescriptorHeapDX12	m_DynamicDescriptorHeaps[2] =
+		{
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
 		};
 
 		FenceComPtr							m_pFence = nullptr;

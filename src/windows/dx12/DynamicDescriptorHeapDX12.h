@@ -5,6 +5,7 @@
 
 #include "PCH.h"
 #include "dx12/dx12Util.h"
+#include "render/FrameGraph/PipelineStateObjects.h"
 #include <queue>
 
 namespace forward
@@ -14,13 +15,13 @@ namespace forward
 	class DynamicDescriptorHeapDX12
 	{
 	public:
-		DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType,
-			u32 incrementSize, u32 numDescriptorPerHeap = gNumDescriporPerHeap);
+		DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType, u32 numDescriptorPerHeap = gNumDescriporPerHeap);
 
 		~DynamicDescriptorHeapDX12();
 
 		void Reset();
 
+		void PrepareDescriptorHandleCache(const PipelineStateObject& pso);
 		void StageDescriptors(u32 rootParameterIndex, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor);
 		void CommitStagedDescriptors(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
 
@@ -45,7 +46,7 @@ namespace forward
 		const u32 m_NumDescriptorsPerHeap;
 
 		// The increment size of a descriptor.
-		const u32 m_DescriptorHandleIncrementSize;
+		u32 m_DescriptorHandleIncrementSize;
 
 		using DescriptorHeapPool = std::queue<DescriptorHeapComPtr>;
 
@@ -87,7 +88,7 @@ namespace forward
 	private:
 		// Request a descriptor heap if one is available.
 		DescriptorHeapComPtr RequestDescriptorHeap();
-		// Create a new descriptor heap of no descriptor heap is available.
+		// Create a new descriptor heap if no descriptor heap is available.
 		DescriptorHeapComPtr CreateDescriptorHeap();
 	};
 }

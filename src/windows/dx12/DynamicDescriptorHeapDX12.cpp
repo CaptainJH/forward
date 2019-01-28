@@ -6,11 +6,10 @@
 
 using namespace forward;
 
-DynamicDescriptorHeapDX12::DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType, 
-	u32 incrementSize, u32 numDescriptorPerHeap/*= gNumDescriporPerHeap*/)
+DynamicDescriptorHeapDX12::DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType, u32 numDescriptorPerHeap/*= gNumDescriporPerHeap*/)
 	: m_DescriptorHeapType(heapType)
 	, m_NumDescriptorsPerHeap(numDescriptorPerHeap)
-	, m_DescriptorHandleIncrementSize(incrementSize)
+	, m_DescriptorHandleIncrementSize(0)
 {
 	m_DescriptorHandleCache.reserve(m_NumDescriptorsPerHeap);
 }
@@ -25,6 +24,10 @@ void DynamicDescriptorHeapDX12::Reset()
 	std::for_each(m_DescriptorTableCache.begin(), m_DescriptorTableCache.end(), [](DescriptorTableCache& cache) {
 		cache.Reset();
 	});
+
+	m_CurrentDescriptorHeap.Reset();
+	m_CurrentCPUDescriptorHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT);
+	m_CurrentGPUDescriptorHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT);
 }
 
 void DynamicDescriptorHeapDX12::StageDescriptors(u32 rootParameterIndex, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor)
@@ -110,6 +113,11 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
 {
 	auto device = RendererContext::GetCurrentRender()->GetDevice();
 
+	if (m_DescriptorHandleIncrementSize == 0)
+	{
+		m_DescriptorHandleIncrementSize = device->GetDescriptorHandleIncrementSize(m_DescriptorHeapType);
+	}
+
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.Type = m_DescriptorHeapType;
 	descriptorHeapDesc.NumDescriptors = m_NumDescriptorsPerHeap;
@@ -119,4 +127,39 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
 	HR(device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap)));
 
 	return descriptorHeap;
+}
+
+void DynamicDescriptorHeapDX12::PrepareDescriptorHandleCache(const PipelineStateObject& pso)
+{
+	u32 rootIndex = 0;
+	u32 currentOffset = 0;
+	if (pso.m_VSState.m_shader)
+	{
+		for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
+		{
+			if (pso.m_VSState.m_constantBuffers[i])
+			{
+				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
+				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
+				descriptorTableCache.NumDescriptors = 1;
+				++rootIndex;
+				++currentOffset;
+			}
+		}
+	}
+
+	if (pso.m_PSState.m_shader)
+	{
+		for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
+		{
+			if (pso.m_PSState.m_constantBuffers[i])
+			{
+				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
+				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
+				descriptorTableCache.NumDescriptors = 1;
+				++rootIndex;
+				++currentOffset;
+			}
+		}
+	}
 }
