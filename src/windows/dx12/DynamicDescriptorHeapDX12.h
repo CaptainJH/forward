@@ -5,7 +5,7 @@
 
 #include "PCH.h"
 #include "dx12/dx12Util.h"
-#include <list>
+#include <queue>
 
 namespace forward
 {
@@ -15,13 +15,23 @@ namespace forward
 	{
 	public:
 		DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType,
-			u32 numDescriptorPerHeap = gNumDescriporPerHeap);
+			u32 incrementSize, u32 numDescriptorPerHeap = gNumDescriporPerHeap);
 
 		~DynamicDescriptorHeapDX12();
 
 		void Reset();
 
+		void StageDescriptors(u32 rootParameterIndex, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor);
+		void CommitStagedDescriptors(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
+
 	private:
+		/**
+		 * The maximum number of descriptor tables per root signature.
+		 * A 32-bit mask is used to keep track of the root parameter indices that
+		 * are descriptor tables.
+		 */
+		static const u32 MaxDescriptorTables = 32;
+
 		// Describes the type of descriptors that can be staged using this 
 		// dynamic descriptor heap.
 		// Valid values are:
@@ -29,19 +39,55 @@ namespace forward
 		//   * D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
 		// This parameter also determines the type of GPU visible descriptor heap to 
 		// create.
-		D3D12_DESCRIPTOR_HEAP_TYPE m_DescriptorHeapType;
+		const D3D12_DESCRIPTOR_HEAP_TYPE m_DescriptorHeapType;
 
 		// The number of descriptors to allocate in new GPU visible descriptor heaps.
-		u32 m_NumDescriptorsPerHeap;
+		const u32 m_NumDescriptorsPerHeap;
 
 		// The increment size of a descriptor.
 		const u32 m_DescriptorHandleIncrementSize;
 
-		using DescriptorHeapPool = std::list<DescriptorHeapComPtr>;
+		using DescriptorHeapPool = std::queue<DescriptorHeapComPtr>;
 
 		DescriptorHeapPool m_DescriptorHeapPool;
 		DescriptorHeapPool m_AvailableDescriptorHeaps;
 
 		DescriptorHeapComPtr m_CurrentDescriptorHeap;
+		CD3DX12_GPU_DESCRIPTOR_HANDLE m_CurrentGPUDescriptorHandle;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE m_CurrentCPUDescriptorHandle;
+
+		/**
+		 * A structure that represents a descriptor table entry in the root signature.
+		 */
+		struct DescriptorTableCache
+		{
+			DescriptorTableCache()
+				: NumDescriptors(0)
+				, BaseDescriptor(nullptr)
+			{}
+
+			// Reset the table cache.
+			void Reset()
+			{
+				NumDescriptors = 0;
+				BaseDescriptor = nullptr;
+			}
+
+			// The number of descriptors in this descriptor table.
+			u32 NumDescriptors;
+			// The pointer to the descriptor in the descriptor handle cache.
+			D3D12_CPU_DESCRIPTOR_HANDLE* BaseDescriptor;
+		};
+		// Descriptor handle cache per descriptor table.
+		std::array<DescriptorTableCache, MaxDescriptorTables> m_DescriptorTableCache;
+
+		// The descriptor handle cache.
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandleCache;
+
+	private:
+		// Request a descriptor heap if one is available.
+		DescriptorHeapComPtr RequestDescriptorHeap();
+		// Create a new descriptor heap of no descriptor heap is available.
+		DescriptorHeapComPtr CreateDescriptorHeap();
 	};
 }
