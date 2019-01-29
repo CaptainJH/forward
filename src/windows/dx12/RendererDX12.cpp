@@ -18,6 +18,7 @@
 #include "render/FrameGraph/FrameGraph.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
+#include "utilities/FileSaver.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -534,9 +535,26 @@ void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTextu
 
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::SaveRenderTarget(const std::wstring& /*filename*/)
+void RendererDX12::SaveRenderTarget(const std::wstring& filename)
 {
+	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+	auto deviceRT = device_cast<DeviceTexture2DDX12*>(rtPtr);
+	deviceRT->SyncGPUToCPU();
 
+	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
+	memcpy(tempBuffer, rtPtr->GetData(), rtPtr->GetNumBytes());
+	if (rtPtr->GetElementSize() >= 3)
+	{
+		// transform from RGBA to BGRA
+		for (auto i = 0U; i < rtPtr->GetNumBytes(); i += rtPtr->GetElementSize())
+		{
+			std::swap(tempBuffer[i], tempBuffer[i + 2]);
+		}
+	}
+
+	FileSaver outfile;
+	outfile.SaveAsBMP(filename, tempBuffer, rtPtr->GetWidth(), rtPtr->GetHeight());
+	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DrawScreenText(const std::string& /*msg*/, i32 /*x*/, i32 /*y*/, const Vector4f& /*color*/)

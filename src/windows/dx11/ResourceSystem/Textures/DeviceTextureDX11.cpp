@@ -21,61 +21,6 @@ UnorderedAccessViewComPtr DeviceTextureDX11::GetUAView() const
 	return m_uav;
 }
 
-void DeviceTextureDX11::CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData)
-{
-	if (srcRowPitch == dstRowPitch)
-	{
-		// The memory is contiguous.
-		memcpy(dstData, srcData, dstRowPitch * numRows);
-	}
-	else
-	{
-		// Padding was added to each row of the texture, so we must
-		// copy a row at a time to compensate for differing pitches.
-		auto numRowBytes = std::min(srcRowPitch, dstRowPitch);
-		auto srcRow = srcData;
-		auto dstRow = dstData;
-		for (auto row = 0U; row < numRows; ++row)
-		{
-			memcpy(dstRow, srcRow, numRowBytes);
-			srcRow += srcRowPitch;
-			dstRow += dstRowPitch;
-		}
-	}
-}
-
-
-void DeviceTextureDX11::CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData, 
-	u32 dstRowPitch, u32 dstSlicePitch, u8* dstData)
-{
-	if (srcRowPitch == dstRowPitch && srcSlicePitch == dstSlicePitch)
-	{
-		// The memory is contiguous.
-		memcpy(dstData, srcData, dstSlicePitch * numSlices);
-	}
-	else
-	{
-		// Padding was added to each row and/or slice of the texture, so
-		// we must copy the data to compensate for differing pitches.
-		auto numRowBytes = std::min(srcRowPitch, dstRowPitch);
-		auto srcSlice = srcData;
-		auto dstSlice = dstData;
-		for (auto slice = 0U; slice < numSlices; ++slice)
-		{
-			auto srcRow = srcSlice;
-			auto dstRow = dstSlice;
-			for (auto row = 0U; row < numRows; ++row)
-			{
-				memcpy(dstRow, srcRow, numRowBytes);
-				srcRow += srcRowPitch;
-				dstRow += dstRowPitch;
-			}
-			srcSlice += srcSlicePitch;
-			dstSlice += dstSlicePitch;
-		}
-	}
-}
-
 bool DeviceTextureDX11::CanAutoGenerateMips(FrameGraphTexture* tex, ID3D11Device* device)
 {
 	bool autogen = false;

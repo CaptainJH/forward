@@ -427,7 +427,7 @@ void DeviceTexture2DDX11::SyncGPUToCPU(ID3D11DeviceContext* context)
 		else if (GetFrameGraphResource()->GetType() == FGOT_TEXTURE2)
 		{
 			auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
-			CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
+			FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
 		}
 		//else if (GetType() == ResourceType::RT_TEXTURE3D)
 		//{

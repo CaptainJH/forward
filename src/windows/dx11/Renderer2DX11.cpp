@@ -666,8 +666,8 @@ void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2
 void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
 {
 	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
-	auto devicert = device_cast<DeviceTexture2DDX11*>(rtPtr);
-	devicert->SyncGPUToCPU(m_pContext.Get());
+	auto deviceRT = device_cast<DeviceTexture2DDX11*>(rtPtr);
+	deviceRT->SyncGPUToCPU(m_pContext.Get());
 
 	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
 	memcpy(tempBuffer, rtPtr->GetData(), rtPtr->GetNumBytes());

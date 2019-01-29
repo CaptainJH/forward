@@ -49,6 +49,10 @@ namespace forward
 			return reinterpret_cast<T>(GetData());
 		}
 
+		static void CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData);
+		static void CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData,
+			u32 dstRowPitch, u32 dstSlicePitch, u8* dstData);
+
 	protected:
 
 		u32		m_numElements;

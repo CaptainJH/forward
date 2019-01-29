@@ -159,18 +159,38 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 {
 	assert(m_stagingResPtr);
 
+	RendererContext::GetCurrentRender()->ResetCommandList();
 	auto device = RendererContext::GetCurrentRender()->GetDevice();
 	// The footprint may depend on the device of the resource, but we assume there is only one device.
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
-	device->GetCopyableFootprints(&m_deviceResPtr->GetDesc(), 0, 1, 0, &PlacedFootprint, nullptr, nullptr, nullptr);
+	auto srcDesc = m_deviceResPtr->GetDesc();
+	device->GetCopyableFootprints(&srcDesc, 0, 1, 0, &PlacedFootprint, nullptr, nullptr, nullptr);
 
 	auto state = GetResourceState();
 	RendererContext::GetCurrentRender()->TransitionResource(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	auto dstLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_stagingResPtr.Get(), PlacedFootprint);
+	auto srcLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_deviceResPtr.Get(), 0);
 	RendererContext::GetCurrentRender()->CommandList()->CopyTextureRegion(
-		&CD3DX12_TEXTURE_COPY_LOCATION(m_stagingResPtr.Get(), PlacedFootprint), 0, 0, 0,
-		&CD3DX12_TEXTURE_COPY_LOCATION(m_deviceResPtr.Get(), 0), nullptr);
+		&dstLocation, 0, 0, 0,
+		&srcLocation, nullptr);
 	RendererContext::GetCurrentRender()->TransitionResource(this, state);
+	HR(RendererContext::GetCurrentRender()->CommandList()->Close());
 
+	ID3D12CommandList* cmdLists[] = { RendererContext::GetCurrentRender()->CommandList() };
+	RendererContext::GetCurrentRender()->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	RendererContext::GetCurrentRender()->FlushCommandQueue();
+
+	void* memory;
+	auto range = CD3DX12_RANGE(0, GetFrameGraphResource()->GetNumBytes());
+	m_stagingResPtr->Map(0, &range, &memory);
+
+	// Copy from staging texture to CPU memory.
+	auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
+	const auto pitch = fgTex2->GetWidth() * fgTex2->GetElementSize();
+	FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), pitch, (u8*)memory, pitch, fgTex2->GetData());
+
+	auto range2 = CD3DX12_RANGE(0, 0);
+	m_stagingResPtr->Unmap(0, &range2);
 }
 
 shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
