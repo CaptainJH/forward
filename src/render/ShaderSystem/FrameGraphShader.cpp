@@ -29,50 +29,6 @@ FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& 
 	m_shader = SourceFile.GetDataPtr();
 }
 
-void FrameGraphShader::PostSetDeviceObject()
-{
-	/// TODO: we shouldn't reference class ShaderDX11 here
-
-	//auto ptr = device_cast<ShaderDX11*>(this);
-	//m_CBufferLayouts.resize(ptr->GetCBuffers().size());
-	//auto i = 0U;
-	//for (auto const& cb : ptr->GetCBuffers())
-	//{
-	//	m_Data[ConstantBufferShaderDataLookup].push_back(
-	//		Data(FGOT_CONSTANT_BUFFER, cb.GetName(), cb.GetBindPoint(),
-	//			cb.GetNumBytes(), 0, false));
-
-	//	cb.GenerateLayout(m_CBufferLayouts[i]);
-	//	++i;
-	//}
-
-	////m_TBufferLayouts.resize(ptr->GetTBuffers().size());
-	////i = 0U;
-	////for (auto const& tb : ptr->GetTBuffers())
-	////{
-	////	mData[TextureBuffer::shaderDataLookup].push_back(
-	////		Data(FGOT_TEXTURE_BUFFER, tb.GetName(), tb.GetBindPoint(),
-	////			tb.GetNumBytes(), 0, false));
-
-	////	tb.GenerateLayout(m_TBufferLayouts[i]);
-	////	++i;
-	////}
-
-	//for (auto const& tx : ptr->GetTextures())
-	//{
-	//	m_Data[TextureSingleShaderDataLookup].push_back(
-	//		Data(FGOT_TEXTURE, tx.GetName(), tx.GetBindPoint(), 0,
-	//			tx.GetNumDimensions(), tx.IsGpuWritable()));
-	//}
-
-	////for (auto const& ta : ptr->GetTextureArrays())
-	////{
-	////	mData[TextureArray::shaderDataLookup].push_back(
-	////		Data(GT_TEXTURE_ARRAY, ta.GetName(), ta.GetBindPoint(), 0,
-	////			ta.GetNumDimensions(), ta.IsGpuWritable()));
-	////}
-}
-
 FrameGraphShader::Data::Data(FrameGraphObjectType inType, std::string const& inName,
 	i32 inBindPoint, i32 inNumBytes, u32 inExtra,
 	bool inIsGpuWritable)

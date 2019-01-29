@@ -84,9 +84,6 @@ namespace forward
 		DeviceObjPtr m_deviceObjectPtr = nullptr;
 
 		static std::vector<weak_ptr<FrameGraphObject>>	m_sFGObjs;
-
-	private:
-		virtual void PostSetDeviceObject() {}
 	};
 
 	FrameGraphObjectType FrameGraphObject::GetType() const

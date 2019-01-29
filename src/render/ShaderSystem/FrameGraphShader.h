@@ -45,7 +45,7 @@ namespace forward
 			bool								isGpuWritable;	// SB, RB, TX, TA
 		};
 
-	protected:
+	public:
 		std::wstring m_shaderFile;
 		std::wstring m_entryFunction;
 		std::string m_shader;
@@ -53,9 +53,6 @@ namespace forward
 		std::vector<Data> m_Data[NUM_LOOKUP_INDICES];
 		std::vector<BufferLayout> m_CBufferLayouts;
 		std::vector<BufferLayout> m_TBufferLayouts;
-
-	private:
-		void PostSetDeviceObject() override;
 		
 	};
 

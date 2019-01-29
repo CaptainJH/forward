@@ -39,6 +39,8 @@ ShaderDX12::ShaderDX12(forward::FrameGraphShader* shader)
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
 		shader->GetShaderFile(), shader->GetShaderEntry(), ShaderModel);
 	assert(m_pCompiledShader);
+
+	ReflectShader();
 }
 
 ShaderDX12::~ShaderDX12()
@@ -47,4 +49,21 @@ ShaderDX12::~ShaderDX12()
 ShaderType ShaderDX12::GetType() const
 {
 	return m_shaderType;
+}
+
+void ShaderDX12::ReflectShader()
+{
+	assert(m_pCompiledShader);
+	const void* buffer = m_pCompiledShader->GetBufferPointer();
+	auto numBytes = m_pCompiledShader->GetBufferSize();
+
+	ID3D12ShaderReflection* reflector = nullptr;
+	HR(D3DReflect(buffer, numBytes, IID_ID3D12ShaderReflection, (void**)&reflector));
+
+	{
+		/// get description
+		D3D12_SHADER_DESC desc;
+		HR(reflector->GetDesc(&desc));
+		//SetDescription(desc);
+	}
 }

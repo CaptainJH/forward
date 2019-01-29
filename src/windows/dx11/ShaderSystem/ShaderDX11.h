@@ -48,6 +48,7 @@ namespace forward
 		DeviceObjComPtr		GetDeviceObject();
 
 		void ReflectShader();
+		void PostSetDeviceObject(forward::FrameGraphObject* obj) override;
 
 		std::vector<HLSLConstantBuffer> const& GetCBuffers() const;
 		std::vector<HLSLTextureBuffer> const& GetTBuffers() const;

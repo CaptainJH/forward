@@ -62,11 +62,11 @@ void FrameGraphObject::CheckMemoryLeak()
 void FrameGraphObject::SetDeviceObject(forward::DeviceObject* obj)
 {
 	m_deviceObjectPtr = obj;
-	PostSetDeviceObject();
+	obj->PostSetDeviceObject(this);
 }
 
 void FrameGraphObject::SetDeviceObject(DeviceObjPtr p)
 {
 	m_deviceObjectPtr = p;
-	PostSetDeviceObject();
+	p->PostSetDeviceObject(this);
 }

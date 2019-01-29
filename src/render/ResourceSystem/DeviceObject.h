@@ -22,6 +22,7 @@ namespace forward
 		u32						GetInnerID();
 
 		shared_ptr<forward::FrameGraphObject>		FrameGraphObject();
+		virtual void			PostSetDeviceObject(forward::FrameGraphObject*) {}
 
 	protected:
 		std::string									m_name;

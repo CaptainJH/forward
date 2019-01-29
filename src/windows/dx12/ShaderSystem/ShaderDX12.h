@@ -18,5 +18,8 @@ namespace forward
 	private:
 		ShaderType m_shaderType;
 
+	private:
+		void ReflectShader();
+
 	};
 }

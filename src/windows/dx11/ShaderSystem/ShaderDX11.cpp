@@ -1,4 +1,5 @@
 #include "ShaderDX11.h"
+#include "render/ShaderSystem/FrameGraphShader.h"
 
 using namespace forward;
 
@@ -429,4 +430,46 @@ std::vector<HLSLTexture> const& ShaderDX11::GetTextures() const
 std::vector<HLSLTextureArray> const& ShaderDX11::GetTextureArrays() const
 {
 	return m_TextureArrays;
+}
+
+void ShaderDX11::PostSetDeviceObject(forward::FrameGraphObject* obj)
+{
+	auto ptr = dynamic_cast<forward::FrameGraphShader*>(obj);
+	ptr->m_CBufferLayouts.resize(GetCBuffers().size());
+	auto i = 0U;
+	for (auto const& cb : GetCBuffers())
+	{
+		ptr->m_Data[FrameGraphShader::ConstantBufferShaderDataLookup].push_back(
+			FrameGraphShader::Data(FGOT_CONSTANT_BUFFER, cb.GetName(), cb.GetBindPoint(),
+				cb.GetNumBytes(), 0, false));
+
+		cb.GenerateLayout(ptr->m_CBufferLayouts[i]);
+		++i;
+	}
+
+	//m_TBufferLayouts.resize(ptr->GetTBuffers().size());
+	//i = 0U;
+	//for (auto const& tb : ptr->GetTBuffers())
+	//{
+	//	mData[TextureBuffer::shaderDataLookup].push_back(
+	//		Data(FGOT_TEXTURE_BUFFER, tb.GetName(), tb.GetBindPoint(),
+	//			tb.GetNumBytes(), 0, false));
+
+	//	tb.GenerateLayout(m_TBufferLayouts[i]);
+	//	++i;
+	//}
+
+	for (auto const& tx : GetTextures())
+	{
+		ptr->m_Data[FrameGraphShader::TextureSingleShaderDataLookup].push_back(
+			FrameGraphShader::Data(FGOT_TEXTURE, tx.GetName(), tx.GetBindPoint(), 0,
+				tx.GetNumDimensions(), tx.IsGpuWritable()));
+	}
+
+	//for (auto const& ta : ptr->GetTextureArrays())
+	//{
+	//	mData[TextureArray::shaderDataLookup].push_back(
+	//		Data(GT_TEXTURE_ARRAY, ta.GetName(), ta.GetBindPoint(), 0,
+	//			ta.GetNumDimensions(), ta.IsGpuWritable()));
+	//}
 }
