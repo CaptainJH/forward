@@ -19,6 +19,7 @@ namespace forward
 		DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex);
 
 		void					SyncCPUToGPU() override;
+		void					SyncGPUToCPU();
 
 		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetViewHandle();

@@ -155,6 +155,24 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 
 }
 
+void DeviceTexture2DDX12::SyncGPUToCPU()
+{
+	assert(m_stagingResPtr);
+
+	auto device = RendererContext::GetCurrentRender()->GetDevice();
+	// The footprint may depend on the device of the resource, but we assume there is only one device.
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
+	device->GetCopyableFootprints(&m_deviceResPtr->GetDesc(), 0, 1, 0, &PlacedFootprint, nullptr, nullptr, nullptr);
+
+	auto state = GetResourceState();
+	RendererContext::GetCurrentRender()->TransitionResource(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	RendererContext::GetCurrentRender()->CommandList()->CopyTextureRegion(
+		&CD3DX12_TEXTURE_COPY_LOCATION(m_stagingResPtr.Get(), PlacedFootprint), 0, 0, 0,
+		&CD3DX12_TEXTURE_COPY_LOCATION(m_deviceResPtr.Get(), 0), nullptr);
+	RendererContext::GetCurrentRender()->TransitionResource(this, state);
+
+}
+
 shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
 {
 	auto ptr = FrameGraphObject();
@@ -164,9 +182,28 @@ shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
 	return shared_ptr<FrameGraphTexture2D>(p);
 }
 
-void DeviceTexture2DDX12::CreateStaging(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
 {
+	assert(!m_stagingResPtr);
 
+	// Create a readback buffer large enough to hold all texel data
+	CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_READBACK);
+
+	// Readback buffers must be 1-dimensional, i.e. "buffer" not "texture2d"
+	D3D12_RESOURCE_DESC ResourceDesc = {};
+	ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	ResourceDesc.Width = GetFrameGraphResource()->GetNumBytes();
+	ResourceDesc.Height = 1;
+	ResourceDesc.DepthOrArraySize = 1;
+	ResourceDesc.MipLevels = 1;
+	ResourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+	ResourceDesc.SampleDesc.Count = 1;
+	ResourceDesc.SampleDesc.Quality = 0;
+	ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	ResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	HR(device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &ResourceDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&m_stagingResPtr)));
 }
 
 void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
