@@ -37,7 +37,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			vertexFormat.GetAttribute(i, semantic, type, unit, offset);
 
 			D3D12_INPUT_ELEMENT_DESC& element = m_elements[i];
-			element.SemanticName = msSemantic[semantic];
+			element.SemanticName = VertexFormat::GetSemanticName(semantic);
 			element.SemanticIndex = unit;
 			element.Format = static_cast<DXGI_FORMAT>(type);
 			element.InputSlot = 0;  // TODO: Streams not yet supported.
@@ -87,12 +87,23 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.PrimitiveTopologyType = Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
+		psoDesc.NumRenderTargets = 0;
+		for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
+		{
+			auto rt = pso.m_OMState.m_renderTargetResources[i];
+			if (rt)
+			{
+				++psoDesc.NumRenderTargets;
+				psoDesc.RTVFormats[i] = static_cast<DXGI_FORMAT>(rt->GetFormat());
+			}
+		}
 		psoDesc.SampleDesc.Count = 1;
 		psoDesc.SampleDesc.Quality = 0;
-		psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		if (pso.m_OMState.m_depthStencilResource)
+		{
+			psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
+		}
 		HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
 	}
 
@@ -198,21 +209,26 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 		IID_PPV_ARGS(&m_rootSignature)));
 }
 
-i8 const* DevicePipelineStateObjectDX12::msSemantic[VA_NUM_SEMANTICS] =
+D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectDX12::Convert2DX12TopologyType(PrimitiveTopologyType topo)
 {
-	"",
-	"POSITION",
-	"BLENDWEIGHT",
-	"BLENDINDICES",
-	"NORMAL",
-	"PSIZE",
-	"TEXCOORD",
-	"TANGENT",
-	"BINORMAL",
-	"TESSFACTOR",
-	"POSITIONT",
-	"COLOR",
-	"FOG",
-	"DEPTH",
-	"SAMPLE"
-};
+	if (topo == PT_UNDEFINED)
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+	}
+	else if (topo == PT_POINTLIST)
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	}
+	else if (topo == PT_LINELIST || topo == PT_LINESTRIP 
+		|| topo == PT_LINELIST_ADJ || topo == PT_LINESTRIP_ADJ)
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	}
+	else if (topo == PT_TRIANGLELIST || topo == PT_TRIANGLESTRIP
+		|| topo == PT_TRIANGLELIST_ADJ || topo == PT_TRIANGLESTRIP_ADJ)
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	}
+
+	return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+}

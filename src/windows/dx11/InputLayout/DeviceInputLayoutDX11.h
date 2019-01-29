@@ -25,9 +25,5 @@ namespace forward
 		InputLayoutComPtr			m_inputLayout;
 		u32							m_numElements;
 		D3D11_INPUT_ELEMENT_DESC	m_elements[VA_MAX_ATTRIBUTES];
-
-
-		// Conversions from FrameGraph values to DX11 values.
-		static i8 const* msSemantic[VA_NUM_SEMANTICS];
 	};
 }

@@ -140,3 +140,27 @@ VertexFormat::Attribute::Attribute()
 	, offset(0)
 {
 }
+
+i8 const* VertexFormat::msSemantic[VA_NUM_SEMANTICS] =
+{
+	"",
+	"POSITION",
+	"BLENDWEIGHT",
+	"BLENDINDICES",
+	"NORMAL",
+	"PSIZE",
+	"TEXCOORD",
+	"TANGENT",
+	"BINORMAL",
+	"TESSFACTOR",
+	"POSITIONT",
+	"COLOR",
+	"FOG",
+	"DEPTH",
+	"SAMPLE"
+};
+
+const i8* VertexFormat::GetSemanticName(VASemantic semantic)
+{
+	return msSemantic[semantic];
+}

@@ -19,7 +19,9 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include "DataFormat.h"
+#include <d3dcommon.h>
+#include "render/DataFormat.h"
+#include "render/PrimitiveTopology.h"
 
 namespace forward
 {
@@ -52,6 +54,8 @@ namespace forward
 #define HR(x) (x)
 #endif
 #endif 
+
+	D3D_PRIMITIVE_TOPOLOGY Convert2D3DTopology(PrimitiveTopologyType topo);
 
 	//--------------------------------------------------------------------------------------
 	// Get surface information for a particular format

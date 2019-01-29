@@ -73,6 +73,8 @@ namespace forward
 
 		bool ContainSemantic(VASemantic semantic) const;
 
+		static const i8* GetSemanticName(VASemantic semantic);
+
 	private:
 		struct Attribute
 		{
@@ -86,5 +88,7 @@ namespace forward
 		i32 mNumAttributes;
 		u32 mVertexSize;
 		Attribute mAttributes[VA_MAX_ATTRIBUTES];
+
+		static const i8* msSemantic[VA_NUM_SEMANTICS];
 	};
 }

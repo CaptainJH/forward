@@ -319,7 +319,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	}
 	DeviceInputLayoutDX11* layout = device_cast<DeviceInputLayoutDX11*>(&pso.m_IAState.m_vertexLayout);
 	m_pContext->IASetInputLayout(layout->GetInputLayout().Get());
-	m_pContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(pso.m_IAState.m_topologyType));
+	m_pContext->IASetPrimitiveTopology(Convert2D3DTopology(pso.m_IAState.m_topologyType));
 
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{

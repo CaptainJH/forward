@@ -30,7 +30,7 @@ DeviceInputLayoutDX11::DeviceInputLayoutDX11(ID3D11Device* device, const FrameGr
 			vertexFormat.GetAttribute(i, semantic, type, unit, offset);
 
 			D3D11_INPUT_ELEMENT_DESC& element = m_elements[i];
-			element.SemanticName = msSemantic[semantic];
+			element.SemanticName = VertexFormat::GetSemanticName(semantic);
 			element.SemanticIndex = unit;
 			element.Format = static_cast<DXGI_FORMAT>(type);
 			element.InputSlot = 0;  // TODO: Streams not yet supported.
@@ -66,22 +66,3 @@ void DeviceInputLayoutDX11::Unbind(ID3D11DeviceContext* deviceContext)
 		deviceContext->IASetInputLayout(nullptr);
 	}
 }
-
-i8 const* DeviceInputLayoutDX11::msSemantic[VA_NUM_SEMANTICS] =
-{
-	"",
-	"POSITION",
-	"BLENDWEIGHT",
-	"BLENDINDICES",
-	"NORMAL",
-	"PSIZE",
-	"TEXCOORD",
-	"TANGENT",
-	"BINORMAL",
-	"TESSFACTOR",
-	"POSITIONT",
-	"COLOR",
-	"FOG",
-	"DEPTH",
-	"SAMPLE"
-};

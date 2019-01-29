@@ -27,12 +27,11 @@ namespace forward
 		u32							m_numElements;
 		D3D12_INPUT_ELEMENT_DESC	m_elements[VA_MAX_ATTRIBUTES];
 
-		// Conversions from FrameGraph values to DX12 values.
-		static i8 const* msSemantic[VA_NUM_SEMANTICS];
-
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
 		const PipelineStateObject& m_pso;
+
+		static D3D12_PRIMITIVE_TOPOLOGY_TYPE Convert2DX12TopologyType(PrimitiveTopologyType topo);
 
 	private:
 		void BuildRootSignature(ID3D12Device* device);
