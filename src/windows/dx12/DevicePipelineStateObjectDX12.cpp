@@ -17,7 +17,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = render->GetDevice();
-	auto commandLIst = render->CommandList();
+	auto commandList = render->CommandList();
 
 	FrameGraphVertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
 	FrameGraphVertexShader* vsshader = pso.m_VSState.m_shader.get();
@@ -83,9 +83,9 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			reinterpret_cast<BYTE*>(devicePS->GetCompiledCode()->GetBufferPointer()),
 			devicePS->GetCompiledCode()->GetBufferSize()
 		};
-		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		ConfigRasterizerState(psoDesc.RasterizerState);
+		ConfigBlendState(psoDesc.BlendState);
+		ConfigDepthStencilState(psoDesc.DepthStencilState);
 		psoDesc.SampleMask = UINT_MAX;
 		psoDesc.PrimitiveTopologyType = Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
 		psoDesc.NumRenderTargets = 0;
@@ -116,7 +116,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		{
 			if (!vb->DeviceObject())
 			{
-				auto deviceVB = forward::make_shared<DeviceBufferDX12>(device, commandLIst, vb.get());
+				auto deviceVB = forward::make_shared<DeviceBufferDX12>(device, commandList, vb.get());
 				vb->SetDeviceObject(deviceVB);
 			}
 
@@ -126,8 +126,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		}
 	}
 	// Execute the initialization commands
-	HR(commandLIst->Close());
-	ID3D12CommandList* cmdLists[] = { commandLIst };
+	HR(commandList->Close());
+	ID3D12CommandList* cmdLists[] = { commandList };
 	render->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
 	// Wait until initialization is complete.
@@ -232,3 +232,134 @@ D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectDX12::Convert2DX12Topolog
 
 	return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 }
+
+void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const
+{
+	desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	auto& rsState = m_pso.m_RSState.m_rsState;
+	desc.FillMode = msFillMode[rsState.fillMode];
+	desc.CullMode = msCullMode[rsState.cullMode];
+	desc.FrontCounterClockwise = rsState.frontCCW ? TRUE : FALSE;
+	desc.DepthBias = rsState.depthBias;
+	desc.DepthBiasClamp = rsState.depthBiasClamp;
+	desc.SlopeScaledDepthBias = rsState.slopeScaledDepthBias;
+	desc.DepthClipEnable = rsState.enableDepthClip ? TRUE : FALSE;
+	desc.MultisampleEnable = rsState.enableMultisample ? TRUE : FALSE;
+	desc.AntialiasedLineEnable = rsState.enableAntialiasedLine ? TRUE : FALSE;
+}
+
+void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) const
+{
+	desc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	auto& blendState = m_pso.m_OMState.m_blendState;
+	desc.AlphaToCoverageEnable = blendState.enableAlphaToCoverage ? TRUE : FALSE;
+	desc.IndependentBlendEnable = blendState.enableIndependentBlend ? TRUE : FALSE;
+	for (auto i = 0U; i < BlendState::NUM_TARGETS; ++i)
+	{
+		D3D12_RENDER_TARGET_BLEND_DESC& out = desc.RenderTarget[i];
+		const BlendState::Target& in = blendState.target[i];
+		out.BlendEnable = in.enable ? TRUE : FALSE;
+		out.SrcBlend = msBlendMode[in.srcColor];
+		out.DestBlend = msBlendMode[in.dstColor];
+		out.BlendOp = msBlendOp[in.opColor];
+		out.SrcBlendAlpha = msBlendMode[in.srcAlpha];
+		out.DestBlendAlpha = msBlendMode[in.dstAlpha];
+		out.BlendOpAlpha = msBlendOp[in.opAlpha];
+		out.RenderTargetWriteMask = in.mask;
+	}
+}
+
+void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const
+{
+	desc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	auto& dsState = m_pso.m_OMState.m_dsState;
+	desc.DepthEnable = dsState.depthEnable ? TRUE : FALSE;
+	desc.DepthWriteMask = msWriteMask[dsState.writeMask];
+	desc.DepthFunc = msComparison[dsState.comparison];
+	desc.StencilEnable = dsState.stencilEnable ? TRUE : FALSE;
+	desc.StencilReadMask = dsState.stencilReadMask;
+	desc.StencilWriteMask = dsState.stencilWriteMask;
+	DepthStencilState::Face front = dsState.frontFace;
+	desc.FrontFace.StencilFailOp = msStencilOp[front.fail];
+	desc.FrontFace.StencilDepthFailOp = msStencilOp[front.depthFail];
+	desc.FrontFace.StencilPassOp = msStencilOp[front.pass];
+	desc.FrontFace.StencilFunc = msComparison[front.comparison];
+	DepthStencilState::Face back = dsState.backFace;
+	desc.BackFace.StencilFailOp = msStencilOp[back.fail];
+	desc.BackFace.StencilDepthFailOp = msStencilOp[back.depthFail];
+	desc.BackFace.StencilPassOp = msStencilOp[back.pass];
+	desc.BackFace.StencilFunc = msComparison[back.comparison];
+}
+
+D3D12_FILL_MODE const DevicePipelineStateObjectDX12::msFillMode[] =
+{
+	D3D12_FILL_MODE_SOLID,
+	D3D12_FILL_MODE_WIREFRAME
+};
+
+D3D12_CULL_MODE const DevicePipelineStateObjectDX12::msCullMode[] =
+{
+	D3D12_CULL_MODE_NONE,
+	D3D12_CULL_MODE_FRONT,
+	D3D12_CULL_MODE_BACK
+};
+
+D3D12_BLEND const DevicePipelineStateObjectDX12::msBlendMode[] =
+{
+	D3D12_BLEND_ZERO,
+	D3D12_BLEND_ONE,
+	D3D12_BLEND_SRC_COLOR,
+	D3D12_BLEND_INV_SRC_COLOR,
+	D3D12_BLEND_SRC_ALPHA,
+	D3D12_BLEND_INV_SRC_ALPHA,
+	D3D12_BLEND_DEST_ALPHA,
+	D3D12_BLEND_INV_DEST_ALPHA,
+	D3D12_BLEND_DEST_COLOR,
+	D3D12_BLEND_INV_DEST_COLOR,
+	D3D12_BLEND_SRC_ALPHA_SAT,
+	D3D12_BLEND_BLEND_FACTOR,
+	D3D12_BLEND_INV_BLEND_FACTOR,
+	D3D12_BLEND_SRC1_COLOR,
+	D3D12_BLEND_INV_SRC1_COLOR,
+	D3D12_BLEND_SRC1_ALPHA,
+	D3D12_BLEND_INV_SRC1_ALPHA
+};
+
+D3D12_BLEND_OP const DevicePipelineStateObjectDX12::msBlendOp[] =
+{
+	D3D12_BLEND_OP_ADD,
+	D3D12_BLEND_OP_SUBTRACT,
+	D3D12_BLEND_OP_REV_SUBTRACT,
+	D3D12_BLEND_OP_MIN,
+	D3D12_BLEND_OP_MAX,
+};
+
+D3D12_DEPTH_WRITE_MASK const DevicePipelineStateObjectDX12::msWriteMask[] =
+{
+	D3D12_DEPTH_WRITE_MASK_ZERO,
+	D3D12_DEPTH_WRITE_MASK_ALL
+};
+
+D3D12_COMPARISON_FUNC const DevicePipelineStateObjectDX12::msComparison[] =
+{
+	D3D12_COMPARISON_FUNC_NEVER,
+	D3D12_COMPARISON_FUNC_LESS,
+	D3D12_COMPARISON_FUNC_EQUAL,
+	D3D12_COMPARISON_FUNC_LESS_EQUAL,
+	D3D12_COMPARISON_FUNC_GREATER,
+	D3D12_COMPARISON_FUNC_NOT_EQUAL,
+	D3D12_COMPARISON_FUNC_GREATER_EQUAL,
+	D3D12_COMPARISON_FUNC_ALWAYS
+};
+
+D3D12_STENCIL_OP const DevicePipelineStateObjectDX12::msStencilOp[] =
+{
+	D3D12_STENCIL_OP_KEEP,
+	D3D12_STENCIL_OP_ZERO,
+	D3D12_STENCIL_OP_REPLACE,
+	D3D12_STENCIL_OP_INCR_SAT,
+	D3D12_STENCIL_OP_DECR_SAT,
+	D3D12_STENCIL_OP_INVERT,
+	D3D12_STENCIL_OP_INCR,
+	D3D12_STENCIL_OP_DECR
+};

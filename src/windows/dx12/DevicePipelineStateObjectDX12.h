@@ -29,11 +29,24 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
-		const PipelineStateObject& m_pso;
+		const PipelineStateObject&	m_pso;
+
+		// Conversions from FrameGraph values to DX12 values.
+		static D3D12_FILL_MODE const msFillMode[];
+		static D3D12_CULL_MODE const msCullMode[];
+		static D3D12_BLEND const msBlendMode[];
+		static D3D12_BLEND_OP const msBlendOp[];
+		static D3D12_DEPTH_WRITE_MASK const msWriteMask[];
+		static D3D12_COMPARISON_FUNC const msComparison[];
+		static D3D12_STENCIL_OP const msStencilOp[];
 
 		static D3D12_PRIMITIVE_TOPOLOGY_TYPE Convert2DX12TopologyType(PrimitiveTopologyType topo);
 
 	private:
 		void BuildRootSignature(ID3D12Device* device);
+		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
+		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
+		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
+
 	};
 }
