@@ -439,8 +439,11 @@ void RendererDX12::EndPresent()
 	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
 	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	// swap the back and front buffers
-	m_SwapChain->Present();
+	if (m_SwapChain)
+	{
+		// swap the back and front buffers
+		m_SwapChain->Present();
+	}
 
 	// Wait until frame commands are complete.  This waiting is inefficient and is
 	// done for simplicity.  Later we will show how to organize our rendering code
@@ -470,7 +473,8 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 
 	BeginPresent(devicePSO);
 	pso->Bind(CommandList());
-	CommandList()->DrawInstanced(4, 1, 0, 0);
+	// Draw
+	pass.Execute(*this);
 	EndPresent();
 }
 //--------------------------------------------------------------------------------
@@ -515,9 +519,9 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	return true;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::Draw(u32 /*vertexNum*/, u32 /*startVertexLocation*/)
+void RendererDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 {
-
+	CommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DrawIndexed(u32 /*indexCount*/)
