@@ -28,7 +28,7 @@ void ShaderDX11::ReflectShader()
 		/// get description
 		D3D11_SHADER_DESC desc;
 		HR(reflector->GetDesc(&desc));
-		SetDescription(desc);
+		SetDescriptionDX11(desc);
 	}
 
 	{
@@ -368,4 +368,39 @@ void ShaderDX11::PostSetDeviceObject(forward::FrameGraphObject* obj)
 	//		Data(GT_TEXTURE_ARRAY, ta.GetName(), ta.GetBindPoint(), 0,
 	//			ta.GetNumDimensions(), ta.IsGpuWritable()));
 	//}
+}
+
+void ShaderDX11::SetDescriptionDX11(const D3D11_SHADER_DESC& desc)
+{
+	SetDescription(desc);
+	m_desc.majorVersion = D3D11_SHVER_GET_MAJOR(desc.Version);
+	m_desc.minorVersion = D3D11_SHVER_GET_MINOR(desc.Version);
+
+	auto shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>(D3D11_SHVER_GET_TYPE(desc.Version));
+	switch (shaderType)
+	{
+	case D3D11_SHVER_PIXEL_SHADER:
+		m_desc.shaderType = PIXEL_SHADER;
+		break;
+
+	case D3D11_SHVER_VERTEX_SHADER:
+		m_desc.shaderType = VERTEX_SHADER;
+		break;
+
+	case D3D11_SHVER_GEOMETRY_SHADER:
+		m_desc.shaderType = GEOMETRY_SHADER;
+		break;
+
+	case D3D11_SHVER_HULL_SHADER:
+		m_desc.shaderType = HULL_SHADER;
+		break;
+
+	case D3D11_SHVER_DOMAIN_SHADER:
+		m_desc.shaderType = DOMAIN_SHADER;
+		break;
+
+	case D3D11_SHVER_COMPUTE_SHADER:
+		m_desc.shaderType = COMPUTE_SHADER;
+		break;
+	}
 }

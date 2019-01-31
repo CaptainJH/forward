@@ -52,6 +52,8 @@ namespace forward
 
 	protected:
 
+		void SetDescriptionDX11(const D3D11_SHADER_DESC& desc);
+
 		static bool GetVariables(ID3D11ShaderReflectionConstantBuffer* cbuffer, 
 			u32 numVariables, std::vector<HLSLBaseBuffer::Member>& members);
 		static bool GetTypes(ID3D11ShaderReflectionType* rtype,

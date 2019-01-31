@@ -78,9 +78,6 @@ namespace forward
 		void SetDescription(const D3D_SHADER_DESC& desc)
 		{
 			m_desc.creator = std::string(desc.Creator);
-			//m_desc.shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>(D3D11_SHVER_GET_TYPE(desc.Version));
-			m_desc.majorVersion = D3D11_SHVER_GET_MAJOR(desc.Version);
-			m_desc.minorVersion = D3D11_SHVER_GET_MINOR(desc.Version);
 			m_desc.flags = desc.Flags;
 			m_desc.numConstantBuffers = desc.ConstantBuffers;
 			m_desc.numBoundResources = desc.BoundResources;
@@ -176,7 +173,7 @@ namespace forward
 			};
 
 			std::string creator;
-			//D3D11_SHADER_VERSION_TYPE shaderType;
+			ShaderType shaderType;
 			u32 majorVersion;
 			u32 minorVersion;
 			u32 flags;
