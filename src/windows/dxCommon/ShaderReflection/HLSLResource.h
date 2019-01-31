@@ -1,6 +1,6 @@
 #pragma once
-#include "dx11/dx11Util.h"
-#include <d3d11shader.h>
+#include <d3dcommon.h>
+#include "utilities/Utils.h"
 
 namespace forward
 {
@@ -11,10 +11,34 @@ namespace forward
 		virtual ~HLSLResource();
 	protected:
 		// Construction.
-		HLSLResource(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-			u32 numBytes);
-		HLSLResource(D3D11_SHADER_INPUT_BIND_DESC const& desc, u32 index,
-			u32 numBytes);
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLResource(D3D_SHADER_INPUT_BIND_DESC const& desc,
+			u32 numBytes)
+			: m_numBytes(numBytes)
+		{
+			m_desc.name = std::string(desc.Name);
+			m_desc.bindPoint = desc.BindPoint;
+			m_desc.bindCount = desc.BindCount;
+			m_desc.type = desc.Type;
+			m_desc.flags = desc.uFlags;
+			m_desc.returnType = desc.ReturnType;
+			m_desc.dimension = desc.Dimension;
+			m_desc.numSamples = desc.NumSamples;
+		}
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLResource(D3D_SHADER_INPUT_BIND_DESC const& desc, u32 index,
+			u32 numBytes)
+			: m_numBytes(numBytes)
+		{
+			m_desc.name = std::string(desc.Name) + "[" + std::to_string(index) + "]";
+			m_desc.bindPoint = desc.BindPoint + index;
+			m_desc.bindCount = 1;
+			m_desc.type = desc.Type;
+			m_desc.flags = desc.uFlags;
+			m_desc.returnType = desc.ReturnType;
+			m_desc.dimension = desc.Dimension;
+			m_desc.numSamples = desc.NumSamples;
+		}
 
 	public:
 		struct Description

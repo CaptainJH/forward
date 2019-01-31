@@ -7,23 +7,6 @@ HLSLShaderVariable::HLSLShaderVariable()
 {
 }
 
-void HLSLShaderVariable::SetDescription(D3D11_SHADER_VARIABLE_DESC const& desc)
-{
-	m_desc.name = std::string(desc.Name ? desc.Name : "");
-	m_desc.offset = desc.StartOffset;
-	m_desc.numBytes = desc.Size;
-	m_desc.flags = desc.uFlags;
-	m_desc.textureStart = desc.StartTexture;
-	m_desc.textureNumSlots = desc.TextureSize;
-	m_desc.samplerStart = desc.StartSampler;
-	m_desc.samplerNumSlots = desc.SamplerSize;
-	if (desc.DefaultValue && desc.Size > 0)
-	{
-		m_desc.defaultValue.resize(desc.Size);
-		memcpy(&m_desc.defaultValue[0], desc.DefaultValue, desc.Size);
-	}
-}
-
 std::string const& HLSLShaderVariable::GetName() const
 {
 	return m_desc.name;

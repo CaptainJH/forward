@@ -2,19 +2,6 @@
 
 using namespace forward;
 
-HLSLParameter::HLSLParameter(D3D11_SIGNATURE_PARAMETER_DESC const& desc)
-{
-	m_desc.semanticName = std::string(desc.SemanticName);
-	m_desc.semanticIndex = desc.SemanticIndex;
-	m_desc.registerIndex = desc.Register;
-	m_desc.systemValueType = desc.SystemValueType;
-	m_desc.componentType = desc.ComponentType;
-	m_desc.mask = desc.Mask;
-	m_desc.readWriteMask = desc.ReadWriteMask;
-	m_desc.stream = desc.Stream;
-	m_desc.minPrecision = desc.MinPrecision;
-}
-
 std::string const& HLSLParameter::GetSemanticName() const
 {
 	return m_desc.semanticName;

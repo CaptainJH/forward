@@ -8,27 +8,6 @@ HLSLShaderType::HLSLShaderType()
 {
 }
 
-void HLSLShaderType::SetDescription(D3D11_SHADER_TYPE_DESC const& desc)
-{
-	mDesc.varClass = desc.Class;
-	mDesc.varType = desc.Type;
-	mDesc.numRows = desc.Rows;
-	mDesc.numColumns = desc.Columns;
-	mDesc.numElements = desc.Elements;
-	mDesc.numChildren = desc.Members;
-	mDesc.offset = desc.Offset;
-	mDesc.typeName = std::string(desc.Name ? desc.Name : "");
-
-	if (desc.Members > 0)
-	{
-		mChildren.resize(desc.Members);
-	}
-	else
-	{
-		mChildren.clear();
-	}
-}
-
 void HLSLShaderType::SetName(std::string const& name)
 {
 	mName = name;

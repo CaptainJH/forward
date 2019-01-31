@@ -250,90 +250,6 @@ void ShaderDX11::ReflectShader()
 	reflector->Release();
 }
 
-void ShaderDX11::SetDescription(const D3D11_SHADER_DESC& desc)
-{
-	m_desc.creator = std::string(desc.Creator);
-	m_desc.shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>(D3D11_SHVER_GET_TYPE(desc.Version));
-	m_desc.majorVersion = D3D11_SHVER_GET_MAJOR(desc.Version);
-	m_desc.minorVersion = D3D11_SHVER_GET_MINOR(desc.Version);
-	m_desc.flags = desc.Flags;
-	m_desc.numConstantBuffers = desc.ConstantBuffers;
-	m_desc.numBoundResources = desc.BoundResources;
-	m_desc.numInputParameters = desc.InputParameters;
-	m_desc.numOutputParameters = desc.OutputParameters;
-
-	m_desc.instructions.numInstructions = desc.InstructionCount;
-	m_desc.instructions.numTemporaryRegisters = desc.TempRegisterCount;
-	m_desc.instructions.numTemporaryArrays = desc.TempArrayCount;
-	m_desc.instructions.numDefines = desc.DefCount;
-	m_desc.instructions.numDeclarations = desc.DclCount;
-	m_desc.instructions.numTextureNormal = desc.TextureNormalInstructions;
-	m_desc.instructions.numTextureLoad = desc.TextureLoadInstructions;
-	m_desc.instructions.numTextureComparison = desc.TextureCompInstructions;
-	m_desc.instructions.numTextureBias = desc.TextureBiasInstructions;
-	m_desc.instructions.numTextureGradient = desc.TextureGradientInstructions;
-	m_desc.instructions.numFloatArithmetic = desc.FloatInstructionCount;
-	m_desc.instructions.numSIntArithmetic = desc.IntInstructionCount;
-	m_desc.instructions.numUIntArithmetic = desc.UintInstructionCount;
-	m_desc.instructions.numStaticFlowControl = desc.StaticFlowControlCount;
-	m_desc.instructions.numDynamicFlowControl = desc.DynamicFlowControlCount;
-	m_desc.instructions.numMacro = desc.MacroInstructionCount;
-	m_desc.instructions.numArray = desc.ArrayInstructionCount;
-
-	m_desc.gs.numCutInstructions = desc.CutInstructionCount;
-	m_desc.gs.numEmitInstructions = desc.EmitInstructionCount;
-	m_desc.gs.inputPrimitive = desc.InputPrimitive;
-	m_desc.gs.outputTopology = desc.GSOutputTopology;
-	m_desc.gs.maxOutputVertices = desc.GSMaxOutputVertexCount;
-
-	m_desc.ts.numPatchConstants = desc.PatchConstantParameters;
-	m_desc.ts.numGSInstances = desc.cGSInstanceCount;
-	m_desc.ts.numControlPoints = desc.cControlPoints;
-	m_desc.ts.inputPrimitive = desc.InputPrimitive;
-	m_desc.ts.outputPrimitive = desc.HSOutputPrimitive;
-	m_desc.ts.partitioning = desc.HSPartitioning;
-	m_desc.ts.domain = desc.TessellatorDomain;
-
-	m_desc.cs.numBarrierInstructions = desc.cBarrierInstructions;
-	m_desc.cs.numInterlockedInstructions = desc.cInterlockedInstructions;
-	m_desc.cs.numTextureStoreInstructions = desc.cTextureStoreInstructions;
-}
-
-void ShaderDX11::InsertInput(HLSLParameter const& parameter)
-{
-	m_inputs.push_back(parameter);
-}
-
-void ShaderDX11::InsertOutput(HLSLParameter const& parameter)
-{
-	m_outputs.push_back(parameter);
-}
-
-void ShaderDX11::Insert(HLSLConstantBuffer const& cbuffer)
-{
-	m_CBuffers.push_back(cbuffer);
-}
-
-void ShaderDX11::Insert(HLSLResourceBindInfo const& rbinfo)
-{
-	m_RBInfos.push_back(rbinfo);
-}
-
-void ShaderDX11::Insert(HLSLTextureBuffer const& tbuffer)
-{
-	m_TBuffers.push_back(tbuffer);
-}
-
-void ShaderDX11::Insert(HLSLTexture const& texture)
-{
-	m_Textures.push_back(texture);
-}
-
-void ShaderDX11::Insert(HLSLTextureArray const& tarray)
-{
-	m_TextureArrays.push_back(tarray);
-}
-
 bool ShaderDX11::GetVariables(ID3D11ShaderReflectionConstantBuffer* cbuffer,
 	u32 numVariables, std::vector<HLSLBaseBuffer::Member>& members)
 {
@@ -410,26 +326,6 @@ bool ShaderDX11::IsTextureArray(D3D_SRV_DIMENSION dim)
 		|| dim == D3D_SRV_DIMENSION_TEXTURE2DMSARRAY
 		|| dim == D3D_SRV_DIMENSION_TEXTURECUBE
 		|| dim == D3D_SRV_DIMENSION_TEXTURECUBEARRAY;
-}
-
-std::vector<HLSLConstantBuffer> const& ShaderDX11::GetCBuffers() const
-{
-	return m_CBuffers;
-}
-
-std::vector<HLSLTextureBuffer> const& ShaderDX11::GetTBuffers() const
-{
-	return m_TBuffers;
-}
-
-std::vector<HLSLTexture> const& ShaderDX11::GetTextures() const
-{
-	return m_Textures;
-}
-
-std::vector<HLSLTextureArray> const& ShaderDX11::GetTextureArrays() const
-{
-	return m_TextureArrays;
 }
 
 void ShaderDX11::PostSetDeviceObject(forward::FrameGraphObject* obj)

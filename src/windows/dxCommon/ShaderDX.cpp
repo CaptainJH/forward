@@ -63,3 +63,58 @@ ID3DBlob* ShaderDX::GetCompiledCode()
 {
 	return m_pCompiledShader;
 }
+
+std::vector<HLSLConstantBuffer> const& ShaderDX::GetCBuffers() const
+{
+	return m_CBuffers;
+}
+
+std::vector<HLSLTextureBuffer> const& ShaderDX::GetTBuffers() const
+{
+	return m_TBuffers;
+}
+
+std::vector<HLSLTexture> const& ShaderDX::GetTextures() const
+{
+	return m_Textures;
+}
+
+std::vector<HLSLTextureArray> const& ShaderDX::GetTextureArrays() const
+{
+	return m_TextureArrays;
+}
+
+void ShaderDX::InsertInput(HLSLParameter const& parameter)
+{
+	m_inputs.push_back(parameter);
+}
+
+void ShaderDX::InsertOutput(HLSLParameter const& parameter)
+{
+	m_outputs.push_back(parameter);
+}
+
+void ShaderDX::Insert(HLSLConstantBuffer const& cbuffer)
+{
+	m_CBuffers.push_back(cbuffer);
+}
+
+void ShaderDX::Insert(HLSLResourceBindInfo const& rbinfo)
+{
+	m_RBInfos.push_back(rbinfo);
+}
+
+void ShaderDX::Insert(HLSLTextureBuffer const& tbuffer)
+{
+	m_TBuffers.push_back(tbuffer);
+}
+
+void ShaderDX::Insert(HLSLTexture const& texture)
+{
+	m_Textures.push_back(texture);
+}
+
+void ShaderDX::Insert(HLSLTextureArray const& tarray)
+{
+	m_TextureArrays.push_back(tarray);
+}

@@ -6,33 +6,6 @@ HLSLResource::~HLSLResource()
 {
 }
 
-HLSLResource::HLSLResource(D3D11_SHADER_INPUT_BIND_DESC const& desc, u32 numBytes)
-	: m_numBytes(numBytes)
-{
-	m_desc.name = std::string(desc.Name);
-	m_desc.bindPoint = desc.BindPoint;
-	m_desc.bindCount = desc.BindCount;
-	m_desc.type = desc.Type;
-	m_desc.flags = desc.uFlags;
-	m_desc.returnType = desc.ReturnType;
-	m_desc.dimension = desc.Dimension;
-	m_desc.numSamples = desc.NumSamples;
-}
-
-HLSLResource::HLSLResource(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-	u32 index, u32 numBytes)
-	: m_numBytes(numBytes)
-{
-	m_desc.name = std::string(desc.Name) + "[" + std::to_string(index) + "]";
-	m_desc.bindPoint = desc.BindPoint + index;
-	m_desc.bindCount = 1;
-	m_desc.type = desc.Type;
-	m_desc.flags = desc.uFlags;
-	m_desc.returnType = desc.ReturnType;
-	m_desc.dimension = desc.Dimension;
-	m_desc.numSamples = desc.NumSamples;
-}
-
 std::string const& HLSLResource::GetName() const
 {
 	return m_desc.name;

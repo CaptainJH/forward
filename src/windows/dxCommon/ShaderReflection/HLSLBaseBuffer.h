@@ -14,12 +14,20 @@ namespace forward
 		// Construction and destruction.
 		virtual ~HLSLBaseBuffer();
 
-		HLSLBaseBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-			u32 numBytes, std::vector<Member> const& members);
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLBaseBuffer(D3D_SHADER_INPUT_BIND_DESC const& desc,
+			u32 numBytes, std::vector<Member> const& members)
+			: HLSLResource(desc, numBytes)
+			, mMembers(members)
+		{}
 
-		HLSLBaseBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLBaseBuffer(D3D_SHADER_INPUT_BIND_DESC const& desc,
 			u32 index, u32 numBytes,
-			std::vector<Member> const& members);
+			std::vector<Member> const& members)
+			: HLSLResource(desc, index, numBytes)
+			, mMembers(members)
+		{}
 
 		// Member access.
 		std::vector<Member> const& GetMembers() const;

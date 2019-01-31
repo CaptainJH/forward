@@ -17,13 +17,21 @@ namespace forward
 		//    of constant buffers between shaders.
 
 		// Construction and destruction.
-		virtual ~HLSLConstantBuffer();
+		virtual ~HLSLConstantBuffer() {}
 
-		HLSLConstantBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-			u32 numBytes, std::vector<Member> const& members);
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLConstantBuffer(D3D_SHADER_INPUT_BIND_DESC const& desc,
+			u32 numBytes, std::vector<Member> const& members)
+			: HLSLBaseBuffer(desc, numBytes, members)
+		{
+		}
 
-		HLSLConstantBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
+		template<class D3D_SHADER_INPUT_BIND_DESC>
+		HLSLConstantBuffer(D3D_SHADER_INPUT_BIND_DESC const& desc,
 			u32 index, u32 numBytes,
-			std::vector<Member> const& members);
+			std::vector<Member> const& members)
+			: HLSLBaseBuffer(desc, index, numBytes, members)
+		{
+		}
 	};
 }

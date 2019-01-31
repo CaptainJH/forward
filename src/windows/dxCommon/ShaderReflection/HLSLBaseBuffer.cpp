@@ -6,20 +6,6 @@ HLSLBaseBuffer::~HLSLBaseBuffer()
 {
 }
 
-HLSLBaseBuffer::HLSLBaseBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-	u32 numBytes, std::vector<Member> const& members)
-	: HLSLResource(desc, numBytes)
-	, mMembers(members)
-{
-}
-
-HLSLBaseBuffer::HLSLBaseBuffer(D3D11_SHADER_INPUT_BIND_DESC const& desc,
-	u32 index, u32 numBytes, std::vector<Member> const& members)
-	: HLSLResource(desc, index, numBytes)
-	, mMembers(members)
-{
-}
-
 std::vector<HLSLBaseBuffer::Member> const& HLSLBaseBuffer::GetMembers() const
 {
 	return mMembers;

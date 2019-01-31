@@ -23,7 +23,27 @@ namespace forward
 
 		// Deferred construction for shader reflection.  These functions are
 		// intended to be write-once.
-		void SetDescription(D3D11_SHADER_TYPE_DESC const& desc);
+		template<class D3D_SHADER_TYPE_DESC>
+		void SetDescription(D3D_SHADER_TYPE_DESC const& desc)
+		{
+			mDesc.varClass = desc.Class;
+			mDesc.varType = desc.Type;
+			mDesc.numRows = desc.Rows;
+			mDesc.numColumns = desc.Columns;
+			mDesc.numElements = desc.Elements;
+			mDesc.numChildren = desc.Members;
+			mDesc.offset = desc.Offset;
+			mDesc.typeName = std::string(desc.Name ? desc.Name : "");
+
+			if (desc.Members > 0)
+			{
+				mChildren.resize(desc.Members);
+			}
+			else
+			{
+				mChildren.clear();
+			}
+		}
 		void SetName(std::string const& name);
 
 		// This is non-const and is intended to be used as part of the Set*

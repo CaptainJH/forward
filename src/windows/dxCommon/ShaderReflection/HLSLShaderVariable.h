@@ -1,6 +1,5 @@
 #pragma once
-#include "dx11/dx11Util.h"
-#include <d3d11shader.h>
+#include "HLSLResource.h"
 
 
 namespace forward
@@ -28,7 +27,23 @@ namespace forward
 
 		// Deferred construction for shader reflection.  This function is
 		// intended to be write-once.
-		void SetDescription(D3D11_SHADER_VARIABLE_DESC const& desc);
+		template<class D3D_SHADER_VARIABLE_DESC>
+		void SetDescription(D3D_SHADER_VARIABLE_DESC const& desc)
+		{
+			m_desc.name = std::string(desc.Name ? desc.Name : "");
+			m_desc.offset = desc.StartOffset;
+			m_desc.numBytes = desc.Size;
+			m_desc.flags = desc.uFlags;
+			m_desc.textureStart = desc.StartTexture;
+			m_desc.textureNumSlots = desc.TextureSize;
+			m_desc.samplerStart = desc.StartSampler;
+			m_desc.samplerNumSlots = desc.SamplerSize;
+			if (desc.DefaultValue && desc.Size > 0)
+			{
+				m_desc.defaultValue.resize(desc.Size);
+				memcpy(&m_desc.defaultValue[0], desc.DefaultValue, desc.Size);
+			}
+		}
 
 		// Member access.
 		std::string const& GetName() const;
