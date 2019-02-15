@@ -6,6 +6,10 @@
 
 using namespace forward;
 
+// shouldn't generate any shared_ptr of the FrameGraphObject within this function call
+// because this is a very special function (create device object first, then the frame graph object)
+// normally the reference count of the frame graph object is zero within this function, 
+// if we generate any shared_ptr of FrameGraphObject, it will cause unintentional destruction.
 DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::string& name, ID3D12Resource* tex, ResourceUsage usage)
 {
 	D3D12_RESOURCE_DESC desc = tex->GetDesc();
@@ -202,7 +206,7 @@ shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
 	return shared_ptr<FrameGraphTexture2D>(p);
 }
 
-void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
+void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
 	assert(!m_stagingResPtr);
 
@@ -212,7 +216,7 @@ void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOUR
 	// Readback buffers must be 1-dimensional, i.e. "buffer" not "texture2d"
 	D3D12_RESOURCE_DESC ResourceDesc = {};
 	ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	ResourceDesc.Width = GetFrameGraphResource()->GetNumBytes();
+	ResourceDesc.Width = tx.Width * tx.Height * DataFormat::GetNumBytesPerStruct(static_cast<DataFormatType>(tx.Format));
 	ResourceDesc.Height = 1;
 	ResourceDesc.DepthOrArraySize = 1;
 	ResourceDesc.MipLevels = 1;
