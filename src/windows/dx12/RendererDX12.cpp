@@ -537,8 +537,6 @@ void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTextu
 //--------------------------------------------------------------------------------
 void RendererDX12::SaveRenderTarget(const std::wstring& filename)
 {
-	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
-	auto deviceRT = device_cast<DeviceTexture2DDX12*>(rtPtr);
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer();
 	auto rtPtr = deviceRT->GetFrameGraphTexture2D();
 	deviceRT->SyncGPUToCPU();
