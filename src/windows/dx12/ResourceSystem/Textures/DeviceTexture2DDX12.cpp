@@ -191,7 +191,7 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 	// Copy from staging texture to CPU memory.
 	auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
 	const auto pitch = fgTex2->GetWidth() * fgTex2->GetElementSize();
-	FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), pitch, (u8*)memory, pitch, fgTex2->GetData());
+	FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), PlacedFootprint.Footprint.RowPitch, (u8*)memory, pitch, fgTex2->GetData());
 
 	auto range2 = CD3DX12_RANGE(0, 0);
 	m_stagingResPtr->Unmap(0, &range2);
@@ -209,6 +209,11 @@ shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
 void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
 	assert(!m_stagingResPtr);
+	assert(m_deviceResPtr);
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
+	auto srcDesc = m_deviceResPtr->GetDesc();
+	device->GetCopyableFootprints(&srcDesc, 0, 1, 0, &PlacedFootprint, nullptr, nullptr, nullptr);
 
 	// Create a readback buffer large enough to hold all texel data
 	CD3DX12_HEAP_PROPERTIES heapProperty(D3D12_HEAP_TYPE_READBACK);
@@ -216,7 +221,9 @@ void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOUR
 	// Readback buffers must be 1-dimensional, i.e. "buffer" not "texture2d"
 	D3D12_RESOURCE_DESC ResourceDesc = {};
 	ResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	ResourceDesc.Width = tx.Width * tx.Height * DataFormat::GetNumBytesPerStruct(static_cast<DataFormatType>(tx.Format));
+	// we have to make sure the staging resource is not smaller than render target, 
+	// otherwise, we'll encounter error when using CopyTextureRegion in SyncGPUToCPU
+	ResourceDesc.Width = PlacedFootprint.Footprint.RowPitch * tx.Height;
 	ResourceDesc.Height = 1;
 	ResourceDesc.DepthOrArraySize = 1;
 	ResourceDesc.MipLevels = 1;

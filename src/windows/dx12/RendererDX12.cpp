@@ -372,11 +372,11 @@ void RendererDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceResourceDX12* RendererDX12::CurrentBackBuffer() const
+DeviceTexture2DDX12* RendererDX12::CurrentBackBuffer() const
 {
 	auto rtPtr = m_SwapChain->GetCurrentRT();
 	auto deviceRes = rtPtr->GetResource();
-	DeviceResourceDX12* deviceRes12 = dynamic_cast<DeviceResourceDX12*>(deviceRes);
+	DeviceTexture2DDX12* deviceRes12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
 	assert(deviceRes12);
 	return deviceRes12;
 }
@@ -539,6 +539,8 @@ void RendererDX12::SaveRenderTarget(const std::wstring& filename)
 {
 	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(rtPtr);
+	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer();
+	auto rtPtr = deviceRT->GetFrameGraphTexture2D();
 	deviceRT->SyncGPUToCPU();
 
 	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
@@ -577,8 +579,6 @@ void RendererDX12::EndDrawFrameGraph()
 		PrepareRenderPass(*renderPass.m_renderPass);
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
-
-	//m_SwapChain->Present();
 
 	m_currentFrameGraph = nullptr;
 }

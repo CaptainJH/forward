@@ -24,6 +24,7 @@ namespace forward
 	class SwapChainConfig;
 	class SwapChain;
 	class DeviceResourceDX12;
+	class DeviceTexture2DDX12;
 	struct PipelineStateObject;
 
 
@@ -137,7 +138,7 @@ namespace forward
 		void BuildPSO(PipelineStateObject& pso);
 
 		//--------------------------------------------------------
-		DeviceResourceDX12* CurrentBackBuffer() const;
+		DeviceTexture2DDX12* CurrentBackBuffer() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 		D3D12_VIEWPORT	mScreenViewport;
