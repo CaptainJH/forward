@@ -515,7 +515,30 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	}
 
 	/// Font stuff
+	m_textFont = new FontSegoe_UIW50H12(20);
+	m_textRenderPass = new RenderPass(RenderPass::OF_NO_CLEAN,
+		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
+		builder << *m_textFont;
 
+		pso.m_RSState.m_rsState.frontCCW = true;
+
+		// setup render states
+		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		pso.m_OMState.m_depthStencilResource = dsPtr;
+
+		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+
+		auto& target = pso.m_OMState.m_blendState.target[0];
+		target.enable = true;
+		target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
+		target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
+	},
+		[&](Renderer& render) {
+		render.DrawIndexed(m_textFont->GetIndexCount());
+	});
+
+	m_currentFrameGraph = nullptr;
 
 	return true;
 }

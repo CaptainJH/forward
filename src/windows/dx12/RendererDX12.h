@@ -16,6 +16,7 @@
 #include "dxCommon/SwapChain.h"
 #include "render/FrameGraph/FrameGraphObject.h"
 #include "DynamicDescriptorHeapDX12.h"
+#include "render/Text/FontSegoe_UIW50H12.h"
 #include <dxgi1_4.h>
 #include <mutex>
 
@@ -197,6 +198,9 @@ namespace forward
 
 		u32		m_width;
 		u32		m_height;
+
+		Font*	m_textFont;
+		RenderPass* m_textRenderPass;
 	};
 
 	class RendererContext

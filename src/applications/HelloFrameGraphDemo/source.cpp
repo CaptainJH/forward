@@ -11,8 +11,8 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"HelloFrameGraph";
-		//RenderType = RendererType::Renderer_Forward_DX11;
-		RenderType = RendererType::Renderer_Forward_DX12;
+		RenderType = RendererType::Renderer_Forward_DX11;
+		//RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~HelloFrameGraph()
@@ -64,6 +64,7 @@ void HelloFrameGraph::DrawScene()
 	FrameGraph fg;
 	m_pRender2->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
+	m_pRender2->DrawScreenText("Hello FrameGraph!", 10, 50, Colors::Blue);
 	m_pRender2->EndDrawFrameGraph();
 }
 
