@@ -580,9 +580,13 @@ void RendererDX12::SaveRenderTarget(const std::wstring& filename)
 	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawScreenText(const std::string& /*msg*/, i32 /*x*/, i32 /*y*/, const Vector4f& /*color*/)
+void RendererDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
 {
-
+	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
+	if (m_currentFrameGraph)
+	{
+		m_currentFrameGraph->DrawRenderPass(m_textRenderPass);
+	}
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::BeginDrawFrameGraph(FrameGraph* fg)
