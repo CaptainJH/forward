@@ -206,8 +206,10 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 
 	// A root signature is an array of root parameters.
 	const u32 numParameters = static_cast<u32>(slotRootParameters.size());
+	auto samplers = ConfigStaticSamplerStates();
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, numParameters > 0 ? &*slotRootParameters.begin() : nullptr, 
-		0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : &*samplers.begin(), 
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -308,6 +310,35 @@ void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_
 	desc.BackFace.StencilFunc = msComparison[back.comparison];
 }
 
+std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigStaticSamplerStates() const
+{
+	std::vector<CD3DX12_STATIC_SAMPLER_DESC> samplers;
+
+	for (auto i = 0U; i < m_pso.m_PSState.m_samplers.size(); ++i)
+	{
+		auto samp = m_pso.m_PSState.m_samplers[i];
+		if (samp)
+		{
+			CD3DX12_STATIC_SAMPLER_DESC desc(
+				i, msFilter[samp->filter],
+				msAddressMode[samp->mode[0]],
+				msAddressMode[samp->mode[1]],
+				msAddressMode[samp->mode[2]],
+				samp->mipLODBias,
+				samp->maxAnisotropy,
+				msComparison[samp->comparison],
+				D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
+				samp->minLOD,
+				samp->maxLOD
+			);
+
+			samplers.push_back(desc);
+		}
+	}
+
+	return samplers;
+}
+
 D3D12_FILL_MODE const DevicePipelineStateObjectDX12::msFillMode[] =
 {
 	D3D12_FILL_MODE_SOLID,
@@ -379,4 +410,35 @@ D3D12_STENCIL_OP const DevicePipelineStateObjectDX12::msStencilOp[] =
 	D3D12_STENCIL_OP_INVERT,
 	D3D12_STENCIL_OP_INCR,
 	D3D12_STENCIL_OP_DECR
+};
+
+D3D12_FILTER const DevicePipelineStateObjectDX12::msFilter[] =
+{
+	D3D12_FILTER_MIN_MAG_MIP_POINT,
+	D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR,
+	D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT,
+	D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR,
+	D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT,
+	D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR,
+	D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT,
+	D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+	D3D12_FILTER_ANISOTROPIC,
+	D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
+	D3D12_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR,
+	D3D12_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT,
+	D3D12_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR,
+	D3D12_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT,
+	D3D12_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR,
+	D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT,
+	D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+	D3D12_FILTER_COMPARISON_ANISOTROPIC
+};
+
+D3D12_TEXTURE_ADDRESS_MODE const DevicePipelineStateObjectDX12::msAddressMode[] =
+{
+	D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+	D3D12_TEXTURE_ADDRESS_MODE_MIRROR,
+	D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+	D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+	D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE
 };

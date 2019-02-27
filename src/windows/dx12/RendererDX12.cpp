@@ -417,16 +417,6 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 void RendererDX12::DrawRenderPass(RenderPass& pass)
 {
 	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
-	auto devicePSO = pso->GetDevicePSO();
-
-	///-BeginPresent(devicePSO);
-	// Reuse the memory associated with command recording.
-	// We can only reset when the associated command lists have finished execution on the GPU.
-	HR(m_DirectCmdListAlloc->Reset());
-
-	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-	// Reusing the command list reuses memory.
-	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), devicePSO));
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
 	m_CommandList->RSSetViewports(1, &mScreenViewport);
@@ -437,41 +427,26 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
-	m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
-	m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
+	{
+		m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
+	}
+	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
+	{
+		m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	}
 
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView();
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView();
 	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
-	///-BeginPresent
 
 	pso->Bind(CommandList());
 	// Draw
 	pass.Execute(*this);
 	
-	///-EndPresent
 	// Indicate a state transition on the resource usage.
 	TransitionResource(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
-
-	// Done recording commands.
-	HR(m_CommandList->Close());
-
-	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
-	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	if (m_SwapChain)
-	{
-		// swap the back and front buffers
-		m_SwapChain->Present();
-	}
-
-	// Wait until frame commands are complete.  This waiting is inefficient and is
-	// done for simplicity.  Later we will show how to organize our rendering code
-	// so we do not have to wait per frame.
-	FlushCommandQueue();
-	///-EndPresent
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DeleteResource(ResourcePtr /*ptr*/)
@@ -590,13 +565,51 @@ void RendererDX12::EndDrawFrameGraph()
 {
 	m_currentFrameGraph->LinkInfo();
 	//CompileCurrentFrameGraph();
+
+	// Reuse the memory associated with command recording.
+	// We can only reset when the associated command lists have finished execution on the GPU.
+	HR(m_DirectCmdListAlloc->Reset());
+
 	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
 	for (auto renderPass : renderPassDB)
 	{
 		PrepareRenderPass(*renderPass.m_renderPass);
+	}
+
+	bool bResetCommandList = false;
+	for (auto renderPass : renderPassDB)
+	{
+		if (!bResetCommandList)
+		{
+			auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(renderPass.m_renderPass->GetPSO().m_devicePSO.get());
+			auto devicePSO = pso->GetDevicePSO();
+
+			// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+			// Reusing the command list reuses memory.
+			HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), devicePSO));
+			bResetCommandList = true;
+		}
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
 
+	// Done recording commands.
+	HR(m_CommandList->Close());
+
+	// Add the command list to the queue for execution.
+	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
+	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	if (m_SwapChain)
+	{
+		// swap the back and front buffers
+		m_SwapChain->Present();
+	}
+
+	// Wait until frame commands are complete.  This waiting is inefficient and is
+	// done for simplicity.  Later we will show how to organize our rendering code
+	// so we do not have to wait per frame.
+	FlushCommandQueue();
+	///-EndPresent
 	m_currentFrameGraph = nullptr;
 }
 //--------------------------------------------------------------------------------

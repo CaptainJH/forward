@@ -39,6 +39,8 @@ namespace forward
 		static D3D12_DEPTH_WRITE_MASK const msWriteMask[];
 		static D3D12_COMPARISON_FUNC const msComparison[];
 		static D3D12_STENCIL_OP const msStencilOp[];
+		static D3D12_FILTER const DevicePipelineStateObjectDX12::msFilter[];
+		static D3D12_TEXTURE_ADDRESS_MODE const DevicePipelineStateObjectDX12::msAddressMode[];
 
 		static D3D12_PRIMITIVE_TOPOLOGY_TYPE Convert2DX12TopologyType(PrimitiveTopologyType topo);
 
@@ -47,6 +49,6 @@ namespace forward
 		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
 		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
 		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
-
+		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 	};
 }
