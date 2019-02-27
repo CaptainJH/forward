@@ -87,6 +87,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 			CreateCBView(device, cbvDesc);
 		}
 
+		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 		SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
 	else

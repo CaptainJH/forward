@@ -196,7 +196,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 			if (m_pso.m_PSState.m_constantBuffers[i])
 			{
 				CD3DX12_DESCRIPTOR_RANGE cbvTable;
-				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
+				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i + static_cast<u32>(slotRootParameters.size()));
 				CD3DX12_ROOT_PARAMETER param;
 				param.InitAsDescriptorTable(1, &cbvTable);
 				slotRootParameters.push_back(param);
