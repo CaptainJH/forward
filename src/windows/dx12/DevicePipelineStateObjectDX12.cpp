@@ -125,6 +125,12 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			//deviceVB->Bind(m_pContext.Get());
 		}
 	}
+	auto ib = pso.m_IAState.m_indexBuffer;
+	if (ib && !ib->DeviceObject())
+	{
+		auto deviceIB = forward::make_shared<DeviceBufferDX12>(device, commandList, ib.get());
+		ib->SetDeviceObject(deviceIB);
+	}
 	// Execute the initialization commands
 	HR(commandList->Close());
 	ID3D12CommandList* cmdLists[] = { commandList };
@@ -148,8 +154,19 @@ ID3D12PipelineState* DevicePipelineStateObjectDX12::GetDevicePSO()
 void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 {
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-	auto vbv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_vertexBuffers[0])->VertexBufferView();
-	commandList->IASetVertexBuffers(0, 1, &vbv);
+	for (auto i = 0U; i < m_pso.m_IAState.m_vertexBuffers.size(); ++i)
+	{
+		if (m_pso.m_IAState.m_vertexBuffers[i])
+		{
+			auto vbv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
+			commandList->IASetVertexBuffers(i, 1, &vbv);
+		}
+	}
+	if (m_pso.m_IAState.m_indexBuffer)
+	{
+		auto ibv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_indexBuffer)->IndexBufferView();
+		commandList->IASetIndexBuffer(&ibv);
+	}
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 

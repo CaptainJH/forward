@@ -548,9 +548,9 @@ void RendererDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 	CommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawIndexed(u32 /*indexCount*/)
+void RendererDX12::DrawIndexed(u32 indexCount)
 {
-
+	CommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTexture2D* /*src*/)
