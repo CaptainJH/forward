@@ -131,9 +131,6 @@ namespace forward
 		void FlushCommandQueue();
 		void OnResize();
 
-		void BeginPresent(ID3D12PipelineState* pso);
-		void EndPresent();
-
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 
 		void BuildPSO(PipelineStateObject& pso);
