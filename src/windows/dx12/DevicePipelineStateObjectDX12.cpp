@@ -202,6 +202,18 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 				slotRootParameters.push_back(param);
 			}
 		}
+
+		for (auto i = 0U; i < m_pso.m_PSState.m_shaderResources.size(); ++i)
+		{
+			if (m_pso.m_PSState.m_shaderResources[i])
+			{
+				CD3DX12_DESCRIPTOR_RANGE texTable;
+				texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
+				CD3DX12_ROOT_PARAMETER param;
+				param.InitAsDescriptorTable(1, &texTable);
+				slotRootParameters.push_back(param);
+			}
+		}
 	}
 
 	// A root signature is an array of root parameters.
