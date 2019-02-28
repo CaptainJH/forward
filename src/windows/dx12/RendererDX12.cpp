@@ -16,6 +16,7 @@
 
 #include "render/ResourceSystem/Textures/FrameGraphTexture.h"
 #include "render/FrameGraph/FrameGraph.h"
+#include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
 #include "utilities/FileSaver.h"
@@ -412,6 +413,27 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 	{
 		pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
 	}
+
+	// create device constant buffers
+	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_VSState.m_constantBuffers[i];
+		if (cb && !cb->DeviceObject())
+		{
+			auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+			cb->SetDeviceObject(deviceCB);
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_PSState.m_constantBuffers[i];
+		if (cb && !cb->DeviceObject())
+		{
+			auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+			cb->SetDeviceObject(deviceCB);
+		}
+	}
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DrawRenderPass(RenderPass& pass)
@@ -442,6 +464,7 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 
 	pso->Bind(CommandList());
+	BindGPUVisibleHeaps();
 	// Draw
 	pass.Execute(*this);
 	
@@ -589,6 +612,7 @@ void RendererDX12::EndDrawFrameGraph()
 			HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), devicePSO));
 			bResetCommandList = true;
 		}
+		PrepareGPUVisibleHeaps(*renderPass.m_renderPass);
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
 
@@ -611,6 +635,50 @@ void RendererDX12::EndDrawFrameGraph()
 	FlushCommandQueue();
 	///-EndPresent
 	m_currentFrameGraph = nullptr;
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
+{
+	auto& pso = pass.GetPSO();
+
+	for (auto& heap : m_DynamicDescriptorHeaps)
+	{
+		heap.PrepareDescriptorHandleCache(pso);
+	}
+
+	// stage CBVs
+	u32 numCBInVS = 0;
+	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_VSState.m_constantBuffers[i];
+		if (cb)
+		{
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			assert(deviceCB);
+			cbvHeap.StageDescriptors(i, 0, 1, deviceCB->GetCBViewCPUHandle());
+			++numCBInVS;
+		}
+	}
+
+	u32 numCBInPS = 0;
+	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_VSState.m_constantBuffers[i];
+		if (cb)
+		{
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			assert(deviceCB);
+			cbvHeap.StageDescriptors(numCBInVS + i, 0, 1, deviceCB->GetCBViewCPUHandle());
+			++numCBInPS;
+		}
+	}
+}
+//--------------------------------------------------------------------------------
+void RendererDX12::BindGPUVisibleHeaps()
+{
+	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+	cbvHeap.CommitStagedDescriptors(CommandList(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
 }
 //--------------------------------------------------------------------------------
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const

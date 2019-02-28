@@ -107,7 +107,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
 	}
 
-	// setup vertex buffer
+	// setup vertex buffers
 	render->ResetCommandList();
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
@@ -125,6 +125,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			//deviceVB->Bind(m_pContext.Get());
 		}
 	}
+	// setup index buffer
 	auto ib = pso.m_IAState.m_indexBuffer;
 	if (ib && !ib->DeviceObject())
 	{
@@ -154,6 +155,7 @@ ID3D12PipelineState* DevicePipelineStateObjectDX12::GetDevicePSO()
 void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 {
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+	commandList->SetPipelineState(m_devicePSO.Get());
 	for (auto i = 0U; i < m_pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
 		if (m_pso.m_IAState.m_vertexBuffers[i])
@@ -219,7 +221,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	// A root signature is an array of root parameters.
 	const u32 numParameters = static_cast<u32>(slotRootParameters.size());
 	auto samplers = ConfigStaticSamplerStates();
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, numParameters > 0 ? &*slotRootParameters.begin() : nullptr, 
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, slotRootParameters.empty() ? nullptr : &*slotRootParameters.begin(), 
 		static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : &*samplers.begin(), 
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 

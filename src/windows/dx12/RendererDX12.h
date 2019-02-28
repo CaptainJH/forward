@@ -103,8 +103,14 @@ namespace forward
 		D3D12_CPU_DESCRIPTOR_HANDLE AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
 		u32 GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const;
 
-	//private:
-	public:
+		ID3D12Device* GetDevice();
+		ID3D12GraphicsCommandList* CommandList() { return m_CommandList.Get(); }
+		ID3D12CommandQueue* CommandQueue() { return m_CommandQueue.Get(); }
+		void ResetCommandList();
+		void FlushCommandQueue();
+		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
+
+	private:
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
 
@@ -118,20 +124,13 @@ namespace forward
         // Renderer initialization and shutdown methods.  These methods
 		// obtain and release all of the hardware specific resources that
 		// are used during rendering.
-
 		bool InitializeD3D( D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel );
-
-		// These methods provide rendering frame control.  They are closely
-		// related to the API for sequencing rendering batches.
 
 		i32 CreateSwapChain( SwapChainConfig* pConfig );
 
 		void CreateCommandObjects();
 
-		void FlushCommandQueue();
 		void OnResize();
-
-		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 
 		void BuildPSO(PipelineStateObject& pso);
 
@@ -143,15 +142,11 @@ namespace forward
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------
 
-        ID3D12Device* GetDevice();
-
-		ID3D12GraphicsCommandList* CommandList() { return m_CommandList.Get(); }
-		ID3D12CommandQueue* CommandQueue() { return m_CommandQueue.Get(); }
-		void ResetCommandList();
-
 		void PrepareRenderPass(RenderPass& pass);
+		void PrepareGPUVisibleHeaps(RenderPass& pass);
+		void BindGPUVisibleHeaps();
 
-    protected:
+    private:
     	// The main API interfaces used in the renderer.
 		DeviceCom12Ptr							m_pDevice = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12Debug>		m_pDebugger = nullptr;
