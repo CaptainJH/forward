@@ -11,7 +11,11 @@ DynamicDescriptorHeapDX12::DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE 
 	, m_NumDescriptorsPerHeap(numDescriptorPerHeap)
 	, m_DescriptorHandleIncrementSize(0)
 {
-	m_DescriptorHandleCache.reserve(m_NumDescriptorsPerHeap);
+	m_DescriptorHandleCache.resize(m_NumDescriptorsPerHeap);
+	for (auto& cache : m_DescriptorHandleCache)
+	{
+		cache.ptr = 0;
+	}
 }
 
 DynamicDescriptorHeapDX12::~DynamicDescriptorHeapDX12()

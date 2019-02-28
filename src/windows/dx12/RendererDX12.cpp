@@ -418,25 +418,31 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_VSState.m_constantBuffers[i];
-		if (cb && !cb->DeviceObject())
+		if (cb)
 		{
-			auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
-			cb->SetDeviceObject(deviceCB);
+			if (!cb->DeviceObject())
+			{
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				cb->SetDeviceObject(deviceCB);
+			}
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			deviceCB->SyncCPUToGPU();
 		}
-		auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-		deviceCB->SyncCPUToGPU();
 	}
 
 	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_PSState.m_constantBuffers[i];
-		if (cb && !cb->DeviceObject())
+		if (cb)
 		{
-			auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
-			cb->SetDeviceObject(deviceCB);
+			if (!cb->DeviceObject())
+			{
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				cb->SetDeviceObject(deviceCB);
+			}
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			deviceCB->SyncCPUToGPU();
 		}
-		auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-		deviceCB->SyncCPUToGPU();
 	}
 
 	// create & update device vertex buffer
