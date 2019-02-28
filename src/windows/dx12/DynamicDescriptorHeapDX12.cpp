@@ -60,13 +60,13 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptors(ID3D12GraphicsCommandLis
 	if (!m_CurrentDescriptorHeap)
 	{
 		m_CurrentDescriptorHeap = RequestDescriptorHeap();
-		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 
 		ID3D12DescriptorHeap* descriptorHeaps[] = { m_CurrentDescriptorHeap.Get() };
 		commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
+	m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	for (auto i = 0U; i < m_DescriptorTableCache.size(); ++i)
 	{
 		auto numSrcDescriptors = m_DescriptorTableCache[i].NumDescriptors;
@@ -135,6 +135,10 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
 
 void DynamicDescriptorHeapDX12::PrepareDescriptorHandleCache(const PipelineStateObject& pso)
 {
+	std::for_each(m_DescriptorTableCache.begin(), m_DescriptorTableCache.end(), [](DescriptorTableCache& cache) {
+		cache.Reset();
+	});
+
 	u32 rootIndex = 0;
 	u32 currentOffset = 0;
 	if (pso.m_VSState.m_shader)
