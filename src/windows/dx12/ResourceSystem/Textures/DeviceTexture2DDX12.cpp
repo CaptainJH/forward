@@ -255,9 +255,18 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
 }
 
-void DeviceTexture2DDX12::CreateSRView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+void DeviceTexture2DDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
+	m_srvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = tx.Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = tx.MipLevels;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	device->CreateShaderResourceView(m_deviceResPtr.Get(), &srvDesc, m_srvHandle);
 }
 
 void DeviceTexture2DDX12::CreateUAView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)

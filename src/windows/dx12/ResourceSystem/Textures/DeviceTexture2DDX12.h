@@ -35,5 +35,6 @@ namespace forward
 
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_rtvHandle;
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_dsvHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_srvHandle;
 	};
 }
