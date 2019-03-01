@@ -60,11 +60,10 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptors(ID3D12GraphicsCommandLis
 	if (!m_CurrentDescriptorHeap)
 	{
 		m_CurrentDescriptorHeap = RequestDescriptorHeap();
-
-		ID3D12DescriptorHeap* descriptorHeaps[] = { m_CurrentDescriptorHeap.Get() };
-		commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	}
 
+	ID3D12DescriptorHeap* descriptorHeaps[] = { m_CurrentDescriptorHeap.Get() };
+	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 	m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	for (auto i = 0U; i < m_DescriptorTableCache.size(); ++i)
