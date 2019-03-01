@@ -126,7 +126,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	));
 	m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 
-	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && tex->GetData())
+	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && tex->GetData())
 	{
 		// In order to copy CPU memory data into our default buffer, we need to create
 		// an intermediate upload heap. 

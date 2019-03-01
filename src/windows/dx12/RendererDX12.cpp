@@ -693,7 +693,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	u32 numCBInPS = 0;
 	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 	{
-		auto cb = pso.m_VSState.m_constantBuffers[i];
+		auto cb = pso.m_PSState.m_constantBuffers[i];
 		if (cb)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
