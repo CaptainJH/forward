@@ -132,6 +132,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		auto deviceIB = forward::make_shared<DeviceBufferDX12>(device, commandList, ib.get());
 		ib->SetDeviceObject(deviceIB);
 	}
+	// TODO: setup shader resources
+
 	// Execute the initialization commands
 	HR(commandList->Close());
 	ID3D12CommandList* cmdLists[] = { commandList };

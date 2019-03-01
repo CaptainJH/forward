@@ -35,72 +35,6 @@ DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::st
 	return ret;
 }
 
-DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex)
-	: DeviceTextureDX12(tex)
-{
-	D3D12_RESOURCE_DESC desc;
-	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	desc.Alignment = 0;
-	desc.Width = tex->GetWidth();
-	desc.Height = tex->GetHeight();
-	desc.DepthOrArraySize = 1;
-	desc.MipLevels = static_cast<u16>(tex->GetMipLevelNum());
-	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
-	desc.SampleDesc.Count = tex->GetSampCount();
-	desc.SampleDesc.Quality = 0;
-	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-
-	D3D12_CLEAR_VALUE optClear;
-	optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
-	optClear.DepthStencil.Depth = 1.0f;
-	optClear.DepthStencil.Stencil = 0;
-
-	const auto TBP = tex->GetBindPosition();
-
-	if (TBP & TBP_DS)
-	{
-		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-	}
-
-	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
-	HR(device->CreateCommittedResource(
-		&properties,
-		D3D12_HEAP_FLAG_NONE,
-		&desc,
-		GetResourceState(),
-		&optClear,
-		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())
-	));
-
-	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
-	{
-		CreateStaging(device, desc);
-	}
-
-	// Create views of the texture.
-	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
-	{
-		CreateSRView(device, desc);
-	}
-
-	if (TBP & TBP_RT)
-	{
-		CreateRTView(device, desc);
-	}
-
-	if (TBP & TBP_DS)
-	{
-		if (TBP & TBP_Shader)
-		{
-			CreateDSSRView(device, desc);
-		}
-		else
-		{
-			CreateDSView(device, desc);
-		}
-	}
-}
-
 DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex)
 	: DeviceTextureDX12(tex)
 {
@@ -154,9 +88,117 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTe
 	}
 }
 
+DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex)
+	: DeviceTextureDX12(tex)
+{
+	D3D12_RESOURCE_DESC desc;
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	desc.Alignment = 0;
+	desc.Width = tex->GetWidth();
+	desc.Height = tex->GetHeight();
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = static_cast<u16>(tex->GetMipLevelNum());
+	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+	desc.SampleDesc.Count = tex->GetSampCount();
+	desc.SampleDesc.Quality = 0;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+	D3D12_CLEAR_VALUE optClear;
+	optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+
+	const auto TBP = tex->GetBindPosition();
+
+	if (TBP & TBP_DS)
+	{
+		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	}
+
+	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
+	HR(device->CreateCommittedResource(
+		&properties,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		GetResourceState(),
+		&optClear,
+		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())
+	));
+	m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
+
+	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && tex->GetData())
+	{
+		// In order to copy CPU memory data into our default buffer, we need to create
+		// an intermediate upload heap. 
+		CD3DX12_HEAP_PROPERTIES heap_staging_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		HR(device->CreateCommittedResource(
+			&heap_staging_properties,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
+
+		SyncCPUToGPU();
+	}
+
+	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	{
+		CreateStaging(device, desc);
+	}
+
+	// Create views of the texture.
+	if ((TBP & TBP_Shader) && ((TBP & TBP_DS) == 0))
+	{
+		CreateSRView(device, desc);
+	}
+
+	if (TBP & TBP_RT)
+	{
+		CreateRTView(device, desc);
+	}
+
+	if (TBP & TBP_DS)
+	{
+		if (TBP & TBP_Shader)
+		{
+			CreateDSSRView(device, desc);
+		}
+		else
+		{
+			CreateDSView(device, desc);
+		}
+	}
+}
+
 void DeviceTexture2DDX12::SyncCPUToGPU()
 {
+	auto res = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
+	ResourceUsage usage = res->GetUsage();
 
+	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
+	{
+		auto cmdList = RendererContext::GetCurrentRender()->CommandList();
+
+		// Describe the data we want to copy into the default buffer.
+		D3D12_SUBRESOURCE_DATA subResourceData = {};
+		subResourceData.pData = res->GetData();
+		subResourceData.RowPitch = res->GetNumBytes();
+		subResourceData.SlicePitch = subResourceData.RowPitch;
+
+		// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
+		// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
+		// the intermediate upload heap data will be copied to mBuffer.
+		auto transitionToCopyDest = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
+			GetResourceState(),
+			D3D12_RESOURCE_STATE_COPY_DEST);
+		cmdList->ResourceBarrier(1, &transitionToCopyDest);
+		UpdateSubresources<1>(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, &subResourceData);
+		auto transitionBack = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
+			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+		cmdList->ResourceBarrier(1, &transitionBack);
+		SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
+	}
 }
 
 void DeviceTexture2DDX12::SyncGPUToCPU()
