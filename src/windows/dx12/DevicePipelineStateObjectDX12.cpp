@@ -6,6 +6,7 @@
 #include "FrameGraph/PipelineStateObjects.h"
 #include "dx12/ShaderSystem/ShaderDX12.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
+#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/RendererDX12.h"
 
 using namespace forward;
@@ -132,7 +133,20 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		auto deviceIB = forward::make_shared<DeviceBufferDX12>(device, commandList, ib.get());
 		ib->SetDeviceObject(deviceIB);
 	}
-	// TODO: setup shader resources
+	// setup shader resources
+	if (pso.m_PSState.m_shader)
+	{
+		for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+		{
+			auto res = pso.m_PSState.m_shaderResources[i];
+			if (res)
+			{
+				auto tex = dynamic_cast<FrameGraphTexture2D*>(res.get());
+				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, tex);
+				tex->SetDeviceObject(deviceTex);
+			}
+		}
+	}
 
 	// Execute the initialization commands
 	HR(commandList->Close());
@@ -171,7 +185,7 @@ void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 		auto ibv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_indexBuffer)->IndexBufferView();
 		commandList->IASetIndexBuffer(&ibv);
 	}
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	commandList->IASetPrimitiveTopology(Convert2D3DTopology(m_pso.m_IAState.m_topologyType));
 }
 
 void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)

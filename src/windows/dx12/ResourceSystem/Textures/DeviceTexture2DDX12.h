@@ -24,6 +24,7 @@ namespace forward
 		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetViewHandle();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilViewHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
 
 	private:
 		void CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx);

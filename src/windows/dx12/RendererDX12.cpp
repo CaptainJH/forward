@@ -676,7 +676,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	}
 
 	// stage CBVs
-	u32 numCBInVS = 0;
+	u32 index = 0;
 	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
 	{
@@ -685,12 +685,10 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
 			assert(deviceCB);
-			cbvHeap.StageDescriptors(i, 0, 1, deviceCB->GetCBViewCPUHandle());
-			++numCBInVS;
+			cbvHeap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
 		}
 	}
 
-	u32 numCBInPS = 0;
 	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_PSState.m_constantBuffers[i];
@@ -698,8 +696,18 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
 			assert(deviceCB);
-			cbvHeap.StageDescriptors(numCBInVS + i, 0, 1, deviceCB->GetCBViewCPUHandle());
-			++numCBInPS;
+			cbvHeap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+	{
+		auto res = pso.m_PSState.m_shaderResources[i];
+		if (res)
+		{
+			auto deviceTex = device_cast<DeviceTexture2DDX12*>(res);
+			assert(deviceTex);
+			cbvHeap.StageDescriptors(index++, 0, 1, deviceTex->GetShaderResourceViewHandle());
 		}
 	}
 }

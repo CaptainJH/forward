@@ -34,13 +34,13 @@ void DynamicDescriptorHeapDX12::Reset()
 	m_CurrentGPUDescriptorHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT);
 }
 
-void DynamicDescriptorHeapDX12::StageDescriptors(u32 rootParameterIndex, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor)
+void DynamicDescriptorHeapDX12::StageDescriptors(u32 index, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor)
 {
 	// Cannot stage more than the maximum number of descriptors per heap.
 	// Cannot stage more than MaxDescriptorTables root parameters.
-	assert(numDescriptors <= m_NumDescriptorsPerHeap && rootParameterIndex < MaxDescriptorTables);
+	assert(numDescriptors <= m_NumDescriptorsPerHeap && index < MaxDescriptorTables);
 
-	auto& descriptorTableCache = m_DescriptorTableCache[rootParameterIndex];
+	auto& descriptorTableCache = m_DescriptorTableCache[index];
 
 	// Check that the number of descriptors to copy does not exceed the number
 	// of descriptors expected in the descriptor table.
@@ -160,6 +160,18 @@ void DynamicDescriptorHeapDX12::PrepareDescriptorHandleCache(const PipelineState
 		for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 		{
 			if (pso.m_PSState.m_constantBuffers[i])
+			{
+				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
+				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
+				descriptorTableCache.NumDescriptors = 1;
+				++rootIndex;
+				++currentOffset;
+			}
+		}
+
+		for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+		{
+			if (pso.m_PSState.m_shaderResources[i])
 			{
 				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
 				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
