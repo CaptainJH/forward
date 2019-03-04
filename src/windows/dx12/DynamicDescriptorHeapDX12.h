@@ -85,6 +85,9 @@ namespace forward
 		// The descriptor handle cache.
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandleCache;
 
+		u32 m_currentDescriptorTableOffset = 0;
+		u32 m_currentDescriptorTableLength = 0;
+
 	private:
 		// Request a descriptor heap if one is available.
 		DescriptorHeapComPtr RequestDescriptorHeap();

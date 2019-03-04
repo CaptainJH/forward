@@ -621,6 +621,10 @@ void RendererDX12::EndDrawFrameGraph()
 	// Reuse the memory associated with command recording.
 	// We can only reset when the associated command lists have finished execution on the GPU.
 	HR(m_DirectCmdListAlloc->Reset());
+	std::for_each(std::begin(m_DynamicDescriptorHeaps), std::end(m_DynamicDescriptorHeaps), 
+		[](DynamicDescriptorHeapDX12& heap) {
+		heap.Reset();
+	});
 
 	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
 	for (auto renderPass : renderPassDB)
@@ -677,7 +681,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 
 	// stage CBVs
 	u32 index = 0;
-	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+	auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_VSState.m_constantBuffers[i];
@@ -685,7 +689,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
 			assert(deviceCB);
-			cbvHeap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
+			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
 		}
 	}
 
@@ -696,7 +700,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
 			assert(deviceCB);
-			cbvHeap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
+			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
 		}
 	}
 
@@ -707,7 +711,7 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			auto deviceTex = device_cast<DeviceTexture2DDX12*>(res);
 			assert(deviceTex);
-			cbvHeap.StageDescriptors(index++, 0, 1, deviceTex->GetShaderResourceViewHandle());
+			heap.StageDescriptors(index++, 0, 1, deviceTex->GetShaderResourceViewHandle());
 		}
 	}
 }
