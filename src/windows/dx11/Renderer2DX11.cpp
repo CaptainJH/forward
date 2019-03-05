@@ -660,7 +660,7 @@ void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2
 		device_cast<DeviceTexture2DDX11*>(src)->GetDXTexture2DPtr(), 0, static_cast<DXGI_FORMAT>(dst->GetFormat()));
 }
 
-void Renderer2DX11::SaveRenderTarget(const std::wstring& filename)
+void Renderer2DX11::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& /*pso*/)
 {
 	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
 	auto deviceRT = device_cast<DeviceTexture2DDX11*>(rtPtr);

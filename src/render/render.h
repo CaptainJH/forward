@@ -35,6 +35,7 @@ namespace forward
 	class FrameGraph;
 	class SwapChainConfig;
 	class FrameGraphTexture2D;
+	struct PipelineStateObject;
 
 
 	class Renderer
@@ -60,7 +61,7 @@ namespace forward
 
 		virtual void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) = 0;
 
-		virtual void SaveRenderTarget(const std::wstring& filename) = 0;
+		virtual void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) = 0;
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 

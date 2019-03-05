@@ -102,7 +102,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	desc.SampleDesc.Count = tex->GetSampCount();
 	desc.SampleDesc.Quality = 0;
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
 	const auto TBP = tex->GetBindPosition();
 	D3D12_CLEAR_VALUE optClear;
@@ -121,7 +121,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
 	HR(device->CreateCommittedResource(
 		&properties,
-		D3D12_HEAP_FLAG_NONE,
+		D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
 		&desc,
 		GetResourceState(),
 		optClearPtr,

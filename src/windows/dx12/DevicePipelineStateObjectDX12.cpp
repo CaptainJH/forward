@@ -147,6 +147,20 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			}
 		}
 	}
+	// setup render targets
+	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< FrameGraphTexture2D> ptr) {
+		if (ptr && !ptr->DeviceObject())
+		{
+			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, ptr.get());
+			ptr->SetDeviceObject(deviceTex);
+		}
+	});
+	// setup depth stencil buffer
+	if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
+	{
+		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, pso.m_OMState.m_depthStencilResource.get());
+		pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
+	}
 
 	// Execute the initialization commands
 	HR(commandList->Close());

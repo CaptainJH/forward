@@ -27,7 +27,7 @@ namespace forward
 
 		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
 
-		void SaveRenderTarget(const std::wstring& filename) override;
+		void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 

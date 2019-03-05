@@ -228,7 +228,7 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 //--------------------------------------------------------------------------------
 void RendererDX12::Shutdown()
 {
-	if (m_SwapChain->GetSwapChain())
+	if (m_SwapChain && m_SwapChain->GetSwapChain())
 	{
 		m_SwapChain->GetSwapChain()->SetFullscreenState(false, NULL);
 	}
@@ -373,31 +373,49 @@ void RendererDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceTexture2DDX12* RendererDX12::CurrentBackBuffer() const
+DeviceTexture2DDX12* RendererDX12::CurrentBackBuffer(PipelineStateObject& pso) const
 {
-	auto rtPtr = m_SwapChain->GetCurrentRT();
-	auto deviceRes = rtPtr->GetResource();
-	DeviceTexture2DDX12* deviceRes12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
-	assert(deviceRes12);
-	return deviceRes12;
+	if (pso.m_OMState.m_renderTargetResources[0] && pso.m_OMState.m_renderTargetResources[0]->DeviceObject())
+	{
+		return device_cast<DeviceTexture2DDX12*>(pso.m_OMState.m_renderTargetResources[0]);
+	}
+	else if (m_SwapChain)
+	{
+		auto rtPtr = m_SwapChain->GetCurrentRT();
+		auto deviceRes = rtPtr->GetResource();
+		DeviceTexture2DDX12* deviceRes12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
+		assert(deviceRes12);
+		return deviceRes12;
+	}
+
+	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView() const
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView(PipelineStateObject& pso) const
 {
-	auto rtPtr = m_SwapChain->GetCurrentRT();
-	auto deviceRes = rtPtr->GetResource();
-	DeviceTexture2DDX12* tex12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
+	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(pso);
 	assert(tex12);
 	return tex12->GetRenderTargetViewHandle();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView() const
+D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView(PipelineStateObject& pso) const
 {
-	auto dsPtr = m_SwapChain->GetCurrentDS();
-	auto deviceRes = dsPtr->GetResource();
-	DeviceTexture2DDX12* tex12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
-	assert(tex12);
-	return tex12->GetDepthStencilViewHandle();
+	if (pso.m_OMState.m_depthStencilResource && pso.m_OMState.m_depthStencilResource->DeviceObject())
+	{
+		return device_cast<DeviceTexture2DDX12*>(pso.m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
+	}
+	else if (m_SwapChain)
+	{
+		auto dsPtr = m_SwapChain->GetCurrentDS();
+		auto deviceRes = dsPtr->GetResource();
+		DeviceTexture2DDX12* tex12 = dynamic_cast<DeviceTexture2DDX12*>(deviceRes);
+		assert(tex12);
+		return tex12->GetDepthStencilViewHandle();
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE ret;
+	ret.ptr = 0;
+	return ret;
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::ResetCommandList()
@@ -474,23 +492,23 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 	m_CommandList->RSSetScissorRects(1, &mScissorRect);
 
 	// Indicate a state transition on the resource usage.
-	TransitionResource(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
+	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 	{
-		m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), clearColours, 0, nullptr);
+		m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
 	}
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 	{
-		m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		m_CommandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
 
-	// Specify the buffers we are going to render to.
-	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView();
-	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView();
-	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 
 	pso->Bind(CommandList());
 	BindGPUVisibleHeaps();
@@ -498,7 +516,7 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 	pass.Execute(*this);
 	
 	// Indicate a state transition on the resource usage.
-	TransitionResource(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::DeleteResource(ResourcePtr /*ptr*/)
@@ -577,9 +595,9 @@ void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTextu
 
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::SaveRenderTarget(const std::wstring& filename)
+void RendererDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
 {
-	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer();
+	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
 	auto rtPtr = deviceRT->GetFrameGraphTexture2D();
 	deviceRT->SyncGPUToCPU();
 
