@@ -300,16 +300,6 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	// Wait until resize is complete.
 	FlushCommandQueue();
 
-	// Update the viewport transform to cover the client area.
-	mScreenViewport.TopLeftX = 0;
-	mScreenViewport.TopLeftY = 0;
-	mScreenViewport.Width = static_cast<float>(Width);
-	mScreenViewport.Height = static_cast<float>(Height);
-	mScreenViewport.MinDepth = 0.0f;
-	mScreenViewport.MaxDepth = 1.0f;
-
-	mScissorRect = { 0, 0, static_cast<i32>(Width), static_cast<i32>(Height) };
-
 	return 0;
 }
 //--------------------------------------------------------------------------------
@@ -553,6 +543,16 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 		// creation.
 		CreateSwapChain(&config);
 	}
+
+	// Update the viewport transform to cover the client area.
+	mScreenViewport.TopLeftX = 0;
+	mScreenViewport.TopLeftY = 0;
+	mScreenViewport.Width = static_cast<float>(m_width);
+	mScreenViewport.Height = static_cast<float>(m_height);
+	mScreenViewport.MinDepth = 0.0f;
+	mScreenViewport.MaxDepth = 1.0f;
+
+	mScissorRect = { 0, 0, static_cast<i32>(m_width), static_cast<i32>(m_height) };
 
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(20);
