@@ -228,6 +228,9 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 //--------------------------------------------------------------------------------
 void RendererDX12::Shutdown()
 {
+	SAFE_DELETE(m_textRenderPass);
+	SAFE_DELETE(m_textFont);
+
 	if (m_SwapChain && m_SwapChain->GetSwapChain())
 	{
 		m_SwapChain->GetSwapChain()->SetFullscreenState(false, NULL);

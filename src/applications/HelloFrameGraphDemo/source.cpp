@@ -11,8 +11,8 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"HelloFrameGraph";
-		RenderType = RendererType::Renderer_Forward_DX11;
-		//RenderType = RendererType::Renderer_Forward_DX12;
+		//RenderType = RendererType::Renderer_Forward_DX11;
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~HelloFrameGraph()
@@ -129,5 +129,5 @@ void HelloFrameGraph::OnResize()
 void HelloFrameGraph::OnSpace()
 {
 	mAppPaused = !mAppPaused;
-	m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp");
+	m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp", m_renderPass->GetPSO());
 }
