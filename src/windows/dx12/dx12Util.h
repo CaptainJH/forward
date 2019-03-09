@@ -8,6 +8,7 @@
 #include "dx12/d3dx12.h"
 #include "dxCommon/d3dUtil.h"
 #include "utilities/Log.h"
+#include "utilities/Utils.h"
 #include <unordered_map>
 
 typedef Microsoft::WRL::ComPtr<ID3D12Device> DeviceCom12Ptr;
@@ -41,6 +42,9 @@ namespace forward
 	//D3D12_SUBRESOURCE_DATA ConvertSubResource(const Subresource* pData);
 
 	u32 CalcConstantBufferByteSize(u32 byteSize);
+
+	EResult FillInitDataDX12(u32 width, u32 height, u32 depth, u32 mipCount, u32 arraySize, DataFormatType format,
+		u32 maxSize, u32 bitSize, const u8* bitData, u32& twidth, u32& theight, u32& tdepth, u32& skipMip, D3D12_SUBRESOURCE_DATA* initData);
 
 	DeviceResCom12Ptr CreateDefaultBuffer(
 		ID3D12Device* device,

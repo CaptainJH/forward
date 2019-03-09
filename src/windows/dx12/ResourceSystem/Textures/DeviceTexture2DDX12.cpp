@@ -108,6 +108,11 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	D3D12_CLEAR_VALUE optClear;
 	D3D12_CLEAR_VALUE* optClearPtr = nullptr;
 
+	if (tex->IsFileTexture() && (TBP & TBP_Shader))
+	{
+		desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	}
+
 	if (TBP & TBP_DS)
 	{
 		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
@@ -190,10 +195,15 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 		auto cmdList = RendererContext::GetCurrentRender()->CommandList();
 
 		// Describe the data we want to copy into the default buffer.
-		D3D12_SUBRESOURCE_DATA subResourceData = {};
-		subResourceData.pData = res->GetData();
-		subResourceData.RowPitch = resTex2->GetWidth() * resTex2->GetElementSize();
-		subResourceData.SlicePitch = res->GetNumBytes();
+		std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D12_SUBRESOURCE_DATA[resTex2->GetMipLevelNum()]);
+		assert(initData);
+
+		u32 skipMip = 0;
+		u32 twidth = 0;
+		u32 theight = 0;
+		u32 tdepth = 0;
+		FillInitDataDX12(resTex2->GetWidth(), resTex2->GetHeight(), 1, resTex2->GetMipLevelNum(), 1, resTex2->GetFormat(), 0, resTex2->GetNumBytes(),
+			resTex2->GetData(), twidth, theight, tdepth, skipMip, initData.get());
 
 		// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
 		// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
@@ -202,7 +212,7 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 			GetResourceState(),
 			D3D12_RESOURCE_STATE_COPY_DEST);
 		cmdList->ResourceBarrier(1, &transitionToCopyDest);
-		UpdateSubresources(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, &subResourceData);
+		UpdateSubresources(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, initData.get());
 		auto transitionBack = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 		cmdList->ResourceBarrier(1, &transitionBack);
