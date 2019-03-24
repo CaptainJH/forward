@@ -349,8 +349,3 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetRenderTargetViewHandle()
 {
 	return m_rtvHandle;
 }
-
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetShaderResourceViewHandle()
-{
-	return m_srvHandle;
-}

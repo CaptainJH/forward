@@ -12,3 +12,8 @@ DeviceTextureDX12::DeviceTextureDX12(FrameGraphTexture* tex)
 {
 
 }
+
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceTextureDX12::GetShaderResourceViewHandle()
+{
+	return m_srvHandle;
+}

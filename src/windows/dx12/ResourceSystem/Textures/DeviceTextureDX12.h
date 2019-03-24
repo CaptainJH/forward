@@ -14,7 +14,9 @@ namespace forward
 	public:
 		DeviceTextureDX12(FrameGraphTexture* tex);
 
-	protected:
+		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
 
+	protected:
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_srvHandle;
 	};
 }
