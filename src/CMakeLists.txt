@@ -29,6 +29,9 @@ include_directories("geometry/")
 include_directories("utilities/")
 include_directories("render/")
 
+option(CompileWithRenderDoc "RenderDoc integration")
+set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX")
     set(RenderAPILibs "d3d11.lib d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
@@ -77,5 +80,9 @@ remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/windo
 set_source_groups("${forward_COMMON_SOURCE_FILES}")
 
 add_definitions(-DNOMINMAX)
+if(CompileWithRenderDoc)
+    add_definitions(-DUSE_RENDERDOC)
+    include_directories("${RenderDocPath}")
+endif()
 add_library(libForward STATIC ${forward_COMMON_SOURCE_FILES})
 
