@@ -12,6 +12,11 @@
 #include "dx12/RendererDX12.h"
 #endif
 
+#if USE_RENDERDOC
+#include "renderdoc_app.h"
+RENDERDOC_API_1_2_0 *rdoc_api = nullptr;
+#endif
+
 //--------------------------------------------------------------------------------
 using namespace forward;
 using namespace std::chrono;
@@ -72,6 +77,17 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 {
 	gApplication = this;
 	RenderType = RendererType::Renderer_Forward_DX11;
+
+#if USE_RENDERDOC
+	HMODULE mod = LoadLibraryA(RENDERDOC_PATH"/renderdoc.dll");
+	if (mod)
+	{
+		pRENDERDOC_GetAPI RENDERDOC_GetAPI =
+			(pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+		auto ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_2_0, (void**)&rdoc_api);
+		assert(ret == 1);
+	}
+#endif
 }
 
 ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
@@ -120,7 +136,19 @@ i32 ApplicationWin::Run()
 		std::cout << "Start off-screen rendering ..." << std::endl;
 		mTimer.Tick();
 		UpdateScene(0.0f);
+#if USE_RENDERDOC
+		if (rdoc_api)
+		{
+			rdoc_api->StartFrameCapture(NULL, NULL);
+		}
+#endif
 		DrawScene();
+#if USE_RENDERDOC
+		if (rdoc_api)
+		{
+			rdoc_api->EndFrameCapture(NULL, NULL);
+		}
+#endif
 
 		mTimer.Tick();
 		f32 mspf = mTimer.Elapsed();

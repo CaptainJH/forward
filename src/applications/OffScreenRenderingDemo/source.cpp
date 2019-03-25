@@ -3,8 +3,6 @@
 #include "render/FrameGraph/Geometry.h"
 #include <iostream>
 
-#include "D:/Program Files/RenderDoc/renderdoc_app.h"
-
 using namespace forward;
 
 class OffScreenRenderingDemo : public Application
@@ -14,6 +12,7 @@ public:
 		: Application(width, height)
 	{
 		mMainWndCaption = L"OffScreenRenderingDemo";
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~OffScreenRenderingDemo()
@@ -21,6 +20,7 @@ public:
 	}
 
 	bool Init() override;
+	void SaveRT();
 
 protected:
 	void UpdateScene(f32 dt) override;
@@ -35,7 +35,6 @@ private:
 	std::unique_ptr<RenderPass> m_renderPass;
 };
 
-RENDERDOC_API_1_2_0 *rdoc_api = nullptr;
 i32 main()
 {
 	// Enable run-time memory check for debug builds.
@@ -43,21 +42,13 @@ i32 main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	HMODULE mod = LoadLibraryA("D:/Program Files/RenderDoc/renderdoc.dll");
-	if (mod)
-	{
-		pRENDERDOC_GetAPI RENDERDOC_GetAPI =
-			(pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
-		int ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_2_0, (void**)&rdoc_api);
-		assert(ret == 1);
-	}
-
 	OffScreenRenderingDemo theApp(1200, 800);
 
 	if (!theApp.Init())
 		return 0;
 
-	return theApp.Run();
+	theApp.Run();
+	theApp.SaveRT();
 }
 
 void OffScreenRenderingDemo::UpdateScene(f32 /*dt*/)
@@ -68,12 +59,10 @@ void OffScreenRenderingDemo::UpdateScene(f32 /*dt*/)
 
 void OffScreenRenderingDemo::DrawScene()
 {
-	rdoc_api->StartFrameCapture(NULL, NULL);
 	FrameGraph fg;
 	m_pRender2->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass.get());
 	m_pRender2->EndDrawFrameGraph();
-	rdoc_api->EndFrameCapture(NULL, NULL);
 }
 
 bool OffScreenRenderingDemo::Init()
@@ -104,9 +93,13 @@ bool OffScreenRenderingDemo::Init()
 	},
 		[](Renderer& render) {
 		render.Draw(4);
-		render.SaveRenderTarget(L"OffScreenRenderingResult.bmp");
 	});
 
 
 	return true;
+}
+
+void OffScreenRenderingDemo::SaveRT()
+{
+	m_pRender2->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
 }

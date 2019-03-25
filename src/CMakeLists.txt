@@ -68,6 +68,11 @@ add_subdirectory(applications)
 add_subdirectory(tools)
 
 
+if(CompileWithRenderDoc)
+    add_definitions(-DUSE_RENDERDOC)
+	add_compile_definitions(RENDERDOC_PATH="${RenderDocPath}")
+    include_directories("${RenderDocPath}")
+endif()
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -80,9 +85,5 @@ remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/windo
 set_source_groups("${forward_COMMON_SOURCE_FILES}")
 
 add_definitions(-DNOMINMAX)
-if(CompileWithRenderDoc)
-    add_definitions(-DUSE_RENDERDOC)
-    include_directories("${RenderDocPath}")
-endif()
 add_library(libForward STATIC ${forward_COMMON_SOURCE_FILES})
 
