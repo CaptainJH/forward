@@ -7,6 +7,7 @@
 #include "dx12/ShaderSystem/ShaderDX12.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
 #include "dx12/RendererDX12.h"
 
 using namespace forward;
@@ -141,9 +142,16 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			auto res = pso.m_PSState.m_shaderResources[i];
 			if (res)
 			{
-				auto tex = dynamic_cast<FrameGraphTexture2D*>(res.get());
-				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, tex);
-				tex->SetDeviceObject(deviceTex);
+				if (dynamic_cast<FrameGraphTexture2D*>(res.get()))
+				{
+					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, dynamic_cast<FrameGraphTexture2D*>(res.get()));
+					res->SetDeviceObject(deviceTex);
+				}
+				else if (dynamic_cast<FrameGraphTextureCube*>(res.get()))
+				{
+					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(device, dynamic_cast<FrameGraphTextureCube*>(res.get()));
+					res->SetDeviceObject(deviceTex);
+				}
 			}
 		}
 	}
@@ -205,6 +213,10 @@ void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 {
 	std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters;
+	const auto MaxDescriptor = 256;
+	std::array<CD3DX12_DESCRIPTOR_RANGE, MaxDescriptor> descriptorRanges;
+	memset(&descriptorRanges, 0, descriptorRanges.size());
+	auto numDescriptorUsed = 0;
 
 	if (m_pso.m_VSState.m_shader)
 	{
@@ -212,7 +224,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 		{
 			if (m_pso.m_VSState.m_constantBuffers[i])
 			{
-				CD3DX12_DESCRIPTOR_RANGE cbvTable;
+				auto& cbvTable = descriptorRanges[numDescriptorUsed++];
 				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
 				CD3DX12_ROOT_PARAMETER param;
 				param.InitAsDescriptorTable(1, &cbvTable);
@@ -227,7 +239,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 		{
 			if (m_pso.m_PSState.m_constantBuffers[i])
 			{
-				CD3DX12_DESCRIPTOR_RANGE cbvTable;
+				auto& cbvTable = descriptorRanges[numDescriptorUsed++];
 				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i + static_cast<u32>(slotRootParameters.size()));
 				CD3DX12_ROOT_PARAMETER param;
 				param.InitAsDescriptorTable(1, &cbvTable);
@@ -239,7 +251,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 		{
 			if (m_pso.m_PSState.m_shaderResources[i])
 			{
-				CD3DX12_DESCRIPTOR_RANGE texTable;
+				auto& texTable = descriptorRanges[numDescriptorUsed++];
 				texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
 				CD3DX12_ROOT_PARAMETER param;
 				param.InitAsDescriptorTable(1, &texTable);
@@ -247,6 +259,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 			}
 		}
 	}
+	assert(numDescriptorUsed <= MaxDescriptor);
 
 	// A root signature is an array of root parameters.
 	const u32 numParameters = static_cast<u32>(slotRootParameters.size());

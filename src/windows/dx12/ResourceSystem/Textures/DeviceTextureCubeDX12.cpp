@@ -40,8 +40,7 @@ DeviceTextureCubeDX12::DeviceTextureCubeDX12(ID3D12Device* device, FrameGraphTex
 	{
 		const auto num2DSubresource = 6 * tex->GetMipLevelNum();
 		u64 uploadSize = 0U;
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
-		device->GetCopyableFootprints(&desc, 0, num2DSubresource, 0, &PlacedFootprint, nullptr, nullptr, &uploadSize);
+		device->GetCopyableFootprints(&desc, 0, num2DSubresource, 0, nullptr, nullptr, nullptr, &uploadSize);
 		auto uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadSize);
 
 		// In order to copy CPU memory data into our default buffer, we need to create
@@ -93,14 +92,14 @@ void DeviceTextureCubeDX12::SyncCPUToGPU()
 	const auto num2DSubresource = 6 * resTex->GetMipLevelNum();
 
 	// Describe the data we want to copy into the default buffer.
-	std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D12_SUBRESOURCE_DATA[resTex->GetMipLevelNum()]);
+	std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D12_SUBRESOURCE_DATA[num2DSubresource]);
 	assert(initData);
 
 	u32 skipMip = 0;
 	u32 twidth = 0;
 	u32 theight = 0;
 	u32 tdepth = 0;
-	FillInitDataDX12(resTex->GetWidth(), resTex->GetHeight(), 6, resTex->GetMipLevelNum(), 1, resTex->GetFormat(), 0, resTex->GetNumBytes(),
+	FillInitDataDX12(resTex->GetWidth(), resTex->GetHeight(), 1, resTex->GetMipLevelNum(), 6, resTex->GetFormat(), 0, resTex->GetNumBytes(),
 		resTex->GetData(), twidth, theight, tdepth, skipMip, initData.get());
 
 	// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
