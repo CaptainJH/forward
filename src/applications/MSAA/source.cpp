@@ -203,5 +203,5 @@ void MSAA_Demo::OnResize()
 void MSAA_Demo::OnSpace()
 {
 	mAppPaused = !mAppPaused;
-	m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp");
+	//m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp");
 }
