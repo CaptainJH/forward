@@ -53,14 +53,14 @@ f32 Vector3f::Magnitude() const
 	fLength += y * y;
 	fLength += z * z;
 
-	return( sqrt( fLength ) );
+	return( sqrtf( fLength ) );
 }
 //----------------------------------------------------------------------------------------------------
 Vector3f Vector3f::Perpendicular( )
 {
-    f32 xAbs = fabs( x );
-    f32 yAbs = fabs( y );
-    f32 zAbs = fabs( z );
+    f32 xAbs = fabsf( x );
+    f32 yAbs = fabsf( y );
+    f32 zAbs = fabsf( z );
     f32 minVal = std::min( std::min( xAbs, yAbs ), zAbs );
 
     if ( xAbs == minVal )

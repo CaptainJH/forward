@@ -467,7 +467,7 @@ Matrix4f Matrix4f::PerspectiveFovLHMatrix( f32 fovy, f32 aspect, f32 zn, f32 zf 
 
 	Matrix4f ret;
 
-	f32 tanY = tan( fovy / 2.0f );
+	f32 tanY = tanf( fovy / 2.0f );
 	if ( 0.0f == tanY ) tanY = 0.001f;
 	f32 yScale = 1.0f / tanY;
 

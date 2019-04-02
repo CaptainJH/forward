@@ -74,7 +74,7 @@ f32 Vector4f::Magnitude( )
 	fLength += z * z;
 	fLength += w * w;
 
-	return( sqrt(fLength) );
+	return( sqrtf(fLength) );
 }
 //----------------------------------------------------------------------------------------------------
 f32 Vector4f::Dot( Vector4f& Vector )
