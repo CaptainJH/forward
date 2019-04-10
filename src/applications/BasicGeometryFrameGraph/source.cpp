@@ -11,7 +11,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"BasicGeometryFrameGraph";
-		RenderType = RendererType::Renderer_Forward_DX11;
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~BasicGeometryFrameGraph()
@@ -88,10 +88,12 @@ bool BasicGeometryFrameGraph::Init()
 
 		// setup shaders
 		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain_P_N_T_UV");
+		//pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
 
 		pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
 		pso.m_PSState.m_shaderResources[1] = make_shared<FrameGraphTextureCube>("DDS_Cube", L"snowcube1024.dds");
+		pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 
 		// setup geometry
 		//m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
@@ -103,10 +105,10 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states
-		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		auto dsPtr = m_pRender2->GetDefaultDS();
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = m_pRender2->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[&](Renderer& render) {

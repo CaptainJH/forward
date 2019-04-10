@@ -4,9 +4,13 @@
 
 using namespace forward;
 
-struct CBufferType
+struct CBufferTypeVS
 {
 	Matrix4f mat;
+};
+
+struct CBufferTypePS
+{
 	Vector4f distance;
 	Vector4f colorAA;
 };
@@ -18,7 +22,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"MSAA_Demo";
-		RenderType = RendererType::Renderer_Forward_DX12;
+		RenderType = RendererType::Renderer_Forward_DX11;
 	}
 
 	~MSAA_Demo()
@@ -38,7 +42,8 @@ private:
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	shared_ptr<FrameGraphConstantBuffer<CBufferType>> m_constantBuffer;
+	shared_ptr<FrameGraphConstantBuffer<CBufferTypeVS>> m_constantBufferVS;
+	shared_ptr<FrameGraphConstantBuffer<CBufferTypePS>> m_constantBufferPS;
 	shared_ptr<FrameGraphTexture2D> m_msaa_rt;
 	shared_ptr<FrameGraphTexture2D> m_msaa_ds;
 	shared_ptr<FrameGraphTexture2D> m_msaa_resolved;
@@ -71,14 +76,14 @@ void MSAA_Demo::UpdateScene(f32 /*dt*/)
 {
 	auto frames = (f32)mTimer.FrameCount() / 1000;
 	auto worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
-	(*m_constantBuffer).GetTypedData()->mat = worldMat * m_viewMat * m_projMat;
+	(*m_constantBufferVS).GetTypedData()->mat = worldMat * m_viewMat * m_projMat;
 }
 
 void MSAA_Demo::DrawScene()
 {
 	FrameGraph fg;
 	m_pRender2->BeginDrawFrameGraph(&fg);
-	(*m_constantBuffer).GetTypedData()->distance = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+	(*m_constantBufferPS).GetTypedData()->distance = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 	fg.DrawRenderPass(m_renderPass.get());
 	fg.DrawRenderPass(m_renderPassMSAA.get());
 	fg.DrawRenderPass(m_renderPassResolve.get());
@@ -113,9 +118,10 @@ bool MSAA_Demo::Init()
 		builder << *m_geometry;
 
 		// setup constant buffer
-		m_constantBuffer = make_shared<FrameGraphConstantBuffer<CBufferType>>("CB");
-		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
-		pso.m_PSState.m_constantBuffers[0] = m_constantBuffer;
+		m_constantBufferVS = make_shared<FrameGraphConstantBuffer<CBufferTypeVS>>("CB0");
+		m_constantBufferPS = make_shared<FrameGraphConstantBuffer<CBufferTypePS>>("CB1");
+		pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
+		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
 
 		// setup render targets
 		auto dsPtr = m_pRender2->GetDefaultDS();
@@ -133,7 +139,7 @@ bool MSAA_Demo::Init()
 		render.DrawIndexed(m_geometry->GetIndexCount());
 
 		// update constant buffer for next pass
-		(*m_constantBuffer).GetTypedData()->colorAA = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
+		(*m_constantBufferPS).GetTypedData()->colorAA = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 	});
 
 	m_renderPassMSAA = std::make_unique<RenderPass>(
@@ -147,8 +153,8 @@ bool MSAA_Demo::Init()
 		builder << *m_geometry;
 
 		// setup constant buffer
-		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
-		pso.m_PSState.m_constantBuffers[0] = m_constantBuffer;
+		pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
+		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
 
 		// setup render targets
 		m_msaa_rt = make_shared<FrameGraphTexture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);

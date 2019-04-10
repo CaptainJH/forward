@@ -357,6 +357,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 	auto vs = device_cast<VertexShaderDX11*>(pso.m_VSState.m_shader);
 	vs->Bind(m_pContext.Get());
 
+	auto cbIndex = 0U;
 	for (auto cb : pso.m_VSState.m_constantBuffers)
 	{
 		if (cb)
@@ -369,7 +370,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 
 			auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
 			deviceCB->SyncCPUToGPU(m_pContext.Get());
-			vs->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+			vs->BindCBuffer(m_pContext.Get(), cbIndex++, deviceCB->GetDXBufferPtr());
 		}
 	}
 
@@ -418,7 +419,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 
 				auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
 				deviceCB->SyncCPUToGPU(m_pContext.Get());
-				gs->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+				gs->BindCBuffer(m_pContext.Get(), cbIndex++, deviceCB->GetDXBufferPtr());
 			}
 		}
 
@@ -521,7 +522,7 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 
 			auto deviceCB = device_cast<DeviceConstantBufferDX11*>(cb);
 			deviceCB->SyncCPUToGPU(m_pContext.Get());
-			ps->BindCBuffer(m_pContext.Get(), 0, deviceCB->GetDXBufferPtr());
+			ps->BindCBuffer(m_pContext.Get(), cbIndex++, deviceCB->GetDXBufferPtr());
 		}
 	}
 

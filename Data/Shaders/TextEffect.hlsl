@@ -1,4 +1,4 @@
-cbuffer Translate
+cbuffer Translate : register(b0)
 {
     float4 translate;
 };
@@ -25,7 +25,7 @@ VS_OUTPUT VSMain (VS_INPUT input)
     return output;
 }
 
-cbuffer TextColor
+cbuffer TextColor : register(b1)
 {
     float4 textColor;
 };

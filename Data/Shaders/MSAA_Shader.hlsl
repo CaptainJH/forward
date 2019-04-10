@@ -1,8 +1,13 @@
 //-----------------------------------------------------------------------------
-cbuffer Transforms
+cbuffer CB0 : register( b0 )
 {
 	matrix WorldViewProjMatrix;	
+};
+
+cbuffer CB1 : register(b1)
+{
 	float4 Distance;
+	float4 ColorAA;
 };
 
 Texture2D tex0: register( t0 );
@@ -100,7 +105,7 @@ float4 PSMainAA( in GS_INPUTOUTPUT input ) : SV_Target
 	{
 		float d = min(input.color.x, min(input.color.y, input.color.z));
 		float a = smoothstep(0, threshold, d);
-		color = lerp(Distance, color, a);
+		color = lerp(ColorAA, color, a);
 	}
 
 	return( color );

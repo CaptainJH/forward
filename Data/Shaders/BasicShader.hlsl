@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-cbuffer Transforms
+cbuffer Transforms : register(b0)
 {
 	matrix WorldViewProjMatrix;	
 };
@@ -23,6 +23,7 @@ struct VS_OUTPUT
 {
 	float4 position : SV_Position;
 	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
 };
 
 //-----------------------------------------------------------------------------
@@ -42,15 +43,20 @@ VS_OUTPUT VSMain_P_N_T_UV(in VS_INPUT_P_N_T_UV v)
 
 	o.position = mul(v.position, WorldViewProjMatrix);
 	o.color = float4(1.0f, 0, 0, 0);
+	o.uv = v.uv;
 
 	return o;
 }
 
-
+Texture2D baseTexture : register(t0);
+TextureCube cubeTexture : register(t1);
+SamplerState baseSampler : register(s0);
 //-----------------------------------------------------------------------------
 float4 PSMain( in VS_OUTPUT input ) : SV_Target
 {
-	return input.color;
+	float4 color = baseTexture.Sample(baseSampler, input.uv);
+	return color;
+	//return input.color;
 }
 
 
