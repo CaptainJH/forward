@@ -134,7 +134,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	));
 	m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 
-	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && /*tex->GetData()*/tex->IsFileTexture())
+	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && tex->GetData())
 	{
 		u64 uploadSize = 0U;
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
