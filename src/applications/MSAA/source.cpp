@@ -8,6 +8,7 @@ struct CBufferType
 {
 	Matrix4f mat;
 	Vector4f distance;
+	Vector4f colorAA;
 };
 
 class MSAA_Demo : public Application
@@ -17,7 +18,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"MSAA_Demo";
-		RenderType = RendererType::Renderer_Forward_DX11;
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~MSAA_Demo()
@@ -117,14 +118,14 @@ bool MSAA_Demo::Init()
 		pso.m_PSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render targets
-		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		auto dsPtr = m_pRender2->GetDefaultDS();
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = m_pRender2->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 
 		// setup rasterizer
-		forward::RECT scissorRect = { 0, 0, static_cast<i32>(rsPtr->GetWidth() / 2), static_cast<i32>(rsPtr->GetHeight()) };
+		forward::RECT scissorRect = { 0, 0, mClientWidth / 2, mClientHeight };
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
 	},
@@ -132,7 +133,7 @@ bool MSAA_Demo::Init()
 		render.DrawIndexed(m_geometry->GetIndexCount());
 
 		// update constant buffer for next pass
-		(*m_constantBuffer).GetTypedData()->distance = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
+		(*m_constantBuffer).GetTypedData()->colorAA = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
 	});
 
 	m_renderPassMSAA = std::make_unique<RenderPass>(
@@ -150,12 +151,11 @@ bool MSAA_Demo::Init()
 		pso.m_PSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render targets
-		auto defaultRT = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
-		m_msaa_rt = make_shared<FrameGraphTexture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, defaultRT->GetWidth(), defaultRT->GetHeight(), TextureBindPosition::TBP_RT, true);
-		m_msaa_ds = make_shared<FrameGraphTexture2D>("MSAA_DS", DF_D24_UNORM_S8_UINT, defaultRT->GetWidth(), defaultRT->GetHeight(), TextureBindPosition::TBP_DS, true);
+		m_msaa_rt = make_shared<FrameGraphTexture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
+		m_msaa_ds = make_shared<FrameGraphTexture2D>("MSAA_DS", DF_D24_UNORM_S8_UINT, mClientWidth, mClientHeight, TextureBindPosition::TBP_DS, true);
 		pso.m_OMState.m_renderTargetResources[0] = m_msaa_rt;
 		pso.m_OMState.m_depthStencilResource = m_msaa_ds;
-		m_msaa_resolved = make_shared<FrameGraphTexture2D>("Final_RT", DF_R8G8B8A8_UNORM, defaultRT->GetWidth(), defaultRT->GetHeight(), TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
+		m_msaa_resolved = make_shared<FrameGraphTexture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 	},
 		[&](Renderer& render) {
 		render.DrawIndexed(m_geometry->GetIndexCount());
@@ -181,7 +181,7 @@ bool MSAA_Demo::Init()
 
 		// setup rasterizer
 		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
-		forward::RECT scissorRect = { static_cast<i32>(rsPtr->GetWidth() / 2), 0, static_cast<i32>(rsPtr->GetWidth()), static_cast<i32>(rsPtr->GetHeight()) };
+		forward::RECT scissorRect = { mClientWidth / 2, 0, mClientWidth, mClientHeight };
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
 

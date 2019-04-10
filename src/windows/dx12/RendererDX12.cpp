@@ -441,6 +441,21 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 		}
 	}
 
+	for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_GSState.m_constantBuffers[i];
+		if (cb)
+		{
+			if (!cb->DeviceObject())
+			{
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				cb->SetDeviceObject(deviceCB);
+			}
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			deviceCB->SyncCPUToGPU();
+		}
+	}
+
 	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_PSState.m_constantBuffers[i];
@@ -482,7 +497,24 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
 	m_CommandList->RSSetViewports(1, &mScreenViewport);
-	m_CommandList->RSSetScissorRects(1, &mScissorRect);
+	D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+	memset(aRects, 0, sizeof(aRects));
+	if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
+	{
+		for (auto i = 0U; i < pass.GetPSO().m_RSState.m_activeScissorRectNum; ++i)
+		{
+			auto rect = pass.GetPSO().m_RSState.m_scissorRects[i];
+			aRects[i].left = rect.left;
+			aRects[i].bottom = rect.height;
+			aRects[i].right = rect.width;
+			aRects[i].top = rect.top;
+		}
+		m_CommandList->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
+	}
+	else
+	{
+		m_CommandList->RSSetScissorRects(1, &mScissorRect);
+	}
 
 	// Indicate a state transition on the resource usage.
 	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -593,9 +625,26 @@ void RendererDX12::DrawIndexed(u32 indexCount)
 	CommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::ResolveResource(FrameGraphTexture2D* /*dst*/, FrameGraphTexture2D* /*src*/)
+void RendererDX12::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src)
 {
+	if (!dst->DeviceObject())
+	{
+		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(GetDevice(), dst);
+		dst->SetDeviceObject(deviceTex);
+	}
 
+	DeviceResourceDX12* dstDX12 = device_cast<DeviceResourceDX12*>(dst);
+	auto backStateDst = dstDX12->GetResourceState();
+	TransitionResource(dstDX12, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+	DeviceResourceDX12* srcDX12 = device_cast<DeviceResourceDX12*>(src);
+	auto backStateSrc = srcDX12->GetResourceState();
+	TransitionResource(srcDX12, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+	
+	CommandList()->ResolveSubresource(dstDX12->GetDeviceResource().Get(), 0, srcDX12->GetDeviceResource().Get(), 0, 
+		static_cast<DXGI_FORMAT>(dst->GetFormat()));
+
+	TransitionResource(dstDX12, backStateDst);
+	TransitionResource(srcDX12, backStateSrc);
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
@@ -706,6 +755,17 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_VSState.m_constantBuffers[i];
+		if (cb)
+		{
+			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+			assert(deviceCB);
+			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
+		}
+	}
+
+	for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_GSState.m_constantBuffers[i];
 		if (cb)
 		{
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);

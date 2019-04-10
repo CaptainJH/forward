@@ -134,7 +134,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 	));
 	m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 
-	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && tex->GetData())
+	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && /*tex->GetData()*/tex->IsFileTexture())
 	{
 		u64 uploadSize = 0U;
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
@@ -298,17 +298,27 @@ void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOUR
 		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&m_stagingResPtr)));
 }
 
-void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& /*tx*/)
+void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
 	m_rtvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	device->CreateRenderTargetView(GetDeviceResource().Get(), nullptr, m_rtvHandle);
+	if (tx.SampleDesc.Count > 1)
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+		rtvDesc.Format = tx.Format;
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+		device->CreateRenderTargetView(GetDeviceResource().Get(), &rtvDesc, m_rtvHandle);
+	}
+	else
+	{
+		device->CreateRenderTargetView(GetDeviceResource().Get(), nullptr, m_rtvHandle);
+	}
 }
 
 void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.ViewDimension = GetFrameGraphTexture2D()->GetSampCount() > 1 ? D3D12_DSV_DIMENSION_TEXTURE2DMS : D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Format = tx.Format;
 	dsvDesc.Texture2D.MipSlice = 0;
 

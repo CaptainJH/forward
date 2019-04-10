@@ -23,8 +23,22 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 
 	FrameGraphVertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
 	FrameGraphVertexShader* vsshader = pso.m_VSState.m_shader.get();
-	forward::shared_ptr<ShaderDX12> deviceVS;
-	forward::shared_ptr<ShaderDX12> devicePS;
+	forward::shared_ptr<ShaderDX12> deviceVS = nullptr;
+	if (pso.m_VSState.m_shader)
+	{
+		deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
+	}
+	forward::shared_ptr<ShaderDX12> deviceGS = nullptr;
+	if (pso.m_GSState.m_shader)
+	{
+		deviceGS = device_cast<ShaderDX12*>(pso.m_GSState.m_shader);
+	}
+	forward::shared_ptr<ShaderDX12> devicePS = nullptr;
+	if (pso.m_PSState.m_shader)
+	{
+		devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
+	}
+	FrameGraphGeometryShader* gsshader = pso.m_GSState.m_shader.get();
 	FrameGraphPixelShader* psshader = pso.m_PSState.m_shader.get();
 
 	if (vbuffer && vsshader)
@@ -56,6 +70,12 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 		vsshader->SetDeviceObject(deviceVS);
 	}
 
+	if (gsshader && !gsshader->DeviceObject())
+	{
+		deviceGS = forward::make_shared<ShaderDX12>(gsshader);
+		gsshader->SetDeviceObject(deviceGS);
+	}
+
 	if (!psshader->DeviceObject())
 	{
 		devicePS = forward::make_shared<ShaderDX12>(psshader);
@@ -80,6 +100,14 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			reinterpret_cast<BYTE*>(deviceVS->GetCompiledCode()->GetBufferPointer()),
 			deviceVS->GetCompiledCode()->GetBufferSize()
 		};
+		if (gsshader && gsshader->DeviceObject())
+		{
+			psoDesc.GS =
+			{
+				reinterpret_cast<BYTE*>(deviceGS->GetCompiledCode()->GetBufferPointer()),
+				deviceGS->GetCompiledCode()->GetBufferSize()
+			};
+		}
 		psoDesc.PS =
 		{
 			reinterpret_cast<BYTE*>(devicePS->GetCompiledCode()->GetBufferPointer()),
@@ -100,8 +128,16 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 				psoDesc.RTVFormats[i] = static_cast<DXGI_FORMAT>(rt->GetFormat());
 			}
 		}
-		psoDesc.SampleDesc.Count = 1;
-		psoDesc.SampleDesc.Quality = 0;
+		if (!psoDesc.NumRenderTargets)
+		{
+			psoDesc.SampleDesc.Count = 1;
+			psoDesc.SampleDesc.Quality = 0;
+		}
+		else
+		{
+			psoDesc.SampleDesc.Count = pso.m_OMState.m_renderTargetResources[0]->GetSampCount();
+			psoDesc.SampleDesc.Quality = 0;
+		}
 		if (pso.m_OMState.m_depthStencilResource)
 		{
 			psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
