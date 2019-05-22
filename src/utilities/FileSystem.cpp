@@ -7,6 +7,7 @@
 using namespace forward;
 using namespace std::experimental;
 //--------------------------------------------------------------------------------
+template<>
 FileSystem* forward::Singleton<FileSystem>::msSingleton = 0;
 //--------------------------------------------------------------------------------
 FileSystem::FileSystem()
