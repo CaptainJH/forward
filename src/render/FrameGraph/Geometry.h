@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 #include "RenderPassHelper.h"
 #include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
 #include "Vector2f.h"
