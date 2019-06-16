@@ -81,7 +81,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_subdirectory(macOS)
-endif
+endif()
 
 find_source_files(forward_COMMON_SOURCE_FILES ${forward_source_root})
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/applications")
