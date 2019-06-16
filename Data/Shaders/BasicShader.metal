@@ -39,3 +39,8 @@ fragment float4 PSMainQuad(VertexOut in [[stage_in]])
 {
     return in.color;
 }
+
+fragment float4 PSMain(VertexOut in [[stage_in]]) 
+{
+    return in.color;
+}

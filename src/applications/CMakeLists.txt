@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(SmartPtrDemo)
 add_subdirectory(HelloFrameGraphDemo)
+add_subdirectory(BasicGeometryFrameGraph)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#add_subdirectory(HelloWorld)
 	#add_subdirectory(BasicGeometryApp)
@@ -15,7 +16,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#add_subdirectory(HelloFrameGraphDX12)
 	#------FrameGraph apps -----------
 
-	add_subdirectory(BasicGeometryFrameGraph)
 	add_subdirectory(OffScreenRenderingDemo)
 	#------Dlls-----------------------
 	add_subdirectory(forwardDX11_Dll)

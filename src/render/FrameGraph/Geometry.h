@@ -91,7 +91,7 @@ namespace forward
 		template<class BuilderType> 
 		SimpleGeometry(const std::string& name, BuilderType builder)
 			: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", BuilderType::VertexType::GetVertexFormat(), builder.GetVertexCount()))
-			, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", BuilderType::Topology, builder.GetIndexCount()))
+			, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", BuilderType::PrimitiveTopology(), builder.GetIndexCount()))
 		{
 			m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
 			m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);
@@ -137,6 +137,11 @@ namespace forward
 		static const u32 VertexCount = 4;
 		static const u32 IndexCount = 0;
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLESTRIP;
+        
+        static const PrimitiveTopologyType PrimitiveTopology()
+        {
+            return Topology;
+        }
 
 		typedef Vertex_POS_COLOR VertexType;
 
@@ -165,6 +170,11 @@ namespace forward
 		static const u32 VertexCount = 8;
 		static const u32 IndexCount = 36;
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+        
+        static const PrimitiveTopologyType PrimitiveTopology()
+        {
+            return Topology;
+        }
 
 		typedef Vertex_POS_COLOR VertexType;
 
@@ -213,6 +223,11 @@ namespace forward
 	struct GeometryBuilder<GeometryPrefab::GP_SPHERE>
 	{
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+        
+        static const PrimitiveTopologyType PrimitiveTopology()
+        {
+            return Topology;
+        }
 
 		typedef Vertex_P_N_T_UV VertexType;
 
@@ -361,6 +376,11 @@ namespace forward
 		typedef Vertex_P_N_T_UV VertexType;
 
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+        
+        static const PrimitiveTopologyType PrimitiveTopology()
+        {
+            return Topology;
+        }
 
 		MeshData<VertexType> meshData;
 
@@ -464,6 +484,11 @@ namespace forward
 		typedef MeshData<VertexType> MeshDataType;
 
 		static const PrimitiveTopologyType Topology = PrimitiveTopologyType::PT_TRIANGLELIST;
+        
+        static const PrimitiveTopologyType PrimitiveTopology()
+        {
+            return Topology;
+        }
 
 		MeshDataType meshData;
 
