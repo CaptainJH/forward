@@ -34,6 +34,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/libs/assimp/include/")
     include_directories("windows/")
 
+    add_subdirectory(windows)
+
     set(warnings "/W4 /WX")
     set(RenderAPILibs "d3d11.lib d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
     set(OtherLibs "Dbghelp.lib")
@@ -48,6 +50,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     link_directories("../libs/assimp/Win64")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     include_directories("macOS/")
+
+    add_subdirectory(macOS)
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
     set(SubSystem "/SUBSYSTEM:CONSOLE")
 
