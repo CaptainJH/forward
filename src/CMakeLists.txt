@@ -33,9 +33,7 @@ set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/libs/assimp/include/")
     include_directories("windows/")
-
-    add_subdirectory(windows)
-
+  
     set(warnings "/W4 /WX")
     set(RenderAPILibs "d3d11.lib d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
     set(OtherLibs "Dbghelp.lib")
@@ -43,24 +41,21 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(ParallelBuild "/MP")
     add_definitions(-DUNICODE -D_UNICODE -DWINDOWS -DNOMINMAX)
     MESSAGE( STATUS "MSVC")
-
+    
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${ParallelBuild}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ParallelBuild}")
-
+    
     link_directories("../libs/assimp/Win64")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     include_directories("macOS/")
-
-    add_subdirectory(macOS)
-
+    
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-    set(SubSystem "/SUBSYSTEM:CONSOLE")
-
+    set(SubSystem "/SUBSYSTEM:CONSOLE")   
     add_definitions(-DMACOS)
-
+    
     MESSAGE( STATUS "Xcode")
 endif()
-
+    
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${warnings}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warnings}")
 set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} ${RenderAPILibs} ${OtherLibs}")
@@ -75,13 +70,18 @@ add_subdirectory(intersection)
 add_subdirectory(utilities)
 add_subdirectory(applications)
 add_subdirectory(tools)
-
-
+    
+    
 if(CompileWithRenderDoc)
     add_definitions(-DUSE_RENDERDOC)
 	add_compile_definitions(RENDERDOC_PATH="${RenderDocPath}")
     include_directories("${RenderDocPath}")
 endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_subdirectory(windows)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    add_subdirectory(macOS)
+endif
 
 find_source_files(forward_COMMON_SOURCE_FILES ${forward_source_root})
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/applications")
