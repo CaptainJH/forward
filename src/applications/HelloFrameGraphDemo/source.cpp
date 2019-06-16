@@ -10,9 +10,11 @@ public:
 	HelloFrameGraph(i32 width, i32 height)
 		: Application(width, height)
 	{
-		//mMainWndCaption = L"HelloFrameGraph";
+		mMainWndCaption = L"HelloFrameGraph";
+#ifdef WINDOWS
 		//RenderType = RendererType::Renderer_Forward_DX11;
-		//RenderType = RendererType::Renderer_Forward_DX12;
+		RenderType = RendererType::Renderer_Forward_DX12;
+#endif
 	}
 
 	~HelloFrameGraph()

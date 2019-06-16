@@ -47,6 +47,7 @@ namespace forward
         
         i32 m_ClientWidth;
         i32 m_ClientHeight;
+        std::wstring mMainWndCaption;
         
         Timer mTimer;
         FileSystem mFileSystem;
