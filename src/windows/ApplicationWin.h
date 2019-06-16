@@ -54,6 +54,8 @@ namespace forward
 		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
 		virtual ~ApplicationWin();
 
+		static void JustEnteringMain();
+
 		void SetAppInst(HINSTANCE hInstance);
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
