@@ -10,16 +10,16 @@ using namespace forward;
 
 FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
 	: m_entryFunction(entryFunction)
-	, m_shaderFile(shaderFile)
+#ifdef WINDOWS
+	, m_shaderFile(shaderFile + L".hlsl")
+#elif MACOS
+	, m_shaderFile(shaderFile + L".metal")
+#endif
 {
 	SetName(name);
 
 	// Get the current path to the shader folders, and add the filename to it.
-#ifdef WINDOWS
-	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderFile + L".hlsl";
-#elif MACOS
-    std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderFile + L".metal";
-#endif
+	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + m_shaderFile;
 
 	// Load the file into memory
 

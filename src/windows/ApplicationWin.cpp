@@ -72,7 +72,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	, mMaximized(false)
 	, mResizing(false)
 	, m4xMsaaQuality(0)
-	, mAppType(AT_OffScreen)
+	, mAppType(AT_Default)
 	, m_pRender2(nullptr)
 {
 	gApplication = this;
@@ -112,6 +112,11 @@ ApplicationWin::~ApplicationWin()
 {
 	ShutdownRendererComponents();
 	Log::Get().Close();
+}
+
+void ApplicationWin::SetAppInst(HINSTANCE hInstance)
+{
+	mhAppInst = hInstance;
 }
 
 HINSTANCE ApplicationWin::AppInst()const
