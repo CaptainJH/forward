@@ -12,6 +12,7 @@
 #include "PCH.h"
 #include "Log.h"
 #include "FileSystem.h"
+#include "Utils.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -28,7 +29,12 @@ Log& Log::Get()
 bool Log::Open()
 {
 	std::wstring filename = FileSystem::getSingleton().GetLogFolder() + L"\\Log.txt";
+#ifdef MACOS
+    auto filepathAnsi = TextHelper::ToAscii(filename);
+    AppLog.open(filepathAnsi.c_str());
+#else
 	AppLog.open( filename.c_str() );
+#endif
 
 	Write( L"Log file opened." );
 

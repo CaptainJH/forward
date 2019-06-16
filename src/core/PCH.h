@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef _WINDOWS
 
+#include <cfloat>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -16,7 +16,9 @@
 
 #include "Types.h"
 
+#ifdef _WINDOWS
 #include <wrl.h>
+#endif
 
 #define SAFE_RELEASE( x ) {if(x){(x)->Release();(x)=NULL;}}
 #define SAFE_DELETE( x ) {if(x){delete (x);(x)=NULL;}}
@@ -25,5 +27,3 @@
 const forward::i32 NUM_THREADS = 1;
 const forward::f32 Infinity = FLT_MAX;
 const forward::f32 Pi = 3.1415926535f;
-
-#endif

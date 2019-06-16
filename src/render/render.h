@@ -15,12 +15,14 @@ namespace forward
 		Renderer_Hieroglyph,
 		Renderer_Forward_DX11,
 		Renderer_Forward_DX12,
+        Renderer_Forward_Metal,
 	};
 
 	enum RendererAPI
 	{
 		DirectX11,
-		DirectX12
+		DirectX12,
+        Metal,
 	};
 
 	// Subresource information.

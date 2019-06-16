@@ -239,7 +239,7 @@ namespace forward
 	shared_ptr<_Ty> make_shared(_Types&&... _Args)
 	{	
 		// make a shared_ptr
-		const auto _Rx = new _Ty(_STD forward<_Types>(_Args)...);
+        const auto _Rx = new _Ty(std::forward<_Types>(_Args)...);
 
 		shared_ptr<_Ty> _Ret(_Rx);
 		return (_Ret);
@@ -292,7 +292,7 @@ namespace forward
 		{
 			if (px)
 			{
-				deregister_weak_ptr()
+                deregister_weak_ptr();
 			}
 			px = r.px;
 			if (px)

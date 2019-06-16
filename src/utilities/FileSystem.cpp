@@ -2,10 +2,15 @@
 #include "PCH.h"
 #include "FileSystem.h"
 #include <chrono>
+#ifdef WINDOWS
 #include <filesystem>
+using namespace std::experimental;
+#else
+#include <unistd.h>
+#include "Utils.h"
+#endif
 //--------------------------------------------------------------------------------
 using namespace forward;
-using namespace std::experimental;
 //--------------------------------------------------------------------------------
 template<>
 FileSystem* forward::Singleton<FileSystem>::msSingleton = 0;
@@ -22,8 +27,14 @@ FileSystem::FileSystem()
 
 	mLogFolder = L"Log/";
 
-	auto path = filesystem::current_path();
-	auto pathStr = path.generic_wstring();
+#ifdef WINDOWS
+    auto path = filesystem::current_path();
+    auto pathStr = path.generic_wstring();
+#else
+    char cwdBuffer[128] = {0};
+    getcwd(cwdBuffer, 128);
+    auto pathStr = TextHelper::ToUnicode(std::string(cwdBuffer));
+#endif
 	auto index = pathStr.find(L"forward");
 	assert(index < pathStr.length());
 	auto indexEnd = pathStr.find_first_of(L'/', index);
@@ -37,6 +48,7 @@ FileSystem::FileSystem()
 	mSavedFolder = mCWD + mSavedFolder;
 	mFontFolder = mCWD + mFontFolder;
 
+#ifdef WINDOWS
 	auto logPath = filesystem::path(mLogFolder);
 	if (!filesystem::exists(logPath))
 	{
@@ -47,6 +59,7 @@ FileSystem::FileSystem()
 	{
 		filesystem::create_directory(savedPath);
 	}
+#endif
 }
 //--------------------------------------------------------------------------------
 FileSystem::~FileSystem()
@@ -132,16 +145,20 @@ void FileSystem::SetTextureFolder( const std::wstring& folder )
 bool FileSystem::FileExists( const std::wstring& file )
 {
 	// Check if the file exists, and that it is not a directory
-
+#ifdef WINDOWS
 	filesystem::path path(file);
 	return filesystem::exists(path) && !filesystem::is_directory(path);
+#else
+    assert(false && "Not implemented yet!");
+    return true;
+#endif
 }
 //--------------------------------------------------------------------------------
 /// return true if file1 is newer, otherwise return false
 bool FileSystem::FileIsNewer( const std::wstring& file1, const std::wstring& file2 )
 {
 	// This method assumes that the existance of the files has already been verified!
-
+#ifdef WINDOWS
 	filesystem::path file1path(file1);
 	filesystem::path file2path(file2);
 
@@ -149,5 +166,9 @@ bool FileSystem::FileIsNewer( const std::wstring& file1, const std::wstring& fil
 	std::chrono::system_clock::time_point stamp2 = filesystem::last_write_time(file2path);
 
 	return stamp1 > stamp2;
+#else
+    assert(false && "Not implemented yet!");
+    return true;
+#endif
 }
 //--------------------------------------------------------------------------------

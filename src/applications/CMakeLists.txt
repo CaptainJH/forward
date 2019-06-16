@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+add_subdirectory(SmartPtrDemo)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#add_subdirectory(HelloWorld)
 	#add_subdirectory(BasicGeometryApp)
@@ -7,7 +9,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#add_subdirectory(ShadowMapDemo)
 	#add_subdirectory(AssimpDemo)
 	#add_subdirectory(SDFShadowDemo)
-	add_subdirectory(SmartPtrDemo)
 	#------DirectX 12 apps -----------
 	#add_subdirectory(HelloDX12)
 	#add_subdirectory(BasicGeometryDX12)

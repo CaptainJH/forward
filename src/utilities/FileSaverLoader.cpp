@@ -4,29 +4,44 @@
 #include "FileSaver.h"
 #include "FileLoader.h"
 #include "FileSystem.h"
+#ifdef _WINDOWS
 #include <windows.h>
+#endif
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
+
+#ifndef _WINDOWS
+typedef i32 DWORD;
+typedef i16 WORD;
+typedef i32 LONG;
+typedef struct __attribute__((packed))
+{
+    DWORD  biSize;            // size of the structure
+    LONG   biWidth;           // image width
+    LONG   biHeight;          // image height
+    WORD   biPlanes;          // bitplanes
+    WORD   biBitCount;        // resolution
+    DWORD  biCompression;     // compression
+    DWORD  biSizeImage;       // size of the image
+    LONG   biXPelsPerMeter;   // pixels per meter X
+    LONG   biYPelsPerMeter;   // pixels per meter Y
+    DWORD  biClrUsed;         // colors used
+    DWORD  biClrImportant;    // important colors
+} BITMAPINFOHEADER;
+
+typedef struct __attribute__((packed))
+{
+    WORD    bfType;
+    DWORD   bfSize;
+    WORD    bfReserved1;
+    WORD    bfReserved2;
+    DWORD   bfOffBits;
+} BITMAPFILEHEADER;
+#else
+
 namespace
 {
-#ifndef _WINDOWS
-	typedef struct tagBITMAPINFOHEADER
-	{
-		DWORD  biSize;            // size of the structure
-		LONG   biWidth;           // image width
-		LONG   biHeight;          // image height
-		WORD   biPlanes;          // bitplanes
-		WORD   biBitCount;        // resolution 
-		DWORD  biCompression;     // compression
-		DWORD  biSizeImage;       // size of the image
-		LONG   biXPelsPerMeter;   // pixels per meter X
-		LONG   biYPelsPerMeter;   // pixels per meter Y
-		DWORD  biClrUsed;         // colors used
-		DWORD  biClrImportant;    // important colors
-	} BITMAPINFOHEADER;
-#endif
-
 	//--------------------------------------------------------------------------------------
 	// Macros
 	//--------------------------------------------------------------------------------------
@@ -303,6 +318,7 @@ static DataFormatType GetDXGIFormat(const DDS_PIXELFORMAT& ddpf)
 
 	return DF_UNKNOWN;
 }
+#endif
 
 FileLoader::FileLoader()
 	: m_pData(nullptr)
@@ -323,7 +339,12 @@ EResult FileLoader::Open(const std::wstring& filename)
 	// Close the current file if one is open.
 	Close();
 
+#ifdef MACOS
+    auto filepathAnsi = TextHelper::ToAscii(filename);
+    std::ifstream shaderFile(filepathAnsi);
+#else
 	std::ifstream shaderFile(filename);
+#endif
 	std::string hlslCode((std::istreambuf_iterator<char>(shaderFile)),
 		std::istreambuf_iterator<char>());
 
@@ -353,7 +374,7 @@ u32 FileLoader::GetDataSize()
 	return(m_uiSize);
 }
 //--------------------------------------------------------------------------------
-
+#ifdef _WINDOWS
 DDSFileLoader::DDSFileLoader()
 	: m_contentDataPtr(nullptr)
 	, m_header(nullptr)
@@ -632,7 +653,7 @@ EResult DDSFileLoader::GetTextureDimension(u32& dimension, bool& isCube) const
 
 	return EResult::E_RESULT_NO_ERROR;
 }
-
+#endif
 //--------------------------------------------------------------------------------
 
 
@@ -667,14 +688,19 @@ bool FileSaver::SaveAsBMP(const std::wstring& filename, const u8* pData, u32 wid
 	info.biHeight = static_cast<i32>(height) * -1; // reverse image
 	info.biPlanes = 1;
 	info.biBitCount = 32;
-	info.biCompression = BI_RGB;
+    info.biCompression = 0;//BI_RGB;
 	info.biSizeImage = 0;
 	info.biXPelsPerMeter = 0x0ec4;
 	info.biYPelsPerMeter = 0x0ec4;
 	info.biClrUsed = 0;
 	info.biClrImportant = 0;
 
+#ifdef MACOS
+    auto filepathAnsi = TextHelper::ToAscii(filepath);
+    std::ofstream file(filepathAnsi, std::ofstream::binary);
+#else
 	std::ofstream file(filepath, std::ofstream::binary);
+#endif
 	file.write((const i8*)&bmfh, sizeof(BITMAPFILEHEADER));
 	file.write((const i8*)&info, sizeof(BITMAPINFOHEADER));
 	file.write((const i8*)pData, paddedsize);

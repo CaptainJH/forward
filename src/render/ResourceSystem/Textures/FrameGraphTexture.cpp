@@ -87,7 +87,8 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, const std::wst
 	, m_sampQuality(0)
 {
 	m_type = FGOT_TEXTURE2;
-
+    
+#ifdef WINDOWS
 	DDSFileLoader loader;
 	if (loader.Open(m_fileFullPath))
 	{
@@ -126,6 +127,7 @@ FrameGraphTexture2D::FrameGraphTexture2D(const std::string& name, const std::wst
 	m_numElements = loader.GetImageContentSize() / m_elementSize;
 	Initialize(m_numElements, m_elementSize);
 	memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
+#endif
 }
 
 u32 FrameGraphTexture2D::GetWidth() const
@@ -175,6 +177,7 @@ FrameGraphTextureCube::FrameGraphTextureCube(const std::string& name, const std:
 {
 	m_type = FGOT_TEXTURECUBE;
 
+#ifdef WINDOWS
 	DDSFileLoader loader;
 	if (loader.Open(m_fileFullPath))
 	{
@@ -213,4 +216,5 @@ FrameGraphTextureCube::FrameGraphTextureCube(const std::string& name, const std:
 	m_numElements = loader.GetImageContentSize() / m_elementSize;
 	Initialize(m_numElements, m_elementSize);
 	memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
+#endif
 }

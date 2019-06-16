@@ -41,6 +41,7 @@ namespace forward
 
 	};
 
+#ifdef _WINDOWS
 	struct DDS_PIXELFORMAT
 	{
 		u32    size;
@@ -91,6 +92,7 @@ namespace forward
 		u32			m_contentSize;
 		i8*			m_contentDataPtr;
 	};
+#endif
 };
 //--------------------------------------------------------------------------------
 #endif // FileLoader_h
