@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
 
+macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
+set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY}
+    ${XCODE_VALUE})
+endmacro (set_xcode_property)
+
 # Set each source file proper source group
 macro(set_source_groups pList)
 	foreach(FilePath ${pList})
