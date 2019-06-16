@@ -32,6 +32,11 @@ bool ApplicationMac::Init()
     return true;
 }
 
+void ApplicationMac::OnResize()
+{
+    
+}
+
 f32 ApplicationMac::AspectRatio() const
 {
     return static_cast<f32>(m_ClientWidth) / m_ClientHeight;

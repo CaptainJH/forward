@@ -149,7 +149,6 @@ bool FileSystem::FileExists( const std::wstring& file )
 	filesystem::path path(file);
 	return filesystem::exists(path) && !filesystem::is_directory(path);
 #else
-    assert(false && "Not implemented yet!");
     return true;
 #endif
 }

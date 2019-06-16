@@ -17,7 +17,7 @@ ApplicationMacImpl::ApplicationMacImpl(ApplicationMac* app)
 : m_pApp(app)
 {
     m_pRender = new RendererMetal(GetWindowWidth(), GetWindowHeight());
-    m_pApp->m_pRender = m_pRender;
+    m_pApp->m_pRender2 = m_pRender;
     gContext.Application = this;
 }
 

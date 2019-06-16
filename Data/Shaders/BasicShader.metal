@@ -19,7 +19,7 @@ typedef struct __attribute__((__aligned__(64)))
     matrix_float4x4 WorldViewProjMatrix;
 }transforms_t;
 
-vertex VertexOut vertex_main(device const VertexIn *vertices [[buffer(0)]], uint vertexId [[vertex_id]]) 
+vertex VertexOut VSMainQuad(device const VertexIn *vertices [[buffer(0)]], uint vertexId [[vertex_id]]) 
 {
     VertexOut out;
     out.position = float4(vertices[vertexId].position, 1);
@@ -35,7 +35,7 @@ vertex VertexOut VSMain_P_N_T_UV(device const VertexIn *vertices [[buffer(0)]], 
     return out;
 }
 
-fragment float4 fragment_main(VertexOut in [[stage_in]]) 
+fragment float4 PSMainQuad(VertexOut in [[stage_in]]) 
 {
     return in.color;
 }

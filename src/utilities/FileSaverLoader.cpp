@@ -348,7 +348,7 @@ EResult FileLoader::Open(const std::wstring& filename)
 	std::string hlslCode((std::istreambuf_iterator<char>(shaderFile)),
 		std::istreambuf_iterator<char>());
 
-	m_uiSize = static_cast<u32>(hlslCode.length());
+	m_uiSize = static_cast<u32>(hlslCode.length() + 1);
 	m_pData = new char[m_uiSize];
 	memset(m_pData, 0, m_uiSize);
 	memcpy(m_pData, hlslCode.c_str(), m_uiSize);

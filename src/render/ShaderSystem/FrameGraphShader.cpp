@@ -15,7 +15,11 @@ FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& 
 	SetName(name);
 
 	// Get the current path to the shader folders, and add the filename to it.
-	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderFile;
+#ifdef WINDOWS
+	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderFile + L".hlsl";
+#elif MACOS
+    std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderFile + L".metal";
+#endif
 
 	// Load the file into memory
 

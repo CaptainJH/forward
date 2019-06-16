@@ -35,6 +35,7 @@ namespace forward
         i32 Run();
         
         virtual bool Init();
+        virtual void OnResize();
         
     protected:
         virtual void UpdateScene(f32 dt) = 0;
@@ -50,7 +51,7 @@ namespace forward
         Timer mTimer;
         FileSystem mFileSystem;
         
-        Renderer* m_pRender = nullptr;
+        Renderer* m_pRender2 = nullptr;
         
         ApplicationMacImpl* m_Impl = nullptr;
         friend class ApplicationMacImpl;
