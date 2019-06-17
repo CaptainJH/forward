@@ -104,7 +104,7 @@ bool MSAA_Demo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	const std::wstring ShaderFile = L"MSAA_Shader.hlsl";
+	const std::wstring ShaderFile = L"MSAA_Shader";
 
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
