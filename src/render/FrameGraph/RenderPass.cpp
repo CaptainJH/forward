@@ -13,27 +13,27 @@ PipelineStateObject& RenderPass::GetPSO()
 }
 
 RenderPass::RenderPass(OperationFlags flags, SetupFuncType setup, ExecuteFuncType execute)
-	: m_opFlags(flags)
-	, m_setupCallback(setup)
+	: m_setupCallback(setup)
 	, m_executeCallback(execute)
+    , m_opFlags(flags)
 {
 	RenderPassBuilder builder(this);
 	m_setupCallback(builder, GetPSO());
 }
 
 RenderPass::RenderPass(SetupFuncType setup, ExecuteFuncType execute)
-	: m_opFlags(RenderPass::OF_DEFAULT)
-	, m_setupCallback(setup)
+	: m_setupCallback(setup)
 	, m_executeCallback(execute)
+    , m_opFlags(RenderPass::OF_DEFAULT)
 {
 	RenderPassBuilder builder(this);
 	m_setupCallback(builder, GetPSO());
 }
 
 RenderPass::RenderPass()
-	: m_opFlags(RenderPass::OF_DEFAULT)
-	, m_setupCallback(nullptr)
+	: m_setupCallback(nullptr)
 	, m_executeCallback(nullptr)
+    , m_opFlags(RenderPass::OF_DEFAULT)
 {}
 
 RenderPass::~RenderPass()

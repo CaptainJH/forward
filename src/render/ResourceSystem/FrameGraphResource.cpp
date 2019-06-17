@@ -6,20 +6,20 @@
 using namespace forward;
 
 FrameGraphResource::FrameGraphResource()
-	: m_data(nullptr)
-	, m_numBytes(0)
-	, m_numElements(0)
-	, m_elementSize(0)
+	: m_numElements(0)
 	, m_numActiveElements(0)
+    , m_elementSize(0)
+    , m_numBytes(0)
+    , m_data(nullptr)
 	, m_usage(ResourceUsage::RU_IMMUTABLE)
 {}
 
 FrameGraphResource::FrameGraphResource(const std::string& name)
-	: m_data(nullptr)
-	, m_numBytes(0)
-	, m_numElements(0)
+	: m_numElements(0)
+    , m_numActiveElements(0)
 	, m_elementSize(0)
-	, m_numActiveElements(0)
+    , m_numBytes(0)
+    , m_data(nullptr)
 	, m_usage(ResourceUsage::RU_IMMUTABLE)
 {
 	m_name = name;

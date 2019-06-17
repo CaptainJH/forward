@@ -9,12 +9,13 @@
 using namespace forward;
 
 FrameGraphShader::FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
-	: m_entryFunction(entryFunction)
+	:
 #ifdef WINDOWS
-	, m_shaderFile(shaderFile + L".hlsl")
+	  m_shaderFile(shaderFile + L".hlsl")
 #elif MACOS
-	, m_shaderFile(shaderFile + L".metal")
+	  m_shaderFile(shaderFile + L".metal")
 #endif
+    , m_entryFunction(entryFunction)
 {
 	SetName(name);
 

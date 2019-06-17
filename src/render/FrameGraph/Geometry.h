@@ -97,7 +97,7 @@ namespace forward
 			m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);
 			builder.Initializer(this);
 		}
-		~SimpleGeometry();
+		virtual ~SimpleGeometry();
 
 		void AddFace(const TriangleIndices& face);
 		void AddLine(const LineIndices& line);
