@@ -501,3 +501,41 @@ void ApplicationWin::JustEnteringMain()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 }
+
+void ApplicationWin::ParseCmdLine(const char* cmdLine)
+{
+	//MessageBoxA(NULL, "Boom", "Boom", MB_OK);
+	std::vector<std::string> args;
+	std::string cmdLineStr(cmdLine);
+	std::string temp = cmdLineStr;
+	while (temp.length())
+	{
+		auto index = temp.find_first_of(' ');
+		if (index == std::string::npos)
+		{
+			// the last arg
+			args.push_back(temp);
+			break;
+		}
+		else if (index > 0)
+		{
+			std::string arg = temp.substr(0, index);
+			args.push_back(arg);
+		}
+
+		temp = temp.substr(index + 1, temp.length() - index - 1);
+	}
+
+	bool isBatchMode = std::find_if(args.begin(), args.end(), [](const std::string& s) -> bool {
+		return s == "-headless";
+		}) != args.end();
+
+	if (isBatchMode)
+	{
+		mAppType = AT_OffScreen;
+	}
+	else
+	{
+		mAppType = AT_Default;
+	}
+}

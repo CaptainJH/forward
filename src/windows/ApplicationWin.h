@@ -57,6 +57,7 @@ namespace forward
 		static void JustEnteringMain();
 
 		void SetAppInst(HINSTANCE hInstance);
+		void ParseCmdLine(const char* cmdLine);
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
 		f32     AspectRatio()const;
