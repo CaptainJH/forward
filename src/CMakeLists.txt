@@ -30,6 +30,11 @@ include_directories("render/")
 option(CompileWithRenderDoc "RenderDoc integration")
 set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 
+set(UnityPath "" CACHE PATH "Specify the Unity path")
+if(NOT "${UnityPath}" STREQUAL "")
+	include_directories("${UnityPath}")
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/libs/assimp/include/")
     include_directories("windows/")

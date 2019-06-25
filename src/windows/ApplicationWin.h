@@ -43,7 +43,8 @@ namespace forward
 	{
 		AT_Default,
 		AT_OffScreen,
-		AT_Dll
+		AT_Dll, 
+		AT_Plugin
 	};
 
 	class ApplicationWin
