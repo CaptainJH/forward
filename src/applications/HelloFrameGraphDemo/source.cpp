@@ -28,6 +28,7 @@ public:
 protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
+	void PostDrawScene() override;
 	//void OnSpace() override;
 
 private:
@@ -117,6 +118,11 @@ void HelloFrameGraph::OnResize()
 //    mAppPaused = !mAppPaused;
 //    m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp", m_renderPass->GetPSO());
 //}
+
+void HelloFrameGraph::PostDrawScene()
+{
+	m_pRender2->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
+}
 
 
 FORWARD_APPLICATION_MAIN(HelloFrameGraph, 800, 600);

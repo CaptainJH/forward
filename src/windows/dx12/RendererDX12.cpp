@@ -805,12 +805,30 @@ void RendererDX12::BindGPUVisibleHeaps()
 //--------------------------------------------------------------------------------
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultRT() const
 {
-	return nullptr;
+	if (m_SwapChain)
+	{
+		return nullptr;
+	}
+	else
+	{
+		// headless mode
+		auto rtPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
+			m_width, m_height, TextureBindPosition::TBP_RT);
+		rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
+		return rtPtr;
+	}
 }
 
 shared_ptr<FrameGraphTexture2D> RendererDX12::GetDefaultDS() const
 {
-	return nullptr;
+	auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+	if (!dsPtr)
+	{
+		// headless mode
+		dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+			m_width, m_height, TextureBindPosition::TBP_DS);
+	}
+	return dsPtr;
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState)

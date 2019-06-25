@@ -78,6 +78,7 @@ namespace forward
 	protected:
 		virtual void UpdateScene(f32 dt) = 0;
 		virtual void DrawScene() = 0;
+		virtual void PostDrawScene() {}
 
 		// Convenience overrides for handling mouse input.
 		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }

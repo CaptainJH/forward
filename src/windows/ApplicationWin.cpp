@@ -162,6 +162,7 @@ i32 ApplicationWin::Run()
 		outs.precision(6);
 		outs << "rendering finished, took " << mspf << " (ms)";
 		std::cout << outs.str() << std::endl;
+		PostDrawScene();
 		return 0;
 	}
 	else if (IsDll())
@@ -206,6 +207,37 @@ i32 ApplicationWin::Run()
 
 bool ApplicationWin::Init()
 {
+	if (IsOffScreenRendering())
+	{
+		// attach output to console
+		HANDLE consoleHandleOut, consoleHandleError;
+		if (AttachConsole(ATTACH_PARENT_PROCESS))
+		{
+			// Redirect unbuffered STDOUT to the console
+			consoleHandleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			if (consoleHandleOut != INVALID_HANDLE_VALUE)
+			{
+				freopen("CONOUT$", "w", stdout);
+				setvbuf(stdout, NULL, _IONBF, 0);
+			}
+			else 
+			{
+				return false;
+			}
+			// Redirect unbuffered STDERR to the console
+			consoleHandleError = GetStdHandle(STD_ERROR_HANDLE);
+			if (consoleHandleError != INVALID_HANDLE_VALUE)
+			{
+				freopen("CONOUT$", "w", stderr);
+				setvbuf(stderr, NULL, _IONBF, 0);
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
 	if (!IsOffScreenRendering() && !IsDll())
 	{
 		if (!InitMainWindow())
