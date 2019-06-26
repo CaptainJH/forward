@@ -44,7 +44,7 @@ namespace forward
 		AT_Default,
 		AT_OffScreen,
 		AT_Dll, 
-		AT_Plugin
+		AT_UnityPlugin
 	};
 
 	class ApplicationWin

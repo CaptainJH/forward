@@ -2,14 +2,16 @@
 // UnityPlugin.cpp by Heqi Ju (C) 2019 All Rights Reserved.
 //***************************************************************************************
 
-#include "Application.h"
+#ifdef WINDOWS
 #include "dx11/dx11Util.h"
 #include "dx12/dx12Util.h"
 #include "IUnityInterface.h"
 #include "IUnityGraphics.h"
 #include "IUnityGraphicsD3D11.h"
 #include "IUnityGraphicsD3D12.h"
-//#include "UnityRenderLogic.h"
+#endif
+#include "Application.h"
+
 using namespace std;
 
 static IUnityInterfaces* s_UnityInterfaces = nullptr;
@@ -20,6 +22,8 @@ static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType ev
 static void DoEventGraphicsDeviceD3D11(UnityGfxDeviceEventType eventType);
 
 static bool initialized = false;
+
+static forward::Application* s_forwardInstance = nullptr;
 
 extern "C"
 {
@@ -46,6 +50,7 @@ extern "C"
     {
         if (!initialized)
         {
+			MessageBoxA(NULL, "Boom", "DoRenderEventAndData", MB_OK);
             //s_UnityRenderLogic.Initialize(s_UnityInterfaces, eventId, data);
             initialized = true;
         }
@@ -55,11 +60,18 @@ extern "C"
 
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API DoRenderEvent(int /*eventId*/)
 	{
+		if (!initialized)
+		{
+			//s_UnityRenderLogic.Initialize(s_UnityInterfaces, eventId, data);
+			initialized = true;
+		}
 
+		//s_UnityRenderLogic.Render(s_UnityInterfaces, eventId, data);
 	}
 
     UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFunc()
     {
+		//MessageBoxA(NULL, "Boom", "GetRenderEventFunc", MB_OK);
         return DoRenderEvent;
     }
 
