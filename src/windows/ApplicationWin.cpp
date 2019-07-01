@@ -108,6 +108,25 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	RenderType = RendererType::Renderer_Forward_DX11;
 }
 
+ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType)
+	: mMainWndCaption(L"UnityPlugin")
+	, mClientWidth(0)
+	, mClientHeight(0)
+	, mEnable4xMsaa(false)
+	, mhMainWnd(NULL)
+	, mAppPaused(false)
+	, mMinimized(false)
+	, mMaximized(false)
+	, mResizing(false)
+	, m4xMsaaQuality(0)
+	, mAppType(AT_UnityPlugin)
+	, m_pRender2(nullptr)
+	, RenderType(renderType)
+{
+	gApplication = this;
+	m_pRender2 = new Renderer2DX11(dxDevice);
+}
+
 ApplicationWin::~ApplicationWin()
 {
 	ShutdownRendererComponents();

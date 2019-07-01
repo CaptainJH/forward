@@ -11,6 +11,8 @@ namespace forward
 	{
 	public:
 		virtual ~Renderer2DX11();
+		Renderer2DX11() {}
+		Renderer2DX11(void* dxDevice); // used by UnityPlugin
 		RendererAPI GetRendererAPI() const override;
 
 		void DrawRenderPass(RenderPass& pass) override;

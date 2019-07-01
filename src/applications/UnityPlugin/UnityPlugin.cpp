@@ -10,7 +10,7 @@
 #include "IUnityGraphicsD3D11.h"
 #include "IUnityGraphicsD3D12.h"
 #endif
-#include "Application.h"
+#include "UnityApplication.h"
 
 using namespace std;
 
@@ -22,8 +22,7 @@ static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType ev
 static void DoEventGraphicsDeviceD3D11(UnityGfxDeviceEventType eventType);
 
 static bool initialized = false;
-
-static forward::Application* s_forwardInstance = nullptr;
+static UnityApplication* s_forwardInstance = nullptr;
 
 extern "C"
 {
@@ -62,7 +61,10 @@ extern "C"
 	{
 		if (!initialized)
 		{
-			//s_UnityRenderLogic.Initialize(s_UnityInterfaces, eventId, data);
+			MessageBoxA(NULL, "Boom", "DoRenderEvent", MB_OK);
+			IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();
+			auto dev = d3d11->GetDevice();
+			s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11);
 			initialized = true;
 		}
 
@@ -71,7 +73,6 @@ extern "C"
 
     UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFunc()
     {
-		//MessageBoxA(NULL, "Boom", "GetRenderEventFunc", MB_OK);
         return DoRenderEvent;
     }
 

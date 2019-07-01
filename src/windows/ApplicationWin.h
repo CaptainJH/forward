@@ -53,6 +53,7 @@ namespace forward
 		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
 		ApplicationWin(HWND hwnd, i32 width, i32 height);  // called by PyQT5
 		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
+		ApplicationWin(void* dxDevice, forward::RendererType renderType); // unity plugin
 		virtual ~ApplicationWin();
 
 		static void JustEnteringMain();

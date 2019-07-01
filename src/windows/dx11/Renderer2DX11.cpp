@@ -25,6 +25,13 @@
 using namespace forward;
 using Microsoft::WRL::ComPtr;
 
+Renderer2DX11::Renderer2DX11(void* dxDevice)
+{
+	ID3D11Device* device = static_cast<ID3D11Device*>(dxDevice);
+	m_pDevice = device;
+	device->GetImmediateContext(&m_pContext);
+}
+
 Renderer2DX11::~Renderer2DX11()
 {
 }
