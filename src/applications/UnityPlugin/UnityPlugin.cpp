@@ -22,6 +22,7 @@ static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType ev
 static void DoEventGraphicsDeviceD3D11(UnityGfxDeviceEventType eventType);
 
 static bool initialized = false;
+static string s_forwardPath;
 static UnityApplication* s_forwardInstance = nullptr;
 
 extern "C"
@@ -63,7 +64,7 @@ extern "C"
 		{
 			IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();
 			auto dev = d3d11->GetDevice();
-			s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11);
+			s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11, s_forwardPath.c_str());
 			initialized = s_forwardInstance->Init();
 			assert(initialized);
 		}
@@ -80,6 +81,11 @@ extern "C"
     {
         //s_UnityRenderLogic.SetupResources(indexBuffer, vertexBuffer, texture);
     }
+
+	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetupForwardPath(const char* path)
+	{
+		s_forwardPath = path;
+	}
 }
 
 static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType eventType)

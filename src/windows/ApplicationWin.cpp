@@ -108,7 +108,7 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	RenderType = RendererType::Renderer_Forward_DX11;
 }
 
-ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType)
+ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType, const char* forwardPath)
 	: mMainWndCaption(L"UnityPlugin")
 	, mClientWidth(0)
 	, mClientHeight(0)
@@ -122,6 +122,7 @@ ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType)
 	, mAppType(AT_UnityPlugin)
 	, m_pRender2(nullptr)
 	, RenderType(renderType)
+	, mFileSystem(forwardPath)
 {
 	gApplication = this;
 	m_pRender2 = new Renderer2DX11(dxDevice);

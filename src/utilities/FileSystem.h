@@ -24,6 +24,7 @@ namespace forward
 	{
 	public:
 		FileSystem();
+		FileSystem(const char* forwardPath);
 		~FileSystem();
 
 		std::wstring GetLogFolder() const;

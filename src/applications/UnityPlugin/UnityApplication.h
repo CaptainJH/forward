@@ -8,8 +8,8 @@
 class UnityApplication : public forward::Application
 {
 public:
-	UnityApplication(void* device, forward::RendererType renderType)
-		: forward::Application(device, renderType)
+	UnityApplication(void* device, forward::RendererType renderType, const char* forwardPath)
+		: forward::Application(device, renderType, forwardPath)
 	{}
 
 	~UnityApplication()
