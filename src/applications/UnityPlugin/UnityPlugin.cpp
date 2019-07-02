@@ -61,11 +61,11 @@ extern "C"
 	{
 		if (!initialized)
 		{
-			MessageBoxA(NULL, "Boom", "DoRenderEvent", MB_OK);
 			IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();
 			auto dev = d3d11->GetDevice();
 			s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11);
-			initialized = true;
+			initialized = s_forwardInstance->Init();
+			assert(initialized);
 		}
 
 		//s_UnityRenderLogic.Render(s_UnityInterfaces, eventId, data);
