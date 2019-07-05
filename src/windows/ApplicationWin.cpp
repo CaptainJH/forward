@@ -207,18 +207,7 @@ i32 ApplicationWin::Run()
 		// Otherwise, do animation/game stuff.
 		else
 		{
-			mTimer.Tick();
-
-			if (!mAppPaused)
-			{
-				CalculateFrameStats();
-				UpdateScene(mTimer.Elapsed());
-				DrawScene();
-			}
-			else
-			{
-				std::this_thread::sleep_for(100ms);
-			}
+			UpdateRender();
 		}
 	}
 
@@ -590,4 +579,25 @@ void ApplicationWin::ParseCmdLine(const char* cmdLine)
 	{
 		mAppType = AT_Default;
 	}
+}
+
+void ApplicationWin::UpdateRender()
+{
+	mTimer.Tick();
+
+	if (!mAppPaused)
+	{
+		CalculateFrameStats();
+		UpdateScene(mTimer.Elapsed());
+		DrawScene();
+	}
+	else
+	{
+		std::this_thread::sleep_for(100ms);
+	}
+}
+
+void ApplicationWin::AddExternalResource(const char* name, void* res)
+{
+	m_pRender2->AddExternalResource(name, res);
 }

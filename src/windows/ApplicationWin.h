@@ -75,7 +75,8 @@ namespace forward
 		// Request an exit from windows
 		void RequestTermination();
 		virtual LRESULT MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam);
-
+		void UpdateRender();
+		void AddExternalResource(const char* name, void* res);
 
 	protected:
 		virtual void UpdateScene(f32 dt) = 0;

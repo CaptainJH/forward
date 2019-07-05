@@ -69,7 +69,7 @@ extern "C"
 			assert(initialized);
 		}
 
-		//s_UnityRenderLogic.Render(s_UnityInterfaces, eventId, data);
+		s_forwardInstance->UpdateRender();
 	}
 
     UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFunc()
@@ -77,9 +77,9 @@ extern "C"
         return DoRenderEvent;
     }
 
-    void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetupResources(void* /*indexBuffer*/, void* /*vertexBuffer*/, void* /*texture*/)
+    void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetupResources(const char* name, void* resource)
     {
-        //s_UnityRenderLogic.SetupResources(indexBuffer, vertexBuffer, texture);
+		s_forwardInstance->AddExternalResource(name, resource);
     }
 
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetupForwardPath(const char* path)
