@@ -60,16 +60,7 @@ extern "C"
 
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API DoRenderEvent(int /*eventId*/)
 	{
-		if (!initialized)
-		{
-			IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();
-			auto dev = d3d11->GetDevice();
-			s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11, s_forwardPath.c_str());
-			initialized = s_forwardInstance->Init();
-			assert(initialized);
-		}
-
-		s_forwardInstance->UpdateRender();
+		//s_forwardInstance->UpdateRender();
 	}
 
     UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFunc()
@@ -82,9 +73,15 @@ extern "C"
 		s_forwardInstance->AddExternalResource(name, resource);
     }
 
-	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetupForwardPath(const char* path)
+	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API PluginInitialize(const char* path)
 	{
 		s_forwardPath = path;
+
+		IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();
+		auto dev = d3d11->GetDevice();
+		s_forwardInstance = new UnityApplication((void*)dev, forward::RendererType::Renderer_Forward_DX11, s_forwardPath.c_str());
+		initialized = s_forwardInstance->Init();
+		assert(initialized);
 	}
 }
 
