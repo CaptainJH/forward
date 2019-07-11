@@ -65,5 +65,8 @@ void UnityApplication::UpdateScene(f32 /*dt*/)
 
 void UnityApplication::DrawScene()
 {
-
+	FrameGraph fg;
+	m_pRender2->BeginDrawFrameGraph(&fg);
+	fg.DrawRenderPass(m_renderPass);
+	m_pRender2->EndDrawFrameGraph();
 }

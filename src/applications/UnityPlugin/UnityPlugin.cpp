@@ -60,7 +60,7 @@ extern "C"
 
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API DoRenderEvent(int /*eventId*/)
 	{
-		//s_forwardInstance->UpdateRender();
+		s_forwardInstance->UpdateRender();
 	}
 
     UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFunc()
