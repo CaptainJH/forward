@@ -601,7 +601,16 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (!rt->DeviceObject())
 			{
-				auto deviceRT = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), rt.get());
+				auto deviceRT_raw = GetFromExternalResource<ID3D11Texture2D*>(rt->Name());
+				forward::shared_ptr<DeviceTexture2DDX11> deviceRT = nullptr;
+				if (deviceRT_raw)
+				{
+					deviceRT = DeviceTexture2DDX11::BuildDeviceTexture2DDX11(rt->Name(), deviceRT_raw, RU_CPU_GPU_BIDIRECTIONAL);
+				}
+				else
+				{
+					deviceRT = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), rt.get());
+				}
 				rt->SetDeviceObject(deviceRT);
 			}
 			auto rtDevice = device_cast<DeviceTexture2DDX11*>(rt);

@@ -39,8 +39,8 @@ bool UnityApplication::Init()
 			pso.m_IAState.m_vertexBuffers[0] = vb;
 
 			// setup render states
-			auto dsPtr = m_pRender2->GetDefaultDS();
-			pso.m_OMState.m_depthStencilResource = dsPtr;
+			//auto dsPtr = m_pRender2->GetDefaultDS();
+			//pso.m_OMState.m_depthStencilResource = dsPtr;
 
 			auto rsPtr = m_pRender2->GetDefaultRT();
 			pso.m_OMState.m_renderTargetResources[0] = rsPtr;

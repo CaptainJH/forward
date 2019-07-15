@@ -322,7 +322,9 @@ void DeviceTexture2DDX11::CreateDSSRView(ID3D11Device* device, const D3D11_TEXTU
 void DeviceTexture2DDX11::CreateRTView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx)
 {
 	D3D11_RENDER_TARGET_VIEW_DESC desc;
-	desc.Format = tx.Format;
+	// this is the workaround code for Unity plugin, 
+	// cause the format DXGI_FORMAT_R8G8B8A8_TYPELESS will fail this function.
+	desc.Format = tx.Format == DXGI_FORMAT_R8G8B8A8_TYPELESS ? DXGI_FORMAT_R8G8B8A8_UNORM : tx.Format;
 	desc.ViewDimension = tx.SampleDesc.Count == 1 ? D3D11_RTV_DIMENSION_TEXTURE2D : D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	desc.Texture2D.MipSlice = 0;
 
