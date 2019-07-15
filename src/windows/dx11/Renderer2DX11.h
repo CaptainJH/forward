@@ -71,7 +71,7 @@ namespace forward
 		u32		m_width;
 		u32		m_height;
 
-		Font*	m_textFont;
-		RenderPass* m_textRenderPass;
+		Font*	m_textFont = nullptr;
+		RenderPass* m_textRenderPass = nullptr;
 	};
 }

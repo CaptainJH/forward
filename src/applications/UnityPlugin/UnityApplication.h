@@ -30,5 +30,5 @@ private:
 	forward::Matrix4f m_viewMat;
 	forward::Matrix4f m_projMat;
 
-	forward::RenderPass* m_renderPass;
+	forward::RenderPass* m_renderPass = nullptr;
 };

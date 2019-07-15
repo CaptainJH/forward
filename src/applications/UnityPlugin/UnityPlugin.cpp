@@ -75,6 +75,12 @@ extern "C"
 
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API PluginInitialize(const char* path)
 	{
+		if (initialized)
+		{
+			SAFE_DELETE(s_forwardInstance);
+			initialized = false;
+		}
+
 		s_forwardPath = path;
 
 		IUnityGraphicsD3D11* d3d11 = s_UnityInterfaces->Get<IUnityGraphicsD3D11>();

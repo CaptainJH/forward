@@ -80,6 +80,17 @@ namespace forward
 
 		std::map<std::string, void*> m_externalResourceContext;
 
+		template<class T>
+		T GetFromExternalResource(const std::string name)
+		{
+			if (m_externalResourceContext.find(name) != m_externalResourceContext.end())
+			{
+				void* p = m_externalResourceContext[name];
+				return static_cast<T>(p);
+			}
+			return nullptr;
+		}
+
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.
 		static Renderer*					m_spRenderer;
