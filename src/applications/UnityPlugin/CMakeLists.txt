@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 
-set(UnityPath "" CACHE PATH "Specify the Unity path")
 if(NOT "${UnityPath}" STREQUAL "")
 	include_directories("${UnityPath}")
 endif()
