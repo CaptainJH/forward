@@ -7,8 +7,10 @@
 using namespace std::experimental;
 #else
 #include <unistd.h>
+#include <os/log.h>
 #include "Utils.h"
 #endif
+
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -33,6 +35,7 @@ FileSystem::FileSystem()
 #else
     char cwdBuffer[128] = {0};
     getcwd(cwdBuffer, 128);
+    os_log(OS_LOG_DEFAULT, "from os_log : %s", cwdBuffer);
     auto pathStr = TextHelper::ToUnicode(std::string(cwdBuffer));
 #endif
 	auto index = pathStr.find(L"forward");
