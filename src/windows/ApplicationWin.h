@@ -43,7 +43,8 @@ namespace forward
 	{
 		AT_Default,
 		AT_OffScreen,
-		AT_Dll
+		AT_Dll, 
+		AT_UnityPlugin
 	};
 
 	class ApplicationWin
@@ -52,11 +53,13 @@ namespace forward
 		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
 		ApplicationWin(HWND hwnd, i32 width, i32 height);  // called by PyQT5
 		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
+		ApplicationWin(void* dxDevice, forward::RendererType renderType, const char* forwardPath); // unity plugin
 		virtual ~ApplicationWin();
 
 		static void JustEnteringMain();
 
 		void SetAppInst(HINSTANCE hInstance);
+		void ParseCmdLine(const char* cmdLine);
 		HINSTANCE AppInst()const;
 		HWND      MainWnd()const;
 		f32     AspectRatio()const;
@@ -72,11 +75,13 @@ namespace forward
 		// Request an exit from windows
 		void RequestTermination();
 		virtual LRESULT MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam);
-
+		void UpdateRender();
+		void AddExternalResource(const char* name, void* res);
 
 	protected:
 		virtual void UpdateScene(f32 dt) = 0;
 		virtual void DrawScene() = 0;
+		virtual void PostDrawScene() {}
 
 		// Convenience overrides for handling mouse input.
 		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }

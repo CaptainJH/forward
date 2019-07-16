@@ -16,10 +16,11 @@
 
 #ifdef WINDOWS
 #define FORWARD_APPLICATION_MAIN(CLASS, w, h) \
-forward::i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, i32)\
+forward::i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR cmdLine, i32)\
 {\
 	CLASS::JustEnteringMain();\
     CLASS app(w, h);\
+	app.ParseCmdLine(cmdLine);\
 	app.SetAppInst(hInstance);\
     if(!app.Init())\
         return 0;\

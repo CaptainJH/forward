@@ -108,6 +108,26 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	RenderType = RendererType::Renderer_Forward_DX11;
 }
 
+ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType, const char* forwardPath)
+	: mMainWndCaption(L"UnityPlugin")
+	, mClientWidth(0)
+	, mClientHeight(0)
+	, mEnable4xMsaa(false)
+	, mhMainWnd(NULL)
+	, mAppPaused(false)
+	, mMinimized(false)
+	, mMaximized(false)
+	, mResizing(false)
+	, m4xMsaaQuality(0)
+	, mAppType(AT_UnityPlugin)
+	, m_pRender2(nullptr)
+	, RenderType(renderType)
+	, mFileSystem(forwardPath)
+{
+	gApplication = this;
+	m_pRender2 = new Renderer2DX11(dxDevice);
+}
+
 ApplicationWin::~ApplicationWin()
 {
 	ShutdownRendererComponents();
@@ -162,6 +182,7 @@ i32 ApplicationWin::Run()
 		outs.precision(6);
 		outs << "rendering finished, took " << mspf << " (ms)";
 		std::cout << outs.str() << std::endl;
+		PostDrawScene();
 		return 0;
 	}
 	else if (IsDll())
@@ -186,18 +207,7 @@ i32 ApplicationWin::Run()
 		// Otherwise, do animation/game stuff.
 		else
 		{
-			mTimer.Tick();
-
-			if (!mAppPaused)
-			{
-				CalculateFrameStats();
-				UpdateScene(mTimer.Elapsed());
-				DrawScene();
-			}
-			else
-			{
-				std::this_thread::sleep_for(100ms);
-			}
+			UpdateRender();
 		}
 	}
 
@@ -206,6 +216,37 @@ i32 ApplicationWin::Run()
 
 bool ApplicationWin::Init()
 {
+	if (IsOffScreenRendering())
+	{
+		// attach output to console
+		HANDLE consoleHandleOut, consoleHandleError;
+		if (AttachConsole(ATTACH_PARENT_PROCESS))
+		{
+			// Redirect unbuffered STDOUT to the console
+			consoleHandleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			if (consoleHandleOut != INVALID_HANDLE_VALUE)
+			{
+				freopen("CONOUT$", "w", stdout);
+				setvbuf(stdout, NULL, _IONBF, 0);
+			}
+			else 
+			{
+				return false;
+			}
+			// Redirect unbuffered STDERR to the console
+			consoleHandleError = GetStdHandle(STD_ERROR_HANDLE);
+			if (consoleHandleError != INVALID_HANDLE_VALUE)
+			{
+				freopen("CONOUT$", "w", stderr);
+				setvbuf(stderr, NULL, _IONBF, 0);
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
 	if (!IsOffScreenRendering() && !IsDll())
 	{
 		if (!InitMainWindow())
@@ -500,4 +541,63 @@ void ApplicationWin::JustEnteringMain()
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+}
+
+void ApplicationWin::ParseCmdLine(const char* cmdLine)
+{
+	//MessageBoxA(NULL, "Boom", "Boom", MB_OK);
+	std::vector<std::string> args;
+	std::string cmdLineStr(cmdLine);
+	std::string temp = cmdLineStr;
+	while (temp.length())
+	{
+		auto index = temp.find_first_of(' ');
+		if (index == std::string::npos)
+		{
+			// the last arg
+			args.push_back(temp);
+			break;
+		}
+		else if (index > 0)
+		{
+			std::string arg = temp.substr(0, index);
+			args.push_back(arg);
+		}
+
+		temp = temp.substr(index + 1, temp.length() - index - 1);
+	}
+
+	bool isBatchMode = std::find_if(args.begin(), args.end(), [](const std::string& s) -> bool {
+		return s == "-headless";
+		}) != args.end();
+
+	if (isBatchMode)
+	{
+		mAppType = AT_OffScreen;
+	}
+	else
+	{
+		mAppType = AT_Default;
+	}
+}
+
+void ApplicationWin::UpdateRender()
+{
+	mTimer.Tick();
+
+	if (!mAppPaused)
+	{
+		CalculateFrameStats();
+		UpdateScene(mTimer.Elapsed());
+		DrawScene();
+	}
+	else
+	{
+		std::this_thread::sleep_for(100ms);
+	}
+}
+
+void ApplicationWin::AddExternalResource(const char* name, void* res)
+{
+	m_pRender2->AddExternalResource(name, res);
 }

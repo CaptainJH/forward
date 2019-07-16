@@ -28,3 +28,9 @@ void Renderer::BeginDrawFrameGraph(FrameGraph* fg)
 
 	m_currentFrameGraph->Reset();
 }
+
+void Renderer::AddExternalResource(const char* name, void* res)
+{
+	std::string str(name);
+	m_externalResourceContext[str] = res;
+}

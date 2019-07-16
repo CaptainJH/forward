@@ -39,7 +39,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(OtherLibs "Dbghelp.lib")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
     set(ParallelBuild "/MP")
-    add_definitions(-DUNICODE -D_UNICODE -DWINDOWS -DNOMINMAX)
+    add_definitions(-DUNICODE -D_UNICODE -DWINDOWS -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
     MESSAGE( STATUS "MSVC")
     
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${ParallelBuild}")

@@ -11,6 +11,8 @@ namespace forward
 	{
 	public:
 		virtual ~Renderer2DX11();
+		Renderer2DX11() {}
+		Renderer2DX11(void* dxDevice); // used by UnityPlugin
 		RendererAPI GetRendererAPI() const override;
 
 		void DrawRenderPass(RenderPass& pass) override;
@@ -69,7 +71,7 @@ namespace forward
 		u32		m_width;
 		u32		m_height;
 
-		Font*	m_textFont;
-		RenderPass* m_textRenderPass;
+		Font*	m_textFont = nullptr;
+		RenderPass* m_textRenderPass = nullptr;
 	};
 }

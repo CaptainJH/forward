@@ -10,7 +10,6 @@ using namespace std::experimental;
 #include <os/log.h>
 #include "Utils.h"
 #endif
-
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
@@ -43,6 +42,47 @@ FileSystem::FileSystem()
 	auto indexEnd = pathStr.find_first_of(L'/', index);
 	mCWD = pathStr;
 	if(indexEnd < pathStr.length())
+		mCWD = pathStr.substr(0, indexEnd + 1);
+	else
+		mCWD += L'/';
+	mDataFolder = mCWD + mDataFolder;
+	mLogFolder = mCWD + mLogFolder;
+	mSavedFolder = mCWD + mSavedFolder;
+	mFontFolder = mCWD + mFontFolder;
+
+#ifdef WINDOWS
+	auto logPath = filesystem::path(mLogFolder);
+	if (!filesystem::exists(logPath))
+	{
+		filesystem::create_directory(logPath);
+	}
+	auto savedPath = filesystem::path(mSavedFolder);
+	if (!filesystem::exists(savedPath))
+	{
+		filesystem::create_directory(savedPath);
+	}
+#endif
+}
+
+FileSystem::FileSystem(const char* forwardPath)
+{
+	mDataFolder = L"Data/";
+	mModelsSubFolder = L"Models/";
+	mScriptsSubFolder = L"Scripts/";
+	mShaderSubFolder = L"Shaders/";
+	mTextureSubFolder = L"Textures/";
+	mSavedFolder = L"Saved/";
+	mFontFolder = L"src/render/Text/";
+
+	mLogFolder = L"Log/";
+
+	std::string path = forwardPath;
+	std::wstring pathStr = TextHelper::ToUnicode(path);
+	auto index = pathStr.find(L"forward");
+	assert(index < pathStr.length());
+	auto indexEnd = pathStr.find_first_of(L'/', index);
+	mCWD = pathStr;
+	if (indexEnd < pathStr.length())
 		mCWD = pathStr.substr(0, indexEnd + 1);
 	else
 		mCWD += L'/';

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(SmartPtrDemo)
+add_subdirectory(RayTracerDemo)
 add_subdirectory(HelloFrameGraphDemo)
 add_subdirectory(BasicGeometryFrameGraph)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -20,4 +21,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#------Dlls-----------------------
 	add_subdirectory(forwardDX11_Dll)
 	add_subdirectory(HelloPyQT)
+endif()
+
+set(UnityPath "" CACHE PATH "Specify the Unity path")
+if(NOT "${UnityPath}" STREQUAL "")
+	add_subdirectory(UnityPlugin)
+	include_directories("${UnityPath}")
 endif()

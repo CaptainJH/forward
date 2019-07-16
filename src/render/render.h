@@ -2,6 +2,7 @@
 // render.h by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #pragma once
+#include <map>
 #include "Types.h"
 #include "DataFormat.h"
 #include "Vector4f.h"
@@ -70,10 +71,25 @@ namespace forward
 		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const = 0;
 		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const = 0;
 
+		void AddExternalResource(const char* name, void* res);
+
 	protected:
 		Renderer();
 
 		FrameGraph* m_currentFrameGraph = nullptr;
+
+		std::map<std::string, void*> m_externalResourceContext;
+
+		template<class T>
+		T GetFromExternalResource(const std::string name)
+		{
+			if (m_externalResourceContext.find(name) != m_externalResourceContext.end())
+			{
+				void* p = m_externalResourceContext[name];
+				return static_cast<T>(p);
+			}
+			return nullptr;
+		}
 
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.

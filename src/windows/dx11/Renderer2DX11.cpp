@@ -25,6 +25,13 @@
 using namespace forward;
 using Microsoft::WRL::ComPtr;
 
+Renderer2DX11::Renderer2DX11(void* dxDevice)
+{
+	ID3D11Device* device = static_cast<ID3D11Device*>(dxDevice);
+	m_pDevice = device;
+	device->GetImmediateContext(&m_pContext);
+}
+
 Renderer2DX11::~Renderer2DX11()
 {
 }
@@ -594,7 +601,16 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (!rt->DeviceObject())
 			{
-				auto deviceRT = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), rt.get());
+				auto deviceRT_raw = GetFromExternalResource<ID3D11Texture2D*>(rt->Name());
+				forward::shared_ptr<DeviceTexture2DDX11> deviceRT = nullptr;
+				if (deviceRT_raw)
+				{
+					deviceRT = DeviceTexture2DDX11::BuildDeviceTexture2DDX11(rt->Name(), deviceRT_raw, RU_CPU_GPU_BIDIRECTIONAL);
+				}
+				else
+				{
+					deviceRT = make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), rt.get());
+				}
 				rt->SetDeviceObject(deviceRT);
 			}
 			auto rtDevice = device_cast<DeviceTexture2DDX11*>(rt);
@@ -730,13 +746,33 @@ void Renderer2DX11::CompileCurrentFrameGraph()
 
 shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultRT() const
 {
-	assert(m_vSwapChains.size() >= 1);
-	FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentRT().get());
-	return shared_ptr<FrameGraphTexture2D>(tex);
+	if (m_vSwapChains.size() >= 1)
+	{
+		FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentRT().get());
+		return shared_ptr<FrameGraphTexture2D>(tex);
+	}
+	else
+	{
+		// headless mode
+		auto rtPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
+			m_width, m_height, TextureBindPosition::TBP_RT);
+		rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
+		return rtPtr;
+	}
 }
 
 shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultDS() const
 {
-	FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentDS().get());
-	return shared_ptr<FrameGraphTexture2D>(tex);
+	if (m_vSwapChains.size() >= 1)
+	{
+		FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentDS().get());
+		return shared_ptr<FrameGraphTexture2D>(tex);
+	}
+	else
+	{
+		// headless mode
+		auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+			m_width, m_height, TextureBindPosition::TBP_DS);
+		return dsPtr;
+	}
 }
