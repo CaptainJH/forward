@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(SmartPtrDemo)
+add_subdirectory(RayTracerDemo)
 add_subdirectory(HelloFrameGraphDemo)
 add_subdirectory(BasicGeometryFrameGraph)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
