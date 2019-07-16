@@ -8,8 +8,8 @@ using namespace std::experimental;
 #else
 #include <unistd.h>
 #include <os/log.h>
-#include "Utils.h"
 #endif
+#include "Utils.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
