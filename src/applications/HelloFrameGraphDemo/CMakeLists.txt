@@ -37,4 +37,5 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(HelloFrameGraph "CLANG_CXX_LIBRARY" "libc++")
 endif()
 
+set_property(TARGET HelloFrameGraph PROPERTY CXX_STANDARD 17)
 set_target_properties(HelloFrameGraph PROPERTIES FOLDER Application)

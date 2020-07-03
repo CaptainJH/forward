@@ -7,4 +7,5 @@ set_target_properties(OffScreenRenderingDemo PROPERTIES LINK_FLAGS "/SUBSYSTEM:C
 target_link_libraries(OffScreenRenderingDemo forwardDX11)
 target_link_libraries(OffScreenRenderingDemo forwardDX12)
 
+set_property(TARGET OffScreenRenderingDemo PROPERTY CXX_STANDARD 17)
 set_target_properties(OffScreenRenderingDemo PROPERTIES FOLDER Application)

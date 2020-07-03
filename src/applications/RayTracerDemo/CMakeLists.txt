@@ -11,4 +11,5 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 endif()
 target_link_libraries(RayTracerDemo libForward)
 
+set_property(TARGET RayTracerDemo PROPERTY CXX_STANDARD 17)
 set_target_properties(RayTracerDemo PROPERTIES FOLDER Application)

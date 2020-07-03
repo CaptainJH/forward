@@ -10,6 +10,7 @@ add_library(UnityPlugin SHARED ${SOURCE_FILES})
 target_link_libraries(UnityPlugin forwardDX11)
 target_link_libraries(UnityPlugin forwardDX12)
 
+set_property(TARGET UnityPlugin PROPERTY CXX_STANDARD 17)
 set_target_properties(UnityPlugin PROPERTIES FOLDER Application)
 add_definitions(-DWIN32_LEAN_AND_MEAN)
 add_definitions(-DFORWARD_EXPORTS)

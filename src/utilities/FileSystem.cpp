@@ -4,7 +4,7 @@
 #include <chrono>
 #ifdef WINDOWS
 #include <filesystem>
-using namespace std::experimental;
+using namespace std;
 #else
 #include <unistd.h>
 #include <os/log.h>
@@ -204,8 +204,8 @@ bool FileSystem::FileIsNewer( const std::wstring& file1, const std::wstring& fil
 	filesystem::path file1path(file1);
 	filesystem::path file2path(file2);
 
-	std::chrono::system_clock::time_point stamp1 = filesystem::last_write_time(file1path);
-	std::chrono::system_clock::time_point stamp2 = filesystem::last_write_time(file2path);
+	auto stamp1 = filesystem::last_write_time(file1path);
+	auto stamp2 = filesystem::last_write_time(file2path);
 
 	return stamp1 > stamp2;
 #else

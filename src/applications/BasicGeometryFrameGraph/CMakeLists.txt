@@ -37,4 +37,5 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(BasicGeometryFrameGraph "CLANG_CXX_LIBRARY" "libc++")
 endif()
 
+set_property(TARGET BasicGeometryFrameGraph PROPERTY CXX_STANDARD 17)
 set_target_properties(BasicGeometryFrameGraph PROPERTIES FOLDER Application)

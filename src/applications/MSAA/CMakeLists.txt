@@ -6,4 +6,5 @@ add_executable(MSAA ${SOURCE_FILES})
 target_link_libraries(MSAA forwardDX11)
 target_link_libraries(MSAA forwardDX12)
 
+set_property(TARGET MSAA PROPERTY CXX_STANDARD 17)
 set_target_properties(MSAA PROPERTIES FOLDER Application)
