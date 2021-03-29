@@ -77,13 +77,13 @@ bool BasicGeometryFrameGraph::Init()
 		//pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain");
 		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
 
-//        pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
+        pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
 //        pso.m_PSState.m_shaderResources[1] = make_shared<FrameGraphTextureCube>("DDS_Cube", L"snowcube1024.dds");
-//        pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
+        pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 
 		// setup geometry
-		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
-		//m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
+		//m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
+		m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
 		builder << *m_geometry;
 
 		// setup constant buffer

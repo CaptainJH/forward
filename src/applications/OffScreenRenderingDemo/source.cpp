@@ -74,8 +74,8 @@ bool OffScreenRenderingDemo::Init()
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("OffScreenRenderingDemoVS", L"BasicShader.hlsl", L"VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("OffScreenRenderingDemoPS", L"BasicShader.hlsl", L"PSMainQuad");
+		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("OffScreenRenderingDemoVS", L"BasicShader", L"VSMainQuad");
+		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("OffScreenRenderingDemoPS", L"BasicShader", L"PSMainQuad");
 
 		// setup geometry
 		auto geometry = std::make_unique<SimpleGeometry>("Geometry", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());
