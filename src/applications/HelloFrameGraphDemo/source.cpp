@@ -125,4 +125,4 @@ void HelloFrameGraph::PostDrawScene()
 }
 
 
-FORWARD_APPLICATION_MAIN(HelloFrameGraph, 800, 600);
+FORWARD_APPLICATION_MAIN(HelloFrameGraph, 1920, 1080);

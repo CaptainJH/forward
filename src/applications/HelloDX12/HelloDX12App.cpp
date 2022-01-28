@@ -1,6 +1,7 @@
-#include "dx12/ApplicationDX12.h"
+#include "Application.h"
 #include "Vector3f.h"
 #include "dx12/UploadBuffer.h"
+#include "dx12/RendererDX12.h"
 #include "dxCommon/ShaderFactoryDX.h"
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
@@ -15,13 +16,14 @@ struct Vertex
 	Vector4f Color;
 };
 
-class HelloDX12 : public ApplicationDX12
+class HelloDX12 : public Application
 {
 public:
 	HelloDX12(HINSTANCE hInstance, i32 width, i32 height)
-		: ApplicationDX12(hInstance, width, height)
+		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"Hello DirectX12!";
+		RenderType = RendererType::Renderer_Forward_DX12;
 	}
 
 	~HelloDX12()
@@ -54,6 +56,7 @@ private:
 	PipelineStateComPtr m_pso = nullptr;
 
 	std::unique_ptr<MeshGeometry> m_geometry = nullptr;
+	RendererDX12* m_pRender = nullptr;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -64,7 +67,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	HelloDX12 theApp(hInstance, 800, 600);
+	HelloDX12 theApp(hInstance, 1920, 1080);
 
 	if (!theApp.Init())
 		return 0;
@@ -78,21 +81,27 @@ void HelloDX12::UpdateScene(f32 /*dt*/)
 
 void HelloDX12::DrawScene()
 {
-	m_pRender->BeginPresent(m_pso.Get());
+	m_pRender->BeginPresent();
 
 	auto commandList = m_pRender->CommandList();
-	ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
-	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	//ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
+	//commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+	//commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
-	auto vbv = m_geometry->VertexBufferView();
-	commandList->IASetVertexBuffers(0, 1, &vbv);
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//auto vbv = m_geometry->VertexBufferView();
+	//commandList->IASetVertexBuffers(0, 1, &vbv);
+	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	//commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	commandList->DrawInstanced(4, 1, 0, 0);
+	//commandList->DrawInstanced(4, 1, 0, 0);
+
+	commandList->Close();
+
+	// Add the command list to the queue for execution.
+	ID3D12CommandList* cmdsLists[] = { commandList };
+	m_pRender->CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	m_pRender->EndPresent();
 }
@@ -100,9 +109,10 @@ void HelloDX12::DrawScene()
 bool HelloDX12::Init()
 {
 	Log::Get().Open();
-	if (!ApplicationDX12::Init())
+	if (!Application::Init())
 		return false;
 
+	m_pRender = static_cast<RendererDX12*>(m_pRender2);
 	m_pRender->ResetCommandList();
 
 	BuildDescriptorHeaps();
@@ -140,7 +150,7 @@ void HelloDX12::BuildShadersAndInputLayout()
 
 void HelloDX12::OnResize()
 {
-	ApplicationDX12::OnResize();
+	Application::OnResize();
 }
 
 void HelloDX12::BuildGeometry()
