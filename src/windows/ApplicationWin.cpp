@@ -415,6 +415,13 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 
 bool ApplicationWin::InitMainWindow()
 {
+	// Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
+	// Using this awareness context allows the client area of the window
+	// to achieve 100% scaling while still allowing non-client window content to
+	// be rendered in a DPI sensitive fashion.
+	// @see https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setthreaddpiawarenesscontext
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = MainWndProc;
