@@ -50,10 +50,10 @@ shared_ptr<FrameGraphTexture2D> SwapChain::GetCurrentDS() const
 	return m_ds;
 }
 //--------------------------------------------------------------------------------
-void SwapChain::Present() const
+void SwapChain::Present(bool vsync) const
 {
 	assert(!m_rts.empty());
 	const auto N = m_rts.size();
-	HR(m_pSwapChain->Present(0, 0));
+	HR(m_pSwapChain->Present(0, vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING));
 	m_currentBackBufferIndex = (m_currentBackBufferIndex + 1) % N;
 }

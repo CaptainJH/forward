@@ -17,7 +17,7 @@
 #include "render/FrameGraph/FrameGraphObject.h"
 #include "DynamicDescriptorHeapDX12.h"
 #include "render/Text/FontSegoe_UIW50H12.h"
-#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 #include <mutex>
 
 namespace forward
@@ -109,6 +109,8 @@ namespace forward
 		void ResetCommandList();
 		void FlushCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
+		void BeginPresent();
+		void EndPresent();
 
 	private:
         // Provide the feature level of the current machine.  This can be
@@ -154,7 +156,7 @@ namespace forward
 
 		SwapChain*	m_SwapChain = nullptr;
 
-		Microsoft::WRL::ComPtr<IDXGIFactory4> m_Factory;
+		Microsoft::WRL::ComPtr<IDXGIFactory6> m_Factory;
 
 		CommandQueueComPtr					m_CommandQueue;
 		CommandAllocatorComPtr				m_DirectCmdListAlloc;

@@ -147,21 +147,27 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 #endif
 
 	// Create a factory to enumerate all of the hardware in the system.
-
-	hr = CreateDXGIFactory1(IID_PPV_ARGS(&m_Factory));
+	u32 flags = 0;
+#if defined(_DEBUG)
+	flags = DXGI_CREATE_FACTORY_DEBUG;
+#endif
+	hr = CreateDXGIFactory2(flags, IID_PPV_ARGS(&m_Factory));
+	i32 allowTearing = 0;
+	m_Factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
 	// Enumerate all of the adapters in the current system.  This includes all
 	// adapters, even the ones that don't support the ID3D11Device interface.
 
-	ComPtr<IDXGIAdapter1> pCurrentAdapter;
+	ComPtr<IDXGIAdapter4> pCurrentAdapter;
 	std::vector<DXGIAdapter> vAdapters;
 
-	while (m_Factory->EnumAdapters1(static_cast<u32>(vAdapters.size()), pCurrentAdapter.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
+	while (m_Factory->EnumAdapterByGpuPreference(static_cast<u32>(vAdapters.size()), DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+		IID_PPV_ARGS(&pCurrentAdapter)) != DXGI_ERROR_NOT_FOUND)
 	{
 		vAdapters.push_back(pCurrentAdapter);
 
-		DXGI_ADAPTER_DESC1 desc;
-		pCurrentAdapter->GetDesc1(&desc);
+		DXGI_ADAPTER_DESC3 desc;
+		pCurrentAdapter->GetDesc3(&desc);
 
 		Log::Get().Write(desc.Description);
 	}
@@ -264,9 +270,6 @@ i32	RendererDX12::GetUnusedResourceIndex()
 //--------------------------------------------------------------------------------
 i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 {
-	const auto Width = pConfig->GetSwapChainDesc().BufferDesc.Width;
-	const auto Height = pConfig->GetSwapChainDesc().BufferDesc.Height;
-
 	// Attempt to create the swap chain.
 	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
 	HR(m_Factory->CreateSwapChain(m_CommandQueue.Get(), &pConfig->GetSwapChainDesc(), SwapChain.GetAddressOf()));
@@ -862,6 +865,31 @@ RendererDX12* RendererContext::GetCurrentRender()
 {
 	assert(CurrentRender);
 	return CurrentRender;
+}
+
+void RendererDX12::BeginPresent()
+{
+	HR(m_DirectCmdListAlloc->Reset());
+	ResetCommandList();
+
+	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
+	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
+	//D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
+	//m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, nullptr);
+	// Clear the back buffer and depth buffer.
+	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
+	m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+
+	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+}
+
+void RendererDX12::EndPresent()
+{
+	m_SwapChain->Present();
+	FlushCommandQueue();
 }
 
 void RendererContext::SetCurrentRender(RendererDX12* render)

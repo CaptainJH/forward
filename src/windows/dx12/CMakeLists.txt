@@ -7,7 +7,7 @@ list(REMOVE_ITEM forward_DX12_SOURCE_FILES "${forward_source_root}/windows/dx12/
 list(REMOVE_ITEM forward_DX12_SOURCE_FILES "${forward_source_root}/windows/dx12/ApplicationDX12.h")
 set_source_groups("${forward_DX12_SOURCE_FILES}")
 
-add_definitions(-DNOMINMAX)
+add_definitions(-DNOMINMAX -DDX12)
 add_library(forwardDX12 STATIC ${forward_DX12_SOURCE_FILES})
 set_property(TARGET forwardDX12 PROPERTY CXX_STANDARD 17)
 target_link_libraries(forwardDX12 libForward)

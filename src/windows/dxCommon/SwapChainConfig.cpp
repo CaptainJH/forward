@@ -59,7 +59,8 @@ void SwapChainConfig::SetDefaultsDX12()
 	m_State.BufferDesc.RefreshRate.Numerator = 60;
 	m_State.BufferDesc.RefreshRate.Denominator = 1;
 
-	m_State.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	m_State.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+		//DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	m_State.SampleDesc.Count = 1;
 	m_State.SampleDesc.Quality = 0;

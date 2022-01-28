@@ -15,6 +15,7 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
+#ifdef DX11
 DXGIAdapter::DXGIAdapter( Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter )
 {
 	m_pAdapter = pAdapter;
@@ -26,8 +27,18 @@ DXGIAdapter::DXGIAdapter( Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter )
 		m_vOutputs.push_back( pOutput );
 	}
 }
-//--------------------------------------------------------------------------------
-DXGIAdapter::~DXGIAdapter()
+#elif DX12
+DXGIAdapter::DXGIAdapter(Microsoft::WRL::ComPtr<IDXGIAdapter4> pAdapter)
 {
+	m_pAdapter = pAdapter;
+
+	Microsoft::WRL::ComPtr<IDXGIOutput> pOutput;
+
+	while (pAdapter->EnumOutputs(static_cast<u32>(m_vOutputs.size()), pOutput.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
+	{
+		m_vOutputs.push_back(pOutput);
+	}
 }
+#endif
+//--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
