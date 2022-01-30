@@ -81,29 +81,24 @@ void HelloDX12::UpdateScene(f32 /*dt*/)
 
 void HelloDX12::DrawScene()
 {
-	m_pRender->BeginPresent();
+	m_pRender->BeginDraw();
 
 	auto commandList = m_pRender->CommandList();
-	//ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
-	//commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
+	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-	//commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+	commandList->SetPipelineState(m_pso.Get());
+	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
-	//auto vbv = m_geometry->VertexBufferView();
-	//commandList->IASetVertexBuffers(0, 1, &vbv);
-	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	auto vbv = m_geometry->VertexBufferView();
+	commandList->IASetVertexBuffers(0, 1, &vbv);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	//commandList->DrawInstanced(4, 1, 0, 0);
+	commandList->DrawInstanced(4, 1, 0, 0);
 
-	commandList->Close();
-
-	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { commandList };
-	m_pRender->CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	m_pRender->EndPresent();
+	m_pRender->EndDraw();
 }
 
 bool HelloDX12::Init()

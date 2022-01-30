@@ -867,27 +867,37 @@ RendererDX12* RendererContext::GetCurrentRender()
 	return CurrentRender;
 }
 
-void RendererDX12::BeginPresent()
+void RendererDX12::BeginDraw()
 {
 	HR(m_DirectCmdListAlloc->Reset());
 	ResetCommandList();
 
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
+	auto deviceDS = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentDS());
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
-	//D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
-	//m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, nullptr);
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
+	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
 	m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+	m_CommandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+	m_CommandList->RSSetViewports(1, &mScreenViewport);
+	m_CommandList->RSSetScissorRects(1, &mScissorRect);
+
 }
 
-void RendererDX12::EndPresent()
+void RendererDX12::EndDraw()
 {
+	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
+	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+	CommandList()->Close();
+	ID3D12CommandList* cmdsLists[] = { CommandList() };
+	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
 	m_SwapChain->Present();
 	FlushCommandQueue();
 }

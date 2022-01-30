@@ -109,8 +109,8 @@ namespace forward
 		void ResetCommandList();
 		void FlushCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
-		void BeginPresent();
-		void EndPresent();
+		void BeginDraw();
+		void EndDraw();
 
 	private:
         // Provide the feature level of the current machine.  This can be
