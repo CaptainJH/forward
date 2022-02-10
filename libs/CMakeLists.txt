@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_subdirectory("assimp-5.2.1/")
+add_subdirectory("src/assimp/")
 set_property(TARGET assimp PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET assimp_cmd PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET zlibstatic PROPERTY FOLDER "ThirdPartyLibraries")

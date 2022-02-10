@@ -77,6 +77,8 @@ $RECYCLE.BIN/
 # ==========================
 **/build
 **/Log
+**/libs/src
 libs/forwardDX11_Dll.dll
 src/applications/HelloPyQT/HelloPyQT.dll
 .vscode/launch.json
+libs/.bootstrap.json

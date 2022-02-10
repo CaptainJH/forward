@@ -31,8 +31,8 @@ option(CompileWithRenderDoc "RenderDoc integration")
 set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    include_directories("${forward_repository_root}/libs/assimp-5.2.1/include/")
-    include_directories("${CMAKE_CURRENT_BINARY_DIR}/../libs/assimp-5.2.1/include/")
+    include_directories("${forward_repository_root}/libs/src/assimp/include/")
+    include_directories("${CMAKE_CURRENT_BINARY_DIR}/../libs/src/assimp/include/")
     include_directories("windows/")
   
     set(warnings "/W4 /WX")
