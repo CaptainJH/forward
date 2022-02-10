@@ -32,6 +32,7 @@ set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/libs/assimp-5.2.1/include/")
+    include_directories("${CMAKE_CURRENT_BINARY_DIR}/../libs/assimp-5.2.1/include/")
     include_directories("windows/")
   
     set(warnings "/W4 /WX")
@@ -44,8 +45,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${ParallelBuild}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ParallelBuild}")
-    
-    link_directories("../libs/assimp/Win64")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     include_directories("macOS/")
     
