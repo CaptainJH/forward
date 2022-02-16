@@ -7,13 +7,13 @@
 
 namespace forward
 {
-	class VisualEffect : public IRenderPassSource
+	class Effect : public IRenderPassSource
 	{
 	public:
-		VisualEffect();
-		virtual ~VisualEffect();
+		Effect();
+		virtual ~Effect();
 
-		VisualEffect& SetPass(u8 passIndex);
+		Effect& SetPass(u8 passIndex);
 
 	protected:
 		u8	m_currentPassIndex = 0;

@@ -5,7 +5,7 @@
 
 using namespace forward;
 
-FrameGraphDrawingState::FrameGraphDrawingState(const std::string& name, GraphicsObjectType type)
+DrawingState::DrawingState(const std::string& name, GraphicsObjectType type)
 {
 	m_name = name;
 	m_type = type;
@@ -13,7 +13,7 @@ FrameGraphDrawingState::FrameGraphDrawingState(const std::string& name, Graphics
 
 BlendState::BlendState()
 	:
-	FrameGraphDrawingState("", FGOT_BLEND_STATE),
+	DrawingState("", FGOT_BLEND_STATE),
 	enableAlphaToCoverage(false),
 	enableIndependentBlend(false),
 	blendColor({ 0.0f, 0.0f, 0.0f, 0.0f }),
@@ -35,7 +35,7 @@ BlendState::BlendState()
 
 DepthStencilState::DepthStencilState()
 	:
-	FrameGraphDrawingState("", FGOT_DEPTH_STENCIL_STATE),
+	DrawingState("", FGOT_DEPTH_STENCIL_STATE),
 	depthEnable(true),
 	writeMask(MASK_ALL),
 	comparison(LESS_EQUAL),
@@ -57,7 +57,7 @@ DepthStencilState::DepthStencilState()
 
 RasterizerState::RasterizerState()
 	:
-	FrameGraphDrawingState("", FGOT_RASTERIZER_STATE),
+	DrawingState("", FGOT_RASTERIZER_STATE),
 	fillMode(FILL_SOLID),
 	cullMode(CULL_BACK),
 	//frontCCW(true),
@@ -86,7 +86,7 @@ void RasterizerStageState::AddScissorRect(forward::RECT rect)
 }
 
 SamplerState::SamplerState(const std::string& name)
-	: FrameGraphDrawingState(name, FGOT_SAMPLER_STATE)
+	: DrawingState(name, FGOT_SAMPLER_STATE)
 	, filter(MIN_P_MAG_P_MIP_P)
 	, mipLODBias(0.0f)
 	, maxAnisotropy(1)

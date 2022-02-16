@@ -15,7 +15,7 @@ namespace forward
 	{
 		GraphicsObject* m_object;
 
-		FrameGraphDrawingState* GetFrameGraphDrawingState();
+		DrawingState* GetFrameGraphDrawingState();
 		Shader*		GetFrameGraphShader();
 		VertexFormat*			GetVertexFormat();
 
@@ -66,7 +66,7 @@ namespace forward
 
 		FrameGraphResourceInfo* registerReadFrameGraphResource(Resource* res, RenderPass* pass);
 		FrameGraphResourceInfo* registerWriteFrameGraphResource(Resource* res, RenderPass* pass);
-		FrameGraphObjectInfo* registerDrawingState(FrameGraphDrawingState* state, RenderPass* pass);
+		FrameGraphObjectInfo* registerDrawingState(DrawingState* state, RenderPass* pass);
 		FrameGraphObjectInfo* registerVertexFormat(VertexFormat* vformat, RenderPass* pass);
 		FrameGraphObjectInfo* registerShader(Shader* shader, RenderPass* pass);
 		void registerRenderPass(RenderPass* pass);

@@ -63,7 +63,7 @@ FrameGraphObjectInfo* FrameGraph::registerShader(Shader* shader, RenderPass* pas
 	return &*it;
 }
 
-FrameGraphObjectInfo* FrameGraph::registerDrawingState(FrameGraphDrawingState* state, RenderPass* pass)
+FrameGraphObjectInfo* FrameGraph::registerDrawingState(DrawingState* state, RenderPass* pass)
 {
 	auto it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [state](FrameGraphObjectInfo& obj)->bool {
 		return obj.m_object == state;
@@ -737,9 +737,9 @@ Resource* FrameGraphResourceInfo::GetFrameGraphResource()
 	return dynamic_cast<Resource*>(m_object);
 }
 
-FrameGraphDrawingState* FrameGraphObjectInfo::GetFrameGraphDrawingState()
+DrawingState* FrameGraphObjectInfo::GetFrameGraphDrawingState()
 {
-	return dynamic_cast<FrameGraphDrawingState*>(m_object);
+	return dynamic_cast<DrawingState*>(m_object);
 }
 
 Shader* FrameGraphObjectInfo::GetFrameGraphShader()

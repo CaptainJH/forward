@@ -13,13 +13,13 @@
 
 namespace forward
 {
-	class FrameGraphDrawingState : public GraphicsObject
+	class DrawingState : public GraphicsObject
 	{
 	public:
-		FrameGraphDrawingState(const std::string& name, GraphicsObjectType type);
+		DrawingState(const std::string& name, GraphicsObjectType type);
 	};
 
-	class BlendState : public FrameGraphDrawingState
+	class BlendState : public DrawingState
 	{
 	public:
 		enum Mode
@@ -89,7 +89,7 @@ namespace forward
 
 
 
-	class DepthStencilState : public FrameGraphDrawingState
+	class DepthStencilState : public DrawingState
 	{
 	public:
 		enum WriteMask
@@ -148,7 +148,7 @@ namespace forward
 
 
 
-	class RasterizerState : public FrameGraphDrawingState
+	class RasterizerState : public DrawingState
 	{
 	public:
 		enum FillMode
@@ -181,7 +181,7 @@ namespace forward
 		bool enableAntialiasedLine;     // default: false
 	};
 
-	class SamplerState : public FrameGraphDrawingState
+	class SamplerState : public DrawingState
 	{
 	public:
 		// The encoding involves minification (MIN), magnification (MAG), and
