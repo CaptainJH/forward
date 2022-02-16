@@ -2,7 +2,7 @@
 #include "render/render.h"
 #include "dx11Util.h"
 #include "dxCommon/SwapChain.h"
-#include "render/FrameGraph/FrameGraphObject.h"
+#include "render/ResourceSystem/GraphicsObject.h"
 #include "render/Text/FontSegoe_UIW50H12.h"
 
 namespace forward
@@ -27,7 +27,7 @@ namespace forward
 		void Draw(u32 vertexNum, u32 startVertexLocation=0) override;
 		void DrawIndexed(u32 indexCount) override;
 
-		void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) override;
+		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
 		void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) override;
 
@@ -35,8 +35,8 @@ namespace forward
 
 		void EndDrawFrameGraph() override;
 
-		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const override;
-		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const override;
+		virtual shared_ptr<Texture2D> GetDefaultRT() const override;
+		virtual shared_ptr<Texture2D> GetDefaultDS() const override;
 
 		//ID3D11Device*	GetDevice();
 		//ID3D11DeviceContext*	GetDeviceContext();

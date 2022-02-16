@@ -6,8 +6,8 @@
 using namespace forward;
 
 SimpleGeometry::SimpleGeometry(const std::string& name, VertexFormat& format, PrimitiveTopologyType pt, const u32 vertexNum, const u32 primitiveCount)
-	: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", format, vertexNum))
-	, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", pt, primitiveCount))
+	: m_VB(forward::make_shared<VertexBuffer>(name + "_VB", format, vertexNum))
+	, m_IB(forward::make_shared<IndexBuffer>(name + "_IB", pt, primitiveCount))
 {
 	m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
 	m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);

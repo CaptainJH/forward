@@ -5,7 +5,7 @@
 
 using namespace forward;
 
-DeviceTextureCubeDX11::DeviceTextureCubeDX11(ID3D11Device* device, FrameGraphTextureCube* tex)
+DeviceTextureCubeDX11::DeviceTextureCubeDX11(ID3D11Device* device, TextureCube* tex)
 	: DeviceTextureDX11(tex)
 {
 	D3D11_TEXTURE2D_DESC desc;
@@ -112,13 +112,13 @@ ID3D11Texture2D* DeviceTextureCubeDX11::GetDXTexture2DPtr()
 	return nullptr;
 }
 
-shared_ptr<FrameGraphTextureCube> DeviceTextureCubeDX11::GetFrameGraphTextureCube()
+shared_ptr<TextureCube> DeviceTextureCubeDX11::GetFrameGraphTextureCube()
 {
-	auto ptr = FrameGraphObject();
-	forward::FrameGraphObject* p_obj = ptr.get();
-	auto p = dynamic_cast<FrameGraphTextureCube*>(p_obj);
+	auto ptr = GraphicsObject();
+	forward::GraphicsObject* p_obj = ptr.get();
+	auto p = dynamic_cast<TextureCube*>(p_obj);
 
-	return shared_ptr<FrameGraphTextureCube>(p);
+	return shared_ptr<TextureCube>(p);
 }
 
 void DeviceTextureCubeDX11::CreateSRView(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& tx)

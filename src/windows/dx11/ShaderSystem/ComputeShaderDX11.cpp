@@ -3,11 +3,11 @@
 
 using namespace forward;
 
-ComputeShaderDX11::ComputeShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj)
+ComputeShaderDX11::ComputeShaderDX11(ID3D11Device* device, forward::GraphicsObject* obj)
 	: ShaderDX11(obj)
 {
 	ShaderModel = L"cs_5_0";
-	auto pShader = dynamic_cast<FrameGraphComputeShader*>(obj);
+	auto pShader = dynamic_cast<ComputeShader*>(obj);
 
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(COMPUTE_SHADER,
 		pShader->GetShaderFile(), pShader->GetShaderEntry(), ShaderModel);

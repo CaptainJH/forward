@@ -8,12 +8,12 @@
 
 namespace forward
 {
-	class FrameGraphObject;
+	class GraphicsObject;
 
 	class DeviceObject : public intrusive_ref_counter
 	{
 	public:
-		DeviceObject(forward::FrameGraphObject* obj);
+		DeviceObject(forward::GraphicsObject* obj);
 		virtual ~DeviceObject();
 
 		const std::string&		Name() const;
@@ -21,8 +21,8 @@ namespace forward
 
 		u32						GetInnerID();
 
-		shared_ptr<forward::FrameGraphObject>		FrameGraphObject();
-		virtual void			PostSetDeviceObject(forward::FrameGraphObject*) {}
+		shared_ptr<forward::GraphicsObject>		GraphicsObject();
+		virtual void			PostSetDeviceObject(forward::GraphicsObject*) {}
 
 	protected:
 		std::string									m_name;

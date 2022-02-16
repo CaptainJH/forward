@@ -42,11 +42,11 @@ private:
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	shared_ptr<FrameGraphConstantBuffer<CBufferTypeVS>> m_constantBufferVS;
-	shared_ptr<FrameGraphConstantBuffer<CBufferTypePS>> m_constantBufferPS;
-	shared_ptr<FrameGraphTexture2D> m_msaa_rt;
-	shared_ptr<FrameGraphTexture2D> m_msaa_ds;
-	shared_ptr<FrameGraphTexture2D> m_msaa_resolved;
+	shared_ptr<ConstantBuffer<CBufferTypeVS>> m_constantBufferVS;
+	shared_ptr<ConstantBuffer<CBufferTypePS>> m_constantBufferPS;
+	shared_ptr<Texture2D> m_msaa_rt;
+	shared_ptr<Texture2D> m_msaa_ds;
+	shared_ptr<Texture2D> m_msaa_resolved;
 
 	std::unique_ptr<SimpleGeometry> m_geometry;
 	std::unique_ptr<SimpleGeometry> m_quad;
@@ -109,17 +109,17 @@ bool MSAA_Demo::Init()
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("Pass1VS", ShaderFile, L"VSMain");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("Pass1PS", ShaderFile, L"PSMain");
-		pso.m_GSState.m_shader = forward::make_shared<FrameGraphGeometryShader>("Pass1GS", ShaderFile, L"GSMain");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass1VS", ShaderFile, L"VSMain");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass1PS", ShaderFile, L"PSMain");
+		pso.m_GSState.m_shader = forward::make_shared<GeometryShader>("Pass1GS", ShaderFile, L"GSMain");
 
 		// setup geometry
 		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
 		builder << *m_geometry;
 
 		// setup constant buffer
-		m_constantBufferVS = make_shared<FrameGraphConstantBuffer<CBufferTypeVS>>("CB0");
-		m_constantBufferPS = make_shared<FrameGraphConstantBuffer<CBufferTypePS>>("CB1");
+		m_constantBufferVS = make_shared<ConstantBuffer<CBufferTypeVS>>("CB0");
+		m_constantBufferPS = make_shared<ConstantBuffer<CBufferTypePS>>("CB1");
 		pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
 		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
 
@@ -145,9 +145,9 @@ bool MSAA_Demo::Init()
 	m_renderPassMSAA = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = FrameGraphObject::FindFrameGraphObject<FrameGraphVertexShader>("Pass1VS");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("Pass2PS", ShaderFile, L"PSMainAA");
-		pso.m_GSState.m_shader = FrameGraphObject::FindFrameGraphObject<FrameGraphGeometryShader>("Pass1GS");
+		pso.m_VSState.m_shader = GraphicsObject::FindFrameGraphObject<VertexShader>("Pass1VS");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass2PS", ShaderFile, L"PSMainAA");
+		pso.m_GSState.m_shader = GraphicsObject::FindFrameGraphObject<GeometryShader>("Pass1GS");
 
 		// setup geometry
 		builder << *m_geometry;
@@ -157,11 +157,11 @@ bool MSAA_Demo::Init()
 		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
 
 		// setup render targets
-		m_msaa_rt = make_shared<FrameGraphTexture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
-		m_msaa_ds = make_shared<FrameGraphTexture2D>("MSAA_DS", DF_D24_UNORM_S8_UINT, mClientWidth, mClientHeight, TextureBindPosition::TBP_DS, true);
+		m_msaa_rt = make_shared<Texture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
+		m_msaa_ds = make_shared<Texture2D>("MSAA_DS", DF_D24_UNORM_S8_UINT, mClientWidth, mClientHeight, TextureBindPosition::TBP_DS, true);
 		pso.m_OMState.m_renderTargetResources[0] = m_msaa_rt;
 		pso.m_OMState.m_depthStencilResource = m_msaa_ds;
-		m_msaa_resolved = make_shared<FrameGraphTexture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
+		m_msaa_resolved = make_shared<Texture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 	},
 		[&](Renderer& render) {
 		render.DrawIndexed(m_geometry->GetIndexCount());
@@ -172,8 +172,8 @@ bool MSAA_Demo::Init()
 	m_renderPassResolve = std::make_unique<RenderPass>(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("Pass3VS", ShaderFile, L"VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("Pass3PS", ShaderFile, L"PSMainQuad");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass3VS", ShaderFile, L"VSMainQuad");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass3PS", ShaderFile, L"PSMainQuad");
 		pso.m_PSState.m_shaderResources[0] = m_msaa_resolved;
 		pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("QuadSampler");
 
@@ -182,11 +182,11 @@ bool MSAA_Demo::Init()
 		builder << *m_quad;
 
 		// setup render targets
-		pso.m_OMState.m_renderTargetResources[0] = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
-		pso.m_OMState.m_depthStencilResource = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		pso.m_OMState.m_renderTargetResources[0] = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
+		pso.m_OMState.m_depthStencilResource = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
 
 		// setup rasterizer
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 		forward::RECT scissorRect = { mClientWidth / 2, 0, mClientWidth, mClientHeight };
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;

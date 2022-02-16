@@ -3,11 +3,11 @@
 
 using namespace forward;
 
-VertexShaderDX11::VertexShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj)
+VertexShaderDX11::VertexShaderDX11(ID3D11Device* device, forward::GraphicsObject* obj)
 	: ShaderDX11(obj)
 {
 	ShaderModel = L"vs_5_0";
-	auto pShader = dynamic_cast<FrameGraphVertexShader*>(obj);
+	auto pShader = dynamic_cast<VertexShader*>(obj);
 
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(VERTEX_SHADER, 
 		pShader->GetShaderFile(), pShader->GetShaderEntry(), ShaderModel);

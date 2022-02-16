@@ -1,31 +1,31 @@
 //***************************************************************************************
-// FrameGraphBuffer.cpp by Heqi Ju (C) 2018 All Rights Reserved.
+// Buffer.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 
-#include "FrameGraphBuffer.h"
+#include "Buffer.h"
 
 using namespace forward;
 
-FrameGraphBuffer::FrameGraphBuffer(const std::string& name)
-	: FrameGraphResource(name)
+Buffer::Buffer(const std::string& name)
+	: Resource(name)
 {
 	m_type = FGOT_BUFFER;
 }
 
-FrameGraphIndexBuffer::FrameGraphIndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count)
-	: FrameGraphBuffer(name)
+IndexBuffer::IndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count)
+	: Buffer(name)
 	, m_primitiveType(type)
 {
 	m_type = FGOT_INDEX_BUFFER;
 	Initialize(primitive_count, sizeof(u32));
 }
 
-PrimitiveTopologyType FrameGraphIndexBuffer::GetPrimitiveType() const
+PrimitiveTopologyType IndexBuffer::GetPrimitiveType() const
 {
 	return m_primitiveType;
 }
 
-void FrameGraphIndexBuffer::AddFace(const TriangleIndices& face)
+void IndexBuffer::AddFace(const TriangleIndices& face)
 {
 	assert(m_numActiveElements < m_numElements);
 
@@ -46,7 +46,7 @@ void FrameGraphIndexBuffer::AddFace(const TriangleIndices& face)
 	++m_numActiveElements;
 }
 
-void FrameGraphIndexBuffer::AddLine(const LineIndices& line)
+void IndexBuffer::AddLine(const LineIndices& line)
 {
 	assert(m_numActiveElements < m_numElements);
 
@@ -61,7 +61,7 @@ void FrameGraphIndexBuffer::AddLine(const LineIndices& line)
 	++m_numActiveElements;
 }
 
-void FrameGraphIndexBuffer::AddPoint(const PointIndices& point)
+void IndexBuffer::AddPoint(const PointIndices& point)
 {
 	assert(m_numActiveElements < m_numElements);
 
@@ -70,7 +70,7 @@ void FrameGraphIndexBuffer::AddPoint(const PointIndices& point)
 	++m_numActiveElements;
 }
 
-void FrameGraphIndexBuffer::AddIndex(u32 index)
+void IndexBuffer::AddIndex(u32 index)
 {
 	assert(m_numActiveElements < m_numElements);
 
@@ -78,27 +78,27 @@ void FrameGraphIndexBuffer::AddIndex(u32 index)
 	++m_numActiveElements;
 }
 
-u32 FrameGraphIndexBuffer::operator[](u32 index)
+u32 IndexBuffer::operator[](u32 index)
 {
 	assert(index < m_numActiveElements);
 	return *(u32*)GetData()[index * sizeof(u32)];
 }
 
-FrameGraphVertexBuffer::FrameGraphVertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices)
-	: FrameGraphBuffer(name)
+VertexBuffer::VertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices)
+	: Buffer(name)
 	, m_vertexFormat(vformat)
 {
 	m_type = FGOT_VERTEX_BUFFER;
 	Initialize(numVertices, m_vertexFormat.GetVertexSize());
 }
 
-const VertexFormat& FrameGraphVertexBuffer::GetVertexFormat() const
+const VertexFormat& VertexBuffer::GetVertexFormat() const
 {
 	return m_vertexFormat;
 }
 
-FrameGraphConstantBufferBase::FrameGraphConstantBufferBase(const std::string& name)
-	: FrameGraphBuffer(name)
+ConstantBufferBase::ConstantBufferBase(const std::string& name)
+	: Buffer(name)
 {
 	m_usage = RU_DYNAMIC_UPDATE;
 }

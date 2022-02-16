@@ -3,11 +3,11 @@
 //***************************************************************************************
 
 #include "DeviceResourceDX11.h"
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 
 using namespace forward;
 
-DeviceResourceDX11::DeviceResourceDX11(forward::FrameGraphObject* obj)
+DeviceResourceDX11::DeviceResourceDX11(forward::GraphicsObject* obj)
 	: DeviceResource(obj)
 {
 }
@@ -48,7 +48,7 @@ bool DeviceResourceDX11::PrepareForSync()
 	assert(m_stagingResPtr);
 	assert(!m_frameGraphObjPtr.expired());
 
-	if (m_frameGraphObjPtr.lock_down<FrameGraphResource>()->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	if (m_frameGraphObjPtr.lock_down<Resource>()->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
 	{
 		return true;
 	}

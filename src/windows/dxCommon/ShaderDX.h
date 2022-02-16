@@ -16,7 +16,7 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class FrameGraphObject;
+	class GraphicsObject;
 
 	enum ShaderType
 	{
@@ -44,7 +44,7 @@ namespace forward
 	public:
 		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
 		ShaderDX();
-		ShaderDX(forward::FrameGraphObject* obj);
+		ShaderDX(forward::GraphicsObject* obj);
 		virtual ~ShaderDX();
 
 		virtual ShaderType GetType() const = 0;

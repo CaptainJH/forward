@@ -7,19 +7,19 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class FrameGraphObject;
-	class FrameGraphResource;
+	class GraphicsObject;
+	class Resource;
 
 	class DeviceResource : public DeviceObject
 	{
 	public:
 		/// TODO: just for backward compatibility to project forwardDX11_Hieroglyph
 		DeviceResource();
-		DeviceResource(forward::FrameGraphObject* obj);
+		DeviceResource(forward::GraphicsObject* obj);
 
 		virtual ~DeviceResource();
 
-		FrameGraphResource* GetFrameGraphResource();
+		Resource* GetFrameGraphResource();
 
 		virtual u32				GetEvictionPriority() = 0;
 		virtual void			SetEvictionPriority( u32 EvictionPriority ) = 0;

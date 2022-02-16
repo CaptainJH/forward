@@ -13,22 +13,22 @@ namespace forward
 
 	struct FrameGraphObjectInfo
 	{
-		FrameGraphObject* m_object;
+		GraphicsObject* m_object;
 
 		FrameGraphDrawingState* GetFrameGraphDrawingState();
-		FrameGraphShader*		GetFrameGraphShader();
+		Shader*		GetFrameGraphShader();
 		VertexFormat*			GetVertexFormat();
 
-		FrameGraphObjectInfo(FrameGraphObject* obj);
+		FrameGraphObjectInfo(GraphicsObject* obj);
 
 		std::vector<RenderPassInfo*> m_readerPassList;
 	};
 
 	struct FrameGraphResourceInfo : public FrameGraphObjectInfo
 	{
-		FrameGraphResource*	GetFrameGraphResource();
+		Resource*	GetFrameGraphResource();
 
-		FrameGraphResourceInfo(FrameGraphResource* res);
+		FrameGraphResourceInfo(Resource* res);
 
 		std::vector<RenderPassInfo*> m_writerPassList;
 	};
@@ -64,11 +64,11 @@ namespace forward
 		std::vector<FrameGraphObjectInfo>	m_allUsedVertexFormats;
 		std::vector<FrameGraphObjectInfo>	m_allUsedShaders;
 
-		FrameGraphResourceInfo* registerReadFrameGraphResource(FrameGraphResource* res, RenderPass* pass);
-		FrameGraphResourceInfo* registerWriteFrameGraphResource(FrameGraphResource* res, RenderPass* pass);
+		FrameGraphResourceInfo* registerReadFrameGraphResource(Resource* res, RenderPass* pass);
+		FrameGraphResourceInfo* registerWriteFrameGraphResource(Resource* res, RenderPass* pass);
 		FrameGraphObjectInfo* registerDrawingState(FrameGraphDrawingState* state, RenderPass* pass);
 		FrameGraphObjectInfo* registerVertexFormat(VertexFormat* vformat, RenderPass* pass);
-		FrameGraphObjectInfo* registerShader(FrameGraphShader* shader, RenderPass* pass);
+		FrameGraphObjectInfo* registerShader(Shader* shader, RenderPass* pass);
 		void registerRenderPass(RenderPass* pass);
 	};
 }

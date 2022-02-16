@@ -37,7 +37,7 @@ namespace forward
 	class RenderPass;
 	class FrameGraph;
 	class SwapChainConfig;
-	class FrameGraphTexture2D;
+	class Texture2D;
 	struct PipelineStateObject;
 
 
@@ -62,14 +62,14 @@ namespace forward
 		virtual void BeginDrawFrameGraph(FrameGraph* fg);
 		virtual void EndDrawFrameGraph() = 0;
 
-		virtual void ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src) = 0;
+		virtual void ResolveResource(Texture2D* dst, Texture2D* src) = 0;
 
 		virtual void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) = 0;
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 
-		virtual shared_ptr<FrameGraphTexture2D> GetDefaultRT() const = 0;
-		virtual shared_ptr<FrameGraphTexture2D> GetDefaultDS() const = 0;
+		virtual shared_ptr<Texture2D> GetDefaultRT() const = 0;
+		virtual shared_ptr<Texture2D> GetDefaultDS() const = 0;
 
 		void AddExternalResource(const char* name, void* res);
 

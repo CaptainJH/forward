@@ -11,7 +11,7 @@ namespace forward
 	class DeviceBufferDX11 : public DeviceResourceDX11
 	{
 	public:
-		DeviceBufferDX11(forward::FrameGraphObject* obj);
+		DeviceBufferDX11(forward::GraphicsObject* obj);
 
 		ID3D11Buffer*			GetDXBufferPtr();
 

@@ -33,7 +33,7 @@ private:
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	shared_ptr<FrameGraphConstantBuffer<Matrix4f>> m_constantBuffer;
+	shared_ptr<ConstantBuffer<Matrix4f>> m_constantBuffer;
 
 	std::unique_ptr<RenderPass> m_renderPass;
 	std::unique_ptr<SimpleGeometry> m_geometry;
@@ -73,12 +73,12 @@ bool BasicGeometryFrameGraph::Init()
 		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain_P_N_T_UV");
-		//pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain_P_N_T_UV");
+		//pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
 
-        pso.m_PSState.m_shaderResources[0] = make_shared<FrameGraphTexture2D>("DDS_Tex", L"bricks.dds");
-//        pso.m_PSState.m_shaderResources[1] = make_shared<FrameGraphTextureCube>("DDS_Cube", L"snowcube1024.dds");
+        pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("DDS_Tex", L"bricks.dds");
+//        pso.m_PSState.m_shaderResources[1] = make_shared<TextureCube>("DDS_Cube", L"snowcube1024.dds");
         pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 
 		// setup geometry
@@ -87,7 +87,7 @@ bool BasicGeometryFrameGraph::Init()
 		builder << *m_geometry;
 
 		// setup constant buffer
-		m_constantBuffer = make_shared<FrameGraphConstantBuffer<Matrix4f>>("CB");
+		m_constantBuffer = make_shared<ConstantBuffer<Matrix4f>>("CB");
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states

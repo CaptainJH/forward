@@ -2,11 +2,11 @@
 // DeviceConstantBufferDX11.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceConstantBufferDX11.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "render/ResourceSystem/Buffer.h"
 
 using namespace forward;
 
-DeviceConstantBufferDX11::DeviceConstantBufferDX11(ID3D11Device* device, FrameGraphConstantBufferBase* cb)
+DeviceConstantBufferDX11::DeviceConstantBufferDX11(ID3D11Device* device, ConstantBufferBase* cb)
 	: DeviceBufferDX11(cb)
 {
 	// Specify the buffer description.

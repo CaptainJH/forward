@@ -3,20 +3,20 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Texture.h"
 #include "DeviceTextureDX12.h"
 #include "dx12/dx12Util.h"
 
 namespace forward
 {
-	class FrameGraphTextureCube;
+	class TextureCube;
 
 	class DeviceTextureCubeDX12 : public DeviceTextureDX12
 	{
 	public:
-		DeviceTextureCubeDX12(ID3D12Device* device, FrameGraphTextureCube* tex);
+		DeviceTextureCubeDX12(ID3D12Device* device, TextureCube* tex);
 
-		shared_ptr<FrameGraphTextureCube> GetFrameGraphTextureCube();
+		shared_ptr<TextureCube> GetFrameGraphTextureCube();
 
 		void SyncCPUToGPU() override;
 

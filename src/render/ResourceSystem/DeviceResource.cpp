@@ -3,11 +3,11 @@
 //***************************************************************************************
 //--------------------------------------------------------------------------------
 #include "DeviceResource.h"
-#include "FrameGraphResource.h"
+#include "Resource.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-DeviceResource::DeviceResource(forward::FrameGraphObject* obj)
+DeviceResource::DeviceResource(forward::GraphicsObject* obj)
 	: DeviceObject(obj)
 {
 }
@@ -21,7 +21,7 @@ DeviceResource::~DeviceResource()
 {
 }
 
-FrameGraphResource* DeviceResource::GetFrameGraphResource()
+Resource* DeviceResource::GetFrameGraphResource()
 {
-	return dynamic_cast<FrameGraphResource*>(FrameGraphObject().get());
+	return dynamic_cast<Resource*>(GraphicsObject().get());
 }

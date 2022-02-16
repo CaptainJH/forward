@@ -1,7 +1,7 @@
 #pragma once
 #include <math.h>
 #include "RenderPassHelper.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "render/ResourceSystem/Buffer.h"
 #include "Vector2f.h"
 #include "Vector3f.h"
 #include "utilities/Utils.h"
@@ -90,8 +90,8 @@ namespace forward
 
 		template<class BuilderType> 
 		SimpleGeometry(const std::string& name, BuilderType builder)
-			: m_VB(forward::make_shared<FrameGraphVertexBuffer>(name + "_VB", BuilderType::VertexType::GetVertexFormat(), builder.GetVertexCount()))
-			, m_IB(forward::make_shared<FrameGraphIndexBuffer>(name + "_IB", BuilderType::PrimitiveTopology(), builder.GetIndexCount()))
+			: m_VB(forward::make_shared<VertexBuffer>(name + "_VB", BuilderType::VertexType::GetVertexFormat(), builder.GetVertexCount()))
+			, m_IB(forward::make_shared<IndexBuffer>(name + "_IB", BuilderType::PrimitiveTopology(), builder.GetIndexCount()))
 		{
 			m_VB->SetUsage(ResourceUsage::RU_IMMUTABLE);
 			m_IB->SetUsage(ResourceUsage::RU_IMMUTABLE);
@@ -122,8 +122,8 @@ namespace forward
 	private:
 		void OnRenderPassBuilding(RenderPass&) override;
 
-		shared_ptr<FrameGraphVertexBuffer>		m_VB;
-		shared_ptr<FrameGraphIndexBuffer>		m_IB;
+		shared_ptr<VertexBuffer>		m_VB;
+		shared_ptr<IndexBuffer>		m_IB;
 	};
 
 

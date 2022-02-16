@@ -2,11 +2,11 @@
 // DeviceVertexBufferDX11.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceVertexBufferDX11.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "render/ResourceSystem/Buffer.h"
 
 using namespace forward;
 
-DeviceVertexBufferDX11::DeviceVertexBufferDX11(ID3D11Device* device, FrameGraphVertexBuffer* vb)
+DeviceVertexBufferDX11::DeviceVertexBufferDX11(ID3D11Device* device, VertexBuffer* vb)
 	: DeviceBufferDX11(vb)
 {
 	// Specify the buffer description.

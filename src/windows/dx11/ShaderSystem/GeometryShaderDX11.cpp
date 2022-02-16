@@ -3,11 +3,11 @@
 
 using namespace forward;
 
-GeometryShaderDX11::GeometryShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj)
+GeometryShaderDX11::GeometryShaderDX11(ID3D11Device* device, forward::GraphicsObject* obj)
 	: ShaderDX11(obj)
 {
 	ShaderModel = L"gs_5_0";
-	auto pShader = dynamic_cast<FrameGraphGeometryShader*>(obj);
+	auto pShader = dynamic_cast<GeometryShader*>(obj);
 
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(GEOMETRY_SHADER,
 		pShader->GetShaderFile(), pShader->GetShaderEntry(), ShaderModel);

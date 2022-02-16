@@ -3,11 +3,11 @@
 //***************************************************************************************
 
 #include "DeviceTextureDX12.h"
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Texture.h"
 
 using namespace forward;
 
-DeviceTextureDX12::DeviceTextureDX12(FrameGraphTexture* tex)
+DeviceTextureDX12::DeviceTextureDX12(Texture* tex)
 	: DeviceResourceDX12(tex)
 {
 

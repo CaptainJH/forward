@@ -14,7 +14,7 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ShaderDX::ShaderDX(forward::FrameGraphObject* obj)
+ShaderDX::ShaderDX(forward::GraphicsObject* obj)
 	: DeviceObject(obj)
 	, FileName()
 	, Function()

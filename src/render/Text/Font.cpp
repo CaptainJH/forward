@@ -10,7 +10,7 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 	vformat.Bind(VA_POSITION, DF_R32G32_FLOAT, 0);
 	vformat.Bind(VA_TEXCOORD, DF_R32G32_FLOAT, 0);
 	auto numVertices = 4 * mMaxMessageLength;
-	mVertexBuffer = make_shared<FrameGraphVertexBuffer>("ArialVB", vformat, numVertices);
+	mVertexBuffer = make_shared<VertexBuffer>("ArialVB", vformat, numVertices);
 	mVertexBuffer->SetUsage(RU_DYNAMIC_UPDATE);
 
 	// Set the y values for top vertex positions and all texture
@@ -51,7 +51,7 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 	// |  \ |   |  \ | 
 	// 1 -- 3   5 -- 7  ...
 	auto numTriangles = 2 * mMaxMessageLength;
-	mIndexBuffer = make_shared<FrameGraphIndexBuffer>("ArialIB", PT_TRIANGLELIST, numTriangles * 3);
+	mIndexBuffer = make_shared<IndexBuffer>("ArialIB", PT_TRIANGLELIST, numTriangles * 3);
 	u32* ibuf = mIndexBuffer->GetData<u32*>();
 	for (auto i = 0U; i < mMaxMessageLength; ++i)
 	{
@@ -67,14 +67,14 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 	}
 
 	// Create a texture from the specified monochrome bitmap.
-	mTexture = make_shared<FrameGraphTexture2D>("ArialTex", DF_R8_UNORM, width, height, TextureBindPosition::TBP_Shader);
+	mTexture = make_shared<Texture2D>("ArialTex", DF_R8_UNORM, width, height, TextureBindPosition::TBP_Shader);
 	memcpy(mTexture->GetData(), texels, mTexture->GetNumBytes());
 	memcpy(mCharacterData, characterData, 257 * sizeof(f32));
 
-	mVertexShader = make_shared<FrameGraphVertexShader>("ArialVS", L"TextEffect", L"VSMain");
-	mPixelShader = make_shared<FrameGraphPixelShader>("ArialPS", L"TextEffect", L"PSMain");
-	mConstantBufferVS = make_shared<FrameGraphConstantBuffer<Vector4f>>("ArialCB_VS");
-	mConstantBufferPS = make_shared<FrameGraphConstantBuffer<Vector4f>>("ArialCB_PS");
+	mVertexShader = make_shared<VertexShader>("ArialVS", L"TextEffect", L"VSMain");
+	mPixelShader = make_shared<PixelShader>("ArialPS", L"TextEffect", L"PSMain");
+	mConstantBufferVS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_VS");
+	mConstantBufferPS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_PS");
 	mSampler = make_shared<SamplerState>("ArialSamp");
 }
 

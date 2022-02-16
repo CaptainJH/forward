@@ -23,7 +23,7 @@ DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::st
 	{
 		bp |= TextureBindPosition::TBP_Shader;
 	}
-	auto fg_tex = new FrameGraphTexture2D(name, format, desc.Width, desc.Height, bp);
+	auto fg_tex = new Texture2D(name, format, desc.Width, desc.Height, bp);
 	fg_tex->SetUsage(usage);
 	auto ret = new DeviceTexture2DDX11(tex, fg_tex);
 	fg_tex->SetDeviceObject(ret);
@@ -31,7 +31,7 @@ DeviceTexture2DDX11* DeviceTexture2DDX11::BuildDeviceTexture2DDX11(const std::st
 	return ret;
 }
 
-DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex)
+DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, Texture2D* tex)
 	: DeviceTextureDX11(tex)
 {
 	D3D11_TEXTURE2D_DESC desc;
@@ -88,7 +88,7 @@ DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphT
 	}
 }
 
-DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex)
+DeviceTexture2DDX11::DeviceTexture2DDX11(ID3D11Device* device, Texture2D* tex)
 	: DeviceTextureDX11(tex)
 {
 	D3D11_TEXTURE2D_DESC desc;
@@ -259,13 +259,13 @@ ID3D11Texture2D* DeviceTexture2DDX11::GetDXTexture2DPtr()
 	return nullptr;
 }
 
-shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX11::GetFrameGraphTexture2D()
+shared_ptr<Texture2D> DeviceTexture2DDX11::GetFrameGraphTexture2D()
 {
-	auto ptr = FrameGraphObject();
-	forward::FrameGraphObject* p_obj = ptr.get();
-	auto p = dynamic_cast<FrameGraphTexture2D*>(p_obj);
+	auto ptr = GraphicsObject();
+	forward::GraphicsObject* p_obj = ptr.get();
+	auto p = dynamic_cast<Texture2D*>(p_obj);
 
-	return shared_ptr<FrameGraphTexture2D>(p);
+	return shared_ptr<Texture2D>(p);
 }
 
 DepthStencilViewComPtr DeviceTexture2DDX11::GetDSView() const
@@ -421,15 +421,15 @@ void DeviceTexture2DDX11::SyncGPUToCPU(ID3D11DeviceContext* context)
 		HR(context->Map(m_stagingResPtr.Get(), 0, D3D11_MAP_READ, 0, &sub));
 
 		// Copy from staging texture to CPU memory.
-		auto fgRes = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
+		auto fgRes = m_frameGraphObjPtr.lock_down<Resource>();
 		if (GetFrameGraphResource()->GetType() == FGOT_TEXTURE1)
 		{
 			memcpy(fgRes->GetData(), sub.pData, fgRes->GetNumBytes());
 		}
 		else if (GetFrameGraphResource()->GetType() == FGOT_TEXTURE2)
 		{
-			auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
-			FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
+			auto fgTex2 = m_frameGraphObjPtr.lock_down<Texture2D>();
+			Resource::CopyPitched2(fgTex2->GetHeight(), sub.RowPitch, (u8*)sub.pData, fgTex2->GetWidth() * fgTex2->GetElementSize(), fgTex2->GetData());
 		}
 		//else if (GetType() == ResourceType::RT_TEXTURE3D)
 		//{

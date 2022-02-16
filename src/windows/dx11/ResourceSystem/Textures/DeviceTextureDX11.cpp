@@ -3,11 +3,11 @@
 //***************************************************************************************
 
 #include "DeviceTextureDX11.h"
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Texture.h"
 
 using namespace forward;
 
-DeviceTextureDX11::DeviceTextureDX11(FrameGraphTexture* tex)
+DeviceTextureDX11::DeviceTextureDX11(Texture* tex)
 	: DeviceResourceDX11(tex)
 {}
 
@@ -21,7 +21,7 @@ UnorderedAccessViewComPtr DeviceTextureDX11::GetUAView() const
 	return m_uav;
 }
 
-bool DeviceTextureDX11::CanAutoGenerateMips(FrameGraphTexture* tex, ID3D11Device* device)
+bool DeviceTextureDX11::CanAutoGenerateMips(Texture* tex, ID3D11Device* device)
 {
 	bool autogen = false;
 

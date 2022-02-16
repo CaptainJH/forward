@@ -1,18 +1,18 @@
 //***************************************************************************************
-// FrameGraphShader.h by Heqi Ju (C) 2018 All Rights Reserved.
+// Shader.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
-#include "render/FrameGraph/FrameGraphObject.h"
+#include "render/ResourceSystem/GraphicsObject.h"
 #include "render/MemberLayout.h"
 
 namespace forward
 {
 
-	class FrameGraphShader : public FrameGraphObject
+	class Shader : public GraphicsObject
 	{
 	public:
-		FrameGraphShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		Shader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 
 		const std::string& GetShaderText() const;
 		const std::wstring& GetShaderFile() const;
@@ -32,12 +32,12 @@ namespace forward
 
 		struct Data
 		{
-			Data(FrameGraphObjectType inType, std::string const& inName,
+			Data(GraphicsObjectType inType, std::string const& inName,
 				i32 inBindPoint, i32 inNumBytes, u32 inExtra,
 				bool inIsGpuWritable);
 
-			std::shared_ptr<FrameGraphObject>	object;			// CB, TB, SB, RB, TX, TA, SS
-			FrameGraphObjectType				type;			// CB, TB, SB, RB, TX, TA, SS
+			std::shared_ptr<GraphicsObject>	object;			// CB, TB, SB, RB, TX, TA, SS
+			GraphicsObjectType				type;			// CB, TB, SB, RB, TX, TA, SS
 			std::string							name;			// CB, TB, SB, RB, TX, TA, SS
 			i32									bindPoint;		// CB, TB, SB, RB, TX, TA, SS
 			i32									numBytes;		// CB, TB, SB, RB
@@ -57,29 +57,29 @@ namespace forward
 	};
 
 
-	class FrameGraphVertexShader : public FrameGraphShader
+	class VertexShader : public Shader
 	{
 	public:
-		FrameGraphVertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		VertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 
 	};
 
-	class FrameGraphPixelShader : public FrameGraphShader
+	class PixelShader : public Shader
 	{
 	public:
-		FrameGraphPixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		PixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 	};
 
-	class FrameGraphGeometryShader : public FrameGraphShader
+	class GeometryShader : public Shader
 	{
 	public:
-		FrameGraphGeometryShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		GeometryShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 	};
 
-	class FrameGraphComputeShader : public FrameGraphShader
+	class ComputeShader : public Shader
 	{
 	public:
-		FrameGraphComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		ComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
 	};
 
 }

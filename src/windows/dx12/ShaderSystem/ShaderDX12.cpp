@@ -1,10 +1,10 @@
 #include "ShaderDX12.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ShaderSystem/Shader.h"
 #include "dxCommon/ShaderFactoryDX.h"
 
 using namespace forward;
 
-ShaderDX12::ShaderDX12(forward::FrameGraphShader* shader)
+ShaderDX12::ShaderDX12(forward::Shader* shader)
 	: ShaderDX(shader)
 {
 	auto type = shader->GetType();

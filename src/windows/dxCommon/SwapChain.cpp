@@ -10,13 +10,13 @@ SwapChain::SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, Resourc
 	m_Resource = resource;
 }
 
-SwapChain::SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, shared_ptr<FrameGraphTexture2D> rt, shared_ptr<FrameGraphTexture2D> ds)
+SwapChain::SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, shared_ptr<Texture2D> rt, shared_ptr<Texture2D> ds)
 {
 	m_pSwapChain = pSwapChain;
 	m_rts.push_back(rt);
 	m_ds = ds;
 }
-SwapChain::SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain> pSwapChain, shared_ptr<FrameGraphTexture2D> rt0, shared_ptr<FrameGraphTexture2D> rt1, shared_ptr<FrameGraphTexture2D> ds)
+SwapChain::SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain> pSwapChain, shared_ptr<Texture2D> rt0, shared_ptr<Texture2D> rt1, shared_ptr<Texture2D> ds)
 {
 	m_pSwapChain = pSwapChain;
 	m_rts.push_back(rt0);
@@ -38,14 +38,14 @@ ResourcePtr SwapChain::GetResourcePtr()
 	return m_Resource;
 }
 //--------------------------------------------------------------------------------
-shared_ptr<FrameGraphTexture2D> SwapChain::GetCurrentRT() const
+shared_ptr<Texture2D> SwapChain::GetCurrentRT() const
 {
 	assert(!m_rts.empty());
 	auto ret = m_rts[m_currentBackBufferIndex];
 	return ret;
 }
 //--------------------------------------------------------------------------------
-shared_ptr<FrameGraphTexture2D> SwapChain::GetCurrentDS() const
+shared_ptr<Texture2D> SwapChain::GetCurrentDS() const
 {
 	return m_ds;
 }

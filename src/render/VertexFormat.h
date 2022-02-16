@@ -1,7 +1,7 @@
 #pragma once
 #include "PCH.h"
 #include "DataFormat.h"
-#include "render/FrameGraph/FrameGraphObject.h"
+#include "render/ResourceSystem/GraphicsObject.h"
 
 namespace forward
 {
@@ -40,7 +40,7 @@ namespace forward
 		VA_MAX_COLOR_UNITS = 2
 	};
 
-	class VertexFormat : public FrameGraphObject
+	class VertexFormat : public GraphicsObject
 	{
 	public:
 		// Construction.

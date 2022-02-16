@@ -1,5 +1,5 @@
 //***************************************************************************************
-// FrameGraphObject.h by Heqi Ju (C) 2018 All Rights Reserved.
+// GraphicsObject.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
@@ -11,7 +11,7 @@ namespace forward
 {
 	class DeviceObject;
 
-	enum FrameGraphObjectType
+	enum GraphicsObjectType
 	{
 		FGOT_GRAPHICS_OBJECT,  // abstract
 			FGOT_RESOURCE,  // abstract
@@ -37,17 +37,17 @@ namespace forward
 		FGOT_NUM_TYPES
 	};
 
-	class FrameGraphObject : public intrusive_ref_counter
+	class GraphicsObject : public intrusive_ref_counter
 	{
 	public:
-		FrameGraphObject();
-		virtual ~FrameGraphObject();
+		GraphicsObject();
+		virtual ~GraphicsObject();
 
 		const std::string& Name() const;
 		void SetName(const std::string& name);
 
 		// Run-time type information.
-		inline FrameGraphObjectType GetType() const;
+		inline GraphicsObjectType GetType() const;
 		inline bool IsBuffer() const;
 		inline bool IsTexture() const;
 		inline bool IsShader() const;
@@ -57,7 +57,7 @@ namespace forward
 		void SetDeviceObject(DeviceObjPtr p);
 		inline DeviceObjPtr DeviceObject();
 
-		template<class T = FrameGraphObject>
+		template<class T = GraphicsObject>
 		static shared_ptr<T> FindFrameGraphObject(const std::string& name)
 		{
 			for (auto ptr : m_sFGObjs)
@@ -74,57 +74,57 @@ namespace forward
 
 			return nullptr;
 		}
-		static void RegisterObject(FrameGraphObject* ptr);
+		static void RegisterObject(GraphicsObject* ptr);
 		static void CheckMemoryLeak();
 
 	protected:
-		FrameGraphObjectType	m_type;
+		GraphicsObjectType 	m_type;
 		std::string				m_name;
 
 		DeviceObjPtr m_deviceObjectPtr = nullptr;
 
-		static std::vector<weak_ptr<FrameGraphObject>>	m_sFGObjs;
+		static std::vector<weak_ptr<GraphicsObject>>	m_sFGObjs;
 	};
 
-	FrameGraphObjectType FrameGraphObject::GetType() const
+	GraphicsObjectType GraphicsObject::GetType() const
 	{
 		return m_type;
 	}
 
-	bool FrameGraphObject::IsBuffer() const
+	bool GraphicsObject::IsBuffer() const
 	{
 		return m_type > FGOT_BUFFER && m_type < FGOT_TEXTURE;
 	}
 
-	bool FrameGraphObject::IsTexture() const
+	bool GraphicsObject::IsTexture() const
 	{
 		return m_type > FGOT_TEXTURE && m_type < FGOT_SHADER;
 	}
 
-	bool FrameGraphObject::IsShader() const
+	bool GraphicsObject::IsShader() const
 	{
 		return m_type > FGOT_SHADER && m_type < FGOT_DRAWING_STATE;
 	}
 
-	bool FrameGraphObject::IsDrawingState() const
+	bool GraphicsObject::IsDrawingState() const
 	{
 		return m_type > FGOT_DRAWING_STATE && m_type < FGOT_NUM_TYPES;
 	}
 
-	DeviceObjPtr FrameGraphObject::DeviceObject()
+	DeviceObjPtr GraphicsObject::DeviceObject()
 	{
 		return m_deviceObjectPtr;
 	}
 
 	template<class T>
-	T device_cast(FrameGraphObject* obj)
+	T device_cast(GraphicsObject* obj)
 	{
 		assert(obj);
 		return static_cast<T>(obj->DeviceObject().get());
 	}
 
 	template<class T>
-	T device_cast(forward::shared_ptr<forward::FrameGraphObject> p)
+	T device_cast(forward::shared_ptr<forward::GraphicsObject> p)
 	{
 		assert(p);
 		return static_cast<T>(p->DeviceObject().get());

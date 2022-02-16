@@ -1,9 +1,9 @@
 #include "ShaderDX11.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ShaderSystem/Shader.h"
 
 using namespace forward;
 
-ShaderDX11::ShaderDX11(forward::FrameGraphObject* obj)
+ShaderDX11::ShaderDX11(forward::GraphicsObject* obj)
 	: ShaderDX(obj)
 {}
 
@@ -328,15 +328,15 @@ bool ShaderDX11::IsTextureArray(D3D_SRV_DIMENSION dim)
 		|| dim == D3D_SRV_DIMENSION_TEXTURECUBEARRAY;
 }
 
-void ShaderDX11::PostSetDeviceObject(forward::FrameGraphObject* obj)
+void ShaderDX11::PostSetDeviceObject(forward::GraphicsObject* obj)
 {
-	auto ptr = dynamic_cast<forward::FrameGraphShader*>(obj);
+	auto ptr = dynamic_cast<forward::Shader*>(obj);
 	ptr->m_CBufferLayouts.resize(GetCBuffers().size());
 	auto i = 0U;
 	for (auto const& cb : GetCBuffers())
 	{
-		ptr->m_Data[FrameGraphShader::ConstantBufferShaderDataLookup].push_back(
-			FrameGraphShader::Data(FGOT_CONSTANT_BUFFER, cb.GetName(), cb.GetBindPoint(),
+		ptr->m_Data[Shader::ConstantBufferShaderDataLookup].push_back(
+			Shader::Data(FGOT_CONSTANT_BUFFER, cb.GetName(), cb.GetBindPoint(),
 				cb.GetNumBytes(), 0, false));
 
 		cb.GenerateLayout(ptr->m_CBufferLayouts[i]);
@@ -357,8 +357,8 @@ void ShaderDX11::PostSetDeviceObject(forward::FrameGraphObject* obj)
 
 	for (auto const& tx : GetTextures())
 	{
-		ptr->m_Data[FrameGraphShader::TextureSingleShaderDataLookup].push_back(
-			FrameGraphShader::Data(FGOT_TEXTURE, tx.GetName(), tx.GetBindPoint(), 0,
+		ptr->m_Data[Shader::TextureSingleShaderDataLookup].push_back(
+			Shader::Data(FGOT_TEXTURE, tx.GetName(), tx.GetBindPoint(), 0,
 				tx.GetNumDimensions(), tx.IsGpuWritable()));
 	}
 

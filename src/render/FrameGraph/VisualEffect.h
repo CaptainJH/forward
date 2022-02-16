@@ -1,6 +1,6 @@
 #pragma once
 #include "RenderPassHelper.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
+#include "render/ResourceSystem/Buffer.h"
 #include "Vector2f.h"
 #include "Vector3f.h"
 #include "utilities/Utils.h"

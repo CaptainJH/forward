@@ -11,7 +11,7 @@ namespace forward
 	class DeviceResourceDX12 : public DeviceResource
 	{
 	public:
-		DeviceResourceDX12(forward::FrameGraphObject* obj);
+		DeviceResourceDX12(forward::GraphicsObject* obj);
 
 		virtual ~DeviceResourceDX12();
 

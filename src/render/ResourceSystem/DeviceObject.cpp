@@ -3,14 +3,14 @@
 //***************************************************************************************
 
 #include "DeviceObject.h"
-#include "FrameGraph/FrameGraphObject.h"
+#include "GraphicsObject.h"
 
 using namespace forward;
 
 //--------------------------------------------------------------------------------
 u32 DeviceObject::s_usDeviceObjectUID = 0;
 //--------------------------------------------------------------------------------
-DeviceObject::DeviceObject(forward::FrameGraphObject* obj)
+DeviceObject::DeviceObject(forward::GraphicsObject* obj)
 	: m_frameGraphObjPtr(obj)
 {
 	m_usInnerID = s_usDeviceObjectUID++;
@@ -35,7 +35,7 @@ u32 DeviceObject::GetInnerID()
 	return m_usInnerID;
 }
 //--------------------------------------------------------------------------------
-shared_ptr<FrameGraphObject> DeviceObject::FrameGraphObject()
+shared_ptr<GraphicsObject> DeviceObject::GraphicsObject()
 {
 	if (m_frameGraphObjPtr.expired())
 	{
@@ -43,6 +43,6 @@ shared_ptr<FrameGraphObject> DeviceObject::FrameGraphObject()
 	}
 	else
 	{
-		return m_frameGraphObjPtr.lock_down<forward::FrameGraphObject>();
+		return m_frameGraphObjPtr.lock_down<forward::GraphicsObject>();
 	}
 }

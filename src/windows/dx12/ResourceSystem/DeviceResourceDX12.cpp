@@ -3,11 +3,11 @@
 //***************************************************************************************
 
 #include "DeviceResourceDX12.h"
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 
 using namespace forward;
 
-DeviceResourceDX12::DeviceResourceDX12(forward::FrameGraphObject* obj)
+DeviceResourceDX12::DeviceResourceDX12(forward::GraphicsObject* obj)
 	: DeviceResource(obj)
 	, m_currentUsageState(D3D12_RESOURCE_STATE_COMMON)
 	//, m_transitioningState((D3D12_RESOURCE_STATES)-1)
@@ -52,7 +52,7 @@ bool DeviceResourceDX12::PrepareForSync()
 	assert(m_stagingResPtr);
 	assert(!m_frameGraphObjPtr.expired());
 
-	if (m_frameGraphObjPtr.lock_down<FrameGraphResource>()->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
+	if (m_frameGraphObjPtr.lock_down<Resource>()->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
 	{
 		return true;
 	}

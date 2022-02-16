@@ -3,11 +3,11 @@
 //***************************************************************************************
 
 #include "DeviceBufferDX11.h"
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 
 using namespace forward;
 
-DeviceBufferDX11::DeviceBufferDX11(forward::FrameGraphObject* obj)
+DeviceBufferDX11::DeviceBufferDX11(forward::GraphicsObject* obj)
 	: DeviceResourceDX11(obj)
 {
 

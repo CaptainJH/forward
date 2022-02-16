@@ -7,12 +7,12 @@
 
 namespace forward
 {
-	class FrameGraphConstantBufferBase;
+	class ConstantBufferBase;
 
 	class DeviceConstantBufferDX11 : public DeviceBufferDX11
 	{
 	public:
 
-		DeviceConstantBufferDX11(ID3D11Device* device, FrameGraphConstantBufferBase* cb);
+		DeviceConstantBufferDX11(ID3D11Device* device, ConstantBufferBase* cb);
 	};
 }

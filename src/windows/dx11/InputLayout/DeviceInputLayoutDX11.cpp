@@ -11,7 +11,7 @@ InputLayoutComPtr	DeviceInputLayoutDX11::GetInputLayout()
 	return m_inputLayout;
 }
 
-DeviceInputLayoutDX11::DeviceInputLayoutDX11(ID3D11Device* device, const FrameGraphVertexBuffer* vbuffer, FrameGraphVertexShader* vshader)
+DeviceInputLayoutDX11::DeviceInputLayoutDX11(ID3D11Device* device, const VertexBuffer* vbuffer, VertexShader* vshader)
 	: DeviceObject(const_cast<VertexFormat*>(&vbuffer->GetVertexFormat()))
 	, m_numElements(0)
 	, m_inputLayout(nullptr)

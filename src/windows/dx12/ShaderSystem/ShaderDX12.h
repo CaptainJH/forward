@@ -5,12 +5,12 @@
 
 namespace forward
 {
-	class FrameGraphShader;
+	class Shader;
 
 	class ShaderDX12 : public ShaderDX
 	{
 	public:
-		ShaderDX12(forward::FrameGraphShader* shader);
+		ShaderDX12(forward::Shader* shader);
 		virtual ~ShaderDX12();
 
 		ShaderType GetType() const override;

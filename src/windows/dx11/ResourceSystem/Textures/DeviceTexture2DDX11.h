@@ -3,13 +3,13 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Texture.h"
 #include "DeviceTextureDX11.h"
 #include "dx11/dx11Util.h"
 
 namespace forward
 {
-	class FrameGraphTexture2D;
+	class Texture2D;
 
 	class DeviceTexture2DDX11 : public DeviceTextureDX11
 	{
@@ -17,11 +17,11 @@ namespace forward
 
 		static DeviceTexture2DDX11* BuildDeviceTexture2DDX11(const std::string& name, ID3D11Texture2D* tex, ResourceUsage usage=RU_IMMUTABLE);
 
-		DeviceTexture2DDX11(ID3D11Device* device, FrameGraphTexture2D* tex);
-		DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, FrameGraphTexture2D* tex);
+		DeviceTexture2DDX11(ID3D11Device* device, Texture2D* tex);
+		DeviceTexture2DDX11(ID3D11Texture2D* deviceTex, Texture2D* tex);
 
 		ID3D11Texture2D* GetDXTexture2DPtr();
-		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
+		shared_ptr<Texture2D> GetFrameGraphTexture2D();
 
 		DepthStencilViewComPtr	GetDSView() const;
 		RenderTargetViewComPtr	GetRTView() const;

@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ShaderDX11.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ShaderSystem/Shader.h"
 
 namespace forward
 {
 	class VertexShaderDX11 : public ShaderDX11
 	{
 	public:
-		VertexShaderDX11(ID3D11Device* device, forward::FrameGraphObject* obj);
+		VertexShaderDX11(ID3D11Device* device, forward::GraphicsObject* obj);
 		virtual ~VertexShaderDX11();
 
 		// Calls to ID3D11DeviceContext::XSSetShader.

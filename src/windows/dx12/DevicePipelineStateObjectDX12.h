@@ -4,8 +4,8 @@
 #pragma once
 
 #include "render/ResourceSystem/DeviceObject.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ResourceSystem/Buffer.h"
+#include "render/ShaderSystem/Shader.h"
 #include "dx12/dx12Util.h"
 
 

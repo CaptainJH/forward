@@ -6,10 +6,10 @@
 
 using namespace forward;
 
-// shouldn't generate any shared_ptr of the FrameGraphObject within this function call
+// shouldn't generate any shared_ptr of the GraphicsObject within this function call
 // because this is a very special function (create device object first, then the frame graph object)
 // normally the reference count of the frame graph object is zero within this function, 
-// if we generate any shared_ptr of FrameGraphObject, it will cause unintentional destruction.
+// if we generate any shared_ptr of GraphicsObject, it will cause unintentional destruction.
 DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::string& name, ID3D12Resource* tex, ResourceUsage usage)
 {
 	D3D12_RESOURCE_DESC desc = tex->GetDesc();
@@ -27,7 +27,7 @@ DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::st
 	{
 		bp |= TextureBindPosition::TBP_Shader;
 	}
-	auto fg_tex = new FrameGraphTexture2D(name, format, static_cast<u32>(desc.Width), desc.Height, bp);
+	auto fg_tex = new Texture2D(name, format, static_cast<u32>(desc.Width), desc.Height, bp);
 	fg_tex->SetUsage(usage);
 	auto ret = new DeviceTexture2DDX12(tex, fg_tex);
 	fg_tex->SetDeviceObject(ret);
@@ -35,7 +35,7 @@ DeviceTexture2DDX12* DeviceTexture2DDX12::BuildDeviceTexture2DDX12(const std::st
 	return ret;
 }
 
-DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex)
+DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, Texture2D* tex)
 	: DeviceTextureDX12(tex)
 {
 	D3D12_RESOURCE_DESC desc = deviceTex->GetDesc();
@@ -88,7 +88,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTe
 	}
 }
 
-DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex)
+DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, Texture2D* tex)
 	: DeviceTextureDX12(tex)
 {
 	D3D12_RESOURCE_DESC desc;
@@ -186,8 +186,8 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture
 
 void DeviceTexture2DDX12::SyncCPUToGPU()
 {
-	auto res = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
-	auto resTex2 = dynamic_cast<FrameGraphTexture2D*>(res.get());
+	auto res = m_frameGraphObjPtr.lock_down<Resource>();
+	auto resTex2 = dynamic_cast<Texture2D*>(res.get());
 	ResourceUsage usage = res->GetUsage();
 
 	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
@@ -250,21 +250,21 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 	m_stagingResPtr->Map(0, &range, &memory);
 
 	// Copy from staging texture to CPU memory.
-	auto fgTex2 = m_frameGraphObjPtr.lock_down<FrameGraphTexture2D>();
+	auto fgTex2 = m_frameGraphObjPtr.lock_down<Texture2D>();
 	const auto pitch = fgTex2->GetWidth() * fgTex2->GetElementSize();
-	FrameGraphResource::CopyPitched2(fgTex2->GetHeight(), PlacedFootprint.Footprint.RowPitch, (u8*)memory, pitch, fgTex2->GetData());
+	Resource::CopyPitched2(fgTex2->GetHeight(), PlacedFootprint.Footprint.RowPitch, (u8*)memory, pitch, fgTex2->GetData());
 
 	auto range2 = CD3DX12_RANGE(0, 0);
 	m_stagingResPtr->Unmap(0, &range2);
 }
 
-shared_ptr<FrameGraphTexture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
+shared_ptr<Texture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
 {
-	auto ptr = FrameGraphObject();
-	forward::FrameGraphObject* p_obj = ptr.get();
-	auto p = dynamic_cast<FrameGraphTexture2D*>(p_obj);
+	auto ptr = GraphicsObject();
+	forward::GraphicsObject* p_obj = ptr.get();
+	auto p = dynamic_cast<Texture2D*>(p_obj);
 
-	return shared_ptr<FrameGraphTexture2D>(p);
+	return shared_ptr<Texture2D>(p);
 }
 
 void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)

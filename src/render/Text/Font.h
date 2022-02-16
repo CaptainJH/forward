@@ -27,13 +27,13 @@ namespace forward
 	protected:
 
 		u32 mMaxMessageLength;
-		shared_ptr<FrameGraphVertexBuffer>	mVertexBuffer;
-		shared_ptr<FrameGraphIndexBuffer>	mIndexBuffer;
-		shared_ptr<FrameGraphTexture2D>		mTexture;
-		shared_ptr<FrameGraphVertexShader>	mVertexShader;
-		shared_ptr<FrameGraphPixelShader>	mPixelShader;
-		shared_ptr<FrameGraphConstantBuffer<Vector4f>> mConstantBufferVS;
-		shared_ptr<FrameGraphConstantBuffer<Vector4f>> mConstantBufferPS;
+		shared_ptr<VertexBuffer>	mVertexBuffer;
+		shared_ptr<IndexBuffer>	mIndexBuffer;
+		shared_ptr<Texture2D>		mTexture;
+		shared_ptr<VertexShader>	mVertexShader;
+		shared_ptr<PixelShader>	mPixelShader;
+		shared_ptr<ConstantBuffer<Vector4f>> mConstantBufferVS;
+		shared_ptr<ConstantBuffer<Vector4f>> mConstantBufferPS;
 		shared_ptr<SamplerState>			mSampler;
 		f32 mCharacterData[257];
 

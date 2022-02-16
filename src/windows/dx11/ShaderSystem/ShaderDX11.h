@@ -14,7 +14,7 @@ namespace forward
 	class ShaderDX11 : public ShaderDX
 	{
 	public:
-		ShaderDX11(forward::FrameGraphObject* obj);
+		ShaderDX11(forward::GraphicsObject* obj);
 		virtual ~ShaderDX11();
 
 		// Calls to ID3D11DeviceContext::XSSetShader.
@@ -48,7 +48,7 @@ namespace forward
 		DeviceObjComPtr		GetDeviceObject();
 
 		void ReflectShader();
-		void PostSetDeviceObject(forward::FrameGraphObject* obj) override;
+		void PostSetDeviceObject(forward::GraphicsObject* obj) override;
 
 	protected:
 

@@ -5,7 +5,7 @@
 
 using namespace forward;
 
-DeviceDrawingStateDX11::DeviceDrawingStateDX11(forward::FrameGraphObject* obj)
+DeviceDrawingStateDX11::DeviceDrawingStateDX11(forward::GraphicsObject* obj)
 	: DeviceObject(obj)
 {
 }

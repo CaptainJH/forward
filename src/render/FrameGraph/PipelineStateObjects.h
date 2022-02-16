@@ -4,19 +4,19 @@
 #pragma once
 #include <array>
 #include "Vector4f.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ResourceSystem/Buffer.h"
+#include "render/ResourceSystem/Texture.h"
+#include "render/ShaderSystem/Shader.h"
 #include "render/RendererCapability.h"
 #include "PrimitiveTopology.h"
 #include "VertexFormat.h"
 
 namespace forward
 {
-	class FrameGraphDrawingState : public FrameGraphObject
+	class FrameGraphDrawingState : public GraphicsObject
 	{
 	public:
-		FrameGraphDrawingState(const std::string& name, FrameGraphObjectType type);
+		FrameGraphDrawingState(const std::string& name, GraphicsObjectType type);
 	};
 
 	class BlendState : public FrameGraphDrawingState
@@ -254,8 +254,8 @@ namespace forward
 	struct InputAssemblerStageState : public PipelineStageState
 	{
 		PrimitiveTopologyType	m_topologyType;
-		shared_ptr<FrameGraphIndexBuffer>	m_indexBuffer = nullptr;
-		std::array<shared_ptr<FrameGraphVertexBuffer>, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };
+		shared_ptr<IndexBuffer>	m_indexBuffer = nullptr;
+		std::array<shared_ptr<VertexBuffer>, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };
 		VertexFormat			m_vertexLayout;
 	};
 
@@ -264,8 +264,8 @@ namespace forward
 		BlendState			m_blendState;
 		DepthStencilState	m_dsState;
 
-		shared_ptr<FrameGraphTexture2D>	m_depthStencilResource;
-		std::array<shared_ptr<FrameGraphTexture2D>, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources = { nullptr };
+		shared_ptr<Texture2D>	m_depthStencilResource;
+		std::array<shared_ptr<Texture2D>, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources = { nullptr };
 	};
 
 	struct RECT
@@ -300,29 +300,29 @@ namespace forward
 
 	struct ShaderStageState : public PipelineStageState
 	{
-		std::array<shared_ptr<FrameGraphConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
-		std::array<shared_ptr<FrameGraphTexture>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
+		std::array<shared_ptr<ConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
+		std::array<shared_ptr<Texture>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
 		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 	};
 
 	struct VertexShaderStageState : public ShaderStageState
 	{
-		shared_ptr<FrameGraphVertexShader> m_shader;
+		shared_ptr<VertexShader> m_shader;
 	};
 
 	struct PixelShaderStageState : public ShaderStageState
 	{
-		shared_ptr<FrameGraphPixelShader> m_shader;
+		shared_ptr<PixelShader> m_shader;
 	};
 
 	struct GeometryShaderStageState : public ShaderStageState
 	{
-		shared_ptr<FrameGraphGeometryShader> m_shader;
+		shared_ptr<GeometryShader> m_shader;
 	};
 
 	struct ComputeShaderStageState : public ShaderStageState
 	{
-		shared_ptr<FrameGraphComputeShader> m_shader;
+		shared_ptr<ComputeShader> m_shader;
 	};
 
 	struct PipelineStateObject

@@ -1,9 +1,9 @@
 //***************************************************************************************
-// FrameGraphResource.h by Heqi Ju (C) 2017 All Rights Reserved.
+// Resource.h by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
-#include "render/FrameGraph/FrameGraphObject.h"
+#include "GraphicsObject.h"
 #include "render/ResourceSystem/DeviceResource.h"
 
 namespace forward
@@ -18,14 +18,14 @@ namespace forward
 		RU_CPU_GPU_BIDIRECTIONAL, // D3D11_USAGE_STAGING		GPU read/write, CPU read/write
 	};
 
-	class FrameGraphResource : public FrameGraphObject
+	class Resource : public GraphicsObject
 	{
 	public:
-		FrameGraphResource();
-		FrameGraphResource(const std::string& name);
-		virtual ~FrameGraphResource();
+		Resource();
+		Resource(const std::string& name);
+		virtual ~Resource();
 
-		DeviceResource*		GetResource();
+		DeviceResource*		GetDeviceResource();
 
 		void SetUsage(ResourceUsage usage);
 		ResourceUsage GetUsage() const;

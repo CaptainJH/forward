@@ -3,12 +3,12 @@
 //***************************************************************************************
 
 #include "DeviceBufferDX12.h"
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 #include "dx12/RendererDX12.h"
 
 using namespace forward;
 
-DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::FrameGraphObject* obj)
+DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::GraphicsObject* obj)
 	: DeviceResourceDX12(obj)
 {
 	m_cbvHandle.ptr = 0;
@@ -26,7 +26,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 
 	}
 
-	FrameGraphResource* res = dynamic_cast<FrameGraphResource*>(obj);
+	Resource* res = dynamic_cast<Resource*>(obj);
 	auto byteSize = res->GetNumBytes();
 	ResourceUsage usage = res->GetUsage();
 
@@ -106,7 +106,7 @@ DeviceBufferDX12::~DeviceBufferDX12()
 
 void DeviceBufferDX12::SyncCPUToGPU()
 {
-	auto res = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
+	auto res = m_frameGraphObjPtr.lock_down<Resource>();
 	ResourceUsage usage = res->GetUsage();
 	if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
 	{
@@ -116,7 +116,7 @@ void DeviceBufferDX12::SyncCPUToGPU()
 
 void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList)
 {
-	auto res = m_frameGraphObjPtr.lock_down<FrameGraphResource>();
+	auto res = m_frameGraphObjPtr.lock_down<Resource>();
 
 	// Describe the data we want to copy into the default buffer.
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -140,7 +140,7 @@ void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList)
 
 D3D12_VERTEX_BUFFER_VIEW DeviceBufferDX12::VertexBufferView()
 {
-	auto res = m_frameGraphObjPtr.lock_down<forward::FrameGraphResource>();
+	auto res = m_frameGraphObjPtr.lock_down<forward::Resource>();
 	assert(res->GetType() == FGOT_VERTEX_BUFFER);
 
 	D3D12_VERTEX_BUFFER_VIEW vbv;
@@ -153,7 +153,7 @@ D3D12_VERTEX_BUFFER_VIEW DeviceBufferDX12::VertexBufferView()
 
 D3D12_INDEX_BUFFER_VIEW DeviceBufferDX12::IndexBufferView()
 {
-	auto res = m_frameGraphObjPtr.lock_down<forward::FrameGraphResource>();
+	auto res = m_frameGraphObjPtr.lock_down<forward::Resource>();
 	assert(res->GetType() == FGOT_INDEX_BUFFER);
 
 	D3D12_INDEX_BUFFER_VIEW ibv;

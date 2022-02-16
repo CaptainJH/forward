@@ -74,20 +74,20 @@ bool OffScreenRenderingDemo::Init()
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("OffScreenRenderingDemoVS", L"BasicShader", L"VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("OffScreenRenderingDemoPS", L"BasicShader", L"PSMainQuad");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("OffScreenRenderingDemoVS", L"BasicShader", L"VSMainQuad");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("OffScreenRenderingDemoPS", L"BasicShader", L"PSMainQuad");
 
 		// setup geometry
 		auto geometry = std::make_unique<SimpleGeometry>("Geometry", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());
 		builder << *geometry;
 
 		// setup render targets
-		auto rtPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
+		auto rtPtr = forward::make_shared<Texture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
 			mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
 		rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
 		pso.m_OMState.m_renderTargetResources[0] = rtPtr;
 
-		auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+		auto dsPtr = forward::make_shared<Texture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
 			mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 	},

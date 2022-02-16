@@ -4,8 +4,8 @@
 #pragma once
 
 #include "render/ResourceSystem/DeviceObject.h"
-#include "render/ResourceSystem/Buffers/FrameGraphBuffer.h"
-#include "render/ShaderSystem/FrameGraphShader.h"
+#include "render/ResourceSystem/Buffer.h"
+#include "render/ShaderSystem/Shader.h"
 #include "dx11/dx11Util.h"
 
 namespace forward
@@ -13,7 +13,7 @@ namespace forward
 	class DeviceInputLayoutDX11 : public DeviceObject
 	{
 	public:
-		DeviceInputLayoutDX11(ID3D11Device* device, const FrameGraphVertexBuffer* vbuffer, FrameGraphVertexShader* vshader);
+		DeviceInputLayoutDX11(ID3D11Device* device, const VertexBuffer* vbuffer, VertexShader* vshader);
 		virtual ~DeviceInputLayoutDX11();
 
 		InputLayoutComPtr	GetInputLayout();

@@ -16,8 +16,8 @@
 #include "dx11/DrawingStates/DeviceDepthStencilStateDX11.h"
 #include "dx11/DrawingStates/DeviceBlendStateDX11.h"
 #include "dx11/DrawingStates/DeviceSamplerStateDX11.h"
-#include "render/ResourceSystem/FrameGraphResource.h"
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Resource.h"
+#include "render/ResourceSystem/Texture.h"
 #include "render/FrameGraph/FrameGraph.h"
 #include "utilities/Utils.h"
 #include "utilities/FileSaver.h"
@@ -55,7 +55,7 @@ void Renderer2DX11::Shutdown()
 		SAFE_DELETE(pSwapChain);
 	}
 
-	FrameGraphObject::CheckMemoryLeak();
+	GraphicsObject::CheckMemoryLeak();
 	//m_pDebugger->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 }
 
@@ -223,7 +223,7 @@ i32 Renderer2DX11::CreateSwapChain(SwapChainConfig* pConfig)
 	auto rtPtr = DeviceTexture2DDX11::BuildDeviceTexture2DDX11("DefaultRT", pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
 	// Next we create a depth buffer for use in the traditional rendering
 	// pipeline.
-	auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+	auto dsPtr = forward::make_shared<Texture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
 		pConfig->GetWidth(), pConfig->GetHeight(), TextureBindPosition::TBP_DS);
 	DeviceTexture2DDX11* dsDevicePtr = new DeviceTexture2DDX11(m_pDevice.Get(), dsPtr.get());
 	dsPtr->SetDeviceObject(dsDevicePtr);
@@ -270,7 +270,7 @@ bool Renderer2DX11::Initialize(SwapChainConfig& config, bool bOffScreen)
 		pso.m_RSState.m_rsState.frontCCW = true;
 
 		// setup render states
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 
 		auto& target = pso.m_OMState.m_blendState.target[0];
@@ -540,14 +540,14 @@ void Renderer2DX11::DrawRenderPass(RenderPass& pass)
 		{
 			if (!res->DeviceObject())
 			{
-				if (dynamic_cast<FrameGraphTexture2D*>(res.get()))
+				if (dynamic_cast<Texture2D*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), dynamic_cast<FrameGraphTexture2D*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTexture2DDX11>(m_pDevice.Get(), dynamic_cast<Texture2D*>(res.get()));
 					res->SetDeviceObject(deviceTex);
 				}
-				else if (dynamic_cast<FrameGraphTextureCube*>(res.get()))
+				else if (dynamic_cast<TextureCube*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTextureCubeDX11>(m_pDevice.Get(), dynamic_cast<FrameGraphTextureCube*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTextureCubeDX11>(m_pDevice.Get(), dynamic_cast<TextureCube*>(res.get()));
 					res->SetDeviceObject(deviceTex);
 				}
 			}
@@ -665,7 +665,7 @@ void Renderer2DX11::Present()
 	m_vSwapChains[0]->Present();
 }
 
-void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2D* src)
+void Renderer2DX11::ResolveResource(Texture2D* dst, Texture2D* src)
 {
 	if (!dst->DeviceObject())
 	{
@@ -679,7 +679,7 @@ void Renderer2DX11::ResolveResource(FrameGraphTexture2D* dst, FrameGraphTexture2
 
 void Renderer2DX11::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& /*pso*/)
 {
-	auto rtPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+	auto rtPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 	auto deviceRT = device_cast<DeviceTexture2DDX11*>(rtPtr);
 	deviceRT->SyncGPUToCPU(m_pContext.Get());
 
@@ -744,34 +744,34 @@ void Renderer2DX11::CompileCurrentFrameGraph()
 
 }
 
-shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultRT() const
+shared_ptr<Texture2D> Renderer2DX11::GetDefaultRT() const
 {
 	if (m_vSwapChains.size() >= 1)
 	{
-		FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentRT().get());
-		return shared_ptr<FrameGraphTexture2D>(tex);
+		Texture2D* tex = dynamic_cast<Texture2D*>(m_vSwapChains.front()->GetCurrentRT().get());
+		return shared_ptr<Texture2D>(tex);
 	}
 	else
 	{
 		// headless mode
-		auto rtPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
+		auto rtPtr = forward::make_shared<Texture2D>(std::string("DefaultRT"), DF_R8G8B8A8_UNORM,
 			m_width, m_height, TextureBindPosition::TBP_RT);
 		rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
 		return rtPtr;
 	}
 }
 
-shared_ptr<FrameGraphTexture2D> Renderer2DX11::GetDefaultDS() const
+shared_ptr<Texture2D> Renderer2DX11::GetDefaultDS() const
 {
 	if (m_vSwapChains.size() >= 1)
 	{
-		FrameGraphTexture2D* tex = dynamic_cast<FrameGraphTexture2D*>(m_vSwapChains.front()->GetCurrentDS().get());
-		return shared_ptr<FrameGraphTexture2D>(tex);
+		Texture2D* tex = dynamic_cast<Texture2D*>(m_vSwapChains.front()->GetCurrentDS().get());
+		return shared_ptr<Texture2D>(tex);
 	}
 	else
 	{
 		// headless mode
-		auto dsPtr = forward::make_shared<FrameGraphTexture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
+		auto dsPtr = forward::make_shared<Texture2D>(std::string("DefaultDS"), DF_D32_FLOAT,
 			m_width, m_height, TextureBindPosition::TBP_DS);
 		return dsPtr;
 	}

@@ -27,7 +27,7 @@ private:
 	Matrix4f m_viewMat;
 	Matrix4f m_projMat;
 
-	shared_ptr<FrameGraphConstantBuffer<Matrix4f>> m_constantBuffer;
+	shared_ptr<ConstantBuffer<Matrix4f>> m_constantBuffer;
 
 	std::unique_ptr<RenderPass> m_renderPass;
 	std::unique_ptr<SimpleGeometry> m_geometry;
@@ -52,22 +52,22 @@ bool HelloPyQTDll::Init()
 		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
-		pso.m_PSState.m_shader = forward::make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
 
 		// setup geometry
 		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
 		builder << *m_geometry;
 
 		// setup constant buffer
-		m_constantBuffer = make_shared<FrameGraphConstantBuffer<Matrix4f>>("CB");
+		m_constantBuffer = make_shared<ConstantBuffer<Matrix4f>>("CB");
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states
-		auto dsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultDS");
+		auto dsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = FrameGraphObject::FindFrameGraphObject<FrameGraphTexture2D>("DefaultRT");
+		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 		[&](Renderer& render) {

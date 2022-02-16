@@ -7,13 +7,13 @@
 
 namespace forward
 {
-	class FrameGraphVertexBuffer;
+	class VertexBuffer;
 
 	class DeviceVertexBufferDX11 : public DeviceBufferDX11
 	{
 	public:
 
-		DeviceVertexBufferDX11(ID3D11Device* device, FrameGraphVertexBuffer* vb);
+		DeviceVertexBufferDX11(ID3D11Device* device, VertexBuffer* vb);
 
 		void Bind(ID3D11DeviceContext* context);
 		void Unbind(ID3D11DeviceContext* context);

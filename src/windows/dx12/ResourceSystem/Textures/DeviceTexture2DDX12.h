@@ -3,25 +3,25 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Textures/FrameGraphTexture.h"
+#include "render/ResourceSystem/Texture.h"
 #include "DeviceTextureDX12.h"
 
 namespace forward
 {
-	class FrameGraphTexture2D;
+	class Texture2D;
 
 	class DeviceTexture2DDX12 : public DeviceTextureDX12
 	{
 	public:
 		static DeviceTexture2DDX12* BuildDeviceTexture2DDX12(const std::string& name, ID3D12Resource* tex, ResourceUsage usage = RU_IMMUTABLE);
 
-		DeviceTexture2DDX12(ID3D12Device* device, FrameGraphTexture2D* tex);
-		DeviceTexture2DDX12(ID3D12Resource* deviceTex, FrameGraphTexture2D* tex);
+		DeviceTexture2DDX12(ID3D12Device* device, Texture2D* tex);
+		DeviceTexture2DDX12(ID3D12Resource* deviceTex, Texture2D* tex);
 
 		void					SyncCPUToGPU() override;
 		void					SyncGPUToCPU();
 
-		shared_ptr<FrameGraphTexture2D> GetFrameGraphTexture2D();
+		shared_ptr<Texture2D> GetFrameGraphTexture2D();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetViewHandle();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilViewHandle();
 

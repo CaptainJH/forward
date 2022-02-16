@@ -36,7 +36,7 @@ std::vector<RenderPassInfo>& FrameGraph::GetRenderPassDB()
 	return m_passDB;
 }
 
-FrameGraphObjectInfo* FrameGraph::registerShader(FrameGraphShader* shader, RenderPass* pass)
+FrameGraphObjectInfo* FrameGraph::registerShader(Shader* shader, RenderPass* pass)
 {
 	auto it = std::find_if(m_allUsedShaders.begin(), m_allUsedShaders.end(), [shader](FrameGraphObjectInfo& obj)->bool {
 		return obj.m_object == shader;
@@ -117,7 +117,7 @@ FrameGraphObjectInfo* FrameGraph::registerVertexFormat(VertexFormat* vformat, Re
 	return &*it;
 }
 
-FrameGraphResourceInfo* FrameGraph::registerReadFrameGraphResource(FrameGraphResource* res, RenderPass* pass)
+FrameGraphResourceInfo* FrameGraph::registerReadFrameGraphResource(Resource* res, RenderPass* pass)
 {
 	auto it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [res](FrameGraphResourceInfo& resInfo)->bool {
 		return resInfo.m_object == res;
@@ -144,7 +144,7 @@ FrameGraphResourceInfo* FrameGraph::registerReadFrameGraphResource(FrameGraphRes
 	return &*it;
 }
 
-FrameGraphResourceInfo* FrameGraph::registerWriteFrameGraphResource(FrameGraphResource* res, RenderPass* pass)
+FrameGraphResourceInfo* FrameGraph::registerWriteFrameGraphResource(Resource* res, RenderPass* pass)
 {
 	auto it = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [res](FrameGraphResourceInfo& resInfo)->bool {
 		return resInfo.m_object == res;
@@ -720,21 +720,21 @@ RenderPassInfo::RenderPassInfo(RenderPass* pass)
 {
 }
 
-FrameGraphObjectInfo::FrameGraphObjectInfo(FrameGraphObject* obj)
+FrameGraphObjectInfo::FrameGraphObjectInfo(GraphicsObject* obj)
 	: m_object(obj)
 {
 
 }
 
-FrameGraphResourceInfo::FrameGraphResourceInfo(FrameGraphResource* res)
+FrameGraphResourceInfo::FrameGraphResourceInfo(Resource* res)
 	: FrameGraphObjectInfo(res)
 {
 
 }
 
-FrameGraphResource* FrameGraphResourceInfo::GetFrameGraphResource()
+Resource* FrameGraphResourceInfo::GetFrameGraphResource()
 {
-	return dynamic_cast<FrameGraphResource*>(m_object);
+	return dynamic_cast<Resource*>(m_object);
 }
 
 FrameGraphDrawingState* FrameGraphObjectInfo::GetFrameGraphDrawingState()
@@ -742,9 +742,9 @@ FrameGraphDrawingState* FrameGraphObjectInfo::GetFrameGraphDrawingState()
 	return dynamic_cast<FrameGraphDrawingState*>(m_object);
 }
 
-FrameGraphShader* FrameGraphObjectInfo::GetFrameGraphShader()
+Shader* FrameGraphObjectInfo::GetFrameGraphShader()
 {
-	return dynamic_cast<FrameGraphShader*>(m_object);
+	return dynamic_cast<Shader*>(m_object);
 }
 
 VertexFormat* FrameGraphObjectInfo::GetVertexFormat()

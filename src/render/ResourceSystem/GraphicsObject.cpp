@@ -1,38 +1,38 @@
 //***************************************************************************************
-// FrameGraphObject.cpp by Heqi Ju (C) 2018 All Rights Reserved.
+// GraphicsObject.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 
 #include "PCH.h"
-#include "FrameGraphObject.h"
+#include "GraphicsObject.h"
 #include "Log.h"
 #include "render/ResourceSystem/DeviceObject.h"
 
 using namespace forward;
 
-std::vector<weak_ptr<FrameGraphObject>> FrameGraphObject::m_sFGObjs;
+std::vector<weak_ptr<GraphicsObject>> GraphicsObject::m_sFGObjs;
 
-FrameGraphObject::FrameGraphObject()
+GraphicsObject::GraphicsObject()
 {
 	RegisterObject(this);
 }
 
-FrameGraphObject::~FrameGraphObject()
+GraphicsObject::~GraphicsObject()
 {
 }
 
-const std::string& FrameGraphObject::Name() const
+const std::string& GraphicsObject::Name() const
 {
 	return m_name;
 }
 
-void FrameGraphObject::SetName(const std::string& name)
+void GraphicsObject::SetName(const std::string& name)
 {
 	m_name = name;
 }
 
-void FrameGraphObject::RegisterObject(FrameGraphObject* ptr)
+void GraphicsObject::RegisterObject(GraphicsObject* ptr)
 {
-	auto it = std::find_if(m_sFGObjs.begin(), m_sFGObjs.end(), [](weak_ptr<FrameGraphObject>& ptr)->bool {
+	auto it = std::find_if(m_sFGObjs.begin(), m_sFGObjs.end(), [](weak_ptr<GraphicsObject>& ptr)->bool {
 		return ptr.expired();
 	});
 	if (it == m_sFGObjs.end())
@@ -45,7 +45,7 @@ void FrameGraphObject::RegisterObject(FrameGraphObject* ptr)
 	}
 }
 
-void FrameGraphObject::CheckMemoryLeak()
+void GraphicsObject::CheckMemoryLeak()
 {
 	for (auto ptr : m_sFGObjs)
 	{
@@ -59,13 +59,13 @@ void FrameGraphObject::CheckMemoryLeak()
 	}
 }
 
-void FrameGraphObject::SetDeviceObject(forward::DeviceObject* obj)
+void GraphicsObject::SetDeviceObject(forward::DeviceObject* obj)
 {
 	m_deviceObjectPtr = obj;
 	obj->PostSetDeviceObject(this);
 }
 
-void FrameGraphObject::SetDeviceObject(DeviceObjPtr p)
+void GraphicsObject::SetDeviceObject(DeviceObjPtr p)
 {
 	m_deviceObjectPtr = p;
 	p->PostSetDeviceObject(this);

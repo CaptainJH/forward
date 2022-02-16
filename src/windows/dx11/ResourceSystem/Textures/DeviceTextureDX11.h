@@ -7,13 +7,13 @@
 
 namespace forward
 {
-	class FrameGraphTexture;
+	class Texture;
 
 	class DeviceTextureDX11 : public DeviceResourceDX11
 	{
 	public:
 
-		DeviceTextureDX11(FrameGraphTexture* tex);
+		DeviceTextureDX11(Texture* tex);
 
 		ShaderResourceViewComPtr	GetSRView() const;
 		UnorderedAccessViewComPtr	GetUAView() const;
@@ -25,6 +25,6 @@ namespace forward
 		static void CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData);
 		static void CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData, u32 dstRowPitch, u32 dstSlicePitch, u8* dstData);
 
-		static bool CanAutoGenerateMips(FrameGraphTexture* tex, ID3D11Device* device);
+		static bool CanAutoGenerateMips(Texture* tex, ID3D11Device* device);
 	};
 }

@@ -1,11 +1,11 @@
 //***************************************************************************************
-// FrameGraphResource.cpp by Heqi Ju (C) 2017 All Rights Reserved.
+// Resource.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
-#include "FrameGraphResource.h"
+#include "Resource.h"
 
 using namespace forward;
 
-FrameGraphResource::FrameGraphResource()
+Resource::Resource()
 	: m_numElements(0)
 	, m_numActiveElements(0)
     , m_elementSize(0)
@@ -14,7 +14,7 @@ FrameGraphResource::FrameGraphResource()
 	, m_usage(ResourceUsage::RU_IMMUTABLE)
 {}
 
-FrameGraphResource::FrameGraphResource(const std::string& name)
+Resource::Resource(const std::string& name)
 	: m_numElements(0)
     , m_numActiveElements(0)
 	, m_elementSize(0)
@@ -25,37 +25,37 @@ FrameGraphResource::FrameGraphResource(const std::string& name)
 	m_name = name;
 }
 
-DeviceResource* FrameGraphResource::GetResource()
+DeviceResource* Resource::GetDeviceResource()
 {
 	return static_cast<DeviceResource*>(m_deviceObjectPtr.get());
 }
 
-FrameGraphResource::~FrameGraphResource()
+Resource::~Resource()
 {
 
 }
 
-u32 FrameGraphResource::GetNumElements() const
+u32 Resource::GetNumElements() const
 {
 	return m_numElements;
 }
 
-u32 FrameGraphResource::GetElementSize() const
+u32 Resource::GetElementSize() const
 {
 	return m_elementSize;
 }
 
-u32 FrameGraphResource::GetNumBytes() const
+u32 Resource::GetNumBytes() const
 {
 	return m_numBytes;
 }
 
-u8* FrameGraphResource::GetData()
+u8* Resource::GetData()
 {
 	return m_data;
 }
 
-void FrameGraphResource::CreateStorage()
+void Resource::CreateStorage()
 {
 	if (m_storage.empty())
 	{
@@ -67,7 +67,7 @@ void FrameGraphResource::CreateStorage()
 	}
 }
 
-void FrameGraphResource::DestroyStorage()
+void Resource::DestroyStorage()
 {
 	// The intent of DestroyStorage is to free up CPU memory that is not
 	// required when the resource GPU memory is all that is required.
@@ -82,7 +82,7 @@ void FrameGraphResource::DestroyStorage()
 	}
 }
 
-void FrameGraphResource::Initialize(u32 numElements, u32 elementSize)
+void Resource::Initialize(u32 numElements, u32 elementSize)
 {
 	m_numElements = numElements;
 	m_elementSize = elementSize;
@@ -103,17 +103,17 @@ void FrameGraphResource::Initialize(u32 numElements, u32 elementSize)
 	}
 }
 
-void FrameGraphResource::SetUsage(ResourceUsage usage)
+void Resource::SetUsage(ResourceUsage usage)
 {
 	m_usage = usage;
 }
 
-ResourceUsage FrameGraphResource::GetUsage() const
+ResourceUsage Resource::GetUsage() const
 {
 	return m_usage;
 }
 
-void FrameGraphResource::CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData)
+void Resource::CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData)
 {
 	if (srcRowPitch == dstRowPitch)
 	{
@@ -137,7 +137,7 @@ void FrameGraphResource::CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* sr
 }
 
 
-void FrameGraphResource::CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData,
+void Resource::CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData,
 	u32 dstRowPitch, u32 dstSlicePitch, u8* dstData)
 {
 	if (srcRowPitch == dstRowPitch && srcSlicePitch == dstSlicePitch)

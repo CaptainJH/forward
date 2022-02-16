@@ -64,8 +64,8 @@ bool HelloFrameGraph::Init()
 	m_renderPass = new RenderPass(
 	[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
-        pso.m_VSState.m_shader = make_shared<FrameGraphVertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMainQuad");
-        pso.m_PSState.m_shader = make_shared<FrameGraphPixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMainQuad");
+        pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMainQuad");
+        pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMainQuad");
         
 		// setup geometry
 		auto& vf = pso.m_IAState.m_vertexLayout;
@@ -85,7 +85,7 @@ bool HelloFrameGraph::Init()
 			{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
 		};
 
-		auto vb = forward::make_shared<FrameGraphVertexBuffer>("VertexBuffer", vf, 4);
+		auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, 4);
 		for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex_POS_COLOR); ++i)
 		{
 			vb->AddVertex(quadVertices[i]);

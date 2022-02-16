@@ -5,7 +5,7 @@
 
 using namespace forward;
 
-FrameGraphDrawingState::FrameGraphDrawingState(const std::string& name, FrameGraphObjectType type)
+FrameGraphDrawingState::FrameGraphDrawingState(const std::string& name, GraphicsObjectType type)
 {
 	m_name = name;
 	m_type = type;

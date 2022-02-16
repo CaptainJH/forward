@@ -1,10 +1,10 @@
 //***************************************************************************************
-// FrameGraphBuffer.h by Heqi Ju (C) 2018 All Rights Reserved.
+// Buffer.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
 #include <assert.h>
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 #include "render/PrimitiveTopology.h"
 #include "render/VertexFormat.h"
 #include "geometry/TriangleIndices.h"
@@ -13,18 +13,18 @@
 
 namespace forward
 {
-	class FrameGraphBuffer : public FrameGraphResource
+	class Buffer : public Resource
 	{
 	public:
-		FrameGraphBuffer(const std::string& name);
+		Buffer(const std::string& name);
 	};
 
 	/////////////////////////////////////////////////////////
 
-	class FrameGraphIndexBuffer : public FrameGraphBuffer
+	class IndexBuffer : public Buffer
 	{
 	public:
-		FrameGraphIndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count);
+		IndexBuffer(const std::string& name, PrimitiveTopologyType type, u32 primitive_count);
 
 		PrimitiveTopologyType GetPrimitiveType() const;
 
@@ -39,10 +39,10 @@ namespace forward
 		PrimitiveTopologyType m_primitiveType;
 	};
 
-	class FrameGraphVertexBuffer : public FrameGraphBuffer
+	class VertexBuffer : public Buffer
 	{
 	public:
-		FrameGraphVertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices);
+		VertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices);
 
 		const VertexFormat& GetVertexFormat() const;
 
@@ -54,7 +54,7 @@ namespace forward
 	};
 
 	template<class T>
-	void FrameGraphVertexBuffer::AddVertex(const T& vertex)
+	void VertexBuffer::AddVertex(const T& vertex)
 	{
 		assert(m_numActiveElements < m_numElements);
 		assert(sizeof(T) == m_vertexFormat.GetVertexSize());
@@ -64,22 +64,22 @@ namespace forward
 	}
 
 
-	class FrameGraphConstantBufferBase : public FrameGraphBuffer
+	class ConstantBufferBase : public Buffer
 	{
 	public:
-		FrameGraphConstantBufferBase(const std::string& name);
+		ConstantBufferBase(const std::string& name);
 	};
 
 	template<class T>
-	class FrameGraphConstantBuffer : public FrameGraphConstantBufferBase
+	class ConstantBuffer : public ConstantBufferBase
 	{
 	public:
-		FrameGraphConstantBuffer(const std::string& name);
+		ConstantBuffer(const std::string& name);
 
 		T* GetTypedData();
 		void SetTypedData(const T& data);
 
-		FrameGraphConstantBuffer& operator=(const T& rhs)
+		ConstantBuffer& operator=(const T& rhs)
 		{
 			assert(GetNumBytes() == sizeof(rhs));
 			memcpy(GetData(), &rhs, sizeof(rhs));
@@ -89,21 +89,21 @@ namespace forward
 
 
 	template<class T>
-	FrameGraphConstantBuffer<T>::FrameGraphConstantBuffer(const std::string& name)
-		: FrameGraphConstantBufferBase(name)
+	ConstantBuffer<T>::ConstantBuffer(const std::string& name)
+		: ConstantBufferBase(name)
 	{
 		m_type = FGOT_CONSTANT_BUFFER;
 		Initialize(1, sizeof(T));
 	}
 
 	template<class T>
-	T* FrameGraphConstantBuffer<T>::GetTypedData()
+	T* ConstantBuffer<T>::GetTypedData()
 	{
 		return reinterpret_cast<T*>(m_data);
 	}
 
 	template<class T>
-	void FrameGraphConstantBuffer<T>::SetTypedData(const T& data)
+	void ConstantBuffer<T>::SetTypedData(const T& data)
 	{
 		assert(sizeof(T) == m_elementSize);
 

@@ -1,9 +1,9 @@
 //***************************************************************************************
-// FrameGraphTexture.h by Heqi Ju (C) 2018 All Rights Reserved.
+// Texture.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/FrameGraphResource.h"
+#include "render/ResourceSystem/Resource.h"
 #include "render/DataFormat.h"
 
 namespace forward
@@ -16,11 +16,11 @@ namespace forward
 		TBP_DS		= 0x40L,
 	};
 
-	class FrameGraphTexture : public FrameGraphResource
+	class Texture : public Resource
 	{
 	public:
-		FrameGraphTexture(const std::string& name, DataFormatType format, u32 bind=TBP_Shader);
-		FrameGraphTexture(const std::string& name, const std::wstring& filename);
+		Texture(const std::string& name, DataFormatType format, u32 bind=TBP_Shader);
+		Texture(const std::string& name, const std::wstring& filename);
 
 		DataFormatType	GetFormat() const;
 		u32				GetMipLevelNum() const;
@@ -39,11 +39,11 @@ namespace forward
 		u32				GetTotalElements(u32 numItems, u32 dim0, u32 dim1, u32 dim2) const;
 	};
 
-	class FrameGraphTexture2D : public FrameGraphTexture
+	class Texture2D : public Texture
 	{
 	public:
-		FrameGraphTexture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp, bool enableMSAA=false);
-		FrameGraphTexture2D(const std::string& name, const std::wstring& filename);
+		Texture2D(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bp, bool enableMSAA=false);
+		Texture2D(const std::string& name, const std::wstring& filename);
 
 		u32 GetWidth() const;
 		u32 GetHeight() const;
@@ -58,11 +58,11 @@ namespace forward
 		u32 m_sampQuality;
 	};
 
-	class FrameGraphTextureCube : public FrameGraphTexture
+	class TextureCube : public Texture
 	{
 	public:
-		FrameGraphTextureCube(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bind);
-		FrameGraphTextureCube(const std::string& name, const std::wstring& filename);
+		TextureCube(const std::string& name, DataFormatType format, u32 width, u32 height, u32 bind);
+		TextureCube(const std::string& name, const std::wstring& filename);
 
 		u32 GetWidth() const;
 		u32 GetHeight() const;

@@ -21,8 +21,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 	auto device = render->GetDevice();
 	auto commandList = render->CommandList();
 
-	FrameGraphVertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
-	FrameGraphVertexShader* vsshader = pso.m_VSState.m_shader.get();
+	VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
+	VertexShader* vsshader = pso.m_VSState.m_shader.get();
 	forward::shared_ptr<ShaderDX12> deviceVS = nullptr;
 	if (pso.m_VSState.m_shader)
 	{
@@ -38,8 +38,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 	{
 		devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
 	}
-	FrameGraphGeometryShader* gsshader = pso.m_GSState.m_shader.get();
-	FrameGraphPixelShader* psshader = pso.m_PSState.m_shader.get();
+	GeometryShader* gsshader = pso.m_GSState.m_shader.get();
+	PixelShader* psshader = pso.m_PSState.m_shader.get();
 
 	if (vbuffer && vsshader)
 	{
@@ -178,21 +178,21 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 			auto res = pso.m_PSState.m_shaderResources[i];
 			if (res)
 			{
-				if (dynamic_cast<FrameGraphTexture2D*>(res.get()))
+				if (dynamic_cast<Texture2D*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, dynamic_cast<FrameGraphTexture2D*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, dynamic_cast<Texture2D*>(res.get()));
 					res->SetDeviceObject(deviceTex);
 				}
-				else if (dynamic_cast<FrameGraphTextureCube*>(res.get()))
+				else if (dynamic_cast<TextureCube*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(device, dynamic_cast<FrameGraphTextureCube*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(device, dynamic_cast<TextureCube*>(res.get()));
 					res->SetDeviceObject(deviceTex);
 				}
 			}
 		}
 	}
 	// setup render targets
-	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< FrameGraphTexture2D> ptr) {
+	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
 		if (ptr && !ptr->DeviceObject())
 		{
 			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, ptr.get());
