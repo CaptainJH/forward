@@ -23,6 +23,21 @@ namespace forward
 		}
 	};
 
+	struct Vertex_POS_UV
+	{
+		Vector3f Pos;
+		Vector2f UV;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
+
+			return vf;
+		}
+	};
+
 	/// Position_Normal_Tangent_TextureUV
 	struct Vertex_P_N_T_UV
 	{

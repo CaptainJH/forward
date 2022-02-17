@@ -94,7 +94,7 @@ endif()
 set_source_groups("${forward_COMMON_SOURCE_FILES}")
 
 add_library(libForward STATIC ${forward_COMMON_SOURCE_FILES})
-set_property(TARGET libForward PROPERTY CXX_STANDARD 17)
+set_property(TARGET libForward PROPERTY CXX_STANDARD 20)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(libForward "CLANG_CXX_LANGUAGE_STANDARD" "c++17")
     set_xcode_property(libForward "CLANG_CXX_LIBRARY" "libc++")
