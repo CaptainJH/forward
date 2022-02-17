@@ -55,8 +55,3 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName)
 	return ret;
 }
 
-
-void SceneData::OnRenderPassBuilding(RenderPass& rp)
-{
-	rp;
-}
