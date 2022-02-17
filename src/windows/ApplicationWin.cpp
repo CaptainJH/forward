@@ -8,7 +8,7 @@
 #include "dx11_Hieroglyph/Pipeline/PipelineManagerDX11.h"
 #include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
 #else
-#include "dx11/Renderer2DX11.h"
+//#include "dx11/Renderer2DX11.h"
 #include "dx12/RendererDX12.h"
 #endif
 
@@ -108,7 +108,7 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	RenderType = RendererType::Renderer_Forward_DX11;
 }
 
-ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType, const char* forwardPath)
+ApplicationWin::ApplicationWin(void* /*dxDevice*/, RendererType renderType, const char* forwardPath)
 	: mMainWndCaption(L"UnityPlugin")
 	, mClientWidth(0)
 	, mClientHeight(0)
@@ -125,7 +125,7 @@ ApplicationWin::ApplicationWin(void* dxDevice, RendererType renderType, const ch
 	, mFileSystem(forwardPath)
 {
 	gApplication = this;
-	m_pRender2 = new Renderer2DX11(dxDevice);
+	//m_pRender2 = new RendererDX12(dxDevice);
 }
 
 ApplicationWin::~ApplicationWin()
@@ -477,18 +477,18 @@ bool ApplicationWin::ConfigureRendererComponents()
 {
 	switch (RenderType)
 	{
-	case Renderer_Hieroglyph:
-#ifdef USE_LEGACY_RENDERER
-		m_pRender = new RendererDX11;
-		m_pRender2 = m_pRender;
-#endif
-		break;
-
-	case Renderer_Forward_DX11:
-#ifndef USE_LEGACY_RENDERER
-		m_pRender2 = new Renderer2DX11;
-#endif
-		break;
+//	case Renderer_Hieroglyph:
+//#ifdef USE_LEGACY_RENDERER
+//		m_pRender = new RendererDX11;
+//		m_pRender2 = m_pRender;
+//#endif
+//		break;
+//
+//	case Renderer_Forward_DX11:
+//#ifndef USE_LEGACY_RENDERER
+//		m_pRender2 = new Renderer2DX11;
+//#endif
+//		break;
 
 	case Renderer_Forward_DX12:
 	{

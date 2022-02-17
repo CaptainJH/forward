@@ -4,7 +4,6 @@ file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_executable(HelloFrameGraph ${SOURCE_FILES})
-    target_link_libraries(HelloFrameGraph forwardDX11)
     target_link_libraries(HelloFrameGraph forwardDX12)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_executable(
