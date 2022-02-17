@@ -6,6 +6,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_executable(BasicGeometryFrameGraph ${SOURCE_FILES})
     target_link_libraries(BasicGeometryFrameGraph forwardDX11)
     target_link_libraries(BasicGeometryFrameGraph forwardDX12)
+    target_link_libraries(BasicGeometryFrameGraph assimp)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_executable(
         BasicGeometryFrameGraph
@@ -37,5 +38,5 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(BasicGeometryFrameGraph "CLANG_CXX_LIBRARY" "libc++")
 endif()
 
-set_property(TARGET BasicGeometryFrameGraph PROPERTY CXX_STANDARD 17)
+set_property(TARGET BasicGeometryFrameGraph PROPERTY CXX_STANDARD 20)
 set_target_properties(BasicGeometryFrameGraph PROPERTIES FOLDER Application)

@@ -2,6 +2,8 @@
 #include "render/FrameGraph/FrameGraph.h"
 #include "render/FrameGraph/Geometry.h"
 
+#include "SceneData.h"
+
 using namespace forward;
 
 class BasicGeometryFrameGraph : public Application
@@ -36,7 +38,7 @@ private:
 	shared_ptr<ConstantBuffer<Matrix4f>> m_constantBuffer;
 
 	std::unique_ptr<RenderPass> m_renderPass;
-	std::unique_ptr<SimpleGeometry> m_geometry;
+	SceneData m_scene;
 };
 
 void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
@@ -61,6 +63,8 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
+	m_scene = SceneData::LoadFromFile(L"simpleScene.obj");
+
 	m_renderPass = std::make_unique<RenderPass>(
 	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 
@@ -73,7 +77,7 @@ bool BasicGeometryFrameGraph::Init()
 		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain_P_N_T_UV");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain_P_UV");
 		//pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain");
 		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
 
@@ -82,9 +86,8 @@ bool BasicGeometryFrameGraph::Init()
         pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 
 		// setup geometry
-		//m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
-		m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
-		builder << *m_geometry;
+		//m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
+		builder << m_scene.mMeshData[1];
 
 		// setup constant buffer
 		m_constantBuffer = make_shared<ConstantBuffer<Matrix4f>>("CB");
@@ -98,7 +101,7 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[&](Renderer& render) {
-		render.DrawIndexed(m_geometry->GetIndexCount());
+		render.DrawIndexed(m_scene.mMeshData[1].GetIndexCount());
 	});
 
 
@@ -116,4 +119,4 @@ void BasicGeometryFrameGraph::OnResize()
 //}
 
 
-FORWARD_APPLICATION_MAIN(BasicGeometryFrameGraph, 800, 600);
+FORWARD_APPLICATION_MAIN(BasicGeometryFrameGraph, 1920, 1080);
