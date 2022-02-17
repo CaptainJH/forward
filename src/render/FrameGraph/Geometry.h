@@ -83,7 +83,7 @@ namespace forward
 	};
 
 
-	class SimpleGeometry : public IRenderPassSource
+	class SimpleGeometry : public IRenderPassGenerator
 	{
 	public:
 		SimpleGeometry(const std::string& name, VertexFormat& format, PrimitiveTopologyType pt, const u32 vertexNum, const u32 primitiveCount);

@@ -11,7 +11,7 @@ namespace forward
 		Vector2f TexCoord;
 	};
 
-	class Font : public IRenderPassSource
+	class Font : public IRenderPassGenerator
 	{
 	public:
 		// Construction.

@@ -6,7 +6,7 @@ namespace forward
 	class RenderPass;
 	class RenderPassBuilder;
 
-	class IRenderPassSource
+	class IRenderPassGenerator
 	{
 	private:
 		virtual void OnRenderPassBuilding(RenderPass&) = 0;
@@ -21,7 +21,7 @@ namespace forward
 		RenderPassBuilder(RenderPass*);
 		virtual ~RenderPassBuilder();
 
-		virtual RenderPassBuilder & operator<<(IRenderPassSource&);
+		virtual RenderPassBuilder & operator<<(IRenderPassGenerator&);
 
 	protected:
 		RenderPass * m_renderPass;
@@ -37,7 +37,7 @@ namespace forward
 	public:
 		RenderPassBuilderDecorator();
 
-		RenderPassBuilder& operator<<(IRenderPassSource&) override;
+		RenderPassBuilder& operator<<(IRenderPassGenerator&) override;
 		void SetRenderPassBuilder(RenderPassBuilder* builder);
 
 	protected:

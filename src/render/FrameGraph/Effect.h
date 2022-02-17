@@ -7,7 +7,7 @@
 
 namespace forward
 {
-	class Effect : public IRenderPassSource
+	class Effect : public IRenderPassGenerator
 	{
 	public:
 		Effect();

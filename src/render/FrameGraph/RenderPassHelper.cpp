@@ -11,7 +11,7 @@ RenderPassBuilder::~RenderPassBuilder()
 
 }
 
-RenderPassBuilder& RenderPassBuilder::operator<<(IRenderPassSource& src)
+RenderPassBuilder& RenderPassBuilder::operator<<(IRenderPassGenerator& src)
 {
 	src.OnRenderPassBuilding(*m_renderPass);
 	return *this;
@@ -44,7 +44,7 @@ RenderPass* RenderPassBuilderDecorator::GetRenderPass()
 	return m_builder->GetRenderPass();
 }
 
-RenderPassBuilder& RenderPassBuilderDecorator::operator<<(IRenderPassSource& src)
+RenderPassBuilder& RenderPassBuilderDecorator::operator<<(IRenderPassGenerator& src)
 {
 	RenderPass dummy;
 	src.OnRenderPassBuilding(dummy);
