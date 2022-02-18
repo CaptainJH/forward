@@ -16,8 +16,10 @@ namespace forward
 	typedef float f32;
 	typedef double f64;
 
-	//typedef std::wstring string;
-	//typedef std::vector vector;
+	typedef std::wstring WString;
+	typedef std::string String;
+	template<class T>
+	using Vector = std::vector<T>;
 
 
 #ifdef _WINDOWS

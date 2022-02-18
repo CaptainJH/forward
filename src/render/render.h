@@ -40,7 +40,14 @@ namespace forward
 	class Texture2D;
 	struct PipelineStateObject;
 
-	typedef std::pair<shared_ptr<Resource>, shared_ptr<DeviceResource>> ResoucePairType;
+	struct LoadedResourceManager
+	{
+		Vector<shared_ptr<Resource>> mAllLoadedBuffers;
+		Vector<shared_ptr<Resource>> mAllLoadedTextures;
+
+		shared_ptr<Resource> FindBufferByName(const String& n);
+		shared_ptr<Resource> FindTextureByName(const String& n);
+	};
 
 
 	class Renderer
@@ -75,6 +82,8 @@ namespace forward
 
 		void AddExternalResource(const char* name, void* res);
 
+		LoadedResourceManager mLoadedResourceMgr;
+
 	protected:
 		Renderer();
 
@@ -93,8 +102,7 @@ namespace forward
 			return nullptr;
 		}
 
-		std::vector<ResoucePairType> m_allLoadedBuffers;
-		std::vector<ResoucePairType> m_allLoadedTextures;
+
 
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.

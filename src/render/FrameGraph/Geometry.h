@@ -101,6 +101,8 @@ namespace forward
 	class SimpleGeometry : public IRenderPassGenerator
 	{
 	public:
+		SimpleGeometry(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib)
+			: m_VB(vb), m_IB(ib) {}
 		SimpleGeometry(const std::string& name, VertexFormat& format, PrimitiveTopologyType pt, const u32 vertexNum, const u32 primitiveCount);
 
 		template<class BuilderType> 
@@ -134,11 +136,11 @@ namespace forward
 			m_VB->AddVertex(vertex);
 		}
 
-	private:
-		void OnRenderPassBuilding(RenderPass&) override;
-
 		shared_ptr<VertexBuffer>		m_VB;
 		shared_ptr<IndexBuffer>		m_IB;
+
+	private:
+		void OnRenderPassBuilding(RenderPass&) override;
 	};
 
 

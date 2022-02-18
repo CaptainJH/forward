@@ -524,6 +524,7 @@ void ApplicationWin::ShutdownRendererComponents()
 		m_pRender2->Shutdown();
 		SAFE_DELETE(m_pRender2);
 	}
+	GraphicsObject::CheckMemoryLeak();
 }
 
 void ApplicationWin::RequestTermination()

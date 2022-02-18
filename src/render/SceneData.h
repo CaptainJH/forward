@@ -7,10 +7,11 @@
 
 namespace forward
 {
+	struct LoadedResourceManager;
 	struct SceneData
 	{
-		static SceneData LoadFromFile(const std::wstring fileName);
+		static SceneData LoadFromFile(const std::wstring fileName, LoadedResourceManager& resMgr);
 
-		std::vector<SimpleGeometry> mMeshData;
+		Vector<SimpleGeometry> mMeshData;
 	};
 }

@@ -63,7 +63,7 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_scene = SceneData::LoadFromFile(L"simpleScene.obj");
+	m_scene = SceneData::LoadFromFile(L"simpleScene.obj", m_pRender2->mLoadedResourceMgr);
 
 	m_renderPass = std::make_unique<RenderPass>(
 	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {

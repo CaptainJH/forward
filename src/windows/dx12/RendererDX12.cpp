@@ -242,8 +242,6 @@ void RendererDX12::Shutdown()
 		m_SwapChain->GetSwapChain()->SetFullscreenState(false, NULL);
 	}
 	SAFE_DELETE(m_SwapChain);
-
-	GraphicsObject::CheckMemoryLeak();
 }
 //--------------------------------------------------------------------------------
 ID3D12Device* RendererDX12::GetDevice()

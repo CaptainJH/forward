@@ -34,3 +34,17 @@ void Renderer::AddExternalResource(const char* name, void* res)
 	std::string str(name);
 	m_externalResourceContext[str] = res;
 }
+
+shared_ptr<Resource> LoadedResourceManager::FindBufferByName(const String& n)
+{
+	auto it = std::find_if(mAllLoadedBuffers.begin(), mAllLoadedBuffers.end(), [&](auto rp) {
+		return rp->Name() == n; });
+	return it == mAllLoadedBuffers.end() ? nullptr : *it;
+}
+
+shared_ptr<Resource> LoadedResourceManager::FindTextureByName(const String& n)
+{
+	auto it = std::find_if(mAllLoadedTextures.begin(), mAllLoadedTextures.end(), [&](auto rp) {
+		return rp->Name() == n; });
+	return it == mAllLoadedTextures.end() ? nullptr : *it;
+}
