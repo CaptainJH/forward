@@ -193,7 +193,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* rende
 	}
 	// setup render targets
 	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
-		if (ptr && !ptr->DeviceObject())
+		if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
 		{
 			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, ptr.get());
 			ptr->SetDeviceObject(deviceTex);

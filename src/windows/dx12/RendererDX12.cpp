@@ -808,7 +808,7 @@ shared_ptr<Texture2D> RendererDX12::GetDefaultRT() const
 {
 	if (m_SwapChain)
 	{
-		return nullptr;
+		return make_shared<Texture2D>("DefaultRT", m_BackBufferFormat, 0, 0, 0);
 	}
 	else
 	{
