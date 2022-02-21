@@ -132,7 +132,6 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(ID3D12Device* device, Texture2D* tex)
 		optClearPtr,
 		IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())
 	));
-	m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 
 	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && tex->GetData())
 	{

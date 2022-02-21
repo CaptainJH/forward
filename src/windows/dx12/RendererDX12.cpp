@@ -599,8 +599,8 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 		pso.m_RSState.m_rsState.frontCCW = true;
 
 		// setup render states
-		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
-		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+		pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
+		pso.m_OMState.m_depthStencilResource = GetDefaultDS();
 
 		auto& target = pso.m_OMState.m_blendState.target[0];
 		target.enable = true;
