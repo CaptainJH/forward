@@ -44,7 +44,7 @@ private:
 void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
 {
 	auto frames = (f32)mTimer.FrameCount() / 1000;
-	auto worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
+	auto worldMat = Matrix4f::RotationMatrixY(frames);// *Matrix4f::RotationMatrixX(frames);
 	*m_constantBuffer = worldMat * m_viewMat * m_projMat;
 }
 
@@ -63,7 +63,7 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_scene = SceneData::LoadFromFile(L"simpleScene.obj", m_pRender2->mLoadedResourceMgr);
+	m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pRender2->mLoadedResourceMgr);
 
 	m_renderPass = std::make_unique<RenderPass>(
 	[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
@@ -81,13 +81,14 @@ bool BasicGeometryFrameGraph::Init()
 		//pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMain");
 		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
 
-        pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("DDS_Tex", L"bricks.dds");
+        //pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("DDS_Tex", L"bricks.dds");
+		pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("helmet_albedo", L"Default_albedo.jpg");
 //        pso.m_PSState.m_shaderResources[1] = make_shared<TextureCube>("DDS_Cube", L"snowcube1024.dds");
         pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 
 		// setup geometry
 		//m_geometry = std::make_unique<SimpleGeometry>("Sphere", forward::GeometryBuilder<forward::GP_SPHERE>(1.0f, 15, 20));
-		builder << m_scene.mMeshData[1];
+		builder << m_scene.mMeshData[0];
 
 		// setup constant buffer
 		m_constantBuffer = make_shared<ConstantBuffer<Matrix4f>>("CB");
@@ -101,7 +102,7 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[&](Renderer& render) {
-		render.DrawIndexed(m_scene.mMeshData[1].GetIndexCount());
+		render.DrawIndexed(m_scene.mMeshData[0].GetIndexCount());
 	});
 
 
