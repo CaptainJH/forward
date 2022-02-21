@@ -14,4 +14,4 @@ list(APPEND dear_imgui_SOURCE_FILES "${forward_libs_root}/src/dear_imgui/backend
 list(APPEND dear_imgui_SOURCE_FILES "${forward_libs_root}/src/dear_imgui/backends/imgui_impl_dx12.h")
 add_library(dear_imgui STATIC ${dear_imgui_SOURCE_FILES})
 set_property(TARGET dear_imgui PROPERTY FOLDER "ThirdPartyLibraries")
-set_property(TARGET dear_imgui PROPERTY CXX_STANDARD 17)
+set_property(TARGET dear_imgui PROPERTY CXX_STANDARD 20)

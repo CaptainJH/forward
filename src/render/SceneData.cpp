@@ -17,7 +17,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 	const WString sceneFilePathW = FileSystem::getSingleton().GetModelsFolder();
 	const String sceneFileFullPath = TextHelper::ToAscii(sceneFilePathW + fileName);
 
-	const aiScene* scene = aiImportFile(sceneFileFullPath.c_str(), aiProcess_MakeLeftHanded | aiProcess_Triangulate | aiProcess_FlipWindingOrder);
+	const aiScene* scene = aiImportFile(sceneFileFullPath.c_str(), aiProcess_MakeLeftHanded | aiProcess_Triangulate);
 
 	if (!scene || !scene->HasMeshes())
 	{
@@ -46,7 +46,9 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 			{
 				const aiVector3D v = mesh->mVertices[i];
 				const aiVector3D t = mesh->mTextureCoords[0][i];
-				sgeo.AddVertex<Vertex_POS_UV>({ .Pos = Vector3f(v.x, v.z, v.y), .UV = Vector2f(t.x, t.y) });
+				sgeo.AddVertex<Vertex_POS_UV>({ .Pos = Vector3f(v.x, v.z, v.y), 
+					.UV = Vector2f(t.x > 0.0f ? t.x : -t.x, 
+						t.y > 0.0f ? t.y : -t.y) });
 			}
 
 			for (auto i = 0U; i != mesh->mNumFaces; i++)

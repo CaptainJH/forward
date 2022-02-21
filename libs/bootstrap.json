@@ -16,6 +16,15 @@
         "url": "https://github.com/ocornut/imgui.git",
         "revision": "v1.87"
     }
+},
+
+{
+    "name": "stb",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/nothings/stb.git",
+        "revision" : "af1a5bc352164740c1cc1354942b1c6b72eacb8a"
+    }
 }
 
 ]

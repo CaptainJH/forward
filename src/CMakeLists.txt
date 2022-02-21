@@ -26,6 +26,7 @@ include_directories("intersection/")
 include_directories("geometry/")
 include_directories("utilities/")
 include_directories("render/")
+include_directories("../libs/src/")
 
 option(CompileWithRenderDoc "RenderDoc integration")
 set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
