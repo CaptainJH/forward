@@ -83,7 +83,7 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMain");
 
         //pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("DDS_Tex", L"bricks.dds");
-		pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("helmet_albedo", L"Default_albedo.jpg");
+		pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("helmet_albedo", L"Models/DamagedHelmet/Default_albedo.jpg");
 //        pso.m_PSState.m_shaderResources[1] = make_shared<TextureCube>("DDS_Cube", L"snowcube1024.dds");
         pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("TexSamp");
 

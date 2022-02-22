@@ -24,7 +24,10 @@ Texture::Texture(const std::string& name, const std::wstring& filename)
 	: Resource(name)
 	, m_bindPosition(TBP_Shader)
 {
-	m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
+	if (std::filesystem::path(filename).has_parent_path())
+		m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetDataFolder() + filename;
+	else
+		m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
 	if (!forward::FileSystem::getSingletonPtr()->FileExists(m_fileFullPath))
 	{
 		m_fileFullPath = L"";
