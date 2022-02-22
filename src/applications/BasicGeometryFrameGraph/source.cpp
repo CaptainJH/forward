@@ -95,11 +95,8 @@ bool BasicGeometryFrameGraph::Init()
 		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
 
 		// setup render states
-		auto dsPtr = m_pRender2->GetDefaultDS();
-		pso.m_OMState.m_depthStencilResource = dsPtr;
-
-		auto rsPtr = m_pRender2->GetDefaultRT();
-		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+		pso.m_OMState.m_renderTargetResources[0] = m_pRender2->GetDefaultRT();
+		pso.m_OMState.m_depthStencilResource = m_pRender2->GetDefaultDS();
 	},
 	[&](Renderer& render) {
 		render.DrawIndexed(m_scene.mMeshData[0].GetIndexCount());
