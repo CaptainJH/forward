@@ -41,9 +41,10 @@ private:
 	SceneData m_scene;
 };
 
-void BasicGeometryFrameGraph::UpdateScene(f32 /*dt*/)
+void BasicGeometryFrameGraph::UpdateScene(f32 dt)
 {
-	auto frames = (f32)mTimer.FrameCount() / 1000;
+	static f32 frames = 0.0f;
+	frames += dt * 0.001f;
 	auto worldMat = Matrix4f::RotationMatrixY(frames);// *Matrix4f::RotationMatrixX(frames);
 	*m_constantBuffer = worldMat * m_viewMat * m_projMat;
 }
