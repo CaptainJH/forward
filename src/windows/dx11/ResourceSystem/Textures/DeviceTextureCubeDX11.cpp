@@ -18,8 +18,7 @@ DeviceTextureCubeDX11::DeviceTextureCubeDX11(ID3D11Device* device, TextureCube* 
 	desc.SampleDesc.Quality = 0;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	const auto TBP = tex->GetBindPosition();
-	assert(TBP == TBP_Shader);
+	assert(tex->GetBindPosition() == TBP_Shader);
 	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 

@@ -526,9 +526,7 @@ DataFormatType DDSFileLoader::GetImageFormat() const
 		(MAKEFOURCC('D', 'X', '1', '0') == m_header->ddspf.fourCC))
 	{
 		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>((const i8*)(m_pData + sizeof(DDS_HEADER)));
-
-		auto arraySize = d3d10ext->arraySize;
-		assert(arraySize != 0);
+		assert(d3d10ext->arraySize != 0);
 
 		switch (d3d10ext->dxgiFormat)
 		{
