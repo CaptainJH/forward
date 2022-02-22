@@ -523,6 +523,7 @@ void ApplicationWin::ShutdownRendererComponents()
 	{
 		m_pRender2->Shutdown();
 		SAFE_DELETE(m_pRender2);
+		RendererDX12::ReportLiveObjects();
 	}
 	GraphicsObject::CheckMemoryLeak();
 }

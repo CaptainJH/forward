@@ -112,6 +112,8 @@ namespace forward
 		void BeginDraw();
 		void EndDraw();
 
+		static void ReportLiveObjects();
+
 	private:
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
