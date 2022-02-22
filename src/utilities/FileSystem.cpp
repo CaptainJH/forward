@@ -25,6 +25,7 @@ FileSystem::FileSystem()
 	mTextureSubFolder = L"Textures/";
 	mSavedFolder = L"Saved/";
 	mFontFolder = L"src/render/Text/";
+	mDepsFolder = L"libs/src/";
 
 	mLogFolder = L"Log/";
 
@@ -49,6 +50,7 @@ FileSystem::FileSystem()
 	mLogFolder = mCWD + mLogFolder;
 	mSavedFolder = mCWD + mSavedFolder;
 	mFontFolder = mCWD + mFontFolder;
+	mDepsFolder = mCWD + mDepsFolder;
 
 #ifdef WINDOWS
 	auto logPath = filesystem::path(mLogFolder);
