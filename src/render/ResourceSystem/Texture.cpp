@@ -25,7 +25,14 @@ Texture::Texture(const std::string& name, const std::wstring& filename)
 	, m_bindPosition(TBP_Shader)
 {
 	if (std::filesystem::path(filename).has_parent_path())
-		m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetDataFolder() + filename;
+	{
+		auto fileFullPath_data = forward::FileSystem::getSingleton().GetModelsFolder() + filename;
+		auto fileFullPath_deps = forward::FileSystem::getSingleton().GetDepsFolder() + filename;
+		if (forward::FileSystem::getSingleton().FileExists(fileFullPath_data))
+			m_fileFullPath = fileFullPath_data;
+		else if (forward::FileSystem::getSingleton().FileExists(fileFullPath_deps))
+			m_fileFullPath = fileFullPath_deps;
+	}
 	else
 		m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
 	if (!forward::FileSystem::getSingletonPtr()->FileExists(m_fileFullPath))

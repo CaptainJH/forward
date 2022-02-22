@@ -25,6 +25,15 @@
         "url": "https://github.com/nothings/stb.git",
         "revision" : "af1a5bc352164740c1cc1354942b1c6b72eacb8a"
     }
+},
+
+{
+    "name": "mitsuba",
+    "source": {
+        "type": "archive",
+        "url": "https://casual-effects.com/g3d/data10/research/model/mitsuba_knob/mitsuba.zip",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36"
+    }
 }
 
 ]

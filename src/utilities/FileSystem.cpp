@@ -73,6 +73,7 @@ FileSystem::FileSystem(const char* forwardPath)
 	mTextureSubFolder = L"Textures/";
 	mSavedFolder = L"Saved/";
 	mFontFolder = L"src/render/Text/";
+	mDepsFolder = L"libs/src/";
 
 	mLogFolder = L"Log/";
 
@@ -158,6 +159,11 @@ std::wstring FileSystem::GetShaderFolder() const
 std::wstring FileSystem::GetTextureFolder() const
 {
 	return( mDataFolder + mTextureSubFolder );
+}
+//--------------------------------------------------------------------------------
+std::wstring FileSystem::GetDepsFolder() const
+{
+	return mDepsFolder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetDataFolder( const std::wstring& folder )
