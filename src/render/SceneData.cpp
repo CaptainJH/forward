@@ -16,7 +16,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 
 	WString sceneFilePathW = FileSystem::getSingleton().GetModelsFolder() + fileName;
 	if (!FileSystem::getSingleton().FileExists(sceneFilePathW))
-		sceneFilePathW = FileSystem::getSingleton().GetDepsFolder() + fileName;
+		sceneFilePathW = FileSystem::getSingleton().GetExternFolder() + fileName;
 	assert(FileSystem::getSingleton().FileExists(sceneFilePathW));
 	const String sceneFileFullPath = TextHelper::ToAscii(sceneFilePathW);
 

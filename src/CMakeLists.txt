@@ -26,14 +26,14 @@ include_directories("intersection/")
 include_directories("geometry/")
 include_directories("utilities/")
 include_directories("render/")
-include_directories("../libs/src/")
+include_directories("../extern/src/")
 
 option(CompileWithRenderDoc "RenderDoc integration")
 set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    include_directories("${forward_repository_root}/libs/src/assimp/include/")
-    include_directories("${CMAKE_CURRENT_BINARY_DIR}/../libs/src/assimp/include/")
+    include_directories("${forward_repository_root}/extern/src/assimp/include/")
+    include_directories("${CMAKE_CURRENT_BINARY_DIR}/../extern/src/assimp/include/")
     include_directories("windows/")
   
     set(warnings "/W4 /WX")

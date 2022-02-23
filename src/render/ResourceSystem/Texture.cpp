@@ -27,7 +27,7 @@ Texture::Texture(const std::string& name, const std::wstring& filename)
 	if (std::filesystem::path(filename).has_parent_path())
 	{
 		auto fileFullPath_data = forward::FileSystem::getSingleton().GetModelsFolder() + filename;
-		auto fileFullPath_deps = forward::FileSystem::getSingleton().GetDepsFolder() + filename;
+		auto fileFullPath_deps = forward::FileSystem::getSingleton().GetExternFolder() + filename;
 		if (forward::FileSystem::getSingleton().FileExists(fileFullPath_data))
 			m_fileFullPath = fileFullPath_data;
 		else if (forward::FileSystem::getSingleton().FileExists(fileFullPath_deps))

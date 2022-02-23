@@ -36,7 +36,7 @@ namespace forward
 		std::wstring GetTextureFolder() const;
 		std::wstring GetSavedFolder() const;
 		std::wstring GetFontFolder() const;
-		std::wstring GetDepsFolder() const;
+		std::wstring GetExternFolder() const;
 
 		std::wstring GetCWD() const;
 		void SetCWD(const std::wstring& cwd);
@@ -60,7 +60,7 @@ namespace forward
 		std::wstring mTextureSubFolder;
 		std::wstring mSavedFolder;
 		std::wstring mFontFolder;
-		std::wstring mDepsFolder;
+		std::wstring mExternFolder;
 
 		std::wstring mLogFolder;
 	};

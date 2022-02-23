@@ -25,7 +25,7 @@ FileSystem::FileSystem()
 	mTextureSubFolder = L"Textures/";
 	mSavedFolder = L"Saved/";
 	mFontFolder = L"src/render/Text/";
-	mDepsFolder = L"libs/src/";
+	mExternFolder = L"extern/src/";
 
 	mLogFolder = L"Log/";
 
@@ -50,7 +50,7 @@ FileSystem::FileSystem()
 	mLogFolder = mCWD + mLogFolder;
 	mSavedFolder = mCWD + mSavedFolder;
 	mFontFolder = mCWD + mFontFolder;
-	mDepsFolder = mCWD + mDepsFolder;
+	mExternFolder = mCWD + mExternFolder;
 
 #ifdef WINDOWS
 	auto logPath = filesystem::path(mLogFolder);
@@ -75,7 +75,7 @@ FileSystem::FileSystem(const char* forwardPath)
 	mTextureSubFolder = L"Textures/";
 	mSavedFolder = L"Saved/";
 	mFontFolder = L"src/render/Text/";
-	mDepsFolder = L"libs/src/";
+	mExternFolder = L"extern/src/";
 
 	mLogFolder = L"Log/";
 
@@ -163,9 +163,9 @@ std::wstring FileSystem::GetTextureFolder() const
 	return( mDataFolder + mTextureSubFolder );
 }
 //--------------------------------------------------------------------------------
-std::wstring FileSystem::GetDepsFolder() const
+std::wstring FileSystem::GetExternFolder() const
 {
-	return mDepsFolder;
+	return mExternFolder;
 }
 //--------------------------------------------------------------------------------
 void FileSystem::SetDataFolder( const std::wstring& folder )
