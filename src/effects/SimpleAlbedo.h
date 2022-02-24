@@ -35,6 +35,7 @@ namespace forward
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
+					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN,
 					[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
