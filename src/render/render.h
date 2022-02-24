@@ -46,6 +46,8 @@ namespace forward
 		Vector<shared_ptr<Resource>> mAllLoadedTextures;
 
 		shared_ptr<Resource> FindBufferByName(const String& n);
+		shared_ptr<Resource> FindVertexBufferByName(const String& n);
+		shared_ptr<Resource> FindIndexBufferByName(const String& n);
 		shared_ptr<Resource> FindTextureByName(const String& n);
 	};
 

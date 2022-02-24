@@ -42,6 +42,16 @@ shared_ptr<Resource> LoadedResourceManager::FindBufferByName(const String& n)
 	return it == mAllLoadedBuffers.end() ? nullptr : *it;
 }
 
+shared_ptr<Resource> LoadedResourceManager::FindVertexBufferByName(const String& n)
+{
+	return FindBufferByName(n + "_VB");
+}
+
+shared_ptr<Resource> LoadedResourceManager::FindIndexBufferByName(const String& n)
+{
+	return FindBufferByName(n + "_IB");
+}
+
 shared_ptr<Resource> LoadedResourceManager::FindTextureByName(const String& n)
 {
 	auto it = std::find_if(mAllLoadedTextures.begin(), mAllLoadedTextures.end(), [&](auto rp) {

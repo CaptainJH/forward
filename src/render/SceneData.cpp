@@ -36,8 +36,8 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		const aiMesh* mesh = scene->mMeshes[idx];
 		auto vf = Vertex_POS_UV::GetVertexFormat();
 		auto meshFullName = TextHelper::ToAscii(fileName) + ":" + mesh->mName.C_Str();
-		auto loadedVB = shared_ptr<VertexBuffer>(dynamic_cast<VertexBuffer*>(resMgr.FindBufferByName(meshFullName + "_VB").get()));
-		auto loadedIB = shared_ptr<IndexBuffer>(dynamic_cast<IndexBuffer*>(resMgr.FindBufferByName(meshFullName + "_IB").get()));
+		auto loadedVB = shared_ptr<VertexBuffer>(dynamic_cast<VertexBuffer*>(resMgr.FindVertexBufferByName(meshFullName).get()));
+		auto loadedIB = shared_ptr<IndexBuffer>(dynamic_cast<IndexBuffer*>(resMgr.FindIndexBufferByName(meshFullName).get()));
 		if (loadedVB && loadedIB)
 			ret.mMeshData.push_back(SimpleGeometry(loadedVB, loadedIB));
 		else
