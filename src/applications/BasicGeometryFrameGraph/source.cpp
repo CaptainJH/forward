@@ -10,13 +10,6 @@ public:
 		: Application(width, height)
 	{
 		mMainWndCaption = L"BasicGeometryFrameGraph";
-#ifdef WINDOWS
-		RenderType = RendererType::Renderer_Forward_DX12;
-#endif
-	}
-
-	~BasicGeometryFrameGraph()
-	{
 	}
 
     bool Init() override;
@@ -27,7 +20,6 @@ protected:
 
 private:
 	shared_ptr<forward::SimpleAlbedo> m_albedoEffect;
-	SceneData m_scene;
 };
 
 void BasicGeometryFrameGraph::UpdateScene(f32 dt)
@@ -50,8 +42,8 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pRender2->mLoadedResourceMgr);
-	m_albedoEffect = make_shared<SimpleAlbedo>(&m_scene);
+	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pRender2->mLoadedResourceMgr);
+	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData);
 	m_albedoEffect->mAlbedoTex = make_shared<Texture2D>("helmet_albedo", L"DamagedHelmet/Default_albedo.jpg");
 	m_albedoEffect->SetupRenderPass(*m_pRender2);
 

@@ -62,7 +62,7 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 }
 
 ApplicationWin::ApplicationWin(i32 width, i32 height)
-	: mMainWndCaption(L"D3D11 Application")
+	: mMainWndCaption(L"DirectX Application")
 	, mClientWidth(width)
 	, mClientHeight(height)
 	, mEnable4xMsaa(false)
@@ -76,7 +76,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	, m_pRender2(nullptr)
 {
 	gApplication = this;
-	RenderType = RendererType::Renderer_Forward_DX11;
+	RenderType = RendererType::Renderer_Forward_DX12;
 
 #if USE_RENDERDOC
 	HMODULE mod = LoadLibraryA(RENDERDOC_PATH"/renderdoc.dll");
