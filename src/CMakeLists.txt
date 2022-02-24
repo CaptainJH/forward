@@ -37,7 +37,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("windows/")
   
     set(warnings "/W4 /WX")
-    set(RenderAPILibs "d3d11.lib d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
+    set(RenderAPILibs "d3d12.lib D3DCompiler.lib dxgi.lib dxguid.lib")
     set(OtherLibs "Dbghelp.lib")
     set(SubSystem "/SUBSYSTEM:WINDOWS")
     set(ParallelBuild "/MP")
