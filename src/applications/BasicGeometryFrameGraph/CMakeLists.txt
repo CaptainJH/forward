@@ -39,3 +39,9 @@ endif()
 
 set_property(TARGET BasicGeometryFrameGraph PROPERTY CXX_STANDARD 20)
 set_target_properties(BasicGeometryFrameGraph PROPERTIES FOLDER Application)
+
+if (CompileWithWinPixEventRuntime)
+	add_custom_command(TARGET BasicGeometryFrameGraph POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
+        "${WinPixEventRuntimePath}/bin/x64/WinPixEventRuntime.dll"
+		$<TARGET_FILE_DIR:BasicGeometryFrameGraph>)
+endif()

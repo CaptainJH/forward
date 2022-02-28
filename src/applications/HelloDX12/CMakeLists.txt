@@ -11,3 +11,9 @@ set_target_properties(HelloDX12 PROPERTIES FOLDER Application)
 
 #add_custom_command(TARGET HelloDX12 POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
 #	$<TARGET_FILE:assimp> $<TARGET_FILE_DIR:HelloDX12>)
+
+if (CompileWithWinPixEventRuntime)
+	add_custom_command(TARGET HelloDX12 POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
+        "${WinPixEventRuntimePath}/bin/x64/WinPixEventRuntime.dll"
+		$<TARGET_FILE_DIR:HelloDX12>)
+endif()
