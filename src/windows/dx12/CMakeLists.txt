@@ -9,5 +9,5 @@ set_source_groups("${forward_DX12_SOURCE_FILES}")
 
 add_definitions(-DNOMINMAX -DDX12)
 add_library(forwardDX12 STATIC ${forward_DX12_SOURCE_FILES})
-set_property(TARGET forwardDX12 PROPERTY CXX_STANDARD 17)
+set_property(TARGET forwardDX12 PROPERTY CXX_STANDARD 20)
 target_link_libraries(forwardDX12 libForward)

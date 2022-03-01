@@ -59,7 +59,8 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstri
 	if (SourceFile.Open(filepath)) 
 	{
 		message << "Unable to load shader from file: " << filepath;
-		Log::Get().Write(message.str());
+		auto str = message.str();
+		Log::Get().Write(str);
 		return(nullptr);
 	}
 
@@ -85,7 +86,8 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstri
 			LPVOID pCompileErrors = pErrorMessages->GetBufferPointer();
 			const char* pMessage = (const char*)pCompileErrors;
 			message << TextHelper::ToUnicode( std::string( pMessage ) );
-			Log::Get().Write( message.str() );
+			auto str = message.str();
+			Log::Get().Write(str);
 		}
 
 		SAFE_RELEASE( pCompiledShader );
