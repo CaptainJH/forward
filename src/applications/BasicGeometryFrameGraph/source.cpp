@@ -32,7 +32,7 @@ void BasicGeometryFrameGraph::DrawScene()
 	FrameGraph fg;
 	m_pRender2->BeginDrawFrameGraph(&fg);
 	m_albedoEffect->DrawEffect(&fg);
-	m_pRender2->DrawScreenText("Hello FrameGraph!", 10, 50, Colors::Red);
+	m_pRender2->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pRender2->EndDrawFrameGraph();
 }
 

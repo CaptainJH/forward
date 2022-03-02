@@ -98,7 +98,9 @@ namespace forward
 		virtual bool ConfigureRendererComponents();
 		void ShutdownRendererComponents();
 
-		void CalculateFrameStats();
+		std::string CalculateFrameStats();
+		std::string GetFrameStats() const { return mFrameStatsText; }
+		std::string mFrameStatsText;
 
 		bool IsOffScreenRendering() const;
 		bool IsDll() const;

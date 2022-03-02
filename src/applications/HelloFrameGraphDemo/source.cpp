@@ -2,6 +2,8 @@
 #include "render/FrameGraph/FrameGraph.h"
 #include "render/FrameGraph/Geometry.h"
 
+#include "WinPixEventRuntime/pix3.h"
+
 using namespace forward;
 
 class HelloFrameGraph : public Application
@@ -48,10 +50,11 @@ void HelloFrameGraph::UpdateScene(f32 /*dt*/)
 
 void HelloFrameGraph::DrawScene()
 {
+	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
 	FrameGraph fg;
 	m_pRender2->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
-	//m_pRender2->DrawScreenText("Hello FrameGraph!", 10, 50, Colors::Blue);
+	m_pRender2->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
 	m_pRender2->EndDrawFrameGraph();
 }
 

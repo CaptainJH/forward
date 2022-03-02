@@ -198,16 +198,11 @@ i32 ApplicationWin::Run()
 
 	while (msg.message != WM_QUIT)
 	{
-		// If there are Window messages then process them.
+		// Process any messages in the queue.
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		// Otherwise, do animation/game stuff.
-		else
-		{
-			UpdateRender();
 		}
 	}
 
@@ -407,6 +402,10 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 	case WM_CHAR:
 		OnChar(static_cast<i8>(wParam));
 		break;
+
+	case WM_PAINT:
+		UpdateRender();
+		return 0;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -460,17 +459,17 @@ bool ApplicationWin::InitMainWindow()
 	return true;
 }
 
-void ApplicationWin::CalculateFrameStats()
+std::string ApplicationWin::CalculateFrameStats()
 {
 	auto fps = mTimer.Framerate();
 	f32 mspf = mTimer.Elapsed();
 
-	std::wostringstream outs;
+	std::ostringstream outs;
 	outs.precision(6);
-	outs << mMainWndCaption << L"    "
-		<< L"FPS: " << fps << L"    "
-		<< L"Frame Time: " << mspf << L" (ms)";
-	SetWindowText(mhMainWnd, outs.str().c_str());
+	outs << "FPS: " << fps << "    "
+		<< "Frame Time: " << mspf << " ms";
+
+	return outs.str();
 }
 
 bool ApplicationWin::ConfigureRendererComponents()
@@ -592,11 +591,13 @@ void ApplicationWin::ParseCmdLine(const char* cmdLine)
 
 void ApplicationWin::UpdateRender()
 {
+	if (!m_pRender2) return;
+
 	mTimer.Tick();
 
 	if (!mAppPaused)
 	{
-		CalculateFrameStats();
+		mFrameStatsText = CalculateFrameStats();
 		UpdateScene(mTimer.Elapsed());
 		DrawScene();
 	}
