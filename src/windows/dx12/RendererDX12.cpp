@@ -23,6 +23,8 @@
 
 #include <dxgidebug.h>
 
+#include "WinPixEventRuntime/pix3.h"
+
 using Microsoft::WRL::ComPtr;
 
 //--------------------------------------------------------------------------------
@@ -109,14 +111,8 @@ D3D_FEATURE_LEVEL RendererDX12::GetCurrentFeatureLevel()
 //--------------------------------------------------------------------------------
 u64 RendererDX12::GetAvailableVideoMemory()
 {
-	// Acquire the DXGI device, then the adapter.
-	// TODO: This method needs to be capable of checking on multiple adapters!
-
-	ComPtr<IDXGIDevice> pDXGIDevice;
 	ComPtr<IDXGIAdapter> pDXGIAdapter;
-
-	m_pDevice.CopyTo(pDXGIDevice.GetAddressOf());
-	pDXGIDevice->GetAdapter(pDXGIAdapter.GetAddressOf());
+	m_Factory->EnumAdapterByLuid(m_pDevice->GetAdapterLuid(), IID_PPV_ARGS(&pDXGIAdapter));
 
 	// Use the adapter interface to get its description.  Then grab the available
 	// video memory based on if there is dedicated or shared memory for the GPU.
@@ -271,10 +267,24 @@ i32	RendererDX12::GetUnusedResourceIndex()
 i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 {
 	// Attempt to create the swap chain.
-	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
-	HR(m_Factory->CreateSwapChain(m_CommandQueue.Get(), &pConfig->GetSwapChainDesc(), SwapChain.GetAddressOf()));
+	Microsoft::WRL::ComPtr<IDXGISwapChain1> SwapChain;
+	auto& desc = pConfig->GetSwapChainDesc();
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc =
+	{
+		.Width = desc.BufferDesc.Width,
+		.Height = desc.BufferDesc.Height,
+		.Format = desc.BufferDesc.Format,
+		.SampleDesc = desc.SampleDesc,
+		.BufferUsage = desc.BufferUsage,
+		.BufferCount = desc.BufferCount,
+		.SwapEffect = desc.SwapEffect,
+		.Flags = desc.Flags
+	};
+	HR(m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), desc.OutputWindow, &swapChainDesc, nullptr, nullptr,
+		SwapChain.GetAddressOf()));
+	HR(m_Factory->MakeWindowAssociation(desc.OutputWindow, DXGI_MWA_NO_ALT_ENTER));
 
-	std::vector<DeviceTexture2DDX12*> texVector;
+	Vector<DeviceTexture2DDX12*> deviceTexVector;
 	for (auto i = 0; i < SwapChainBufferCount; ++i)
 	{
 		DeviceResCom12Ptr pSwapChainBuffer;
@@ -283,7 +293,7 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		std::stringstream ss;
 		ss << "DefaultRT" << i;
 		auto rtPtr = DeviceTexture2DDX12::BuildDeviceTexture2DDX12(ss.str().c_str(), pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
-		texVector.push_back(rtPtr);
+		deviceTexVector.push_back(rtPtr);
 	}
 
 	// Create the depth/stencil buffer and view.
@@ -292,7 +302,10 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	DeviceTexture2DDX12* dsDevicePtr = new DeviceTexture2DDX12(m_pDevice.Get(), dsPtr.get());
 	dsPtr->SetDeviceObject(dsDevicePtr);
 	assert(m_SwapChain == nullptr);
-	m_SwapChain = new forward::SwapChain(SwapChain, texVector[0]->GetFrameGraphTexture2D(), texVector[1]->GetFrameGraphTexture2D(), dsPtr);
+	Vector<shared_ptr<Texture2D>> texVector;
+	for (auto tex : deviceTexVector)
+		texVector.push_back(tex->GetTexture2D());
+	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr);
 
 	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
@@ -343,7 +356,7 @@ void RendererDX12::FlushCommandQueue()
 	// Wait until the GPU has completed commands up to this fence point.
 	if (m_pFence->GetCompletedValue() < m_CurrentFence)
 	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 
 		// Fire event when GPU hits current fence.  
 		HR(m_pFence->SetEventOnCompletion(m_CurrentFence, eventHandle));
@@ -527,7 +540,7 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
 	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
-	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
+	f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 	{
 		m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
@@ -593,7 +606,7 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	mScissorRect = { 0, 0, static_cast<i32>(m_width), static_cast<i32>(m_height) };
 
 	/// Font stuff
-	m_textFont = new FontSegoe_UIW50H12(20);
+	m_textFont = new FontSegoe_UIW50H12(64);
 	m_textRenderPass = new RenderPass(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		builder << *m_textFont;
@@ -653,7 +666,7 @@ void RendererDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 void RendererDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
 {
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
-	auto rtPtr = deviceRT->GetFrameGraphTexture2D();
+	auto rtPtr = deviceRT->GetTexture2D();
 	deviceRT->SyncGPUToCPU();
 
 	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
@@ -725,22 +738,30 @@ void RendererDX12::EndDrawFrameGraph()
 	// Done recording commands.
 	HR(m_CommandList->Close());
 
+	PIXBeginEvent(PIX_COLOR_INDEX(3), "Execution");
 	// Add the command list to the queue for execution.
 	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
 	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	PIXEndEvent();
 
+	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
 	if (m_SwapChain)
 	{
 		// swap the back and front buffers
 		m_SwapChain->Present();
+		PIXSetMarker(PIX_COLOR_INDEX(3), "End Present");
 	}
+	PIXEndEvent();
 
+	PIXBeginEvent(PIX_COLOR_INDEX(2), "Wait");
 	// Wait until frame commands are complete.  This waiting is inefficient and is
 	// done for simplicity.  Later we will show how to organize our rendering code
 	// so we do not have to wait per frame.
 	FlushCommandQueue();
+	m_SwapChain->PresentEnd();
 	///-EndPresent
 	m_currentFrameGraph = nullptr;
+	PIXEndEvent();
 }
 //--------------------------------------------------------------------------------
 void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
@@ -898,8 +919,13 @@ void RendererDX12::EndDraw()
 	ID3D12CommandList* cmdsLists[] = { CommandList() };
 	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
+	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
 	m_SwapChain->Present();
+	PIXEndEvent();
+	PIXBeginEvent(PIX_COLOR_INDEX(2), "Wait");
 	FlushCommandQueue();
+	m_SwapChain->PresentEnd();
+	PIXEndEvent();
 }
 
 void RendererDX12::ReportLiveObjects()

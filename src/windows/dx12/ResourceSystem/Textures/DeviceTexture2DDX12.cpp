@@ -257,7 +257,7 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 	m_stagingResPtr->Unmap(0, &range2);
 }
 
-shared_ptr<Texture2D> DeviceTexture2DDX12::GetFrameGraphTexture2D()
+shared_ptr<Texture2D> DeviceTexture2DDX12::GetTexture2D()
 {
 	auto ptr = GraphicsObject();
 	forward::GraphicsObject* p_obj = ptr.get();
@@ -317,7 +317,7 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 {
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	dsvDesc.ViewDimension = GetFrameGraphTexture2D()->GetSampCount() > 1 ? D3D12_DSV_DIMENSION_TEXTURE2DMS : D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.ViewDimension = GetTexture2D()->GetSampCount() > 1 ? D3D12_DSV_DIMENSION_TEXTURE2DMS : D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Format = tx.Format;
 	dsvDesc.Texture2D.MipSlice = 0;
 

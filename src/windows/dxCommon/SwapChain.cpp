@@ -4,23 +4,11 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChain::SwapChain( Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, ResourcePtr resource )
+SwapChain::SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain1> pSwapChain, Vector<shared_ptr<Texture2D>> rt, shared_ptr<Texture2D> ds)
 {
-	m_pSwapChain = pSwapChain;
-	m_Resource = resource;
-}
-
-SwapChain::SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain, shared_ptr<Texture2D> rt, shared_ptr<Texture2D> ds)
-{
-	m_pSwapChain = pSwapChain;
-	m_rts.push_back(rt);
-	m_ds = ds;
-}
-SwapChain::SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain> pSwapChain, shared_ptr<Texture2D> rt0, shared_ptr<Texture2D> rt1, shared_ptr<Texture2D> ds)
-{
-	m_pSwapChain = pSwapChain;
-	m_rts.push_back(rt0);
-	m_rts.push_back(rt1);
+	HR(pSwapChain.As(&m_pSwapChain));
+	PresentEnd();
+	m_rts = rt;
 	m_ds = ds;
 }
 //--------------------------------------------------------------------------------
@@ -53,7 +41,10 @@ shared_ptr<Texture2D> SwapChain::GetCurrentDS() const
 void SwapChain::Present(bool vsync) const
 {
 	assert(!m_rts.empty());
-	const auto N = m_rts.size();
 	HR(m_pSwapChain->Present(0, vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING));
-	m_currentBackBufferIndex = (m_currentBackBufferIndex + 1) % N;
+}
+
+void SwapChain::PresentEnd() const
+{
+	m_currentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 }

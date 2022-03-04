@@ -21,7 +21,7 @@ namespace forward
 		void					SyncCPUToGPU() override;
 		void					SyncGPUToCPU();
 
-		shared_ptr<Texture2D> GetFrameGraphTexture2D();
+		shared_ptr<Texture2D> GetTexture2D();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetViewHandle();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilViewHandle();
 
