@@ -10,12 +10,12 @@
 //--------------------------------------------------------------------------------
 namespace forward
 {
-	class Renderer;
+	class Device;
 
 	class SwapChainConfig
 	{
 	public:
-		SwapChainConfig(const Renderer* pRender);
+		SwapChainConfig(const Device* pRender);
 		virtual ~SwapChainConfig();
 
 		void SetWidth( u32 width );

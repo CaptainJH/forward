@@ -2,7 +2,7 @@
 // DeviceTextureCubeDX12.cpp by Heqi Ju (C) 2019 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceTextureCubeDX12.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 
 using namespace forward;
 

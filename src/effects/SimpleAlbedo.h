@@ -31,7 +31,7 @@ namespace forward
 				mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
 		}
 
-		void SetupRenderPass(Renderer& r)
+		void SetupRenderPass(Device& r)
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
@@ -59,7 +59,7 @@ namespace forward
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
 						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
 					},
-					[&](Renderer& r) {
+					[&](Device& r) {
 						r.DrawIndexed(p.second->GetNumElements());
 					}
 					));

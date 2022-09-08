@@ -52,10 +52,10 @@ namespace forward
 	};
 
 
-	class Renderer
+	class Device
 	{
 	public:
-		virtual ~Renderer();
+		virtual ~Device();
 		virtual RendererAPI GetRendererAPI() const = 0;
 
 		virtual void DeleteResource(ResourcePtr ptr) = 0;
@@ -87,7 +87,7 @@ namespace forward
 		LoadedResourceManager mLoadedResourceMgr;
 
 	protected:
-		Renderer();
+		Device();
 
 		FrameGraph* m_currentFrameGraph = nullptr;
 
@@ -108,6 +108,6 @@ namespace forward
 
 		// Static renderer access - used for accessing the renderer when no reference
 		// is already available.
-		static Renderer*					m_spRenderer;
+		static Device*					m_spRenderer;
 	};
 }

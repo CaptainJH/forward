@@ -1,5 +1,5 @@
 ﻿//***************************************************************************************
-// RendererDX12.h by Heqi Ju (C) 2017 All Rights Reserved.
+// DeviceDX12.h by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 //--------------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 
 #include "dx12Util.h"
 
-#include "render.h"
+#include "Device.h"
 #include "dxCommon/SwapChain.h"
 #include "render/ResourceSystem/GraphicsObject.h"
 #include "DynamicDescriptorHeapDX12.h"
@@ -61,13 +61,13 @@ namespace forward
 	};
 
 
-    class RendererDX12 : public Renderer
+    class DeviceDX12 : public Device
     {
 		static const u32 SwapChainBufferCount = 2;
 
     public:
-        RendererDX12();
-        virtual ~RendererDX12();
+        DeviceDX12();
+        virtual ~DeviceDX12();
 
         // Access to the renderer.  There should only be a single instance
 		// of the renderer at any given time.
@@ -202,10 +202,10 @@ namespace forward
 	class RendererContext
 	{
 	public:
-		static RendererDX12* GetCurrentRender();
-		static void SetCurrentRender(RendererDX12* render);
+		static DeviceDX12* GetCurrentRender();
+		static void SetCurrentRender(DeviceDX12* render);
 
 	private:
-		static RendererDX12* CurrentRender;
+		static DeviceDX12* CurrentRender;
 	};
 };

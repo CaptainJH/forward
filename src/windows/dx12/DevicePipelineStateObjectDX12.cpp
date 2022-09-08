@@ -8,11 +8,11 @@
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 
 using namespace forward;
 
-DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(RendererDX12* render, const PipelineStateObject& pso)
+DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render, const PipelineStateObject& pso)
 	: DeviceObject(nullptr)
 	, m_numElements(0)
 	, m_pso(pso)

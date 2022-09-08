@@ -70,7 +70,7 @@ bool HelloPyQTDll::Init()
 		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
-		[&](Renderer& render) {
+		[&](Device& render) {
 		render.DrawIndexed(m_geometry->GetIndexCount());
 	});
 

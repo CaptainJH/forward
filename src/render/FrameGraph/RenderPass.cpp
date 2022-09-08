@@ -3,7 +3,7 @@
 //***************************************************************************************
 #include "RenderPass.h"
 #include "RenderPassHelper.h"
-#include "render.h"
+#include "Device.h"
 
 using namespace forward;
 
@@ -46,7 +46,7 @@ RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const
 	return m_opFlags;
 }
 
-void RenderPass::Execute(Renderer& render)
+void RenderPass::Execute(Device& render)
 {
 	m_executeCallback(render);
 }

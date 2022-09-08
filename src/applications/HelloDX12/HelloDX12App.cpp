@@ -1,10 +1,12 @@
 #include "Application.h"
 #include "Vector3f.h"
 #include "dx12/UploadBuffer.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 #include "dxCommon/ShaderFactoryDX.h"
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
+
+#include "WinPixEventRuntime/pix3.h"
 
 using namespace forward;
 
@@ -56,7 +58,7 @@ private:
 	PipelineStateComPtr m_pso = nullptr;
 
 	std::unique_ptr<MeshGeometry> m_geometry = nullptr;
-	RendererDX12* m_pRender = nullptr;
+	DeviceDX12* m_pRender = nullptr;
 };
 
 i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
@@ -81,6 +83,7 @@ void HelloDX12::UpdateScene(f32 /*dt*/)
 
 void HelloDX12::DrawScene()
 {
+	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
 	m_pRender->BeginDraw();
 
 	auto commandList = m_pRender->CommandList();
@@ -107,7 +110,7 @@ bool HelloDX12::Init()
 	if (!Application::Init())
 		return false;
 
-	m_pRender = static_cast<RendererDX12*>(m_pRender2);
+	m_pRender = static_cast<DeviceDX12*>(m_pRender2);
 	m_pRender->ResetCommandList();
 
 	BuildDescriptorHeaps();

@@ -28,7 +28,7 @@
 #include "Vector4f.h"
 #include "Matrix4f.h"
 
-#include "render.h"
+#include "Device.h"
 #include "Utils.h"
 
 #ifdef  USE_LEGACY_RENDERER
@@ -121,7 +121,7 @@ namespace forward
 #ifdef USE_LEGACY_RENDERER
 		RendererDX11*	m_pRender;
 #endif
-		Renderer*		m_pRender2;
+		Device*		m_pRender2;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;

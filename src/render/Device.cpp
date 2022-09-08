@@ -1,27 +1,27 @@
 //***************************************************************************************
 // render.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
-#include "render.h"
+#include "Device.h"
 #include "render/FrameGraph/FrameGraph.h"
 
 using namespace forward;
 
 //--------------------------------------------------------------------------------
-Renderer* Renderer::m_spRenderer = nullptr;
+Device* Device::m_spRenderer = nullptr;
 //--------------------------------------------------------------------------------
 
-Renderer::Renderer()
+Device::Device()
 {
 	if (m_spRenderer == nullptr)
 		m_spRenderer = this;
 }
 
-Renderer::~Renderer()
+Device::~Device()
 {
 
 }
 
-void Renderer::BeginDrawFrameGraph(FrameGraph* fg)
+void Device::BeginDrawFrameGraph(FrameGraph* fg)
 {
 	assert(m_currentFrameGraph == nullptr);
 	m_currentFrameGraph = fg;
@@ -29,7 +29,7 @@ void Renderer::BeginDrawFrameGraph(FrameGraph* fg)
 	m_currentFrameGraph->Reset();
 }
 
-void Renderer::AddExternalResource(const char* name, void* res)
+void Device::AddExternalResource(const char* name, void* res)
 {
 	std::string str(name);
 	m_externalResourceContext[str] = res;

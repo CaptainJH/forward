@@ -4,7 +4,7 @@
 
 #include "DeviceBufferDX12.h"
 #include "render/ResourceSystem/Resource.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 
 using namespace forward;
 

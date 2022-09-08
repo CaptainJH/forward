@@ -7,7 +7,7 @@
 
 namespace forward
 {
-	class Renderer;
+	class Device;
 	class RenderPassBuilder;
 
 	class RenderPass
@@ -24,7 +24,7 @@ namespace forward
 		};
 
 		typedef std::function<void(RenderPassBuilder&, PipelineStateObject&)> SetupFuncType;
-		typedef std::function<void(Renderer&)> ExecuteFuncType;
+		typedef std::function<void(Device&)> ExecuteFuncType;
 
 	public:
 		RenderPass(OperationFlags operationType, SetupFuncType setup, ExecuteFuncType execute);
@@ -34,7 +34,7 @@ namespace forward
 
 		PipelineStateObject& GetPSO();
 		OperationFlags GetRenderPassFlags() const;
-		void Execute(Renderer&);
+		void Execute(Device&);
 		void AttachRenderPass(RenderPass* ptr);
 		RenderPass* GetNextRenderPass();
 

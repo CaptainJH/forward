@@ -1,10 +1,10 @@
 //--------------------------------------------------------------------------------
 #include "SwapChainConfig.h"
-#include "render/render.h"
+#include "render/Device.h"
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChainConfig::SwapChainConfig(const Renderer* pRender)
+SwapChainConfig::SwapChainConfig(const Device* pRender)
 {
 	if (pRender->GetRendererAPI() == RendererAPI::DirectX11)
 		SetDefaultsDX11();

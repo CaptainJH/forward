@@ -9,7 +9,7 @@
 #include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
 #else
 //#include "dx11/Renderer2DX11.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 #endif
 
 #if USE_RENDERDOC
@@ -491,7 +491,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 
 	case Renderer_Forward_DX12:
 	{
-		auto renderDX12 = new RendererDX12;
+		auto renderDX12 = new DeviceDX12;
 		m_pRender2 = renderDX12;
 		RendererContext::SetCurrentRender(renderDX12);
 		break;
@@ -522,7 +522,7 @@ void ApplicationWin::ShutdownRendererComponents()
 	{
 		m_pRender2->Shutdown();
 		SAFE_DELETE(m_pRender2);
-		RendererDX12::ReportLiveObjects();
+		DeviceDX12::ReportLiveObjects();
 	}
 	GraphicsObject::CheckMemoryLeak();
 }

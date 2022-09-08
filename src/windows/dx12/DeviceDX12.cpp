@@ -1,7 +1,7 @@
 //***************************************************************************************
-// RendererDX12.cpp by Heqi Ju (C) 2017 All Rights Reserved.
+// DeviceDX12.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
-#include "RendererDX12.h"
+#include "DeviceDX12.h"
 
 #include "Log.h"
 
@@ -76,16 +76,16 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocator::Allocate(u32 Count, ID3D12Devic
 }
 
 //--------------------------------------------------------------------------------
-RendererDX12::RendererDX12()
+DeviceDX12::DeviceDX12()
 {
 }
 //--------------------------------------------------------------------------------
-RendererDX12::~RendererDX12()
+DeviceDX12::~DeviceDX12()
 {
 	DescriptorAllocator::DestroyAll();
 }
 //--------------------------------------------------------------------------------
-D3D_FEATURE_LEVEL RendererDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*DriverType*/)
+D3D_FEATURE_LEVEL DeviceDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*DriverType*/)
 {
 	D3D_FEATURE_LEVEL FeatureLevel = m_FeatureLevel;
 
@@ -104,12 +104,12 @@ D3D_FEATURE_LEVEL RendererDX12::GetAvailableFeatureLevel(D3D_DRIVER_TYPE /*Drive
 	return(FeatureLevel);
 }
 //--------------------------------------------------------------------------------
-D3D_FEATURE_LEVEL RendererDX12::GetCurrentFeatureLevel()
+D3D_FEATURE_LEVEL DeviceDX12::GetCurrentFeatureLevel()
 {
 	return(m_FeatureLevel);
 }
 //--------------------------------------------------------------------------------
-u64 RendererDX12::GetAvailableVideoMemory()
+u64 DeviceDX12::GetAvailableVideoMemory()
 {
 	ComPtr<IDXGIAdapter> pDXGIAdapter;
 	m_Factory->EnumAdapterByLuid(m_pDevice->GetAdapterLuid(), IID_PPV_ARGS(&pDXGIAdapter));
@@ -130,7 +130,7 @@ u64 RendererDX12::GetAvailableVideoMemory()
 	return(availableVideoMem);
 }
 //--------------------------------------------------------------------------------
-bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel)
+bool DeviceDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL FeatureLevel)
 {
 	HRESULT hr = S_OK;
 
@@ -230,7 +230,7 @@ bool RendererDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL F
 	return true;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::Shutdown()
+void DeviceDX12::Shutdown()
 {
 	SAFE_DELETE(m_textRenderPass);
 	SAFE_DELETE(m_textFont);
@@ -242,12 +242,12 @@ void RendererDX12::Shutdown()
 	SAFE_DELETE(m_SwapChain);
 }
 //--------------------------------------------------------------------------------
-ID3D12Device* RendererDX12::GetDevice()
+ID3D12Device* DeviceDX12::GetDevice()
 {
 	return(m_pDevice.Get());
 }
 //--------------------------------------------------------------------------------
-i32	RendererDX12::GetUnusedResourceIndex()
+i32	DeviceDX12::GetUnusedResourceIndex()
 {
 	// Initialize return index to -1.
 	i32 index = -1;
@@ -264,7 +264,7 @@ i32	RendererDX12::GetUnusedResourceIndex()
 	return(index);
 }
 //--------------------------------------------------------------------------------
-i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
+i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 {
 	// Attempt to create the swap chain.
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> SwapChain;
@@ -322,7 +322,7 @@ i32 RendererDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	return 0;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::CreateCommandObjects()
+void DeviceDX12::CreateCommandObjects()
 {
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
@@ -343,7 +343,7 @@ void RendererDX12::CreateCommandObjects()
 	HR(m_CommandList->Close());
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::FlushCommandQueue()
+void DeviceDX12::FlushCommandQueue()
 {
 	// Advance the fence value to mark commands up to this fence point.
 	++m_CurrentFence;
@@ -367,7 +367,7 @@ void RendererDX12::FlushCommandQueue()
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::OnResize()
+void DeviceDX12::OnResize()
 {
 	FlushCommandQueue();
 
@@ -382,7 +382,7 @@ void RendererDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceTexture2DDX12* RendererDX12::CurrentBackBuffer(PipelineStateObject& pso) const
+DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PipelineStateObject& pso) const
 {
 	if (pso.m_OMState.m_renderTargetResources[0] && pso.m_OMState.m_renderTargetResources[0]->DeviceObject())
 	{
@@ -400,14 +400,14 @@ DeviceTexture2DDX12* RendererDX12::CurrentBackBuffer(PipelineStateObject& pso) c
 	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::CurrentBackBufferView(PipelineStateObject& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(PipelineStateObject& pso) const
 {
 	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(pso);
 	assert(tex12);
 	return tex12->GetRenderTargetViewHandle();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView(PipelineStateObject& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PipelineStateObject& pso) const
 {
 	if (pso.m_OMState.m_depthStencilResource && pso.m_OMState.m_depthStencilResource->DeviceObject())
 	{
@@ -427,12 +427,12 @@ D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::DepthStencilView(PipelineStateObject& 
 	return ret;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::ResetCommandList()
+void DeviceDX12::ResetCommandList()
 {
 	m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::PrepareRenderPass(RenderPass& pass)
+void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
 
@@ -507,7 +507,7 @@ void RendererDX12::PrepareRenderPass(RenderPass& pass)
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawRenderPass(RenderPass& pass)
+void DeviceDX12::DrawRenderPass(RenderPass& pass)
 {
 	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
 
@@ -560,17 +560,17 @@ void RendererDX12::DrawRenderPass(RenderPass& pass)
 	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DeleteResource(ResourcePtr /*ptr*/)
+void DeviceDX12::DeleteResource(ResourcePtr /*ptr*/)
 {
 
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::OnResize(u32 /*width*/, u32 /*height*/)
+void DeviceDX12::OnResize(u32 /*width*/, u32 /*height*/)
 {
 
 }
 //--------------------------------------------------------------------------------
-bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
+bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 {
 	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_12_0))
 	{
@@ -622,7 +622,7 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 		target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
 		target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
 	},
-		[&](Renderer& render) {
+		[&](Device& render) {
 		render.DrawIndexed(m_textFont->GetIndexCount());
 	});
 
@@ -631,17 +631,17 @@ bool RendererDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	return true;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::Draw(u32 vertexNum, u32 startVertexLocation)
+void DeviceDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 {
 	CommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawIndexed(u32 indexCount)
+void DeviceDX12::DrawIndexed(u32 indexCount)
 {
 	CommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::ResolveResource(Texture2D* dst, Texture2D* src)
+void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 {
 	if (!dst->DeviceObject())
 	{
@@ -663,7 +663,7 @@ void RendererDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 	TransitionResource(srcDX12, backStateSrc);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
+void DeviceDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
 {
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
 	auto rtPtr = deviceRT->GetTexture2D();
@@ -685,7 +685,7 @@ void RendererDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateO
 	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
+void DeviceDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
 {
 	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
 	if (m_currentFrameGraph)
@@ -694,12 +694,12 @@ void RendererDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Ve
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::BeginDrawFrameGraph(FrameGraph* fg)
+void DeviceDX12::BeginDrawFrameGraph(FrameGraph* fg)
 {
-	Renderer::BeginDrawFrameGraph(fg);
+	Device::BeginDrawFrameGraph(fg);
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::EndDrawFrameGraph()
+void DeviceDX12::EndDrawFrameGraph()
 {
 	m_currentFrameGraph->LinkInfo();
 	//CompileCurrentFrameGraph();
@@ -764,7 +764,7 @@ void RendererDX12::EndDrawFrameGraph()
 	PIXEndEvent();
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
+void DeviceDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
 
@@ -821,13 +821,13 @@ void RendererDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	}
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::BindGPUVisibleHeaps()
+void DeviceDX12::BindGPUVisibleHeaps()
 {
 	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 	cbvHeap.CommitStagedDescriptors(CommandList(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
 }
 //--------------------------------------------------------------------------------
-shared_ptr<Texture2D> RendererDX12::GetDefaultRT() const
+shared_ptr<Texture2D> DeviceDX12::GetDefaultRT() const
 {
 	if (m_SwapChain)
 	{
@@ -843,7 +843,7 @@ shared_ptr<Texture2D> RendererDX12::GetDefaultRT() const
 	}
 }
 
-shared_ptr<Texture2D> RendererDX12::GetDefaultDS() const
+shared_ptr<Texture2D> DeviceDX12::GetDefaultDS() const
 {
 	auto dsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
 	if (!dsPtr)
@@ -855,7 +855,7 @@ shared_ptr<Texture2D> RendererDX12::GetDefaultDS() const
 	return dsPtr;
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState)
+void DeviceDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState)
 {
 	if (resource->GetResourceState() == newState)
 		return;
@@ -866,29 +866,29 @@ void RendererDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOUR
 	resource->SetResourceState(newState);
 }
 //--------------------------------------------------------------------------------
-D3D12_CPU_DESCRIPTOR_HANDLE RendererDX12::AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count/*= 1*/)
 {
 	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
 }
 //--------------------------------------------------------------------------------
-void RendererDX12::BuildPSO(PipelineStateObject& /*pso*/)
+void DeviceDX12::BuildPSO(PipelineStateObject& /*pso*/)
 {
 	/// TODO: not implement yet
 }
 //--------------------------------------------------------------------------------
-u32 RendererDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const
+u32 DeviceDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const
 {
 	return m_pDevice->GetDescriptorHandleIncrementSize(type);
 }
 //--------------------------------------------------------------------------------
-RendererDX12* RendererContext::CurrentRender = nullptr;
-RendererDX12* RendererContext::GetCurrentRender()
+DeviceDX12* RendererContext::CurrentRender = nullptr;
+DeviceDX12* RendererContext::GetCurrentRender()
 {
 	assert(CurrentRender);
 	return CurrentRender;
 }
 
-void RendererDX12::BeginDraw()
+void DeviceDX12::BeginDraw()
 {
 	HR(m_DirectCmdListAlloc->Reset());
 	ResetCommandList();
@@ -911,7 +911,7 @@ void RendererDX12::BeginDraw()
 
 }
 
-void RendererDX12::EndDraw()
+void DeviceDX12::EndDraw()
 {
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
@@ -928,7 +928,7 @@ void RendererDX12::EndDraw()
 	PIXEndEvent();
 }
 
-void RendererDX12::ReportLiveObjects()
+void DeviceDX12::ReportLiveObjects()
 {
 	IDXGIDebug1* dxgiDebug;
 	DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug));
@@ -937,7 +937,7 @@ void RendererDX12::ReportLiveObjects()
 	dxgiDebug->Release();
 }
 
-void RendererContext::SetCurrentRender(RendererDX12* render)
+void RendererContext::SetCurrentRender(DeviceDX12* render)
 {
 	CurrentRender = render;
 }

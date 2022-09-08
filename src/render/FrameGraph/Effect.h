@@ -1,7 +1,7 @@
 #pragma once
 #include "render/ResourceSystem/Buffer.h"
 #include "render/FrameGraph/FrameGraph.h"
-#include "render/render.h"
+#include "render/Device.h"
 #include "Vector2f.h"
 #include "Vector3f.h"
 #include "Matrix4f.h"

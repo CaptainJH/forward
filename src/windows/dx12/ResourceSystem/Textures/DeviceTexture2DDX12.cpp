@@ -2,7 +2,7 @@
 // DeviceTexture2DDX12.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #include "DeviceTexture2DDX12.h"
-#include "dx12/RendererDX12.h"
+#include "dx12/DeviceDX12.h"
 
 using namespace forward;
 
