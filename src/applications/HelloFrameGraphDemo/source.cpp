@@ -15,7 +15,7 @@ public:
 		mMainWndCaption = L"HelloFrameGraph";
 #ifdef WINDOWS
 		//RenderType = RendererType::Renderer_Forward_DX11;
-		RenderType = RendererType::Renderer_Forward_DX12;
+		DeviceType = DeviceType::Device_Forward_DX12;
 #endif
 	}
 
@@ -52,10 +52,10 @@ void HelloFrameGraph::DrawScene()
 {
 	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
 	FrameGraph fg;
-	m_pRender2->BeginDrawFrameGraph(&fg);
+	m_pDevice->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
-	m_pRender2->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
-	m_pRender2->EndDrawFrameGraph();
+	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
+	m_pDevice->EndDrawFrameGraph();
 }
 
 bool HelloFrameGraph::Init()
@@ -97,10 +97,10 @@ bool HelloFrameGraph::Init()
 		pso.m_IAState.m_vertexBuffers[0] = vb;
 
 		// setup render states
-		auto dsPtr = m_pRender2->GetDefaultDS();
+		auto dsPtr = m_pDevice->GetDefaultDS();
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = m_pRender2->GetDefaultRT();
+		auto rsPtr = m_pDevice->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
 	[](Device& render) {
@@ -124,7 +124,7 @@ void HelloFrameGraph::OnResize()
 
 void HelloFrameGraph::PostDrawScene()
 {
-	m_pRender2->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
+	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
 }
 
 

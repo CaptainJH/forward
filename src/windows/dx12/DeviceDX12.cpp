@@ -881,11 +881,11 @@ u32 DeviceDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type
 	return m_pDevice->GetDescriptorHandleIncrementSize(type);
 }
 //--------------------------------------------------------------------------------
-DeviceDX12* RendererContext::CurrentRender = nullptr;
-DeviceDX12* RendererContext::GetCurrentRender()
+DeviceDX12* DeviceContext::CurrentDevice = nullptr;
+DeviceDX12* DeviceContext::GetCurrentDevice()
 {
-	assert(CurrentRender);
-	return CurrentRender;
+	assert(CurrentDevice);
+	return CurrentDevice;
 }
 
 void DeviceDX12::BeginDraw()
@@ -937,7 +937,7 @@ void DeviceDX12::ReportLiveObjects()
 	dxgiDebug->Release();
 }
 
-void RendererContext::SetCurrentRender(DeviceDX12* render)
+void DeviceContext::SetCurrentDevice(DeviceDX12* render)
 {
-	CurrentRender = render;
+	CurrentDevice = render;
 }

@@ -73,7 +73,7 @@ shared_ptr<TextureCube> DeviceTextureCubeDX12::GetFrameGraphTextureCube()
 
 void DeviceTextureCubeDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
-	m_srvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_srvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -88,7 +88,7 @@ void DeviceTextureCubeDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOU
 void DeviceTextureCubeDX12::SyncCPUToGPU()
 {
 	auto resTex = GetFrameGraphTextureCube();
-	auto cmdList = RendererContext::GetCurrentRender()->CommandList();
+	auto cmdList = DeviceContext::GetCurrentDevice()->CommandList();
 	const auto num2DSubresource = 6 * resTex->GetMipLevelNum();
 
 	// Describe the data we want to copy into the default buffer.

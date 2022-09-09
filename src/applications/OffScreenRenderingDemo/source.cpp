@@ -12,7 +12,7 @@ public:
 		: Application(width, height)
 	{
 		mMainWndCaption = L"OffScreenRenderingDemo";
-		RenderType = RendererType::Renderer_Forward_DX12;
+		DeviceType = DeviceType::Device_Forward_DX12;
 	}
 
 	~OffScreenRenderingDemo()
@@ -60,9 +60,9 @@ void OffScreenRenderingDemo::UpdateScene(f32 /*dt*/)
 void OffScreenRenderingDemo::DrawScene()
 {
 	FrameGraph fg;
-	m_pRender2->BeginDrawFrameGraph(&fg);
+	m_pDevice->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass.get());
-	m_pRender2->EndDrawFrameGraph();
+	m_pDevice->EndDrawFrameGraph();
 }
 
 bool OffScreenRenderingDemo::Init()
@@ -101,5 +101,5 @@ bool OffScreenRenderingDemo::Init()
 
 void OffScreenRenderingDemo::SaveRT()
 {
-	m_pRender2->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
+	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
 }

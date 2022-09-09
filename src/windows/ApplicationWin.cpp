@@ -53,7 +53,7 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 #ifdef USE_LEGACY_RENDERER
 	, m_pRender(nullptr)
 #endif
-	, m_pRender2(nullptr)
+	, m_pDevice(nullptr)
 {
 	// Get a pointer to the application object so we can forward 
 	// Windows messages to the object's window procedure through
@@ -73,10 +73,10 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	, mResizing(false)
 	, m4xMsaaQuality(0)
 	, mAppType(AT_Default)
-	, m_pRender2(nullptr)
+	, m_pDevice(nullptr)
 {
 	gApplication = this;
-	RenderType = RendererType::Renderer_Forward_DX12;
+	DeviceType = DeviceType::Device_Forward_DX12;
 
 #if USE_RENDERDOC
 	HMODULE mod = LoadLibraryA(RENDERDOC_PATH"/renderdoc.dll");
@@ -102,13 +102,13 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	, mResizing(false)
 	, m4xMsaaQuality(0)
 	, mAppType(AT_Dll)
-	, m_pRender2(nullptr)
+	, m_pDevice(nullptr)
 {
 	gApplication = this;
-	RenderType = RendererType::Renderer_Forward_DX11;
+	DeviceType = DeviceType::Device_Forward_DX11;
 }
 
-ApplicationWin::ApplicationWin(void* /*dxDevice*/, RendererType renderType, const char* forwardPath)
+ApplicationWin::ApplicationWin(void* /*dxDevice*/, forward::DeviceType renderType, const char* forwardPath)
 	: mMainWndCaption(L"UnityPlugin")
 	, mClientWidth(0)
 	, mClientHeight(0)
@@ -120,8 +120,8 @@ ApplicationWin::ApplicationWin(void* /*dxDevice*/, RendererType renderType, cons
 	, mResizing(false)
 	, m4xMsaaQuality(0)
 	, mAppType(AT_UnityPlugin)
-	, m_pRender2(nullptr)
-	, RenderType(renderType)
+	, m_pDevice(nullptr)
+	, DeviceType(renderType)
 	, mFileSystem(forwardPath)
 {
 	gApplication = this;
@@ -256,7 +256,7 @@ bool ApplicationWin::Init()
 
 void ApplicationWin::OnResize()
 {
-	m_pRender2->OnResize(mClientWidth, mClientHeight);
+	m_pDevice->OnResize(mClientWidth, mClientHeight);
 }
 
 LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
@@ -284,7 +284,7 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (m_pRender2)
+		if (m_pDevice)
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -474,7 +474,7 @@ std::string ApplicationWin::CalculateFrameStats()
 
 bool ApplicationWin::ConfigureRendererComponents()
 {
-	switch (RenderType)
+	switch (DeviceType)
 	{
 //	case Renderer_Hieroglyph:
 //#ifdef USE_LEGACY_RENDERER
@@ -489,23 +489,23 @@ bool ApplicationWin::ConfigureRendererComponents()
 //#endif
 //		break;
 
-	case Renderer_Forward_DX12:
+	case Device_Forward_DX12:
 	{
 		auto renderDX12 = new DeviceDX12;
-		m_pRender2 = renderDX12;
-		RendererContext::SetCurrentRender(renderDX12);
+		m_pDevice = renderDX12;
+		DeviceContext::SetCurrentDevice(renderDX12);
 		break;
 	}
 	default:
 		assert(false);
 	}
 
-	SwapChainConfig Config(m_pRender2);
+	SwapChainConfig Config(m_pDevice);
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());
 
-	if (!m_pRender2->Initialize(Config, IsOffScreenRendering()))
+	if (!m_pDevice->Initialize(Config, IsOffScreenRendering()))
 	{
 		ShowWindow(MainWnd(), SW_HIDE);
 		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
@@ -518,10 +518,10 @@ bool ApplicationWin::ConfigureRendererComponents()
 }
 void ApplicationWin::ShutdownRendererComponents()
 {
-	if (m_pRender2)
+	if (m_pDevice)
 	{
-		m_pRender2->Shutdown();
-		SAFE_DELETE(m_pRender2);
+		m_pDevice->Shutdown();
+		SAFE_DELETE(m_pDevice);
 		DeviceDX12::ReportLiveObjects();
 	}
 	GraphicsObject::CheckMemoryLeak();
@@ -591,7 +591,7 @@ void ApplicationWin::ParseCmdLine(const char* cmdLine)
 
 void ApplicationWin::UpdateRender()
 {
-	if (!m_pRender2) return;
+	if (!m_pDevice) return;
 
 	mTimer.Tick();
 
@@ -609,5 +609,5 @@ void ApplicationWin::UpdateRender()
 
 void ApplicationWin::AddExternalResource(const char* name, void* res)
 {
-	m_pRender2->AddExternalResource(name, res);
+	m_pDevice->AddExternalResource(name, res);
 }

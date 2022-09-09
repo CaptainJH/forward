@@ -86,7 +86,7 @@ void HelloPyQTDll::UpdateScene(f32 /*dt*/)
 
 void HelloPyQTDll::DrawScene()
 {
-	m_pRender2->DrawRenderPass(*m_renderPass);
+	m_pDevice->DrawRenderPass(*m_renderPass);
 }
 
 BOOL APIENTRY DllMain(HMODULE /*hModule*/,

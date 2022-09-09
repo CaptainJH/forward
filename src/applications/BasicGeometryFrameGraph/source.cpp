@@ -30,10 +30,10 @@ void BasicGeometryFrameGraph::UpdateScene(f32 dt)
 void BasicGeometryFrameGraph::DrawScene()
 {
 	FrameGraph fg;
-	m_pRender2->BeginDrawFrameGraph(&fg);
+	m_pDevice->BeginDrawFrameGraph(&fg);
 	m_albedoEffect->DrawEffect(&fg);
-	m_pRender2->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
-	m_pRender2->EndDrawFrameGraph();
+	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
+	m_pDevice->EndDrawFrameGraph();
 }
 
 bool BasicGeometryFrameGraph::Init()
@@ -42,10 +42,10 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
-	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pRender2->mLoadedResourceMgr);
+	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
 	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData);
 	m_albedoEffect->mAlbedoTex = make_shared<Texture2D>("helmet_albedo", L"DamagedHelmet/Default_albedo.jpg");
-	m_albedoEffect->SetupRenderPass(*m_pRender2);
+	m_albedoEffect->SetupRenderPass(*m_pDevice);
 
 	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
 	Vector3f target; target.MakeZero();

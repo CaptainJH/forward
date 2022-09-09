@@ -59,7 +59,7 @@ void DynamicDescriptorHeapDX12::StageDescriptors(u32 index, u32 offset, u32 numD
 
 void DynamicDescriptorHeapDX12::CommitStagedDescriptors(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc)
 {
-	auto device = RendererContext::GetCurrentRender()->GetDevice();
+	auto device = DeviceContext::GetCurrentDevice()->GetDevice();
 
 	if (!m_CurrentDescriptorHeap)
 	{
@@ -125,7 +125,7 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::RequestDescriptorHeap()
 
 DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
 {
-	auto device = RendererContext::GetCurrentRender()->GetDevice();
+	auto device = DeviceContext::GetCurrentDevice()->GetDevice();
 
 	if (m_DescriptorHandleIncrementSize == 0)
 	{

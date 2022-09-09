@@ -191,7 +191,7 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 
 	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
 	{
-		auto cmdList = RendererContext::GetCurrentRender()->CommandList();
+		auto cmdList = DeviceContext::GetCurrentDevice()->CommandList();
 
 		// Describe the data we want to copy into the default buffer.
 		std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D12_SUBRESOURCE_DATA[resTex2->GetMipLevelNum()]);
@@ -223,26 +223,26 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 {
 	assert(m_stagingResPtr);
 
-	RendererContext::GetCurrentRender()->ResetCommandList();
-	auto device = RendererContext::GetCurrentRender()->GetDevice();
+	DeviceContext::GetCurrentDevice()->ResetCommandList();
+	auto device = DeviceContext::GetCurrentDevice()->GetDevice();
 	// The footprint may depend on the device of the resource, but we assume there is only one device.
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
 	auto srcDesc = m_deviceResPtr->GetDesc();
 	device->GetCopyableFootprints(&srcDesc, 0, 1, 0, &PlacedFootprint, nullptr, nullptr, nullptr);
 
 	auto state = GetResourceState();
-	RendererContext::GetCurrentRender()->TransitionResource(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	DeviceContext::GetCurrentDevice()->TransitionResource(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	auto dstLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_stagingResPtr.Get(), PlacedFootprint);
 	auto srcLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_deviceResPtr.Get(), 0);
-	RendererContext::GetCurrentRender()->CommandList()->CopyTextureRegion(
+	DeviceContext::GetCurrentDevice()->CommandList()->CopyTextureRegion(
 		&dstLocation, 0, 0, 0,
 		&srcLocation, nullptr);
-	RendererContext::GetCurrentRender()->TransitionResource(this, state);
-	HR(RendererContext::GetCurrentRender()->CommandList()->Close());
+	DeviceContext::GetCurrentDevice()->TransitionResource(this, state);
+	HR(DeviceContext::GetCurrentDevice()->CommandList()->Close());
 
-	ID3D12CommandList* cmdLists[] = { RendererContext::GetCurrentRender()->CommandList() };
-	RendererContext::GetCurrentRender()->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-	RendererContext::GetCurrentRender()->FlushCommandQueue();
+	ID3D12CommandList* cmdLists[] = { DeviceContext::GetCurrentDevice()->CommandList() };
+	DeviceContext::GetCurrentDevice()->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	DeviceContext::GetCurrentDevice()->FlushCommandQueue();
 
 	void* memory;
 	auto range = CD3DX12_RANGE(0, GetFrameGraphResource()->GetNumBytes());
@@ -299,7 +299,7 @@ void DeviceTexture2DDX12::CreateStaging(ID3D12Device* device, const D3D12_RESOUR
 
 void DeviceTexture2DDX12::CreateRTView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
-	m_rtvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	m_rtvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	if (tx.SampleDesc.Count > 1)
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -321,13 +321,13 @@ void DeviceTexture2DDX12::CreateDSView(ID3D12Device* device, const D3D12_RESOURC
 	dsvDesc.Format = tx.Format;
 	dsvDesc.Texture2D.MipSlice = 0;
 
-	m_dsvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	m_dsvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	device->CreateDepthStencilView(GetDeviceResource().Get(), &dsvDesc, m_dsvHandle);
 }
 
 void DeviceTexture2DDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
-	m_srvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_srvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

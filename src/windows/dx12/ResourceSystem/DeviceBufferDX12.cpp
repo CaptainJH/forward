@@ -166,7 +166,7 @@ D3D12_INDEX_BUFFER_VIEW DeviceBufferDX12::IndexBufferView()
 
 void DeviceBufferDX12::CreateCBView(ID3D12Device* device, const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc)
 {
-	m_cbvHandle = RendererContext::GetCurrentRender()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_cbvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	device->CreateConstantBufferView(&desc, m_cbvHandle);
 }
 

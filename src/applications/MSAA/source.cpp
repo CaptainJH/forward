@@ -22,7 +22,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"MSAA_Demo";
-		RenderType = RendererType::Renderer_Forward_DX11;
+		DeviceType = DeviceType::Device_Forward_DX11;
 	}
 
 	~MSAA_Demo()
@@ -82,12 +82,12 @@ void MSAA_Demo::UpdateScene(f32 /*dt*/)
 void MSAA_Demo::DrawScene()
 {
 	FrameGraph fg;
-	m_pRender2->BeginDrawFrameGraph(&fg);
+	m_pDevice->BeginDrawFrameGraph(&fg);
 	(*m_constantBufferPS).GetTypedData()->distance = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 	fg.DrawRenderPass(m_renderPass.get());
 	fg.DrawRenderPass(m_renderPassMSAA.get());
 	fg.DrawRenderPass(m_renderPassResolve.get());
-	m_pRender2->EndDrawFrameGraph();
+	m_pDevice->EndDrawFrameGraph();
 }
 
 bool MSAA_Demo::Init()
@@ -124,10 +124,10 @@ bool MSAA_Demo::Init()
 		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
 
 		// setup render targets
-		auto dsPtr = m_pRender2->GetDefaultDS();
+		auto dsPtr = m_pDevice->GetDefaultDS();
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 
-		auto rsPtr = m_pRender2->GetDefaultRT();
+		auto rsPtr = m_pDevice->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 
 		// setup rasterizer

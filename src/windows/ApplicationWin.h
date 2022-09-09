@@ -53,7 +53,7 @@ namespace forward
 		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
 		ApplicationWin(HWND hwnd, i32 width, i32 height);  // called by PyQT5
 		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
-		ApplicationWin(void* dxDevice, forward::RendererType renderType, const char* forwardPath); // unity plugin
+		ApplicationWin(void* dxDevice, forward::DeviceType renderType, const char* forwardPath); // unity plugin
 		virtual ~ApplicationWin();
 
 		static void JustEnteringMain();
@@ -121,7 +121,7 @@ namespace forward
 #ifdef USE_LEGACY_RENDERER
 		RendererDX11*	m_pRender;
 #endif
-		Device*		m_pRender2;
+		Device*		m_pDevice;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;
@@ -130,7 +130,7 @@ namespace forward
 		bool mEnable4xMsaa;
 		ApplicationType mAppType;
 
-		RendererType RenderType = RendererType::Renderer_Hieroglyph;
+		DeviceType DeviceType = DeviceType::Device_Hieroglyph;
 	};
 
 	typedef ApplicationWin Application;

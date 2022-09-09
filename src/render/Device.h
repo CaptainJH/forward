@@ -11,12 +11,12 @@
 
 namespace forward
 {
-	enum RendererType
+	enum DeviceType
 	{
-		Renderer_Hieroglyph,
-		Renderer_Forward_DX11,
-		Renderer_Forward_DX12,
-        Renderer_Forward_Metal,
+		Device_Hieroglyph,
+		Device_Forward_DX11,
+		Device_Forward_DX12,
+        Device_Forward_Metal,
 	};
 
 	enum RendererAPI

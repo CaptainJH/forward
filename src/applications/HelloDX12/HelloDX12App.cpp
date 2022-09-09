@@ -25,7 +25,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"Hello DirectX12!";
-		RenderType = RendererType::Renderer_Forward_DX12;
+		DeviceType = DeviceType::Device_Forward_DX12;
 	}
 
 	~HelloDX12()
@@ -110,7 +110,7 @@ bool HelloDX12::Init()
 	if (!Application::Init())
 		return false;
 
-	m_pRender = static_cast<DeviceDX12*>(m_pRender2);
+	m_pRender = static_cast<DeviceDX12*>(m_pDevice);
 	m_pRender->ResetCommandList();
 
 	BuildDescriptorHeaps();
