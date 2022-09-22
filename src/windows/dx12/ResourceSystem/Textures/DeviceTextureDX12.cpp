@@ -3,7 +3,7 @@
 //***************************************************************************************
 
 #include "DeviceTextureDX12.h"
-#include "render/ResourceSystem/Texture.h"
+#include "RHI/ResourceSystem/Texture.h"
 
 using namespace forward;
 

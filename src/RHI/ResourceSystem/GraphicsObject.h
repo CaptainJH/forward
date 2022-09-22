@@ -5,7 +5,7 @@
 
 #include <assert.h>
 #include "SmartPtrs.h"
-#include "render/ResourceSystem/DeviceObject.h"
+#include "RHI/ResourceSystem/DeviceObject.h"
 
 namespace forward
 {

@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Texture.h"
+#include "RHI/ResourceSystem/Texture.h"
 #include "DeviceTextureDX12.h"
 
 namespace forward

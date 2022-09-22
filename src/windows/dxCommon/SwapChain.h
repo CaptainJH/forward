@@ -7,8 +7,8 @@
 #include <vector>
 #include <wrl.h>
 #include <dxgi1_6.h>
-#include "render/ResourceSystem/DeviceResource.h"
-#include "render/ResourceSystem/Texture.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
+#include "RHI/ResourceSystem/Texture.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

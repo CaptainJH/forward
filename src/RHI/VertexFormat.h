@@ -1,7 +1,7 @@
 #pragma once
 #include "PCH.h"
 #include "DataFormat.h"
-#include "render/ResourceSystem/GraphicsObject.h"
+#include "RHI/ResourceSystem/GraphicsObject.h"
 
 namespace forward
 {

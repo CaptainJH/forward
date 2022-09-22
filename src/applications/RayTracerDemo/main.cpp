@@ -10,8 +10,8 @@
 #include "Vector4f.h"
 #include "Matrix4f.h"
 
-#include "render/FrameGraph/FrameGraph.h"
-#include "render/FrameGraph/Geometry.h"
+#include "RHI/FrameGraph/FrameGraph.h"
+#include "RHI/FrameGraph/Geometry.h"
 #include "intersection/IntrRay3fSphere3f.h"
 #include <iostream>
 

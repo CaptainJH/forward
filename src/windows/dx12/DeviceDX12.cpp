@@ -14,8 +14,8 @@
 #include "d3dx12.h"
 #include "utilities/Utils.h"
 
-#include "render/ResourceSystem/Texture.h"
-#include "render/FrameGraph/FrameGraph.h"
+#include "RHI/ResourceSystem/Texture.h"
+#include "RHI/FrameGraph/FrameGraph.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"

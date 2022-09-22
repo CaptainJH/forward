@@ -1,6 +1,6 @@
 #include "Application.h"
-#include "render/FrameGraph/FrameGraph.h"
-#include "render/FrameGraph/Geometry.h"
+#include "RHI/FrameGraph/FrameGraph.h"
+#include "RHI/FrameGraph/Geometry.h"
 
 #include "WinPixEventRuntime/pix3.h"
 

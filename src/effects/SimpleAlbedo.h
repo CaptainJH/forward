@@ -1,6 +1,6 @@
 #pragma once
 #include "FrameGraph/Effect.h"
-#include "render/SceneData.h"
+#include "RHI/SceneData.h"
 
 namespace forward
 {

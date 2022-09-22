@@ -14,9 +14,9 @@
 
 #include "Device.h"
 #include "dxCommon/SwapChain.h"
-#include "render/ResourceSystem/GraphicsObject.h"
+#include "RHI/ResourceSystem/GraphicsObject.h"
 #include "DynamicDescriptorHeapDX12.h"
-#include "render/Text/FontSegoe_UIW50H12.h"
+#include "RHI/Text/FontSegoe_UIW50H12.h"
 #include <dxgi1_6.h>
 #include <mutex>
 

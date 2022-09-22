@@ -4,7 +4,7 @@
 #pragma once
 
 #include "GraphicsObject.h"
-#include "render/ResourceSystem/DeviceResource.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
 
 namespace forward
 {

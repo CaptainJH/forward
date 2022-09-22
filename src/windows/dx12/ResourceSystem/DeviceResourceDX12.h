@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 #include "Types.h"
-#include "render/ResourceSystem/DeviceResource.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
 #include "dx12/dx12Util.h"
 
 namespace forward

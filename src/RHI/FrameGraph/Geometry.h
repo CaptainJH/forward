@@ -1,7 +1,7 @@
 #pragma once
 #include <math.h>
 #include "RenderPassHelper.h"
-#include "render/ResourceSystem/Buffer.h"
+#include "RHI/ResourceSystem/Buffer.h"
 #include "Vector2f.h"
 #include "Vector3f.h"
 #include "utilities/Utils.h"

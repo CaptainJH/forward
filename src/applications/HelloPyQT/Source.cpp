@@ -1,8 +1,8 @@
 #include <SDKDDKVer.h>
 #include <iostream>
 #include "HelloPyQT.h"
-#include "render/FrameGraph/FrameGraph.h"
-#include "render/FrameGraph/Geometry.h"
+#include "RHI/FrameGraph/FrameGraph.h"
+#include "RHI/FrameGraph/Geometry.h"
 
 using namespace forward;
 

@@ -4,9 +4,9 @@
 #pragma once
 
 #include <assert.h>
-#include "render/ResourceSystem/Resource.h"
-#include "render/PrimitiveTopology.h"
-#include "render/VertexFormat.h"
+#include "RHI/ResourceSystem/Resource.h"
+#include "RHI/PrimitiveTopology.h"
+#include "RHI/VertexFormat.h"
 #include "geometry/TriangleIndices.h"
 #include "geometry/LineIndices.h"
 #include "geometry/PointIndices.h"

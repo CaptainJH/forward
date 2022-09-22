@@ -3,7 +3,7 @@
 //***************************************************************************************
 
 #include "DeviceResourceDX12.h"
-#include "render/ResourceSystem/Resource.h"
+#include "RHI/ResourceSystem/Resource.h"
 
 using namespace forward;
 

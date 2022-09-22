@@ -20,8 +20,8 @@
 #include <locale>
 #include <codecvt>
 #include <d3dcommon.h>
-#include "render/DataFormat.h"
-#include "render/PrimitiveTopology.h"
+#include "RHI/DataFormat.h"
+#include "RHI/PrimitiveTopology.h"
 
 namespace forward
 {

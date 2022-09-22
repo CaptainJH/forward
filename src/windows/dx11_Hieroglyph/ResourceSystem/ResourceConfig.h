@@ -6,7 +6,7 @@
 
 #include "Types.h"
 #include "DataFormat.h"
-#include "render/ResourceSystem/DeviceResource.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

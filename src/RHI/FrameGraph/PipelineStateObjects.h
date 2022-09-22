@@ -4,10 +4,10 @@
 #pragma once
 #include <array>
 #include "Vector4f.h"
-#include "render/ResourceSystem/Buffer.h"
-#include "render/ResourceSystem/Texture.h"
-#include "render/ShaderSystem/Shader.h"
-#include "render/RendererCapability.h"
+#include "RHI/ResourceSystem/Buffer.h"
+#include "RHI/ResourceSystem/Texture.h"
+#include "RHI/ShaderSystem/Shader.h"
+#include "RHI/RendererCapability.h"
 #include "PrimitiveTopology.h"
 #include "VertexFormat.h"
 

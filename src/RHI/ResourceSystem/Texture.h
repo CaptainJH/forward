@@ -3,8 +3,8 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/Resource.h"
-#include "render/DataFormat.h"
+#include "RHI/ResourceSystem/Resource.h"
+#include "RHI/DataFormat.h"
 
 namespace forward
 {

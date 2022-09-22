@@ -1,7 +1,7 @@
 #include "SceneData.h"
 #include "FileSystem.h"
 #include "Log.h"
-#include "render/Device.h"
+#include "RHI/Device.h"
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

@@ -5,7 +5,7 @@
 #include "PCH.h"
 #include "GraphicsObject.h"
 #include "Log.h"
-#include "render/ResourceSystem/DeviceObject.h"
+#include "RHI/ResourceSystem/DeviceObject.h"
 
 using namespace forward;
 

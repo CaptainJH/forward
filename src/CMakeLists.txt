@@ -22,7 +22,7 @@ include_directories("math/")
 include_directories("intersection/")
 include_directories("geometry/")
 include_directories("utilities/")
-include_directories("render/")
+include_directories("RHI/")
 include_directories("../extern/src/")
 
 option(CompileWithRenderDoc "RenderDoc integration")

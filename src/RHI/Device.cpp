@@ -2,7 +2,7 @@
 // render.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #include "Device.h"
-#include "render/FrameGraph/FrameGraph.h"
+#include "RHI/FrameGraph/FrameGraph.h"
 
 using namespace forward;
 

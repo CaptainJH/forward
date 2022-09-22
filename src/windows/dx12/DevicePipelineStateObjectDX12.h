@@ -3,9 +3,9 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/DeviceObject.h"
-#include "render/ResourceSystem/Buffer.h"
-#include "render/ShaderSystem/Shader.h"
+#include "RHI/ResourceSystem/DeviceObject.h"
+#include "RHI/ResourceSystem/Buffer.h"
+#include "RHI/ShaderSystem/Shader.h"
 #include "dx12/dx12Util.h"
 
 

@@ -3,8 +3,8 @@
 //***************************************************************************************
 #pragma once
 
-#include "render/ResourceSystem/GraphicsObject.h"
-#include "render/MemberLayout.h"
+#include "RHI/ResourceSystem/GraphicsObject.h"
+#include "RHI/MemberLayout.h"
 
 namespace forward
 {

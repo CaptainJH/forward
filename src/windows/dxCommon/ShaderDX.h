@@ -6,7 +6,7 @@
 #include "PCH.h"
 #include "dxCommon/d3dUtil.h"
 #include <d3dCompiler.h>
-#include "render/ResourceSystem/DeviceObject.h"
+#include "RHI/ResourceSystem/DeviceObject.h"
 #include "dxCommon/ShaderReflection/HLSLParameter.h"
 #include "dxCommon/ShaderReflection/HLSLConstantBuffer.h"
 #include "dxCommon/ShaderReflection/HLSLResourceBindInfo.h"

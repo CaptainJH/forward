@@ -2,7 +2,7 @@
 #include "HLSLResource.h"
 #include "HLSLShaderVariable.h"
 #include "HLSLShaderType.h"
-#include "render/MemberLayout.h"
+#include "RHI/MemberLayout.h"
 
 namespace forward
 {

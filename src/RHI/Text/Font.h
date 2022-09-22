@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render/FrameGraph/RenderPassHelper.h"
+#include "RHI/FrameGraph/RenderPassHelper.h"
 #include "Vector2f.h"
 
 namespace forward
