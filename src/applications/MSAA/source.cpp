@@ -22,7 +22,7 @@ public:
 		: Application(hInstance, width, height)
 	{
 		mMainWndCaption = L"MSAA_Demo";
-		DeviceType = DeviceType::Device_Forward_DX11;
+		DeviceType = DeviceType::Device_Forward_DX12;
 	}
 
 	~MSAA_Demo()
@@ -64,7 +64,7 @@ i32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*prevInstance*/,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	MSAA_Demo theApp(hInstance, 1200, 800);
+	MSAA_Demo theApp(hInstance, 1920, 1080);
 
 	if (!theApp.Init())
 		return 0;

@@ -1,6 +1,11 @@
 #include <string>
 #include <vector>
 
+#ifdef _WINDOWS
+#include <concurrent_vector.h>
+#include <concurrent_queue.h>
+#endif
+
 
 namespace forward
 {
@@ -18,12 +23,12 @@ namespace forward
 
 	typedef std::wstring WString;
 	typedef std::string String;
-	template<class T>
-	using Vector = std::vector<T>;
+	template<class T> using Vector = std::vector<T>;
 
 
 #ifdef _WINDOWS
-	
+	template<class T> using Concurrent_Vector = Concurrency::concurrent_vector<T>;
+	template<class T> using Concurrent_Queue = Concurrency::concurrent_queue<T>;
 
 #endif
 

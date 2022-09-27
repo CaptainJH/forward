@@ -21,5 +21,11 @@ namespace forward
 	private:
 		void ReflectShader();
 
+		static bool GetVariables(ID3D12ShaderReflectionConstantBuffer* cbuffer,
+			u32 numVariables, std::vector<HLSLBaseBuffer::Member>& members);
+		static bool GetTypes(ID3D12ShaderReflectionType* rtype,
+			u32 numMembers, HLSLShaderType& stype);
+		static bool IsTextureArray(D3D_SRV_DIMENSION dim);
+
 	};
 }
