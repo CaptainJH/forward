@@ -33,77 +33,68 @@ void DynamicDescriptorHeapDX12::Reset()
 	m_CurrentCPUDescriptorHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT);
 	m_CurrentGPUDescriptorHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT);
 
-	m_currentDescriptorTableLength = 0;
 	m_currentDescriptorTableOffset = 0;
+	m_currentDescriptorHandleCacheOffset = 0;
 }
 
-void DynamicDescriptorHeapDX12::StageDescriptors(u32 index, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor)
+void DynamicDescriptorHeapDX12::CommitStagedDescriptors()
 {
-	const auto realIndex = index + m_currentDescriptorTableOffset;
-	// Cannot stage more than the maximum number of descriptors per heap.
-	// Cannot stage more than MaxDescriptorTables root parameters.
-	assert(numDescriptors <= m_NumDescriptorsPerHeap && realIndex < MaxDescriptorTables);
+	if (m_currentDescriptorTableOffset == 0) return;
 
-	auto& descriptorTableCache = m_DescriptorTableCache[realIndex];
+	if (m_CurrentCPUDescriptorHandle == CD3DX12_CPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT))
+		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-	// Check that the number of descriptors to copy does not exceed the number
-	// of descriptors expected in the descriptor table.
-	assert((offset + numDescriptors) <= descriptorTableCache.NumDescriptors);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE* dstDescriptor = descriptorTableCache.BaseDescriptor + offset;
-	for (auto i = 0U; i < numDescriptors; ++i)
+	u32 totalDescriptorCount = 0;
+	for (auto i = 0U; i < m_currentDescriptorTableOffset; ++i)
+		totalDescriptorCount += m_DescriptorTableCache[i].NumDescriptors;
+	
+	if (totalDescriptorCount > 0)
 	{
-		dstDescriptor[i] = CD3DX12_CPU_DESCRIPTOR_HANDLE(srcDescriptor, i, m_DescriptorHandleIncrementSize);
+		D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache.begin()->BaseDescriptor;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] =
+		{
+			m_CurrentCPUDescriptorHandle
+		};
+		u32 pDestDescriptorRangeSizes[] =
+		{
+			totalDescriptorCount
+		};
+
+		auto device = DeviceContext::GetCurrentDevice()->GetDevice();
+		// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
+		device->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
+			totalDescriptorCount, pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
+
+		m_CurrentCPUDescriptorHandle =
+			m_CurrentCPUDescriptorHandle.Offset(totalDescriptorCount, m_DescriptorHandleIncrementSize);
 	}
 }
 
-void DynamicDescriptorHeapDX12::CommitStagedDescriptors(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc)
+void DynamicDescriptorHeapDX12::BindDescriptorTableToRootParam(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc)
 {
-	auto device = DeviceContext::GetCurrentDevice()->GetDevice();
+	if (m_currentDescriptorTableOffset == 0) return;
 
+	if (m_CurrentGPUDescriptorHandle == CD3DX12_GPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT))
+		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+	auto& descriptorTableCache = m_DescriptorTableCache[m_currentDescriptorTableOffset - 1];
+	if (descriptorTableCache.NumDescriptors > 0)
+	{
+		// Set the descriptors on the command list using the passed-in setter function.
+		setFunc(commandList, 0, m_CurrentGPUDescriptorHandle);
+		m_CurrentGPUDescriptorHandle =
+			m_CurrentGPUDescriptorHandle.Offset(descriptorTableCache.NumDescriptors, m_DescriptorHandleIncrementSize);
+	}
+}
+
+void DynamicDescriptorHeapDX12::BindGPUVisibleDescriptorHeap(ID3D12GraphicsCommandList* commandList)
+{
 	if (!m_CurrentDescriptorHeap)
-	{
 		m_CurrentDescriptorHeap = RequestDescriptorHeap();
-	}
 
-	u32 numRoot = m_currentDescriptorTableLength;
-	u32 offset = m_currentDescriptorTableOffset;
 	ID3D12DescriptorHeap* descriptorHeaps[] = { m_CurrentDescriptorHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-	m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	m_CurrentCPUDescriptorHandle = m_CurrentCPUDescriptorHandle.Offset(offset, m_DescriptorHandleIncrementSize);
-	m_CurrentGPUDescriptorHandle = m_CurrentGPUDescriptorHandle.Offset(offset, m_DescriptorHandleIncrementSize);
-	for (auto it = m_DescriptorTableCache.begin() + offset; it < m_DescriptorTableCache.begin() + offset + numRoot; ++it)
-	{
-		auto numSrcDescriptors = it->NumDescriptors;
-		if (numSrcDescriptors > 0)
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = it->BaseDescriptor;
-
-			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] =
-			{
-				m_CurrentCPUDescriptorHandle
-			};
-			u32 pDestDescriptorRangeSizes[] =
-			{
-				numSrcDescriptors
-			};
-
-			// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-			device->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
-				numSrcDescriptors, pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
-
-			const u32 i = static_cast<u32>(it - m_DescriptorTableCache.begin() - offset);
-			// Set the descriptors on the command list using the passed-in setter function.
-			setFunc(commandList, i, m_CurrentGPUDescriptorHandle);
-
-			m_CurrentCPUDescriptorHandle = m_CurrentCPUDescriptorHandle.Offset(m_DescriptorHandleIncrementSize);
-			m_CurrentGPUDescriptorHandle = m_CurrentGPUDescriptorHandle.Offset(m_DescriptorHandleIncrementSize);
-		}
-	}
-
-	m_currentDescriptorTableOffset += m_currentDescriptorTableLength;
 }
 
 DescriptorHeapComPtr DynamicDescriptorHeapDX12::RequestDescriptorHeap()
@@ -143,51 +134,16 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
 	return descriptorHeap;
 }
 
-void DynamicDescriptorHeapDX12::PrepareDescriptorHandleCache(const PipelineStateObject& pso)
+D3D12_CPU_DESCRIPTOR_HANDLE* DynamicDescriptorHeapDX12::PrepareDescriptorHandleCache(u32 registerCount)
 {
-	u32 rootIndex = m_currentDescriptorTableOffset;
-	u32 currentOffset = m_currentDescriptorTableOffset;
-	if (pso.m_VSState.m_shader)
+	if (registerCount > 0)
 	{
-		for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
-		{
-			if (pso.m_VSState.m_constantBuffers[i])
-			{
-				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
-				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
-				descriptorTableCache.NumDescriptors = 1;
-				++rootIndex;
-				++currentOffset;
-			}
-		}
+		DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[m_currentDescriptorTableOffset++];
+		descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + m_currentDescriptorHandleCacheOffset;
+		descriptorTableCache.NumDescriptors = registerCount;
+		m_currentDescriptorHandleCacheOffset += registerCount;
+
+		return descriptorTableCache.BaseDescriptor;
 	}
-
-	if (pso.m_PSState.m_shader)
-	{
-		for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
-		{
-			if (pso.m_PSState.m_constantBuffers[i])
-			{
-				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
-				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
-				descriptorTableCache.NumDescriptors = 1;
-				++rootIndex;
-				++currentOffset;
-			}
-		}
-
-		for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
-		{
-			if (pso.m_PSState.m_shaderResources[i])
-			{
-				DescriptorTableCache& descriptorTableCache = m_DescriptorTableCache[rootIndex];
-				descriptorTableCache.BaseDescriptor = (&*m_DescriptorHandleCache.begin()) + currentOffset;
-				descriptorTableCache.NumDescriptors = 1;
-				++rootIndex;
-				++currentOffset;
-			}
-		}
-	}
-
-	m_currentDescriptorTableLength = rootIndex - m_currentDescriptorTableOffset;
+	return nullptr;
 }

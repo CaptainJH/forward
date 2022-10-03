@@ -30,7 +30,7 @@ cbuffer TextColor : register(b1)
     float4 textColor;
 };
 
-Texture2D baseTexture;
+Texture2D baseTexture : register(t0);
 SamplerState baseSampler;
 
 struct PS_INPUT

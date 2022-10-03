@@ -4,7 +4,6 @@
 #include "DevicePipelineStateObjectDX12.h"
 #include "dxCommon/ShaderDX.h"
 #include "FrameGraph/PipelineStateObjects.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
@@ -12,7 +11,7 @@
 
 using namespace forward;
 
-DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render, const PipelineStateObject& pso)
+DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render, PipelineStateObject& pso)
 	: DeviceObject(nullptr)
 	, m_numElements(0)
 	, m_pso(pso)
@@ -248,60 +247,35 @@ void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
 
 void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 {
-	std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters;
 	const auto MaxDescriptor = 256;
-	std::array<CD3DX12_DESCRIPTOR_RANGE, MaxDescriptor> descriptorRanges;
-	memset(&descriptorRanges, 0, descriptorRanges.size());
-	auto numDescriptorUsed = 0;
+	std::vector<CD3DX12_DESCRIPTOR_RANGE> descriptorRanges;
+	descriptorRanges.reserve(MaxDescriptor);
+	std::array<u32, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> usedRegisterCBV{ 0 };
+	std::array<u32, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> usedRegisterSRV{ 0 };
 
-	if (m_pso.m_VSState.m_shader)
-	{
-		for (auto i = 0U; i < m_pso.m_VSState.m_constantBuffers.size(); ++i)
-		{
-			if (m_pso.m_VSState.m_constantBuffers[i])
-			{
-				auto& cbvTable = descriptorRanges[numDescriptorUsed++];
-				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i);
-				CD3DX12_ROOT_PARAMETER param;
-				param.InitAsDescriptorTable(1, &cbvTable);
-				slotRootParameters.push_back(param);
-			}
-		}
-	}
+	collectBindingInfo(m_pso.m_VSState, usedRegisterCBV, usedRegisterSRV);
+	collectBindingInfo(m_pso.m_PSState, usedRegisterCBV, usedRegisterSRV);
 
-	if (m_pso.m_PSState.m_shader)
-	{
-		for (auto i = 0U; i < m_pso.m_PSState.m_constantBuffers.size(); ++i)
-		{
-			if (m_pso.m_PSState.m_constantBuffers[i])
-			{
-				auto& cbvTable = descriptorRanges[numDescriptorUsed++];
-				cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, i + static_cast<u32>(slotRootParameters.size()));
-				CD3DX12_ROOT_PARAMETER param;
-				param.InitAsDescriptorTable(1, &cbvTable);
-				slotRootParameters.push_back(param);
-			}
-		}
+	checkBindingInfo(usedRegisterCBV);
+	const auto usedCBVCount = std::count(usedRegisterCBV.begin(), usedRegisterCBV.end(), 2U);
+	if (usedCBVCount > 0)
+		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, (u32)usedCBVCount, 0));
 
-		for (auto i = 0U; i < m_pso.m_PSState.m_shaderResources.size(); ++i)
-		{
-			if (m_pso.m_PSState.m_shaderResources[i])
-			{
-				auto& texTable = descriptorRanges[numDescriptorUsed++];
-				texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
-				CD3DX12_ROOT_PARAMETER param;
-				param.InitAsDescriptorTable(1, &texTable);
-				slotRootParameters.push_back(param);
-			}
-		}
-	}
-	assert(numDescriptorUsed <= MaxDescriptor);
+	checkBindingInfo(usedRegisterSRV);
+	const auto usedSRVCount = std::count(usedRegisterSRV.begin(), usedRegisterSRV.end(), 2U);
+	if (usedSRVCount > 0)
+		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (u32)usedSRVCount, 0));
+
+	m_pso.m_usedCBV_SRV_UAV_Count = static_cast<u32>(usedCBVCount + usedSRVCount);
+
+	CD3DX12_ROOT_PARAMETER slotRootParameter;
+	slotRootParameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
 
 	// A root signature is an array of root parameters.
-	const u32 numParameters = static_cast<u32>(slotRootParameters.size());
+	const u32 numParameters = m_pso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
 	auto samplers = ConfigStaticSamplerStates();
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, slotRootParameters.empty() ? nullptr : &*slotRootParameters.begin(), 
-		static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : &*samplers.begin(), 
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter, 
+		static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer

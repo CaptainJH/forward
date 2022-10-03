@@ -23,7 +23,7 @@
 
 #include <dxgidebug.h>
 
-#include "WinPixEventRuntime/pix3.h"
+#include "pix3.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -550,9 +550,10 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		m_CommandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
 
-
 	pso->Bind(CommandList());
-	BindGPUVisibleHeaps();
+	for (auto& heap : m_DynamicDescriptorHeaps)
+		heap.BindDescriptorTableToRootParam(CommandList(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+
 	// Draw
 	pass.Execute(*this);
 	
@@ -730,10 +731,14 @@ void DeviceDX12::EndDrawFrameGraph()
 			// Reusing the command list reuses memory.
 			HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), devicePSO));
 			bResetCommandList = true;
+
+			BindGPUVisibleHeaps();
 		}
 		PrepareGPUVisibleHeaps(*renderPass.m_renderPass);
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
+	for (auto& heap : m_DynamicDescriptorHeaps)
+		heap.CommitStagedDescriptors();
 
 	// Done recording commands.
 	HR(m_CommandList->Close());
@@ -768,63 +773,83 @@ void DeviceDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
 
-	for (auto& heap : m_DynamicDescriptorHeaps)
+	if (pso.m_usedCBV_SRV_UAV_Count > 0)
 	{
-		heap.PrepareDescriptorHandleCache(pso);
-	}
-
-	// stage CBVs
-	u32 index = 0;
-	auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_VSState.m_constantBuffers[i];
-		if (cb)
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+		if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
 		{
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			assert(deviceCB);
-			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
+			u32 stagedCBVs = 0;
+			u32 stagedSRVs = 0;
+			auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
+				assert(deviceCB);
+				*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
+			};
+			auto stageSRVFunc = [&](DeviceTextureDX12* deviceTex) {
+				assert(deviceTex);
+				*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+			};
+
+			// stage CBVs
+			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
+			{
+				if (auto cb_vs = pso.m_VSState.m_constantBuffers[i])
+				{
+					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_vs);
+					stageCBVFunc(deviceCB);
+				}
+				else if (auto cb_gs = pso.m_GSState.m_constantBuffers[i])
+				{
+					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_gs);
+					stageCBVFunc(deviceCB);
+				}
+				else if (auto cb_ps = pso.m_PSState.m_constantBuffers[i])
+				{
+					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_ps);
+					stageCBVFunc(deviceCB);
+				}
+				else
+					break;
+			}
+
+			// stage SRVs
+			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
+			{
+				if (auto res_vs = pso.m_VSState.m_shaderResources[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_vs);
+					stageSRVFunc(deviceTex);
+				}
+				else if (auto res_gs = pso.m_GSState.m_shaderResources[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_gs);
+					stageSRVFunc(deviceTex);
+				}
+				else if (auto res_ps = pso.m_PSState.m_shaderResources[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_ps);
+					stageSRVFunc(deviceTex);
+				}
+				else
+					break;
+			}
+
+			assert(stagedCBVs + stagedSRVs == pso.m_usedCBV_SRV_UAV_Count);
 		}
 	}
 
-	for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
+	if (pso.m_usedSampler_Count > 0)
 	{
-		auto cb = pso.m_GSState.m_constantBuffers[i];
-		if (cb)
-		{
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			assert(deviceCB);
-			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
-		}
-	}
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER];
+		heap.PrepareDescriptorHandleCache(pso.m_usedSampler_Count);
 
-	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_PSState.m_constantBuffers[i];
-		if (cb)
-		{
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			assert(deviceCB);
-			heap.StageDescriptors(index++, 0, 1, deviceCB->GetCBViewCPUHandle());
-		}
-	}
-
-	for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
-	{
-		auto res = pso.m_PSState.m_shaderResources[i];
-		if (res)
-		{
-			auto deviceTex = device_cast<DeviceTexture2DDX12*>(res);
-			assert(deviceTex);
-			heap.StageDescriptors(index++, 0, 1, deviceTex->GetShaderResourceViewHandle());
-		}
+		// TODO: stage Samplers
 	}
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::BindGPUVisibleHeaps()
 {
 	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-	cbvHeap.CommitStagedDescriptors(CommandList(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+	cbvHeap.BindGPUVisibleDescriptorHeap(CommandList());
 }
 //--------------------------------------------------------------------------------
 shared_ptr<Texture2D> DeviceDX12::GetDefaultRT() const

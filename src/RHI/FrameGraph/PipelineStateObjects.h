@@ -336,6 +336,9 @@ namespace forward
 		PixelShaderStageState		m_PSState;
 		ComputeShaderStageState		m_CSState;
 
+		u32 m_usedCBV_SRV_UAV_Count = 0;
+		u32 m_usedSampler_Count = 0;
+
 		// For DirectX12
 		shared_ptr<DeviceObject>	m_devicePSO;
 	};

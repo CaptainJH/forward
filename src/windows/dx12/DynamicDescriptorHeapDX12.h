@@ -22,9 +22,10 @@ namespace forward
 
 		void Reset();
 
-		void PrepareDescriptorHandleCache(const PipelineStateObject& pso);
-		void StageDescriptors(u32 rootParameterIndex, u32 offset, u32 numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptor);
-		void CommitStagedDescriptors(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
+		D3D12_CPU_DESCRIPTOR_HANDLE* PrepareDescriptorHandleCache(u32 registerCount);
+		void BindGPUVisibleDescriptorHeap(ID3D12GraphicsCommandList* commandList);
+		void BindDescriptorTableToRootParam(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
+		void CommitStagedDescriptors();
 
 	private:
 		/**
@@ -87,7 +88,7 @@ namespace forward
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandleCache;
 
 		u32 m_currentDescriptorTableOffset = 0;
-		u32 m_currentDescriptorTableLength = 0;
+		u32 m_currentDescriptorHandleCacheOffset = 0;
 
 	private:
 		// Request a descriptor heap if one is available.

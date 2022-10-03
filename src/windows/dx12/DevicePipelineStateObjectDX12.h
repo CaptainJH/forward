@@ -7,6 +7,7 @@
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ShaderSystem/Shader.h"
 #include "dx12/dx12Util.h"
+#include "dx12/ShaderSystem/ShaderDX12.h"
 
 
 namespace forward
@@ -17,7 +18,7 @@ namespace forward
 	class DevicePipelineStateObjectDX12 : public DeviceObject
 	{
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* render, const PipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* render, PipelineStateObject& pso);
 		virtual ~DevicePipelineStateObjectDX12();
 
 		ID3D12PipelineState* GetDevicePSO();
@@ -29,7 +30,7 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
-		const PipelineStateObject&	m_pso;
+		PipelineStateObject&			m_pso;
 
 		// Conversions from FrameGraph values to DX12 values.
 		static D3D12_FILL_MODE const msFillMode[];
@@ -50,5 +51,61 @@ namespace forward
 		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
 		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
 		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
+
+		template<class T, i32 N, i32 K>
+		void collectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV) const
+		{
+			if (shaderStageState.m_shader)
+			{
+				auto deviceShader = device_cast<ShaderDX12*>(shaderStageState.m_shader);
+				for (auto& cb : deviceShader->GetCBuffers())
+				{
+					auto register_index = cb.GetBindPoint();
+					assert(usedRegisterCBV[register_index] == 0
+						&& cb.GetBindCount() == 1);
+					++usedRegisterCBV[register_index];
+				}
+				for (auto i = 0U; i < shaderStageState.m_constantBuffers.size(); ++i)
+				{
+					if (shaderStageState.m_constantBuffers[i])
+					{
+						assert(usedRegisterCBV[i] == 1);
+						++usedRegisterCBV[i];
+					}
+				}
+
+				for (auto& tex : deviceShader->GetTextures())
+				{
+					auto register_index = tex.GetBindPoint();
+					assert(usedRegisterSRV[register_index] == 0
+						&& tex.GetBindCount() == 1);
+					++usedRegisterSRV[register_index];
+				}
+				for (auto i = 0U; i < shaderStageState.m_shaderResources.size(); ++i)
+				{
+					if (shaderStageState.m_shaderResources[i])
+					{
+						assert(usedRegisterSRV[i] == 1);
+						++usedRegisterSRV[i];
+					}
+				}
+			}
+		}
+
+		template<i32 N>
+		bool checkBindingInfo(std::array<u32, N>& usedRegisterArray) const
+		{
+			const u64 ZeroCount = std::count(usedRegisterArray.begin(), usedRegisterArray.end(), 0U);
+			if (ZeroCount == usedRegisterArray.size())
+				return true;
+
+			auto lastTwo = std::find(usedRegisterArray.rbegin(), usedRegisterArray.rend(), 2U);
+			const u64 gapCount = std::abs(std::distance(usedRegisterArray.rbegin(), lastTwo));
+			if (usedRegisterArray[0] == 2 && gapCount == ZeroCount)
+				return true;
+
+			assert(false && "something wrong with the binding info!");
+			return false;
+		}
 	};
 }

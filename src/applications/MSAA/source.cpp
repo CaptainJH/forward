@@ -121,7 +121,7 @@ bool MSAA_Demo::Init()
 		m_constantBufferVS = make_shared<ConstantBuffer<CBufferTypeVS>>("CB0");
 		m_constantBufferPS = make_shared<ConstantBuffer<CBufferTypePS>>("CB1");
 		pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
-		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
+		pso.m_PSState.m_constantBuffers[1] = m_constantBufferPS;
 
 		// setup render targets
 		auto dsPtr = m_pDevice->GetDefaultDS();
@@ -154,7 +154,7 @@ bool MSAA_Demo::Init()
 
 		// setup constant buffer
 		pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
-		pso.m_PSState.m_constantBuffers[0] = m_constantBufferPS;
+		pso.m_PSState.m_constantBuffers[1] = m_constantBufferPS;
 
 		// setup render targets
 		m_msaa_rt = make_shared<Texture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
