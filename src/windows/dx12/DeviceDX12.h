@@ -72,7 +72,7 @@ namespace forward
         // Access to the renderer.  There should only be a single instance
 		// of the renderer at any given time.
 
-		RendererAPI GetRendererAPI() const override { return DirectX12; }
+		RendererAPI GetRendererAPI() const override { return RendererAPI::DirectX12; }
 
 		void DrawRenderPass(RenderPass& pass) override;
 
@@ -95,8 +95,10 @@ namespace forward
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 
-		virtual shared_ptr<Texture2D> GetDefaultRT() const override;
-		virtual shared_ptr<Texture2D> GetDefaultDS() const override;
+		shared_ptr<Texture2D> GetDefaultRT() const override;
+		shared_ptr<Texture2D> GetDefaultDS() const override;
+
+		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
 
 		///////////////////////////////////////////////////////////////////////
 

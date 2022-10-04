@@ -489,7 +489,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 //#endif
 //		break;
 
-	case Device_Forward_DX12:
+	case DeviceType::Device_Forward_DX12:
 	{
 		auto renderDX12 = new DeviceDX12;
 		m_pDevice = renderDX12;

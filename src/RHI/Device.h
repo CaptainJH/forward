@@ -1,5 +1,5 @@
 //***************************************************************************************
-// render.h by Heqi Ju (C) 2017 All Rights Reserved.
+// Device.h by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #pragma once
 #include <map>
@@ -7,11 +7,11 @@
 #include "DataFormat.h"
 #include "Vector4f.h"
 #include "ResourceSystem/DeviceResource.h"
-
+#include "CommandQueue.h"
 
 namespace forward
 {
-	enum DeviceType
+	enum class DeviceType
 	{
 		Device_Hieroglyph,
 		Device_Forward_DX11,
@@ -19,7 +19,7 @@ namespace forward
         Device_Forward_Metal,
 	};
 
-	enum RendererAPI
+	enum class RendererAPI
 	{
 		DirectX11,
 		DirectX12,
@@ -82,6 +82,8 @@ namespace forward
 		virtual shared_ptr<Texture2D> GetDefaultRT() const = 0;
 		virtual shared_ptr<Texture2D> GetDefaultDS() const = 0;
 
+		virtual shared_ptr<CommandQueue> MakeCommandQueue(QueueType t=QueueType::Direct) = 0;
+
 		void AddExternalResource(const char* name, void* res);
 
 		LoadedResourceManager mLoadedResourceMgr;
@@ -103,11 +105,5 @@ namespace forward
 			}
 			return nullptr;
 		}
-
-
-
-		// Static renderer access - used for accessing the renderer when no reference
-		// is already available.
-		static Device*					m_spRenderer;
 	};
 }

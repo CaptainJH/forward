@@ -1,5 +1,5 @@
 //***************************************************************************************
-// render.cpp by Heqi Ju (C) 2017 All Rights Reserved.
+// Device.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
 #include "Device.h"
 #include "RHI/FrameGraph/FrameGraph.h"
@@ -7,13 +7,9 @@
 using namespace forward;
 
 //--------------------------------------------------------------------------------
-Device* Device::m_spRenderer = nullptr;
-//--------------------------------------------------------------------------------
 
 Device::Device()
 {
-	if (m_spRenderer == nullptr)
-		m_spRenderer = this;
 }
 
 Device::~Device()

@@ -19,6 +19,7 @@
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
+#include "dx12/CommandQueueDX12.h"
 #include "utilities/FileSaver.h"
 
 #include <dxgidebug.h>
@@ -960,6 +961,11 @@ void DeviceDX12::ReportLiveObjects()
 
 	dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_IGNORE_INTERNAL);
 	dxgiDebug->Release();
+}
+
+shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
+{
+	return shared_ptr<forward::CommandQueue>(new CommandQueueDX12(*this, t));
 }
 
 void DeviceContext::SetCurrentDevice(DeviceDX12* render)
