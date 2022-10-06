@@ -5,6 +5,16 @@
 
 using namespace forward;
 
+void CommandListDX12::Reset()
+{
+
+}
+
+void CommandListDX12::Close()
+{
+
+}
+
 CommandListDX12::CommandListDX12(Device& d) 
 	: CommandList(d) 
 {}
@@ -26,11 +36,6 @@ void CommandListDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 void CommandListDX12::DrawIndexed(u32 indexCount)
 {
 	indexCount;
-}
-
-void CommandListDX12::Reset()
-{
-
 }
 
 void CommandListDX12::BeginDrawFrameGraph(FrameGraph* fg)

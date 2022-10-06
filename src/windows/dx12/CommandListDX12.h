@@ -8,23 +8,25 @@
 
 namespace forward
 {
-	class CommandListDX12 : public CommandList
+	class CommandQueueDX12;
+
+	class CommandListDX12 final : public CommandList
 	{
 	public:
-		CommandListDX12(Device& d);
 		virtual ~CommandListDX12();
+		void Reset() override;
+		void Close() override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
-		void Draw(u32 vertexNum, u32 startVertexLocation = 0) override;
+		void Draw(u32 vertexNum, u32 startVertexLocation) override;
 		void DrawIndexed(u32 indexCount) override;
-		void Reset() override;
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 		void DrawRenderPass(RenderPass& pass) override;
 
-	protected:
-
+	private:
+		CommandListDX12(Device& d);
 		CommandAllocatorComPtr				m_CmdListAlloc;
 		CommandListComPtr						m_CmdList;
 
@@ -33,5 +35,7 @@ namespace forward
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
 		};
+
+		friend class CommandQueueDX12;
 	};
 }

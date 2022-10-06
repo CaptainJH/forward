@@ -965,7 +965,7 @@ void DeviceDX12::ReportLiveObjects()
 
 shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
 {
-	return shared_ptr<forward::CommandQueue>(new CommandQueueDX12(*this, t));
+	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t));
 }
 
 void DeviceContext::SetCurrentDevice(DeviceDX12* render)

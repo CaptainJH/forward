@@ -4,26 +4,29 @@
 #pragma once
 
 #include "RHI/CommandQueue.h"
-#include "CommandListDX12.h"
+#include "dx12Util.h"
 
 namespace forward
 {
+	class SwapChain;
 	class CommandQueueDX12 : public CommandQueue
 	{
 	public:
 		virtual ~CommandQueueDX12();
 
 		shared_ptr<CommandList> GetCommandList() override;
-		u64 ExecuteCommandList(shared_ptr<CommandList> commandList) override;
+		u64 ExecuteCommandList() override;
 		u64 Signal() override;
 		bool IsFenceComplete(u64 fenceValue) override;
-		void WaitForFenceValue(u64 fenceValue) override;
+		void WaitForGPU(u64 fenceValue) override;
 		void Flush() override;
-		void Wait(const CommandQueue& other) override;
+		void WaitFor(const CommandQueue& other) override;
 
 	protected:
 		CommandQueueDX12(Device& d, QueueType t);
 		CommandQueueComPtr	m_CommandQueue;
+		FenceComPtr					m_Fence;
+		atomic_u64						m_FenceValue;
 
 		friend class DeviceDX12;
 	};

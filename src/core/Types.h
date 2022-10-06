@@ -18,6 +18,8 @@ namespace forward
 	typedef unsigned int u32;
 	typedef unsigned long long u64;
 
+	typedef std::atomic_uint64_t	atomic_u64;
+
 	typedef float f32;
 	typedef double f64;
 

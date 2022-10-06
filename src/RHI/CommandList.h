@@ -20,12 +20,13 @@ namespace forward
 		CommandList(Device& device) : m_device(device) {}
 		virtual ~CommandList() {}
 
+		virtual void Reset() = 0;
+		virtual void Close() = 0;
+		Device& GetDevice() { return m_device; }
+
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation = 0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
-		virtual void Reset() = 0;
-
-		Device& GetDevice() { return m_device; }
 
 		// FrameGraph APIs
 		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;
