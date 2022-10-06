@@ -29,7 +29,7 @@ shared_ptr<CommandList> CommandQueueDX12::GetCommandList()
 {
 	if (m_CmdListPool.empty())
 	{
-		shared_ptr<CommandListDX12> ret = new CommandListDX12(m_device);
+		shared_ptr<CommandListDX12> ret = new CommandListDX12(m_device, m_queueType);
 		m_CmdListPool.push_back(ret);
 		return ret;
 	}
@@ -46,7 +46,7 @@ u64 CommandQueueDX12::ExecuteCommandList()
 	auto cmdList = static_cast<CommandListDX12*>(cmdListPtr.get());
 
 	ID3D12CommandList* deviceCmdsLists[] = { cmdList->m_CmdList.Get()};
-	m_CommandQueue->ExecuteCommandLists(1U, deviceCmdsLists);
+	m_CommandQueue->ExecuteCommandLists(_countof(deviceCmdsLists), deviceCmdsLists);
 	auto fenceValue = Signal();
 	m_InFlightCmdLists.push(std::make_pair(fenceValue, cmdListPtr));
 	return fenceValue;

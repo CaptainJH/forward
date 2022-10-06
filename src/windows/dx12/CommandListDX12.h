@@ -8,6 +8,7 @@
 
 namespace forward
 {
+	enum class QueueType;
 	class CommandQueueDX12;
 
 	class CommandListDX12 final : public CommandList
@@ -26,7 +27,7 @@ namespace forward
 		void DrawRenderPass(RenderPass& pass) override;
 
 	private:
-		CommandListDX12(Device& d);
+		CommandListDX12(Device& d, QueueType t);
 		CommandAllocatorComPtr				m_CmdListAlloc;
 		CommandListComPtr						m_CmdList;
 
