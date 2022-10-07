@@ -20,6 +20,7 @@
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
 #include "dx12/CommandQueueDX12.h"
+#include "dx12/CommandListDX12.h"
 #include "utilities/FileSaver.h"
 
 #include <dxgidebug.h>
@@ -281,7 +282,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		.SwapEffect = desc.SwapEffect,
 		.Flags = desc.Flags
 	};
-	HR(m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), desc.OutputWindow, &swapChainDesc, nullptr, nullptr,
+	HR(m_Factory->CreateSwapChainForHwnd(CommandQueue(), desc.OutputWindow, &swapChainDesc, nullptr, nullptr,
 		SwapChain.GetAddressOf()));
 	HR(m_Factory->MakeWindowAssociation(desc.OutputWindow, DXGI_MWA_NO_ALT_ENTER));
 
@@ -308,14 +309,14 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		texVector.push_back(tex->GetTexture2D());
 	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr);
 
-	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
+	m_queue->GetCommandList()->Reset();
 
 	// Transition the resource from its initial state to be used as a depth buffer.
 	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-	HR(m_CommandList->Close());
-	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
-	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	HR(CommandList()->Close());
+	ID3D12CommandList* cmdsLists[] = { CommandList()};
+	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Wait until resize is complete.
 	FlushCommandQueue();
@@ -325,23 +326,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 //--------------------------------------------------------------------------------
 void DeviceDX12::CreateCommandObjects()
 {
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	HR(m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.GetAddressOf())));
-
-	HR(m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-		IID_PPV_ARGS(m_DirectCmdListAlloc.GetAddressOf())));
-
-	HR(m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-		m_DirectCmdListAlloc.Get(),
-		nullptr,
-		IID_PPV_ARGS(m_CommandList.GetAddressOf())));
-
-	// Start off in a closed state.  This is because the first time we refer 
-	// to the command list we will Reset it, and it needs to be closed before
-	// calling Reset.
-	HR(m_CommandList->Close());
+	m_queue = static_cast<CommandQueueDX12*>(MakeCommandQueue(QueueType::Direct).get());
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::FlushCommandQueue()
@@ -352,7 +337,7 @@ void DeviceDX12::FlushCommandQueue()
 	// Add an instruction to the command queue to set a new fence point.  Because we 
 	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
 	// processing all the commands prior to this Signal().
-	HR(m_CommandQueue->Signal(m_pFence.Get(), m_CurrentFence));
+	HR(CommandQueue()->Signal(m_pFence.Get(), m_CurrentFence));
 
 	// Wait until the GPU has completed commands up to this fence point.
 	if (m_pFence->GetCompletedValue() < m_CurrentFence)
@@ -372,7 +357,7 @@ void DeviceDX12::OnResize()
 {
 	FlushCommandQueue();
 
-	HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
+	m_queue->GetCommandList()->Reset();
 
 	// Release the previous resources we will be recreating.
 	//for (i32 i = 0; i < SwapChainBufferCount; ++i)
@@ -430,7 +415,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PipelineStateObject& ps
 //--------------------------------------------------------------------------------
 void DeviceDX12::ResetCommandList()
 {
-	m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr);
+	m_queue->GetCommandList()->Reset();
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
@@ -513,7 +498,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-	m_CommandList->RSSetViewports(1, &mScreenViewport);
+	CommandList()->RSSetViewports(1, &mScreenViewport);
 	D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 	memset(aRects, 0, sizeof(aRects));
 	if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
@@ -526,11 +511,11 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			aRects[i].right = rect.width;
 			aRects[i].top = rect.top;
 		}
-		m_CommandList->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
+		CommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
 	}
 	else
 	{
-		m_CommandList->RSSetScissorRects(1, &mScissorRect);
+		CommandList()->RSSetScissorRects(1, &mScissorRect);
 	}
 
 	// Indicate a state transition on the resource usage.
@@ -539,21 +524,20 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
-	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	CommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 	{
-		m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+		CommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
 	}
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 	{
-		m_CommandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		CommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
 
 	pso->Bind(CommandList());
-	for (auto& heap : m_DynamicDescriptorHeaps)
-		heap.BindDescriptorTableToRootParam(CommandList(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+	m_queue->GetCommandListDX12()->BindDescriptorTableToRootParam();
 
 	// Draw
 	pass.Execute(*this);
@@ -706,48 +690,28 @@ void DeviceDX12::EndDrawFrameGraph()
 	m_currentFrameGraph->LinkInfo();
 	//CompileCurrentFrameGraph();
 
-	// Reuse the memory associated with command recording.
-	// We can only reset when the associated command lists have finished execution on the GPU.
-	HR(m_DirectCmdListAlloc->Reset());
-	std::for_each(std::begin(m_DynamicDescriptorHeaps), std::end(m_DynamicDescriptorHeaps), 
-		[](DynamicDescriptorHeapDX12& heap) {
-		heap.Reset();
-	});
-
 	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
 	for (auto renderPass : renderPassDB)
 	{
 		PrepareRenderPass(*renderPass.m_renderPass);
 	}
 
-	bool bResetCommandList = false;
+	ResetCommandList();
+	m_queue->GetCommandListDX12()->BindGPUVisibleHeaps();
 	for (auto renderPass : renderPassDB)
 	{
-		if (!bResetCommandList)
-		{
-			auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(renderPass.m_renderPass->GetPSO().m_devicePSO.get());
-			auto devicePSO = pso->GetDevicePSO();
-
-			// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-			// Reusing the command list reuses memory.
-			HR(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), devicePSO));
-			bResetCommandList = true;
-
-			BindGPUVisibleHeaps();
-		}
-		PrepareGPUVisibleHeaps(*renderPass.m_renderPass);
+		m_queue->GetCommandListDX12()->PrepareGPUVisibleHeaps(*renderPass.m_renderPass);
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
-	for (auto& heap : m_DynamicDescriptorHeaps)
-		heap.CommitStagedDescriptors();
+	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
 
 	// Done recording commands.
-	HR(m_CommandList->Close());
+	HR(CommandList()->Close());
 
 	PIXBeginEvent(PIX_COLOR_INDEX(3), "Execution");
 	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
-	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	ID3D12CommandList* cmdsLists[] = { CommandList()};
+	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	PIXEndEvent();
 
 	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
@@ -769,89 +733,7 @@ void DeviceDX12::EndDrawFrameGraph()
 	m_currentFrameGraph = nullptr;
 	PIXEndEvent();
 }
-//--------------------------------------------------------------------------------
-void DeviceDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
-{
-	auto& pso = pass.GetPSO();
 
-	if (pso.m_usedCBV_SRV_UAV_Count > 0)
-	{
-		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-		if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
-		{
-			u32 stagedCBVs = 0;
-			u32 stagedSRVs = 0;
-			auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
-				assert(deviceCB);
-				*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
-			};
-			auto stageSRVFunc = [&](DeviceTextureDX12* deviceTex) {
-				assert(deviceTex);
-				*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
-			};
-
-			// stage CBVs
-			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
-			{
-				if (auto cb_vs = pso.m_VSState.m_constantBuffers[i])
-				{
-					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_vs);
-					stageCBVFunc(deviceCB);
-				}
-				else if (auto cb_gs = pso.m_GSState.m_constantBuffers[i])
-				{
-					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_gs);
-					stageCBVFunc(deviceCB);
-				}
-				else if (auto cb_ps = pso.m_PSState.m_constantBuffers[i])
-				{
-					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_ps);
-					stageCBVFunc(deviceCB);
-				}
-				else
-					break;
-			}
-
-			// stage SRVs
-			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
-			{
-				if (auto res_vs = pso.m_VSState.m_shaderResources[i])
-				{
-					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_vs);
-					stageSRVFunc(deviceTex);
-				}
-				else if (auto res_gs = pso.m_GSState.m_shaderResources[i])
-				{
-					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_gs);
-					stageSRVFunc(deviceTex);
-				}
-				else if (auto res_ps = pso.m_PSState.m_shaderResources[i])
-				{
-					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_ps);
-					stageSRVFunc(deviceTex);
-				}
-				else
-					break;
-			}
-
-			assert(stagedCBVs + stagedSRVs == pso.m_usedCBV_SRV_UAV_Count);
-		}
-	}
-
-	if (pso.m_usedSampler_Count > 0)
-	{
-		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER];
-		heap.PrepareDescriptorHandleCache(pso.m_usedSampler_Count);
-
-		// TODO: stage Samplers
-	}
-}
-//--------------------------------------------------------------------------------
-void DeviceDX12::BindGPUVisibleHeaps()
-{
-	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-	cbvHeap.BindGPUVisibleDescriptorHeap(CommandList());
-}
 //--------------------------------------------------------------------------------
 shared_ptr<Texture2D> DeviceDX12::GetDefaultRT() const
 {
@@ -888,7 +770,7 @@ void DeviceDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE
 
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetDeviceResource().Get(),
 		resource->GetResourceState(), newState);
-	m_CommandList->ResourceBarrier(1, &barrier);
+	CommandList()->ResourceBarrier(1, &barrier);
 	resource->SetResourceState(newState);
 }
 //--------------------------------------------------------------------------------
@@ -916,7 +798,6 @@ DeviceDX12* DeviceContext::GetCurrentDevice()
 
 void DeviceDX12::BeginDraw()
 {
-	HR(m_DirectCmdListAlloc->Reset());
 	ResetCommandList();
 
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
@@ -926,14 +807,14 @@ void DeviceDX12::BeginDraw()
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
-	m_CommandList->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	CommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
-	m_CommandList->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
-	m_CommandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	CommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+	CommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	m_CommandList->RSSetViewports(1, &mScreenViewport);
-	m_CommandList->RSSetScissorRects(1, &mScissorRect);
+	CommandList()->RSSetViewports(1, &mScreenViewport);
+	CommandList()->RSSetScissorRects(1, &mScissorRect);
 
 }
 
@@ -966,6 +847,17 @@ void DeviceDX12::ReportLiveObjects()
 shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
 {
 	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t));
+}
+
+ID3D12GraphicsCommandList* DeviceDX12::CommandList()
+{
+	auto ptr = static_cast<CommandListDX12*>(m_queue->GetCommandList().get());
+	return ptr->GetDeviceCmdListPtr().Get();
+}
+
+ID3D12CommandQueue* DeviceDX12::CommandQueue()
+{
+	return m_queue->m_CommandQueue.Get();
 }
 
 void DeviceContext::SetCurrentDevice(DeviceDX12* render)

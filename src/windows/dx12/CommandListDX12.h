@@ -22,9 +22,17 @@ namespace forward
 		void Draw(u32 vertexNum, u32 startVertexLocation) override;
 		void DrawIndexed(u32 indexCount) override;
 
+		void BindDescriptorTableToRootParam();
+		void BindGPUVisibleHeaps();
+		void PrepareGPUVisibleHeaps(RenderPass& pass);
+		void CommitStagedDescriptors();
+
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
 		void DrawRenderPass(RenderPass& pass) override;
+		void PopulateCmdsFrom(FrameGraph* fg) override;
+
+		CommandListComPtr GetDeviceCmdListPtr() { return m_CmdList; }
 
 	private:
 		CommandListDX12(Device& d, QueueType t);

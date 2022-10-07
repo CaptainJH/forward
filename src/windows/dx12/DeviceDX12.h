@@ -26,6 +26,7 @@ namespace forward
 	class SwapChain;
 	class DeviceResourceDX12;
 	class DeviceTexture2DDX12;
+	class CommandQueueDX12;
 	struct PipelineStateObject;
 
 
@@ -106,9 +107,9 @@ namespace forward
 		u32 GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const;
 
 		ID3D12Device* GetDevice();
-		ID3D12GraphicsCommandList* CommandList() { return m_CommandList.Get(); }
-		ID3D12CommandQueue* CommandQueue() { return m_CommandQueue.Get(); }
 		void ResetCommandList();
+		ID3D12GraphicsCommandList* CommandList();
+		ID3D12CommandQueue* CommandQueue();
 		void FlushCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 		void BeginDraw();
@@ -149,8 +150,6 @@ namespace forward
 		//--------------------------------------------------------
 
 		void PrepareRenderPass(RenderPass& pass);
-		void PrepareGPUVisibleHeaps(RenderPass& pass);
-		void BindGPUVisibleHeaps();
 
     private:
     	// The main API interfaces used in the renderer.
@@ -162,9 +161,7 @@ namespace forward
 
 		Microsoft::WRL::ComPtr<IDXGIFactory6> m_Factory;
 
-		CommandQueueComPtr					m_CommandQueue;
-		CommandAllocatorComPtr				m_DirectCmdListAlloc;
-		CommandListComPtr					m_CommandList;
+		shared_ptr<forward::CommandQueueDX12> m_queue;
 
 		DescriptorAllocator					m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = 
 		{
@@ -172,12 +169,6 @@ namespace forward
 			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-		};
-
-		DynamicDescriptorHeapDX12	m_DynamicDescriptorHeaps[2] =
-		{
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
 		};
 
 		FenceComPtr							m_pFence = nullptr;

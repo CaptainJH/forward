@@ -8,7 +8,7 @@
 
 namespace forward
 {
-	class SwapChain;
+	class CommandListDX12;
 	class CommandQueueDX12 : public CommandQueue
 	{
 	public:
@@ -21,6 +21,8 @@ namespace forward
 		void WaitForGPU(u64 fenceValue) override;
 		void Flush() override;
 		void WaitFor(const CommandQueue& other) override;
+
+		shared_ptr<CommandListDX12> GetCommandListDX12();
 
 	protected:
 		CommandQueueDX12(Device& d, QueueType t);

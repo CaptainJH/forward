@@ -32,6 +32,7 @@ namespace forward
 		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;
 		virtual void EndDrawFrameGraph() = 0;
 		virtual void DrawRenderPass(RenderPass& pass) = 0;
+		virtual void PopulateCmdsFrom(FrameGraph* fg) = 0;
 
 	protected:
 		Device& m_device;
