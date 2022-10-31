@@ -1,8 +1,8 @@
 //***************************************************************************************
 // d3dUtil.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
-#include "d3dUtil.h"
 #include <dxgi.h>
+#include "d3dUtil.h"
 
 using namespace forward;
 

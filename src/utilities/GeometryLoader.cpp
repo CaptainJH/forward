@@ -1,11 +1,11 @@
+#include "assimp\Importer.hpp"
+#include "assimp\scene.h"
+#include "assimp\postprocess.h"
 #include "Log.h"
 #include "GeometryLoader.h"
 #include "FileSystem.h"
 #include "dx11_Hieroglyph/ResourceSystem/Buffer/BufferConfigDX11.h"
 #include "TriangleIndices.h"
-#include "assimp\Importer.hpp"
-#include "assimp\scene.h"
-#include "assimp\postprocess.h"
 #include "utilities\Utils.h"
 #include <sstream>
 

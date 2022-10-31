@@ -92,7 +92,7 @@ void DeviceTextureCubeDX12::SyncCPUToGPU()
 	const auto num2DSubresource = 6 * resTex->GetMipLevelNum();
 
 	// Describe the data we want to copy into the default buffer.
-	std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new (std::nothrow) D3D12_SUBRESOURCE_DATA[num2DSubresource]);
+	std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new D3D12_SUBRESOURCE_DATA[num2DSubresource]);
 	assert(initData);
 
 	u32 skipMip = 0;

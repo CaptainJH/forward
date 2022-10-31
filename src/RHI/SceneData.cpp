@@ -1,12 +1,12 @@
-#include "SceneData.h"
-#include "FileSystem.h"
-#include "Log.h"
-#include "RHI/Device.h"
-
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
 #include <assimp/version.h>
+
+#include "SceneData.h"
+#include "FileSystem.h"
+#include "Log.h"
+#include "RHI/Device.h"
 
 using namespace forward;
 
