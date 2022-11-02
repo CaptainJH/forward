@@ -1,9 +1,7 @@
 //***************************************************************************************
 // d3dUtil.h by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
-
-#ifndef D3DUTIL_H
-#define D3DUTIL_H
+#pragma once
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC
@@ -72,5 +70,3 @@ namespace forward
 	void GetSurfaceInfo(u32 width, u32 height, DataFormatType df, u32* outNumBytes=nullptr, u32* outRowBytes=nullptr, u32* outNumRows=nullptr);
 
 }
-
-#endif // D3DUTIL_H
