@@ -1,13 +1,14 @@
 //***************************************************************************************
 // Texture.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
-
+#define TINYDDSLOADER_IMPLEMENTATION
 #include <filesystem>
 #include "Texture.h"
 #include "FileLoader.h"
 #include "FileSystem.h"
 #include "Log.h"
 #include "stb/stb_image.h"
+#include "tinyddsloader.h"
 
 using namespace forward;
 
@@ -24,7 +25,11 @@ Texture::Texture(const std::string& name, const std::wstring& filename)
 	: Resource(name)
 	, m_bindPosition(TBP_Shader)
 {
-	if (std::filesystem::path(filename).has_parent_path())
+	if (std::filesystem::exists(std::filesystem::path(filename)))
+	{
+		m_fileFullPath = filename;
+	}
+	else if (std::filesystem::path(filename).has_parent_path())
 	{
 		auto fileFullPath_data = forward::FileSystem::getSingleton().GetModelsFolder() + filename;
 		auto fileFullPath_deps = forward::FileSystem::getSingleton().GetExternFolder() + filename;
@@ -101,7 +106,7 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 	m_type = FGOT_TEXTURE2;
 
 	const auto ext = std::filesystem::path(m_fileFullPath).extension();
-	if (ext == L".png" || ext == L".jpg" || ext == L".bmp")
+	if (ext == L".png" || ext == L".jpg" || ext == L".bmp" || ext == L".tga")
 	{
 		auto texPath = TextHelper::ToAscii(m_fileFullPath);
 		i32 w, h, comp;
@@ -116,46 +121,55 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		stbi_image_free((void*)img);
 	}
 #ifdef WINDOWS
-	else if (ext == L".dds")
+	else if (ext == L".dds" || ext == L".DDS")
 	{
-		DDSFileLoader loader;
-		if (loader.Open(m_fileFullPath))
+		//DDSFileLoader loader;
+		//if (loader.Open(m_fileFullPath))
+		//{
+		//	return;
+		//}
+
+		//m_width = loader.GetImageWidth();
+		//m_height = loader.GetImageHeight();
+		//m_format = loader.GetImageFormat();
+		//m_mipLevelNum = loader.GetMipCount();
+
+		//bool isCubeMap = false;
+		//std::wstringstream wss;
+		//u32 dimension = 0;
+		//if (!loader.GetTextureDimension(dimension, isCubeMap))
+		//{
+		//	assert(dimension == 2);
+		//	assert(!isCubeMap);
+		//	if (dimension != 2 || isCubeMap)
+		//	{
+		//		wss << L"Get Texture Dimension Failed! (" << filename << ")";
+		//		auto text = wss.str();
+		//		Log::Get().Write(text);
+		//	}
+		//}
+		//else
+		//{
+		//	wss << L"Get Texture Dimension Failed! (" << filename << ")";
+		//	auto text = wss.str();
+		//	Log::Get().Write(text);
+		//}
+
+		//assert(m_format != DataFormatType::DF_UNKNOWN);
+
+		//m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
+		//m_numElements = loader.GetImageContentSize() / m_elementSize;
+		//Initialize(m_numElements, m_elementSize);
+		//memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
+
+		tinyddsloader::DDSFile dds;
+		auto filePathChar = TextHelper::ToAscii(m_fileFullPath);
+		auto ret = dds.Load(filePathChar.c_str());
+		if (tinyddsloader::Result::Success != ret) 
 		{
-			return;
+			std::cout << "Failed to load.[" << filePathChar << "]\n";
+			std::cout << "Result : " << int(ret) << "\n";
 		}
-
-		m_width = loader.GetImageWidth();
-		m_height = loader.GetImageHeight();
-		m_format = loader.GetImageFormat();
-		m_mipLevelNum = loader.GetMipCount();
-
-		bool isCubeMap = false;
-		std::wstringstream wss;
-		u32 dimension = 0;
-		if (!loader.GetTextureDimension(dimension, isCubeMap))
-		{
-			assert(dimension == 2);
-			assert(!isCubeMap);
-			if (dimension != 2 || isCubeMap)
-			{
-				wss << L"Get Texture Dimension Failed! (" << filename << ")";
-				auto text = wss.str();
-				Log::Get().Write(text);
-			}
-		}
-		else
-		{
-			wss << L"Get Texture Dimension Failed! (" << filename << ")";
-			auto text = wss.str();
-			Log::Get().Write(text);
-		}
-
-		assert(m_format != DataFormatType::DF_UNKNOWN);
-
-		m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
-		m_numElements = loader.GetImageContentSize() / m_elementSize;
-		Initialize(m_numElements, m_elementSize);
-		memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 	}
 #endif
 }

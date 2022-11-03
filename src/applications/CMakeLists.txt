@@ -11,6 +11,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#add_subdirectory(ShadowMapDemo)
 	#add_subdirectory(AssimpDemo)
 	#add_subdirectory(SDFShadowDemo)
+	add_subdirectory(TexLoadingTest)
 	#------DirectX 12 apps -----------
 	add_subdirectory(HelloDX12)
 	#add_subdirectory(BasicGeometryDX12)
