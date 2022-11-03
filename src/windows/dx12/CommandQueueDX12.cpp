@@ -99,10 +99,9 @@ void CommandQueueDX12::Flush()
 			CommandListEntry entry;
 			while (!m_InFlightCmdLists.try_pop(entry))
 			{
-				auto fenceValue = std::get<0>(entry);
 				auto cmdList = std::get<1>(entry);
 
-				assert(IsFenceComplete(fenceValue));
+				assert(IsFenceComplete(std::get<0>(entry)));
 				cmdList->Reset();
 				m_CmdListPool.push_back(cmdList);
 			}

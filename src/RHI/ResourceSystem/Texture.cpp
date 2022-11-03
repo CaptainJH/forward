@@ -110,7 +110,7 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 	{
 		auto texPath = TextHelper::ToAscii(m_fileFullPath);
 		i32 w, h, comp;
-		const auto img = stbi_load(texPath.c_str(), &w, &h, &comp, 4); img;
+		const auto img = stbi_load(texPath.c_str(), &w, &h, &comp, 4);
 		m_width = static_cast<u32>(w);
 		m_height = static_cast<u32>(h);
 		m_format = DF_R8G8B8A8_UNORM_SRGB;
@@ -162,14 +162,31 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		//Initialize(m_numElements, m_elementSize);
 		//memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 
-		tinyddsloader::DDSFile dds;
+		tinyddsloader::DDSFile loader;
 		auto filePathChar = TextHelper::ToAscii(m_fileFullPath);
-		auto ret = dds.Load(filePathChar.c_str());
+		auto ret = loader.Load(filePathChar.c_str());
 		if (tinyddsloader::Result::Success != ret) 
 		{
 			std::cout << "Failed to load.[" << filePathChar << "]\n";
 			std::cout << "Result : " << int(ret) << "\n";
 		}
+
+		m_width = loader.GetWidth();
+		m_height = loader.GetHeight();
+		m_format = (forward::DataFormatType)loader.GetFormat();
+		m_mipLevelNum = loader.GetMipCount();
+
+		assert(loader.GetTextureDimension() == tinyddsloader::DDSFile::TextureDimension::Texture2D);
+		assert(!loader.IsCubemap());
+		assert(m_format != DataFormatType::DF_UNKNOWN);
+		auto p = loader.GetBitsPerPixel(loader.GetFormat()); p;
+
+		auto imageData = loader.GetImageData();
+		m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
+		m_numElements = imageData->m_memSlicePitch;
+		Initialize(1, imageData->m_memSlicePitch);
+		memcpy(m_data, imageData->m_mem, imageData->m_memSlicePitch);
+
 	}
 #endif
 }

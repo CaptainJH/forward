@@ -86,6 +86,7 @@ void TexLoadingTest::DrawScene()
 
 	// Wait until initialization is complete.
 	device->FlushCommandQueue();
+	std::cout << texList.size() << " textures loaded" << std::endl;
 }
 
 bool TexLoadingTest::Init()
