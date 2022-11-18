@@ -6,7 +6,7 @@
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
-#include "WinPixEventRuntime/pix3.h"
+#include "pix3.h"
 
 using namespace forward;
 

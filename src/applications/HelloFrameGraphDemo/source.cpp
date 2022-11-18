@@ -2,7 +2,7 @@
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 
-#include "WinPixEventRuntime/pix3.h"
+#include "pix3.h"
 
 using namespace forward;
 
