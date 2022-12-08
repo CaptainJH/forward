@@ -108,8 +108,8 @@ namespace forward
 
 		ID3D12Device* GetDevice();
 		void ResetCommandList();
-		ID3D12GraphicsCommandList* CommandList();
-		ID3D12CommandQueue* CommandQueue();
+		ID3D12GraphicsCommandList* DeviceCommandList();
+		ID3D12CommandQueue* DeviceCommandQueue();
 		void FlushCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 		void BeginDraw();

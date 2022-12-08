@@ -191,7 +191,7 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 
 	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
 	{
-		auto cmdList = DeviceContext::GetCurrentDevice()->CommandList();
+		auto cmdList = DeviceContext::GetCurrentDevice()->DeviceCommandList();
 
 		// Describe the data we want to copy into the default buffer.
 		std::unique_ptr<D3D12_SUBRESOURCE_DATA[]> initData(new D3D12_SUBRESOURCE_DATA[resTex2->GetMipLevelNum()]);
@@ -234,14 +234,14 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 	DeviceContext::GetCurrentDevice()->TransitionResource(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	auto dstLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_stagingResPtr.Get(), PlacedFootprint);
 	auto srcLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_deviceResPtr.Get(), 0);
-	DeviceContext::GetCurrentDevice()->CommandList()->CopyTextureRegion(
+	DeviceContext::GetCurrentDevice()->DeviceCommandList()->CopyTextureRegion(
 		&dstLocation, 0, 0, 0,
 		&srcLocation, nullptr);
 	DeviceContext::GetCurrentDevice()->TransitionResource(this, state);
-	HR(DeviceContext::GetCurrentDevice()->CommandList()->Close());
+	HR(DeviceContext::GetCurrentDevice()->DeviceCommandList()->Close());
 
-	ID3D12CommandList* cmdLists[] = { DeviceContext::GetCurrentDevice()->CommandList() };
-	DeviceContext::GetCurrentDevice()->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	ID3D12CommandList* cmdLists[] = { DeviceContext::GetCurrentDevice()->DeviceCommandList() };
+	DeviceContext::GetCurrentDevice()->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 	DeviceContext::GetCurrentDevice()->FlushCommandQueue();
 
 	void* memory;

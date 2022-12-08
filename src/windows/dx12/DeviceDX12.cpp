@@ -282,7 +282,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		.SwapEffect = desc.SwapEffect,
 		.Flags = desc.Flags
 	};
-	HR(m_Factory->CreateSwapChainForHwnd(CommandQueue(), desc.OutputWindow, &swapChainDesc, nullptr, nullptr,
+	HR(m_Factory->CreateSwapChainForHwnd(DeviceCommandQueue(), desc.OutputWindow, &swapChainDesc, nullptr, nullptr,
 		SwapChain.GetAddressOf()));
 	HR(m_Factory->MakeWindowAssociation(desc.OutputWindow, DXGI_MWA_NO_ALT_ENTER));
 
@@ -314,9 +314,9 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	// Transition the resource from its initial state to be used as a depth buffer.
 	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-	HR(CommandList()->Close());
-	ID3D12CommandList* cmdsLists[] = { CommandList()};
-	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	HR(DeviceCommandList()->Close());
+	ID3D12CommandList* cmdsLists[] = { DeviceCommandList()};
+	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Wait until resize is complete.
 	FlushCommandQueue();
@@ -337,7 +337,7 @@ void DeviceDX12::FlushCommandQueue()
 	// Add an instruction to the command queue to set a new fence point.  Because we 
 	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
 	// processing all the commands prior to this Signal().
-	HR(CommandQueue()->Signal(m_pFence.Get(), m_CurrentFence));
+	HR(DeviceCommandQueue()->Signal(m_pFence.Get(), m_CurrentFence));
 
 	// Wait until the GPU has completed commands up to this fence point.
 	if (m_pFence->GetCompletedValue() < m_CurrentFence)
@@ -435,7 +435,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -450,7 +450,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -465,7 +465,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), CommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -498,7 +498,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-	CommandList()->RSSetViewports(1, &mScreenViewport);
+	DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
 	D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 	memset(aRects, 0, sizeof(aRects));
 	if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
@@ -511,11 +511,11 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			aRects[i].right = rect.width;
 			aRects[i].top = rect.top;
 		}
-		CommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
+		DeviceCommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
 	}
 	else
 	{
-		CommandList()->RSSetScissorRects(1, &mScissorRect);
+		DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
 	}
 
 	// Indicate a state transition on the resource usage.
@@ -524,19 +524,19 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
-	CommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 	{
-		CommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+		DeviceCommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
 	}
 	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 	{
-		CommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
 
-	pso->Bind(CommandList());
+	pso->Bind(DeviceCommandList());
 	m_queue->GetCommandListDX12()->BindDescriptorTableToRootParam();
 
 	// Draw
@@ -619,12 +619,12 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 //--------------------------------------------------------------------------------
 void DeviceDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 {
-	CommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
+	DeviceCommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawIndexed(u32 indexCount)
 {
-	CommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
+	DeviceCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
@@ -642,7 +642,7 @@ void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 	auto backStateSrc = srcDX12->GetResourceState();
 	TransitionResource(srcDX12, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
 	
-	CommandList()->ResolveSubresource(dstDX12->GetDeviceResource().Get(), 0, srcDX12->GetDeviceResource().Get(), 0, 
+	DeviceCommandList()->ResolveSubresource(dstDX12->GetDeviceResource().Get(), 0, srcDX12->GetDeviceResource().Get(), 0, 
 		static_cast<DXGI_FORMAT>(dst->GetFormat()));
 
 	TransitionResource(dstDX12, backStateDst);
@@ -706,12 +706,12 @@ void DeviceDX12::EndDrawFrameGraph()
 	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
 
 	// Done recording commands.
-	HR(CommandList()->Close());
+	m_queue->GetCommandListDX12()->Close();
 
 	PIXBeginEvent(PIX_COLOR_INDEX(3), "Execution");
 	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { CommandList()};
-	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	ID3D12CommandList* cmdsLists[] = { DeviceCommandList() };
+	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	PIXEndEvent();
 
 	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
@@ -770,7 +770,7 @@ void DeviceDX12::TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE
 
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetDeviceResource().Get(),
 		resource->GetResourceState(), newState);
-	CommandList()->ResourceBarrier(1, &barrier);
+	DeviceCommandList()->ResourceBarrier(1, &barrier);
 	resource->SetResourceState(newState);
 }
 //--------------------------------------------------------------------------------
@@ -807,14 +807,14 @@ void DeviceDX12::BeginDraw()
 	// Specify the buffers we are going to render to.
 	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
-	CommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 	// Clear the back buffer and depth buffer.
 	f32 clearColours[] = { Colors::LightSteelBlue.x, Colors::LightSteelBlue.y, Colors::LightSteelBlue.z, Colors::LightSteelBlue.w };
-	CommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
-	CommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	DeviceCommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+	DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	CommandList()->RSSetViewports(1, &mScreenViewport);
-	CommandList()->RSSetScissorRects(1, &mScissorRect);
+	DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
+	DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
 
 }
 
@@ -822,9 +822,9 @@ void DeviceDX12::EndDraw()
 {
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
-	CommandList()->Close();
-	ID3D12CommandList* cmdsLists[] = { CommandList() };
-	CommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	DeviceCommandList()->Close();
+	ID3D12CommandList* cmdsLists[] = { DeviceCommandList() };
+	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
 	m_SwapChain->Present();
@@ -849,13 +849,12 @@ shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
 	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t));
 }
 
-ID3D12GraphicsCommandList* DeviceDX12::CommandList()
+ID3D12GraphicsCommandList* DeviceDX12::DeviceCommandList()
 {
-	auto ptr = static_cast<CommandListDX12*>(m_queue->GetCommandList().get());
-	return ptr->GetDeviceCmdListPtr().Get();
+	return m_queue->GetCommandListDX12()->GetDeviceCmdListPtr().Get();
 }
 
-ID3D12CommandQueue* DeviceDX12::CommandQueue()
+ID3D12CommandQueue* DeviceDX12::DeviceCommandQueue()
 {
 	return m_queue->m_CommandQueue.Get();
 }

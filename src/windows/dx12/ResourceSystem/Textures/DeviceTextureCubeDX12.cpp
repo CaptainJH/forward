@@ -88,7 +88,7 @@ void DeviceTextureCubeDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOU
 void DeviceTextureCubeDX12::SyncCPUToGPU()
 {
 	auto resTex = GetFrameGraphTextureCube();
-	auto cmdList = DeviceContext::GetCurrentDevice()->CommandList();
+	auto cmdList = DeviceContext::GetCurrentDevice()->DeviceCommandList();
 	const auto num2DSubresource = 6 * resTex->GetMipLevelNum();
 
 	// Describe the data we want to copy into the default buffer.

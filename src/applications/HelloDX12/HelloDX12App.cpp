@@ -86,7 +86,7 @@ void HelloDX12::DrawScene()
 	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
 	m_pRender->BeginDraw();
 
-	auto commandList = m_pRender->CommandList();
+	auto commandList = m_pRender->DeviceCommandList();
 	ID3D12DescriptorHeap* descriptorHeaps[] = { m_cbvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
@@ -120,9 +120,9 @@ bool HelloDX12::Init()
 	BuildPSO();
 
 	// Execute the initialization commands
-	HR(m_pRender->CommandList()->Close());
-	ID3D12CommandList* cmdLists[] = { m_pRender->CommandList() };
-	m_pRender->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	HR(m_pRender->DeviceCommandList()->Close());
+	ID3D12CommandList* cmdLists[] = { m_pRender->DeviceCommandList() };
+	m_pRender->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
 	// Wait until initialization is complete.
 	m_pRender->FlushCommandQueue();
@@ -173,7 +173,7 @@ void HelloDX12::BuildGeometry()
 		HR(D3DCreateBlob(vbByteSize, &m_geometry->VertexBufferCPU));
 		CopyMemory(m_geometry->VertexBufferCPU->GetBufferPointer(), quadVertices, vbByteSize);
 		m_geometry->VertexBufferGPU = CreateDefaultBuffer(m_pRender->GetDevice(),
-			m_pRender->CommandList(), quadVertices, vbByteSize, m_geometry->VertexBufferUploader);
+			m_pRender->DeviceCommandList(), quadVertices, vbByteSize, m_geometry->VertexBufferUploader);
 
 		m_geometry->VertexByteStride = sizeof(Vertex);
 		m_geometry->VertexBufferByteSize = vbByteSize;

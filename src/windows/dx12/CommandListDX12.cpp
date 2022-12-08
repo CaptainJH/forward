@@ -24,7 +24,7 @@ void CommandListDX12::Reset()
 
 void CommandListDX12::Close()
 {
-	m_CmdList->Close();
+	HR(m_CmdList->Close());
 }
 
 CommandListDX12::CommandListDX12(Device& d, QueueType t) 

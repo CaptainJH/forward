@@ -18,7 +18,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render,
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = render->GetDevice();
-	auto commandList = render->CommandList();
+	auto commandList = render->DeviceCommandList();
 
 	VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
 	VertexShader* vsshader = pso.m_VSState.m_shader.get();
@@ -208,7 +208,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render,
 	// Execute the initialization commands
 	HR(commandList->Close());
 	ID3D12CommandList* cmdLists[] = { commandList };
-	render->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	render->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
 	// Wait until initialization is complete.
 	render->FlushCommandQueue();
