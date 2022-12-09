@@ -28,7 +28,7 @@ namespace forward
 
 		// Execute a command list.
 		// Returns the fence value to wait for for this command list.
-		virtual u64 ExecuteCommandList() = 0;
+		virtual shared_ptr<CommandList> ExecuteCommandList() = 0;
 
 		virtual u64 Signal() = 0;
 		virtual bool IsFenceComplete(u64 fenceValue) = 0;

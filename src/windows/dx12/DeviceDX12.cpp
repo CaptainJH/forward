@@ -679,12 +679,12 @@ void DeviceDX12::EndDrawFrameGraph()
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
 	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
-	m_queue->ExecuteCommandList();
 
-	if (m_SwapChain)
-		m_SwapChain->Present();
+	const auto fenceV = m_queue->ExecuteCommandList([=]() {
+		if (m_SwapChain) m_SwapChain->Present();
+		});
+	m_queue->WaitForGPU(fenceV);
 
-	FlushCommandQueue();
 	m_currentFrameGraph = nullptr;
 }
 

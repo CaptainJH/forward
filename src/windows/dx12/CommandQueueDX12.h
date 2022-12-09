@@ -15,7 +15,7 @@ namespace forward
 		virtual ~CommandQueueDX12();
 
 		shared_ptr<CommandList> GetCommandList() override;
-		u64 ExecuteCommandList() override;
+		shared_ptr<CommandList> ExecuteCommandList() override;
 		u64 Signal() override;
 		bool IsFenceComplete(u64 fenceValue) override;
 		void WaitForGPU(u64 fenceValue) override;
@@ -23,6 +23,16 @@ namespace forward
 		void WaitFor(const CommandQueue& other) override;
 
 		shared_ptr<CommandListDX12> GetCommandListDX12();
+
+		template<class F>
+		u64 ExecuteCommandList(F&& func)
+		{
+			auto cmdListPtr = ExecuteCommandList();
+			func();
+			auto fenceValue = Signal();
+			m_InFlightCmdLists.push(std::make_pair(fenceValue, cmdListPtr));
+			return fenceValue;
+		}
 
 	protected:
 		CommandQueueDX12(Device& d, QueueType t);
