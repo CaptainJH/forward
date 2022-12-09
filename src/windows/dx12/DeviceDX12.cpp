@@ -200,13 +200,6 @@ bool DeviceDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 	if (FAILED(hr))
 		return false;
 
-	hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence));
-	if (FAILED(hr))
-	{
-		Log::Get().Write(L"Fence creation failed!");
-		return false;
-	}
-
 	m_CbvSrvUavDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check 4X MSAA quality support for our back buffer format.
@@ -331,26 +324,8 @@ void DeviceDX12::CreateCommandObjects()
 //--------------------------------------------------------------------------------
 void DeviceDX12::FlushCommandQueue()
 {
-	// Advance the fence value to mark commands up to this fence point.
-	++m_CurrentFence;
-
-	// Add an instruction to the command queue to set a new fence point.  Because we 
-	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
-	// processing all the commands prior to this Signal().
-	HR(DeviceCommandQueue()->Signal(m_pFence.Get(), m_CurrentFence));
-
-	// Wait until the GPU has completed commands up to this fence point.
-	if (m_pFence->GetCompletedValue() < m_CurrentFence)
-	{
-		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
-
-		// Fire event when GPU hits current fence.  
-		HR(m_pFence->SetEventOnCompletion(m_CurrentFence, eventHandle));
-
-		// Wait until the GPU hits current fence event is fired.
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
-	}
+	auto fv = m_queue->Signal();
+	m_queue->WaitForGPU(fv);
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::OnResize()
@@ -704,34 +679,13 @@ void DeviceDX12::EndDrawFrameGraph()
 		DrawRenderPass(*renderPass.m_renderPass);
 	}
 	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
+	m_queue->ExecuteCommandList();
 
-	// Done recording commands.
-	m_queue->GetCommandListDX12()->Close();
-
-	PIXBeginEvent(PIX_COLOR_INDEX(3), "Execution");
-	// Add the command list to the queue for execution.
-	ID3D12CommandList* cmdsLists[] = { DeviceCommandList() };
-	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	PIXEndEvent();
-
-	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
 	if (m_SwapChain)
-	{
-		// swap the back and front buffers
 		m_SwapChain->Present();
-		PIXSetMarker(PIX_COLOR_INDEX(3), "End Present");
-	}
-	PIXEndEvent();
 
-	PIXBeginEvent(PIX_COLOR_INDEX(2), "Wait");
-	// Wait until frame commands are complete.  This waiting is inefficient and is
-	// done for simplicity.  Later we will show how to organize our rendering code
-	// so we do not have to wait per frame.
 	FlushCommandQueue();
-	m_SwapChain->PresentEnd();
-	///-EndPresent
 	m_currentFrameGraph = nullptr;
-	PIXEndEvent();
 }
 
 //--------------------------------------------------------------------------------
@@ -831,7 +785,6 @@ void DeviceDX12::EndDraw()
 	PIXEndEvent();
 	PIXBeginEvent(PIX_COLOR_INDEX(2), "Wait");
 	FlushCommandQueue();
-	m_SwapChain->PresentEnd();
 	PIXEndEvent();
 }
 

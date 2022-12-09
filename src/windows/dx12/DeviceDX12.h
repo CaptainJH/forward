@@ -171,9 +171,6 @@ namespace forward
 			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
 		};
 
-		FenceComPtr							m_pFence = nullptr;
-		u32		m_CurrentFence = 0;
-
 		u32 m_CbvSrvUavDescriptorSize	= 0;
 
         i32							GetUnusedResourceIndex();

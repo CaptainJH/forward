@@ -24,9 +24,9 @@ namespace forward
 		shared_ptr<Texture2D> GetCurrentRT() const;
 		shared_ptr<Texture2D> GetCurrentDS() const;
 		void Present(bool vsync=false) const;
-		void PresentEnd() const;
 
 	private:
+		void updateBackBufferIndex() const;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3>	m_pSwapChain;
 		ResourcePtr							m_Resource;
 		std::vector<shared_ptr<Texture2D>>			m_rts;
