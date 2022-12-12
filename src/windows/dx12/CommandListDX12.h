@@ -33,6 +33,7 @@ namespace forward
 		void PopulateCmdsFrom(FrameGraph* fg) override;
 
 		CommandListComPtr GetDeviceCmdListPtr() { return m_CmdList; }
+		DeviceDX12& GetDeviceDX12();
 
 	private:
 		CommandListDX12(Device& d, QueueType t);

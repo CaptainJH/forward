@@ -44,6 +44,6 @@ namespace forward
 
 		u8*														m_mappedData = nullptr;
 
-		void CreateCBView(ID3D12Device* device, const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc);
+		void CreateCBView(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc);
 	};
 }

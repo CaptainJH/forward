@@ -189,13 +189,13 @@ namespace forward
 		RenderPass* m_textRenderPass;
 	};
 
-	class DeviceContext
-	{
-	public:
-		static DeviceDX12* GetCurrentDevice();
-		static void SetCurrentDevice(DeviceDX12* device);
+	//class DeviceContext
+	//{
+	//public:
+	//	static DeviceDX12* GetCurrentDevice();
+	//	static void SetCurrentDevice(DeviceDX12* device);
 
-	private:
-		static DeviceDX12* CurrentDevice;
-	};
+	//private:
+	//	static DeviceDX12* CurrentDevice;
+	//};
 };

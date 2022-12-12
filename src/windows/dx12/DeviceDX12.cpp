@@ -743,13 +743,6 @@ u32 DeviceDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type
 	return m_pDevice->GetDescriptorHandleIncrementSize(type);
 }
 //--------------------------------------------------------------------------------
-DeviceDX12* DeviceContext::CurrentDevice = nullptr;
-DeviceDX12* DeviceContext::GetCurrentDevice()
-{
-	assert(CurrentDevice);
-	return CurrentDevice;
-}
-
 void DeviceDX12::BeginDraw()
 {
 	ResetCommandList();
@@ -810,9 +803,4 @@ ID3D12GraphicsCommandList* DeviceDX12::DeviceCommandList()
 ID3D12CommandQueue* DeviceDX12::DeviceCommandQueue()
 {
 	return m_queue->m_CommandQueue.Get();
-}
-
-void DeviceContext::SetCurrentDevice(DeviceDX12* device)
-{
-	CurrentDevice = device;
 }

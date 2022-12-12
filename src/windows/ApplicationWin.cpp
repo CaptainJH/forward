@@ -491,9 +491,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 
 	case DeviceType::Device_Forward_DX12:
 	{
-		auto deviceDX12 = new DeviceDX12;
-		m_pDevice = deviceDX12;
-		DeviceContext::SetCurrentDevice(deviceDX12);
+		m_pDevice = new DeviceDX12;
 		break;
 	}
 	default:

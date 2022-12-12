@@ -13,6 +13,8 @@ namespace forward
 {
 	const u32 gNumDescriporPerHeap = 32;
 
+	class DeviceDX12;
+	class CommandListDX12;
 	class DynamicDescriptorHeapDX12
 	{
 	public:
@@ -23,9 +25,9 @@ namespace forward
 		void Reset();
 
 		D3D12_CPU_DESCRIPTOR_HANDLE* PrepareDescriptorHandleCache(u32 registerCount);
-		void BindGPUVisibleDescriptorHeap(ID3D12GraphicsCommandList* commandList);
+		void BindGPUVisibleDescriptorHeap(CommandListDX12& commandList);
 		void BindDescriptorTableToRootParam(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
-		void CommitStagedDescriptors();
+		void CommitStagedDescriptors(DeviceDX12& d);
 
 	private:
 		/**
@@ -92,8 +94,8 @@ namespace forward
 
 	private:
 		// Request a descriptor heap if one is available.
-		DescriptorHeapComPtr RequestDescriptorHeap();
+		DescriptorHeapComPtr RequestDescriptorHeap(ID3D12Device* device);
 		// Create a new descriptor heap if no descriptor heap is available.
-		DescriptorHeapComPtr CreateDescriptorHeap();
+		DescriptorHeapComPtr CreateDescriptorHeap(ID3D12Device* device);
 	};
 }

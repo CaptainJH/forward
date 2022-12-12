@@ -85,7 +85,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 			cbvDesc.BufferLocation = m_deviceResPtr->GetGPUVirtualAddress();
 			cbvDesc.SizeInBytes = byteSize;
-			CreateCBView(device, cbvDesc);
+			CreateCBView(cbvDesc);
 		}
 
 		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
@@ -165,10 +165,10 @@ D3D12_INDEX_BUFFER_VIEW DeviceBufferDX12::IndexBufferView()
 	return ibv;
 }
 
-void DeviceBufferDX12::CreateCBView(ID3D12Device* device, const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc)
+void DeviceBufferDX12::CreateCBView(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc)
 {
-	m_cbvHandle = DeviceContext::GetCurrentDevice()->AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	device->CreateConstantBufferView(&desc, m_cbvHandle);
+	m_cbvHandle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_device.GetDevice()->CreateConstantBufferView(&desc, m_cbvHandle);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE	DeviceBufferDX12::GetCBViewCPUHandle()

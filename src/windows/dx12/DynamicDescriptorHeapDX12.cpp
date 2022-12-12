@@ -3,6 +3,7 @@
 //***************************************************************************************
 #include "DynamicDescriptorHeapDX12.h"
 #include "dx12/DeviceDX12.h"
+#include "dx12/CommandListDX12.h"
 
 using namespace forward;
 
@@ -37,7 +38,7 @@ void DynamicDescriptorHeapDX12::Reset()
 	m_currentDescriptorHandleCacheOffset = 0;
 }
 
-void DynamicDescriptorHeapDX12::CommitStagedDescriptors()
+void DynamicDescriptorHeapDX12::CommitStagedDescriptors(DeviceDX12& d)
 {
 	if (m_currentDescriptorTableOffset == 0) return;
 
@@ -61,9 +62,8 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptors()
 			totalDescriptorCount
 		};
 
-		auto device = DeviceContext::GetCurrentDevice()->GetDevice();
 		// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-		device->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
+		d.GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
 			totalDescriptorCount, pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
 
 		m_CurrentCPUDescriptorHandle =
@@ -88,16 +88,16 @@ void DynamicDescriptorHeapDX12::BindDescriptorTableToRootParam(ID3D12GraphicsCom
 	}
 }
 
-void DynamicDescriptorHeapDX12::BindGPUVisibleDescriptorHeap(ID3D12GraphicsCommandList* commandList)
+void DynamicDescriptorHeapDX12::BindGPUVisibleDescriptorHeap(CommandListDX12& commandList)
 {
 	if (!m_CurrentDescriptorHeap)
-		m_CurrentDescriptorHeap = RequestDescriptorHeap();
+		m_CurrentDescriptorHeap = RequestDescriptorHeap(commandList.GetDeviceDX12().GetDevice());
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { m_CurrentDescriptorHeap.Get() };
-	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	commandList.GetDeviceCmdListPtr()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 }
 
-DescriptorHeapComPtr DynamicDescriptorHeapDX12::RequestDescriptorHeap()
+DescriptorHeapComPtr DynamicDescriptorHeapDX12::RequestDescriptorHeap(ID3D12Device* device)
 {
 	DescriptorHeapComPtr descriptorHeap;
 	if (!m_AvailableDescriptorHeaps.empty())
@@ -107,17 +107,15 @@ DescriptorHeapComPtr DynamicDescriptorHeapDX12::RequestDescriptorHeap()
 	}
 	else
 	{
-		descriptorHeap = CreateDescriptorHeap();
+		descriptorHeap = CreateDescriptorHeap(device);
 		m_DescriptorHeapPool.push(descriptorHeap);
 	}
 
 	return descriptorHeap;
 }
 
-DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap()
+DescriptorHeapComPtr DynamicDescriptorHeapDX12::CreateDescriptorHeap(ID3D12Device* device)
 {
-	auto device = DeviceContext::GetCurrentDevice()->GetDevice();
-
 	if (m_DescriptorHandleIncrementSize == 0)
 	{
 		m_DescriptorHandleIncrementSize = device->GetDescriptorHandleIncrementSize(m_DescriptorHeapType);

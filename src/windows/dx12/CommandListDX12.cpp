@@ -97,13 +97,13 @@ void CommandListDX12::BindDescriptorTableToRootParam()
 void CommandListDX12::CommitStagedDescriptors()
 {
 	for (auto& heap : m_DynamicDescriptorHeaps)
-		heap.CommitStagedDescriptors();
+		heap.CommitStagedDescriptors(GetDeviceDX12());
 }
 
 void CommandListDX12::BindGPUVisibleHeaps()
 {
 	auto& cbvHeap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-	cbvHeap.BindGPUVisibleDescriptorHeap(m_CmdList.Get());
+	cbvHeap.BindGPUVisibleDescriptorHeap(*this);
 }
 
 void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
@@ -181,4 +181,9 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 
 		// TODO: stage Samplers
 	}
+}
+
+DeviceDX12& CommandListDX12::GetDeviceDX12()
+{
+	return static_cast<DeviceDX12&>(m_device);
 }
