@@ -583,8 +583,8 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 		target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
 		target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
 	},
-		[&](Device& render) {
-		render.DrawIndexed(m_textFont->GetIndexCount());
+		[&](Device& device) {
+		device.DrawIndexed(m_textFont->GetIndexCount());
 	});
 
 	m_currentFrameGraph = nullptr;
@@ -812,7 +812,7 @@ ID3D12CommandQueue* DeviceDX12::DeviceCommandQueue()
 	return m_queue->m_CommandQueue.Get();
 }
 
-void DeviceContext::SetCurrentDevice(DeviceDX12* render)
+void DeviceContext::SetCurrentDevice(DeviceDX12* device)
 {
-	CurrentDevice = render;
+	CurrentDevice = device;
 }

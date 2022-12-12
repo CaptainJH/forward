@@ -18,7 +18,7 @@ namespace forward
 	class DevicePipelineStateObjectDX12 : public DeviceObject
 	{
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* render, PipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
 		virtual ~DevicePipelineStateObjectDX12();
 
 		ID3D12PipelineState* GetDevicePSO();

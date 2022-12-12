@@ -135,8 +135,8 @@ bool MSAA_Demo::Init()
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
 	},
-	[&](Device& render) {
-		render.DrawIndexed(m_geometry->GetIndexCount());
+	[&](Device& device) {
+		device.DrawIndexed(m_geometry->GetIndexCount());
 
 		// update constant buffer for next pass
 		(*m_constantBufferPS).GetTypedData()->colorAA = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
@@ -163,9 +163,9 @@ bool MSAA_Demo::Init()
 		pso.m_OMState.m_depthStencilResource = m_msaa_ds;
 		m_msaa_resolved = make_shared<Texture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 	},
-		[&](Device& render) {
-		render.DrawIndexed(m_geometry->GetIndexCount());
-		render.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
+		[&](Device& device) {
+		device.DrawIndexed(m_geometry->GetIndexCount());
+		device.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
 	});
 	//m_renderPass->AttachRenderPass(m_renderPassMSAA.get());
 
@@ -192,8 +192,8 @@ bool MSAA_Demo::Init()
 		pso.m_RSState.m_rsState.enableScissor = true;
 
 	},
-		[&](Device& render) {
-		render.Draw(m_quad->GetVertexCount());
+		[&](Device& device) {
+		device.Draw(m_quad->GetVertexCount());
 	});
 	//m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());
 

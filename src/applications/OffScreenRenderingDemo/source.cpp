@@ -91,8 +91,8 @@ bool OffScreenRenderingDemo::Init()
 			mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
 		pso.m_OMState.m_depthStencilResource = dsPtr;
 	},
-		[](Device& render) {
-		render.Draw(4);
+		[](Device& device) {
+		device.Draw(4);
 	});
 
 

@@ -11,14 +11,14 @@
 
 using namespace forward;
 
-DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render, PipelineStateObject& pso)
+DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso)
 	: DeviceObject(nullptr)
 	, m_numElements(0)
 	, m_pso(pso)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
-	auto device = render->GetDevice();
-	auto commandList = render->DeviceCommandList();
+	auto device = d->GetDevice();
+	auto commandList = d->DeviceCommandList();
 
 	VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
 	VertexShader* vsshader = pso.m_VSState.m_shader.get();
@@ -145,7 +145,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render,
 	}
 
 	// setup vertex buffers
-	render->ResetCommandList();
+	d->ResetCommandList();
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
 		auto vb = pso.m_IAState.m_vertexBuffers[i];
@@ -208,10 +208,10 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* render,
 	// Execute the initialization commands
 	HR(commandList->Close());
 	ID3D12CommandList* cmdLists[] = { commandList };
-	render->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	d->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
 	// Wait until initialization is complete.
-	render->FlushCommandQueue();
+	d->FlushCommandQueue();
 }
 
 DevicePipelineStateObjectDX12::~DevicePipelineStateObjectDX12()

@@ -103,8 +103,8 @@ bool HelloFrameGraph::Init()
 		auto rsPtr = m_pDevice->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 	},
-	[](Device& render) {
-		render.Draw(4);
+	[](Device& device) {
+		device.Draw(4);
 	});
 
 

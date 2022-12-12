@@ -193,7 +193,7 @@ namespace forward
 	{
 	public:
 		static DeviceDX12* GetCurrentDevice();
-		static void SetCurrentDevice(DeviceDX12* render);
+		static void SetCurrentDevice(DeviceDX12* device);
 
 	private:
 		static DeviceDX12* CurrentDevice;
