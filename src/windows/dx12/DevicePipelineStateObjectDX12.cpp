@@ -153,7 +153,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 		{
 			if (!vb->DeviceObject())
 			{
-				auto deviceVB = forward::make_shared<DeviceBufferDX12>(device, commandList, vb.get());
+				auto deviceVB = forward::make_shared<DeviceBufferDX12>(commandList, vb.get(), *d);
 				vb->SetDeviceObject(deviceVB);
 			}
 
@@ -166,7 +166,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	auto ib = pso.m_IAState.m_indexBuffer;
 	if (ib && !ib->DeviceObject())
 	{
-		auto deviceIB = forward::make_shared<DeviceBufferDX12>(device, commandList, ib.get());
+		auto deviceIB = forward::make_shared<DeviceBufferDX12>(commandList, ib.get(), *d);
 		ib->SetDeviceObject(deviceIB);
 	}
 	// setup shader resources
@@ -179,12 +179,12 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			{
 				if (dynamic_cast<Texture2D*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, dynamic_cast<Texture2D*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);
 				}
 				else if (dynamic_cast<TextureCube*>(res.get()))
 				{
-					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(device, dynamic_cast<TextureCube*>(res.get()));
+					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);
 				}
 			}
@@ -194,14 +194,14 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
 		if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
 		{
-			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, ptr.get());
+			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *d);
 			ptr->SetDeviceObject(deviceTex);
 		}
 	});
 	// setup depth stencil buffer
 	if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
 	{
-		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device, pso.m_OMState.m_depthStencilResource.get());
+		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pso.m_OMState.m_depthStencilResource.get(), *d);
 		pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
 	}
 

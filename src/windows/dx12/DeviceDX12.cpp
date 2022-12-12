@@ -287,14 +287,14 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 
 		std::stringstream ss;
 		ss << "DefaultRT" << i;
-		auto rtPtr = DeviceTexture2DDX12::BuildDeviceTexture2DDX12(ss.str().c_str(), pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
+		auto rtPtr = DeviceTexture2DDX12::BuildDeviceTexture2DDX12(*this, ss.str().c_str(), pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
 		deviceTexVector.push_back(rtPtr);
 	}
 
 	// Create the depth/stencil buffer and view.
 	auto dsPtr = forward::make_shared<Texture2D>(std::string("DefaultDS"), DF_D24_UNORM_S8_UINT,
 		pConfig->GetWidth(), pConfig->GetHeight(), TextureBindPosition::TBP_DS);
-	DeviceTexture2DDX12* dsDevicePtr = new DeviceTexture2DDX12(m_pDevice.Get(), dsPtr.get());
+	DeviceTexture2DDX12* dsDevicePtr = new DeviceTexture2DDX12(dsPtr.get(), *this);
 	dsPtr->SetDeviceObject(dsDevicePtr);
 	assert(m_SwapChain == nullptr);
 	Vector<shared_ptr<Texture2D>> texVector;
@@ -410,7 +410,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -425,7 +425,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -440,7 +440,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			if (!cb->DeviceObject())
 			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(GetDevice(), DeviceCommandList(), cb.get());
+				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
 				cb->SetDeviceObject(deviceCB);
 			}
 			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
@@ -606,7 +606,7 @@ void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 {
 	if (!dst->DeviceObject())
 	{
-		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(GetDevice(), dst);
+		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dst, *this);
 		dst->SetDeviceObject(deviceTex);
 	}
 

@@ -8,11 +8,12 @@
 namespace forward
 {
 	class Texture;
+	class DeviceDX12;
 
 	class DeviceTextureDX12 : public DeviceResourceDX12
 	{
 	public:
-		DeviceTextureDX12(Texture* tex);
+		DeviceTextureDX12(Texture* tex, DeviceDX12& d);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
 

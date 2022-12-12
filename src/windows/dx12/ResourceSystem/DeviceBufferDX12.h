@@ -8,10 +8,11 @@
 
 namespace forward
 {
+	class DeviceDX12;
 	class DeviceBufferDX12 : public DeviceResourceDX12
 	{
 	public:
-		DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::GraphicsObject* obj);
+		DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::GraphicsObject* obj, DeviceDX12& d);
 		virtual ~DeviceBufferDX12();
 
 		//ID3D11Buffer*			GetDXBufferPtr();

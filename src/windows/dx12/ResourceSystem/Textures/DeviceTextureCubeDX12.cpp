@@ -6,8 +6,8 @@
 
 using namespace forward;
 
-DeviceTextureCubeDX12::DeviceTextureCubeDX12(ID3D12Device* device, TextureCube* tex)
-	: DeviceTextureDX12(tex)
+DeviceTextureCubeDX12::DeviceTextureCubeDX12(TextureCube* tex, DeviceDX12& d)
+	: DeviceTextureDX12(tex, d)
 {
 	D3D12_RESOURCE_DESC desc;
 	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -24,6 +24,8 @@ DeviceTextureCubeDX12::DeviceTextureCubeDX12(ID3D12Device* device, TextureCube* 
 
 	const auto TBP = tex->GetBindPosition();
 	assert(TBP & TBP_Shader);
+
+	auto device = m_device.GetDevice();
 
 	CD3DX12_HEAP_PROPERTIES properties(D3D12_HEAP_TYPE_DEFAULT);
 	HR(device->CreateCommittedResource(

@@ -8,8 +8,8 @@
 
 using namespace forward;
 
-DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, forward::GraphicsObject* obj)
-	: DeviceResourceDX12(obj)
+DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::GraphicsObject* obj, DeviceDX12& d)
+	: DeviceResourceDX12(obj, d)
 {
 	m_cbvHandle.ptr = 0;
 	m_cbvHandleGPU.ptr = 0;
@@ -29,6 +29,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12Device* device, ID3D12GraphicsCommandLi
 	Resource* res = dynamic_cast<Resource*>(obj);
 	auto byteSize = res->GetNumBytes();
 	ResourceUsage usage = res->GetUsage();
+	auto device = m_device.GetDevice();
 
 	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
 	{

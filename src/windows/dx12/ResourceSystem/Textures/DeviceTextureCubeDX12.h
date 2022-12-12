@@ -10,11 +10,12 @@
 namespace forward
 {
 	class TextureCube;
+	class DeviceDX12;
 
 	class DeviceTextureCubeDX12 : public DeviceTextureDX12
 	{
 	public:
-		DeviceTextureCubeDX12(ID3D12Device* device, TextureCube* tex);
+		DeviceTextureCubeDX12(TextureCube* tex, DeviceDX12& d);
 
 		shared_ptr<TextureCube> GetFrameGraphTextureCube();
 

@@ -9,14 +9,15 @@
 namespace forward
 {
 	class Texture2D;
+	class DeviceDX12;
 
 	class DeviceTexture2DDX12 : public DeviceTextureDX12
 	{
 	public:
-		static DeviceTexture2DDX12* BuildDeviceTexture2DDX12(const std::string& name, ID3D12Resource* tex, ResourceUsage usage = RU_IMMUTABLE);
+		static DeviceTexture2DDX12* BuildDeviceTexture2DDX12(DeviceDX12& d, const std::string& name, ID3D12Resource* tex, ResourceUsage usage = RU_IMMUTABLE);
 
-		DeviceTexture2DDX12(ID3D12Device* device, Texture2D* tex);
-		DeviceTexture2DDX12(ID3D12Resource* deviceTex, Texture2D* tex);
+		DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d);
+		DeviceTexture2DDX12(ID3D12Resource* deviceTex, Texture2D* tex, DeviceDX12& d);
 
 		void					SyncCPUToGPU() override;
 		void					SyncGPUToCPU();

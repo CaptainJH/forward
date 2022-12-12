@@ -8,10 +8,11 @@
 
 namespace forward
 {
+	class DeviceDX12;
 	class DeviceResourceDX12 : public DeviceResource
 	{
 	public:
-		DeviceResourceDX12(forward::GraphicsObject* obj);
+		DeviceResourceDX12(forward::GraphicsObject* obj, DeviceDX12& d);
 
 		virtual ~DeviceResourceDX12();
 
@@ -30,6 +31,7 @@ namespace forward
 		D3D12_RESOURCE_STATES				m_currentUsageState;
 		//D3D12_RESOURCE_STATES				m_transitioningState;
 		D3D12_GPU_VIRTUAL_ADDRESS			m_gpuVirtualAddress;
+		DeviceDX12& m_device;
 
 		bool				PrepareForSync();
 	};

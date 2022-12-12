@@ -7,8 +7,8 @@
 
 using namespace forward;
 
-DeviceResourceDX12::DeviceResourceDX12(forward::GraphicsObject* obj)
-	: DeviceResource(obj)
+DeviceResourceDX12::DeviceResourceDX12(forward::GraphicsObject* obj, DeviceDX12& d)
+	: DeviceResource(obj), m_device(d)
 	, m_currentUsageState(D3D12_RESOURCE_STATE_COMMON)
 	, m_gpuVirtualAddress(0)
 	//, m_transitioningState((D3D12_RESOURCE_STATES)-1)

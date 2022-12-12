@@ -7,8 +7,8 @@
 
 using namespace forward;
 
-DeviceTextureDX12::DeviceTextureDX12(Texture* tex)
-	: DeviceResourceDX12(tex)
+DeviceTextureDX12::DeviceTextureDX12(Texture* tex, DeviceDX12& d)
+	: DeviceResourceDX12(tex, d)
 {
 
 }
