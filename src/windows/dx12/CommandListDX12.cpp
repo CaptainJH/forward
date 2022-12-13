@@ -187,3 +187,13 @@ DeviceDX12& CommandListDX12::GetDeviceDX12()
 {
 	return static_cast<DeviceDX12&>(m_device);
 }
+
+void CommandListDX12::SetDynamicConstantBuffer(ConstantBufferBase* cb)
+{
+	const auto u = reinterpret_cast<uintptr_t>(this);
+	cb->ResetDeviceBuffer(u);
+	cb->FetchDeviceBuffer(u, [&]()->ResourcePtr {
+		auto deviceCB = forward::make_shared<DeviceBufferDX12>(m_CmdList.Get(), cb, GetDeviceDX12());
+		return deviceCB;
+		})->SyncCPUToGPU();
+}

@@ -68,7 +68,35 @@ namespace forward
 	{
 	public:
 		ConstantBufferBase(const std::string& name);
+		template<class F>
+		ResourcePtr FetchDeviceBuffer(u64 u, F&& failFunc);
+		void ResetDeviceBuffer(u64 u);
+
+	protected:
+		typedef std::pair<u64, ResourcePtr> DeviceResourceEntryType;
+		std::vector<DeviceResourceEntryType> m_DeviceResPool;
 	};
+
+	template<class F>
+	ResourcePtr ConstantBufferBase::FetchDeviceBuffer(u64 u, F&& failFunc)
+	{
+		assert(!this->DeviceObject());
+		ResourcePtr ret = nullptr;
+		for (auto& pair : m_DeviceResPool)
+			if (pair.first == 0)
+			{
+				ret = pair.second;
+				pair.first = u;
+			}
+		if (!ret)
+		{
+			ret = failFunc();
+			m_DeviceResPool.push_back(std::make_pair(u, ret));
+		}
+		SetDeviceObject(ret);
+		assert(this->DeviceObject());
+		return ret;
+	}
 
 	template<class T>
 	class ConstantBuffer : public ConstantBufferBase

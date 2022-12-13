@@ -102,3 +102,13 @@ ConstantBufferBase::ConstantBufferBase(const std::string& name)
 {
 	m_usage = RU_DYNAMIC_UPDATE;
 }
+
+void ConstantBufferBase::ResetDeviceBuffer(u64 u)
+{
+	for (auto& pair : m_DeviceResPool)
+	{
+		if (pair.first == u)
+			pair.first = 0;
+	}
+	m_deviceObjectPtr = nullptr;
+}

@@ -42,7 +42,7 @@ namespace forward
 		RT_TEXTURE3D = 0x090000
 	};
 
-	typedef std::shared_ptr<DeviceResource> ResourcePtr;
+	typedef shared_ptr<DeviceResource> ResourcePtr;
 	///
 
 };

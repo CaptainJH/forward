@@ -32,6 +32,8 @@ namespace forward
 		void DrawRenderPass(RenderPass& pass) override;
 		void PopulateCmdsFrom(FrameGraph* fg) override;
 
+		void SetDynamicConstantBuffer(ConstantBufferBase* cb);
+
 		CommandListComPtr GetDeviceCmdListPtr() { return m_CmdList; }
 		DeviceDX12& GetDeviceDX12();
 

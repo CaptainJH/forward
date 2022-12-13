@@ -302,7 +302,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		texVector.push_back(tex->GetTexture2D());
 	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr);
 
-	m_queue->GetCommandList()->Reset();
+	ResetCommandList();
 
 	// Transition the resource from its initial state to be used as a depth buffer.
 	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -407,45 +407,21 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 	{
 		auto cb = pso.m_VSState.m_constantBuffers[i];
 		if (cb)
-		{
-			if (!cb->DeviceObject())
-			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
-				cb->SetDeviceObject(deviceCB);
-			}
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			deviceCB->SyncCPUToGPU();
-		}
+			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 	}
 
 	for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_GSState.m_constantBuffers[i];
 		if (cb)
-		{
-			if (!cb->DeviceObject())
-			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
-				cb->SetDeviceObject(deviceCB);
-			}
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			deviceCB->SyncCPUToGPU();
-		}
+			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 	}
 
 	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
 	{
 		auto cb = pso.m_PSState.m_constantBuffers[i];
 		if (cb)
-		{
-			if (!cb->DeviceObject())
-			{
-				auto deviceCB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), cb.get(), *this);
-				cb->SetDeviceObject(deviceCB);
-			}
-			auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
-			deviceCB->SyncCPUToGPU();
-		}
+			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 	}
 
 	// create & update device vertex buffer
