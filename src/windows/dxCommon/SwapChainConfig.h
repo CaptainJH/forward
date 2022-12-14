@@ -15,6 +15,8 @@ namespace forward
 	class SwapChainConfig
 	{
 	public:
+		static const u32 SwapChainBufferCount = 2;
+
 		SwapChainConfig(const Device* pRender);
 		virtual ~SwapChainConfig();
 

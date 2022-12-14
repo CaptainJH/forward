@@ -64,8 +64,6 @@ namespace forward
 
     class DeviceDX12 : public Device
     {
-		static const u32 SwapChainBufferCount = 2;
-
     public:
         DeviceDX12();
         virtual ~DeviceDX12();
@@ -100,6 +98,7 @@ namespace forward
 		shared_ptr<Texture2D> GetDefaultDS() const override;
 
 		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
+		CommandQueueDX12* GetDefaultQueue();
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -107,10 +106,8 @@ namespace forward
 		u32 GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const;
 
 		ID3D12Device* GetDevice();
-		void ResetCommandList();
 		ID3D12GraphicsCommandList* DeviceCommandList();
 		ID3D12CommandQueue* DeviceCommandQueue();
-		void FlushCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 		void BeginDraw();
 		void EndDraw();

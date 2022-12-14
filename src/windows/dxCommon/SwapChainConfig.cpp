@@ -66,7 +66,7 @@ void SwapChainConfig::SetDefaultsDX12()
 	m_State.SampleDesc.Quality = 0;
 
 	m_State.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	m_State.BufferCount = 2;
+	m_State.BufferCount = SwapChainBufferCount;
 	m_State.OutputWindow = 0;
 	m_State.Windowed = true;
 	m_State.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;

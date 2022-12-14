@@ -2,6 +2,7 @@
 #include "Vector3f.h"
 #include "dx12/UploadBuffer.h"
 #include "dx12/DeviceDX12.h"
+#include "dx12/CommandQueueDX12.h"
 #include "dxCommon/ShaderFactoryDX.h"
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
@@ -111,7 +112,6 @@ bool HelloDX12::Init()
 		return false;
 
 	m_pRender = static_cast<DeviceDX12*>(m_pDevice);
-	m_pRender->ResetCommandList();
 
 	BuildDescriptorHeaps();
 	BuildRootSignature();
@@ -120,12 +120,8 @@ bool HelloDX12::Init()
 	BuildPSO();
 
 	// Execute the initialization commands
-	HR(m_pRender->DeviceCommandList()->Close());
-	ID3D12CommandList* cmdLists[] = { m_pRender->DeviceCommandList() };
-	m_pRender->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-
-	// Wait until initialization is complete.
-	m_pRender->FlushCommandQueue();
+	m_pRender->GetDefaultQueue()->ExecuteCommandList([]() {});
+	m_pRender->GetDefaultQueue()->Flush();
 
 	return true;
 }

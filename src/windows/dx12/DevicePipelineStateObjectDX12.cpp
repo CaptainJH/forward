@@ -8,6 +8,7 @@
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
 #include "dx12/DeviceDX12.h"
+#include "dx12/CommandQueueDX12.h"
 
 using namespace forward;
 
@@ -145,7 +146,6 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	}
 
 	// setup vertex buffers
-	d->ResetCommandList();
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
 		auto vb = pso.m_IAState.m_vertexBuffers[i];
@@ -206,12 +206,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	}
 
 	// Execute the initialization commands
-	HR(commandList->Close());
-	ID3D12CommandList* cmdLists[] = { commandList };
-	d->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-
-	// Wait until initialization is complete.
-	d->FlushCommandQueue();
+	d->GetDefaultQueue()->ExecuteCommandList([](){});
+	d->GetDefaultQueue()->Flush();
 }
 
 DevicePipelineStateObjectDX12::~DevicePipelineStateObjectDX12()

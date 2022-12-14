@@ -3,6 +3,7 @@
 //***************************************************************************************
 #include "DeviceTexture2DDX12.h"
 #include "dx12/DeviceDX12.h"
+#include "dx12/CommandQueueDX12.h"
 
 using namespace forward;
 
@@ -225,7 +226,6 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 {
 	assert(m_stagingResPtr);
 
-	m_device.ResetCommandList();
 	auto device = m_device.GetDevice();
 	// The footprint may depend on the device of the resource, but we assume there is only one device.
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
@@ -240,11 +240,8 @@ void DeviceTexture2DDX12::SyncGPUToCPU()
 		&dstLocation, 0, 0, 0,
 		&srcLocation, nullptr);
 	m_device.TransitionResource(this, state);
-	HR(m_device.DeviceCommandList()->Close());
-
-	ID3D12CommandList* cmdLists[] = { m_device.DeviceCommandList() };
-	m_device.DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-	m_device.FlushCommandQueue();
+	m_device.GetDefaultQueue()->ExecuteCommandList([]() {});
+	m_device.GetDefaultQueue()->Flush();
 
 	void* memory;
 	auto range = CD3DX12_RANGE(0, GetFrameGraphResource()->GetNumBytes());

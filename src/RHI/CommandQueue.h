@@ -27,8 +27,7 @@ namespace forward
 		virtual shared_ptr<CommandList> GetCommandList() = 0;
 
 		// Execute a command list.
-		// Returns the fence value to wait for for this command list.
-		virtual shared_ptr<CommandList> ExecuteCommandList() = 0;
+		virtual void ExecuteCommandList() = 0;
 
 		virtual u64 Signal() = 0;
 		virtual bool IsFenceComplete(u64 fenceValue) = 0;
@@ -40,7 +39,8 @@ namespace forward
 	protected:
 		Device& m_device;
 		const QueueType m_queueType;
-		Concurrent_Vector<shared_ptr<CommandList>> m_CmdListPool;
+		Concurrent_Queue<shared_ptr<CommandList>> m_AvailableCmdLists;
+		shared_ptr<CommandList> m_CurrentCmdList = nullptr;
 
 		// Keep track of command allocators that are "in-flight"
 		// The first member is the fence value to wait for, the second is the

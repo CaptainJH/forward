@@ -280,7 +280,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	HR(m_Factory->MakeWindowAssociation(desc.OutputWindow, DXGI_MWA_NO_ALT_ENTER));
 
 	Vector<DeviceTexture2DDX12*> deviceTexVector;
-	for (auto i = 0; i < SwapChainBufferCount; ++i)
+	for (auto i = 0; i < SwapChainConfig::SwapChainBufferCount; ++i)
 	{
 		DeviceResCom12Ptr pSwapChainBuffer;
 		HR(SwapChain->GetBuffer(i, IID_PPV_ARGS(&pSwapChainBuffer)));
@@ -302,17 +302,10 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 		texVector.push_back(tex->GetTexture2D());
 	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr);
 
-	ResetCommandList();
-
 	// Transition the resource from its initial state to be used as a depth buffer.
 	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-	HR(DeviceCommandList()->Close());
-	ID3D12CommandList* cmdsLists[] = { DeviceCommandList()};
-	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	// Wait until resize is complete.
-	FlushCommandQueue();
+	m_queue->ExecuteCommandList([=]() {});
+	m_queue->Flush();
 
 	return 0;
 }
@@ -322,15 +315,9 @@ void DeviceDX12::CreateCommandObjects()
 	m_queue = static_cast<CommandQueueDX12*>(MakeCommandQueue(QueueType::Direct).get());
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::FlushCommandQueue()
-{
-	auto fv = m_queue->Signal();
-	m_queue->WaitForGPU(fv);
-}
-//--------------------------------------------------------------------------------
 void DeviceDX12::OnResize()
 {
-	FlushCommandQueue();
+	//FlushCommandQueue();
 
 	m_queue->GetCommandList()->Reset();
 
@@ -386,11 +373,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PipelineStateObject& ps
 	D3D12_CPU_DESCRIPTOR_HANDLE ret;
 	ret.ptr = 0;
 	return ret;
-}
-//--------------------------------------------------------------------------------
-void DeviceDX12::ResetCommandList()
-{
-	m_queue->GetCommandList()->Reset();
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
@@ -647,7 +629,6 @@ void DeviceDX12::EndDrawFrameGraph()
 		PrepareRenderPass(*renderPass.m_renderPass);
 	}
 
-	ResetCommandList();
 	m_queue->GetCommandListDX12()->BindGPUVisibleHeaps();
 	for (auto renderPass : renderPassDB)
 	{
@@ -656,10 +637,9 @@ void DeviceDX12::EndDrawFrameGraph()
 	}
 	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
 
-	const auto fenceV = m_queue->ExecuteCommandList([=]() {
+	m_queue->ExecuteCommandList([=]() {
 		if (m_SwapChain) m_SwapChain->Present();
 		});
-	m_queue->WaitForGPU(fenceV);
 
 	m_currentFrameGraph = nullptr;
 }
@@ -721,8 +701,6 @@ u32 DeviceDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type
 //--------------------------------------------------------------------------------
 void DeviceDX12::BeginDraw()
 {
-	ResetCommandList();
-
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
 	auto deviceDS = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentDS());
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -745,16 +723,13 @@ void DeviceDX12::EndDraw()
 {
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
-	DeviceCommandList()->Close();
-	ID3D12CommandList* cmdsLists[] = { DeviceCommandList() };
-	DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
-	m_SwapChain->Present();
-	PIXEndEvent();
-	PIXBeginEvent(PIX_COLOR_INDEX(2), "Wait");
-	FlushCommandQueue();
-	PIXEndEvent();
+	GetDefaultQueue()->ExecuteCommandList([=]() {
+		PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
+		m_SwapChain->Present();
+		PIXEndEvent();
+		});
+	GetDefaultQueue()->Flush();
 }
 
 void DeviceDX12::ReportLiveObjects()
@@ -779,4 +754,9 @@ ID3D12GraphicsCommandList* DeviceDX12::DeviceCommandList()
 ID3D12CommandQueue* DeviceDX12::DeviceCommandQueue()
 {
 	return m_queue->m_CommandQueue.Get();
+}
+
+CommandQueueDX12* DeviceDX12::GetDefaultQueue()
+{
+	return m_queue.get();
 }

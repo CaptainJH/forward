@@ -1,6 +1,7 @@
 //***************************************************************************************
 // CommandQueueDX12.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
+#include "dxCommon/SwapChainConfig.h"
 #include "CommandQueueDX12.h"
 #include "CommandListDX12.h"
 #include "DeviceDX12.h"
@@ -27,14 +28,25 @@ CommandQueueDX12::~CommandQueueDX12()
 
 shared_ptr<CommandList> CommandQueueDX12::GetCommandList()
 {
-	if (m_CmdListPool.empty())
+	if (m_CurrentCmdList)
+		return m_CurrentCmdList;
+
+	while (!m_CurrentCmdList)
 	{
-		shared_ptr<CommandListDX12> ret = new CommandListDX12(m_device, m_queueType);
-		m_CmdListPool.push_back(ret);
-		return ret;
+		while (m_AvailableCmdLists.empty())
+		{
+			if (m_InFlightCmdLists.empty() || m_InFlightCmdLists.unsafe_size() < SwapChainConfig::SwapChainBufferCount)
+				m_AvailableCmdLists.push(new CommandListDX12(m_device, m_queueType));
+			else
+				updateInFlightCmdListQueue();
+		}
+
+		m_AvailableCmdLists.try_pop(m_CurrentCmdList);
 	}
-	else
-		return m_CmdListPool[0];
+
+	assert(m_CurrentCmdList);
+	m_CurrentCmdList->Reset();
+	return m_CurrentCmdList;
 }
 
 shared_ptr<CommandListDX12> CommandQueueDX12::GetCommandListDX12()
@@ -43,17 +55,13 @@ shared_ptr<CommandListDX12> CommandQueueDX12::GetCommandListDX12()
 	return shared_ptr<CommandListDX12>(static_cast<CommandListDX12*>(ptr.get()));
 }
 
-shared_ptr<CommandList> CommandQueueDX12::ExecuteCommandList()
+void CommandQueueDX12::ExecuteCommandList()
 {
-	assert(!m_CmdListPool.empty());
-	Flush();
-	auto cmdListPtr = m_CmdListPool[0];
-	cmdListPtr->Close();
-	auto cmdList = static_cast<CommandListDX12*>(cmdListPtr.get());
+	assert(m_CurrentCmdList);
+	m_CurrentCmdList->Close();
 
-	ID3D12CommandList* deviceCmdsLists[] = { cmdList->m_CmdList.Get()};
+	ID3D12CommandList* deviceCmdsLists[] = { GetCommandListDX12()->m_CmdList.Get()};
 	m_CommandQueue->ExecuteCommandLists(_countof(deviceCmdsLists), deviceCmdsLists);
-	return cmdListPtr;
 }
 
 u64 CommandQueueDX12::Signal()
@@ -93,13 +101,10 @@ void CommandQueueDX12::Flush()
 		while (!m_InFlightCmdLists.empty())
 		{
 			CommandListEntry entry;
-			while (!m_InFlightCmdLists.try_pop(entry))
+			while (m_InFlightCmdLists.try_pop(entry))
 			{
-				auto cmdList = std::get<1>(entry);
-
 				assert(IsFenceComplete(std::get<0>(entry)));
-				cmdList->Reset();
-				m_CmdListPool.push_back(cmdList);
+				m_AvailableCmdLists.push(std::get<1>(entry));
 			}
 		}
 	}
@@ -109,4 +114,15 @@ void CommandQueueDX12::WaitFor(const CommandQueue& other)
 {
 	const auto& otherQueue = static_cast<const CommandQueueDX12&>(other);
 	m_CommandQueue->Wait(otherQueue.m_Fence.Get(), otherQueue.m_FenceValue);
+}
+
+void CommandQueueDX12::updateInFlightCmdListQueue()
+{
+	CommandListEntry entry;
+	if (m_InFlightCmdLists.try_pop(entry))
+	{
+		WaitForGPU(std::get<0>(entry));
+		m_AvailableCmdLists.push(std::get<1>(entry));
+	}
+	assert(!m_AvailableCmdLists.empty());
 }
