@@ -28,25 +28,14 @@ public:
     void OnResize() override;
 
 protected:
-	void UpdateScene(f32 dt) override;
+	void UpdateScene(f32) override {}
 	void DrawScene() override;
 	void PostDrawScene() override;
 	//void OnSpace() override;
 
 private:
-
-	Matrix4f m_worldMat;
-	Matrix4f m_viewMat;
-	Matrix4f m_projMat;
-
 	RenderPass* m_renderPass;
 };
-
-void HelloFrameGraph::UpdateScene(f32 /*dt*/)
-{
-	auto frames = (f32)mTimer.FrameCount() / 1000;
-	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
-}
 
 void HelloFrameGraph::DrawScene()
 {
