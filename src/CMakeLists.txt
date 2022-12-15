@@ -31,11 +31,6 @@ option(CompileWithWinPixEventRuntime "WinPixEventRuntime integration")
 set(SuperluminalAPI_ROOT "" CACHE PATH "Specify the Superluminal root path")
 option(CompileWithSuperluminalAPI "SuperluminalAPI integration")
 
-find_package(SuperluminalAPI)
-if(CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
-    include_directories(${SuperluminalAPI_INCLUDE_DIRS})
-endif()
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/extern/src/assimp/include/")
     include_directories("${CMAKE_CURRENT_BINARY_DIR}/../extern/src/assimp/include/")
@@ -51,6 +46,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${ParallelBuild}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ParallelBuild}")
+
+    find_package(SuperluminalAPI)
+    if(CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
+        include_directories(${SuperluminalAPI_INCLUDE_DIRS})
+        add_definitions(-DUSE_SUPERLUMINAL)
+    endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     include_directories("macOS/")
     
