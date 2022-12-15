@@ -725,9 +725,7 @@ void DeviceDX12::EndDraw()
 	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
 
 	GetDefaultQueue()->ExecuteCommandList([=]() {
-		PIXBeginEvent(PIX_COLOR_INDEX(1), "Present");
 		m_SwapChain->Present();
-		PIXEndEvent();
 		});
 	GetDefaultQueue()->Flush();
 }
