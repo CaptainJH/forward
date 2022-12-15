@@ -7,7 +7,7 @@
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
-#include "pix3.h"
+#include "ProfilingHelper.h"
 
 using namespace forward;
 
@@ -84,7 +84,7 @@ void HelloDX12::UpdateScene(f32 /*dt*/)
 
 void HelloDX12::DrawScene()
 {
-	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
+	ProfilingHelper::BeginPixEvent("DrawScene");
 	m_pRender->BeginDraw();
 
 	auto commandList = m_pRender->DeviceCommandList();
@@ -103,6 +103,7 @@ void HelloDX12::DrawScene()
 	commandList->DrawInstanced(4, 1, 0, 0);
 
 	m_pRender->EndDraw();
+	ProfilingHelper::EndPixEvent();
 }
 
 bool HelloDX12::Init()

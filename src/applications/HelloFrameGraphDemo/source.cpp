@@ -2,7 +2,7 @@
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 
-#include "pix3.h"
+#include "ProfilingHelper.h"
 
 using namespace forward;
 
@@ -39,12 +39,13 @@ private:
 
 void HelloFrameGraph::DrawScene()
 {
-	PIXScopedEvent(PIX_COLOR_DEFAULT, "DrawScene");
+	ProfilingHelper::BeginPixEvent("DrawScene", 0, 200, 0);
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
 	m_pDevice->EndDrawFrameGraph();
+	ProfilingHelper::EndPixEvent();
 }
 
 bool HelloFrameGraph::Init()

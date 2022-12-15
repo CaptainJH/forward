@@ -37,6 +37,7 @@ ProcessPackage $args[0] WinPixEventRuntime $PixVersion MSAA
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion OffScreenRenderingDemo
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion TexLoadingTest
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion forwardDX12
+ProcessPackage $args[0] WinPixEventRuntime $PixVersion libForward
 
 ProcessPackage $args[0] Microsoft.Direct3D.DirectStorage $DStorageVersion BasicGeometryFrameGraph
 ProcessPackage $args[0] Microsoft.Direct3D.DirectStorage $DStorageVersion HelloDX12

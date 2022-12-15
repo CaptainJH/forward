@@ -25,7 +25,7 @@
 
 #include <dxgidebug.h>
 
-#include "pix3.h"
+#include "ProfilingHelper.h"
 
 using Microsoft::WRL::ComPtr;
 

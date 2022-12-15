@@ -28,6 +28,13 @@ include_directories("../extern/src/")
 option(CompileWithRenderDoc "RenderDoc integration")
 set(RenderDocPath "" CACHE PATH "Specify the RenderDoc path")
 option(CompileWithWinPixEventRuntime "WinPixEventRuntime integration")
+set(SuperluminalAPI_ROOT "" CACHE PATH "Specify the Superluminal root path")
+option(CompileWithSuperluminalAPI "SuperluminalAPI integration")
+
+find_package(SuperluminalAPI)
+if(CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
+    include_directories(${SuperluminalAPI_INCLUDE_DIRS})
+endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/extern/src/assimp/include/")
