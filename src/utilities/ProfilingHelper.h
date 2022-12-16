@@ -16,3 +16,15 @@ namespace forward
 		ProfilingHelper();
 	};
 }
+
+#define ScopedSuperluminalEvent(NAME, R, G, B) auto NAME = ScopeGuard([] {\
+		forward::ProfilingHelper::BeginSuperluminalEvent(#NAME, R, G, B);\
+		}, [] {\
+			forward::ProfilingHelper::EndSuperluminalEvent();\
+		});
+
+#define ScopedPixEvent(NAME, R, G, B) auto NAME = ScopeGuard([] {\
+		forward::ProfilingHelper::BeginPixEvent(#NAME, R, G, B);\
+		}, [] {\
+			forward::ProfilingHelper::EndPixEvent();\
+		});

@@ -114,4 +114,22 @@ namespace forward
 	};
 
 
+	template<typename Func1, typename Func2>
+	struct ScopeGuard
+	{
+		ScopeGuard(Func1&& func1, Func2&& func2)
+			: m_func1(func1), m_func2(func2)
+		{
+			m_func1();
+		}
+
+		~ScopeGuard()
+		{
+			m_func2();
+		}
+
+	private:
+		Func1 m_func1;
+		Func2 m_func2;
+	};
 }
