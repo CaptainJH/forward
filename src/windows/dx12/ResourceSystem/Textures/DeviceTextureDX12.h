@@ -16,8 +16,10 @@ namespace forward
 		DeviceTextureDX12(Texture* tex, DeviceDX12& d);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessViewHandle();
 
 	protected:
 		D3D12_CPU_DESCRIPTOR_HANDLE		m_srvHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_uavHandle;
 	};
 }

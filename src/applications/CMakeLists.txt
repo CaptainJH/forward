@@ -19,6 +19,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	#------FrameGraph apps -----------
 
 	add_subdirectory(OffScreenRenderingDemo)
+	add_subdirectory(PBRLUTBaker)
 	#------Dlls-----------------------
 	#add_subdirectory(forwardDX11_Dll)
 	add_subdirectory(HelloPyQT)

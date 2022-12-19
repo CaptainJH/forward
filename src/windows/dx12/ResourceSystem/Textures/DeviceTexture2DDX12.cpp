@@ -103,7 +103,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	desc.SampleDesc.Count = tex->GetSampCount();
 	desc.SampleDesc.Quality = 0;
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	const auto TBP = tex->GetBindPosition();
 	D3D12_CLEAR_VALUE optClear;
@@ -160,6 +160,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
 	{
 		CreateStaging(device, desc);
+		CreateUAView(device, desc);
 	}
 
 	// Create views of the texture.
@@ -338,9 +339,15 @@ void DeviceTexture2DDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOURC
 	device->CreateShaderResourceView(m_deviceResPtr.Get(), &srvDesc, m_srvHandle);
 }
 
-void DeviceTexture2DDX12::CreateUAView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
+void DeviceTexture2DDX12::CreateUAView(ID3D12Device* device, const D3D12_RESOURCE_DESC& tx)
 {
+	m_uavHandle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = tx.Format;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+	device->CreateUnorderedAccessView(m_deviceResPtr.Get(), nullptr, &uavDesc, m_uavHandle);
 }
 
 void DeviceTexture2DDX12::CreateDSSRView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)

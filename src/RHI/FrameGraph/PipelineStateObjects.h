@@ -323,6 +323,7 @@ namespace forward
 	struct ComputeShaderStageState : public ShaderStageState
 	{
 		shared_ptr<ComputeShader> m_shader;
+		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 	};
 
 	struct PipelineStateObject
