@@ -5,6 +5,7 @@
 #include "RHI/CommandQueue.h"
 #include "ResourceSystem/DeviceBufferDX12.h"
 #include "ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "dx12/DevicePipelineStateObjectDX12.h"
 #include "DeviceDX12.h"
 
 using namespace forward;
@@ -68,6 +69,11 @@ void CommandListDX12::DrawIndexed(u32 indexCount)
 	m_CmdList->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 }
 
+void CommandListDX12::Dispatch(u32 x, u32 y, u32 z)
+{
+	m_CmdList->Dispatch(x, y, z);
+}
+
 void CommandListDX12::BeginDrawFrameGraph(FrameGraph* fg)
 {
 	fg;
@@ -86,12 +92,6 @@ void CommandListDX12::DrawRenderPass(RenderPass& pass)
 void CommandListDX12::PopulateCmdsFrom(FrameGraph*)
 {
 
-}
-
-void CommandListDX12::BindDescriptorTableToRootParam()
-{
-	for (auto& heap : m_DynamicDescriptorHeaps)
-		heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
 }
 
 void CommandListDX12::CommitStagedDescriptors()
@@ -117,6 +117,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		{
 			u32 stagedCBVs = 0;
 			u32 stagedSRVs = 0;
+			u32 stagedUAVs = 0;
 			auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
 				assert(deviceCB);
 				*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
@@ -124,6 +125,10 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			auto stageSRVFunc = [&](DeviceTextureDX12* deviceTex) {
 				assert(deviceTex);
 				*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+			};
+			auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
+				assert(deviceTex);
+				*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
 			};
 
 			// stage CBVs
@@ -170,7 +175,19 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 					break;
 			}
 
-			assert(stagedCBVs + stagedSRVs == pso.m_usedCBV_SRV_UAV_Count);
+			// stage UAVs
+			for (auto i = 0; i < 8; ++i)
+			{
+				if (auto res_cs = pso.m_CSState.m_uavShaderRes[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
+					stageUAVFunc(deviceTex);
+				}
+				else
+					break;
+			}
+
+			assert(stagedCBVs + stagedSRVs + stagedUAVs == pso.m_usedCBV_SRV_UAV_Count);
 		}
 	}
 
@@ -196,4 +213,38 @@ void CommandListDX12::SetDynamicConstantBuffer(ConstantBufferBase* cb)
 		auto deviceCB = forward::make_shared<DeviceBufferDX12>(m_CmdList.Get(), cb, GetDeviceDX12());
 		return deviceCB;
 		})->SyncCPUToGPU();
+}
+
+void CommandListDX12::BindGraphicsPSO(DevicePipelineStateObjectDX12& devicePSO)
+{
+	m_CmdList->SetGraphicsRootSignature(devicePSO.m_rootSignature.Get());
+	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
+	for (auto i = 0U; i < devicePSO.m_pso.m_IAState.m_vertexBuffers.size(); ++i)
+	{
+		if (devicePSO.m_pso.m_IAState.m_vertexBuffers[i])
+		{
+			auto vbv = device_cast<DeviceBufferDX12*>(devicePSO.m_pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
+			m_CmdList->IASetVertexBuffers(i, 1, &vbv);
+		}
+	}
+	if (devicePSO.m_pso.m_IAState.m_indexBuffer)
+	{
+		auto ibv = device_cast<DeviceBufferDX12*>(devicePSO.m_pso.m_IAState.m_indexBuffer)->IndexBufferView();
+		m_CmdList->IASetIndexBuffer(&ibv);
+	}
+	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(devicePSO.m_pso.m_IAState.m_topologyType));
+
+	if (!devicePSO.IsEmptyRootParams())
+		for (auto& heap : m_DynamicDescriptorHeaps)
+			heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+}
+
+void CommandListDX12::BindComputePSO(DevicePipelineStateObjectDX12& devicePSO)
+{
+	m_CmdList->SetComputeRootSignature(devicePSO.m_rootSignature.Get());
+	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
+
+	if (!devicePSO.IsEmptyRootParams())
+		for (auto& heap : m_DynamicDescriptorHeaps)
+			heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
 }

@@ -74,28 +74,15 @@ bool PBRLUTBaker::Init()
 		return false;
 
 	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_B8G8R8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
+	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", L"BakerMain");
 		pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
-
-		//// setup geometry
-		//auto geometry = std::make_unique<SimpleGeometry>("Geometry", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());
-		//builder << *geometry;
-
-		//// setup render targets
-		//auto rtPtr = forward::make_shared<Texture2D>(std::string("RT"), DF_R8G8B8A8_UNORM,
-		//	mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
-		//rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
-		//pso.m_OMState.m_renderTargetResources[0] = rtPtr;
-
-		//auto dsPtr = forward::make_shared<Texture2D>(std::string("DS"), DF_D32_FLOAT,
-		//	mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
-		//pso.m_OMState.m_depthStencilResource = dsPtr;
-	},
+		},
 		[](Device& device) {
-		device.Draw(4);
+			device.GetCmdList().Dispatch(64, 64, 1);
 	});
 
 
@@ -104,5 +91,5 @@ bool PBRLUTBaker::Init()
 
 void PBRLUTBaker::SaveRT()
 {
-	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
+	m_pDevice->SaveTexture(L"ComputeShaderResultDX12.bmp", m_uavTex.get());
 }

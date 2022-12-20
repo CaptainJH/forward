@@ -21,193 +21,262 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	auto device = d->GetDevice();
 	auto commandList = d->DeviceCommandList();
 
-	VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
-	VertexShader* vsshader = pso.m_VSState.m_shader.get();
-	forward::shared_ptr<ShaderDX12> deviceVS = nullptr;
-	if (pso.m_VSState.m_shader)
+	if (!pso.m_CSState.m_shader)
 	{
-		deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
-	}
-	forward::shared_ptr<ShaderDX12> deviceGS = nullptr;
-	if (pso.m_GSState.m_shader)
-	{
-		deviceGS = device_cast<ShaderDX12*>(pso.m_GSState.m_shader);
-	}
-	forward::shared_ptr<ShaderDX12> devicePS = nullptr;
-	if (pso.m_PSState.m_shader)
-	{
-		devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
-	}
-	GeometryShader* gsshader = pso.m_GSState.m_shader.get();
-	PixelShader* psshader = pso.m_PSState.m_shader.get();
-
-	if (vbuffer && vsshader)
-	{
-		const auto& vertexFormat = vbuffer->GetVertexFormat();
-		m_numElements = vertexFormat.GetNumAttributes();
-		for (auto i = 0U; i < m_numElements; ++i)
+		// setup graphic pipeline
+		VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
+		VertexShader* vsshader = pso.m_VSState.m_shader.get();
+		forward::shared_ptr<ShaderDX12> deviceVS = nullptr;
+		if (pso.m_VSState.m_shader)
 		{
-			VASemantic semantic;
-			DataFormatType type;
-			u32 unit, offset;
-			vertexFormat.GetAttribute(i, semantic, type, unit, offset);
-
-			D3D12_INPUT_ELEMENT_DESC& element = m_elements[i];
-			element.SemanticName = VertexFormat::GetSemanticName(semantic);
-			element.SemanticIndex = unit;
-			element.Format = static_cast<DXGI_FORMAT>(type);
-			element.InputSlot = 0;  // TODO: Streams not yet supported.
-			element.AlignedByteOffset = offset;
-			element.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-			element.InstanceDataStepRate = 0;
+			deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
 		}
-	}
-
-	// prepare shaders
-	if (!vsshader->DeviceObject())
-	{
-		deviceVS = forward::make_shared<ShaderDX12>(vsshader);
-		vsshader->SetDeviceObject(deviceVS);
-	}
-
-	if (gsshader && !gsshader->DeviceObject())
-	{
-		deviceGS = forward::make_shared<ShaderDX12>(gsshader);
-		gsshader->SetDeviceObject(deviceGS);
-	}
-
-	if (!psshader->DeviceObject())
-	{
-		devicePS = forward::make_shared<ShaderDX12>(psshader);
-		psshader->SetDeviceObject(devicePS);
-	}
-
-	// setup root signature
-	if (!m_rootSignature.Get())
-	{
-		BuildRootSignature(device);
-	}
-
-	// setup pso
-	if (!m_devicePSO.Get())
-	{
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-		ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-		psoDesc.InputLayout = { m_elements, m_numElements };
-		psoDesc.pRootSignature = m_rootSignature.Get();
-		psoDesc.VS =
+		forward::shared_ptr<ShaderDX12> deviceGS = nullptr;
+		if (pso.m_GSState.m_shader)
 		{
-			reinterpret_cast<BYTE*>(deviceVS->GetCompiledCode()->GetBufferPointer()),
-			deviceVS->GetCompiledCode()->GetBufferSize()
-		};
-		if (gsshader && gsshader->DeviceObject())
+			deviceGS = device_cast<ShaderDX12*>(pso.m_GSState.m_shader);
+		}
+		forward::shared_ptr<ShaderDX12> devicePS = nullptr;
+		if (pso.m_PSState.m_shader)
 		{
-			psoDesc.GS =
+			devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
+		}
+		GeometryShader* gsshader = pso.m_GSState.m_shader.get();
+		PixelShader* psshader = pso.m_PSState.m_shader.get();
+
+		if (vbuffer && vsshader)
+		{
+			const auto& vertexFormat = vbuffer->GetVertexFormat();
+			m_numElements = vertexFormat.GetNumAttributes();
+			for (auto i = 0U; i < m_numElements; ++i)
 			{
-				reinterpret_cast<BYTE*>(deviceGS->GetCompiledCode()->GetBufferPointer()),
-				deviceGS->GetCompiledCode()->GetBufferSize()
+				VASemantic semantic;
+				DataFormatType type;
+				u32 unit, offset;
+				vertexFormat.GetAttribute(i, semantic, type, unit, offset);
+
+				D3D12_INPUT_ELEMENT_DESC& element = m_elements[i];
+				element.SemanticName = VertexFormat::GetSemanticName(semantic);
+				element.SemanticIndex = unit;
+				element.Format = static_cast<DXGI_FORMAT>(type);
+				element.InputSlot = 0;  // TODO: Streams not yet supported.
+				element.AlignedByteOffset = offset;
+				element.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+				element.InstanceDataStepRate = 0;
+			}
+		}
+
+		// prepare shaders
+		if (!vsshader->DeviceObject())
+		{
+			deviceVS = forward::make_shared<ShaderDX12>(vsshader);
+			vsshader->SetDeviceObject(deviceVS);
+		}
+
+		if (gsshader && !gsshader->DeviceObject())
+		{
+			deviceGS = forward::make_shared<ShaderDX12>(gsshader);
+			gsshader->SetDeviceObject(deviceGS);
+		}
+
+		if (!psshader->DeviceObject())
+		{
+			devicePS = forward::make_shared<ShaderDX12>(psshader);
+			psshader->SetDeviceObject(devicePS);
+		}
+
+		// setup root signature
+		if (!m_rootSignature.Get())
+		{
+			BuildRootSignature(device);
+		}
+
+		// setup pso
+		if (!m_devicePSO.Get())
+		{
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+			ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+			psoDesc.InputLayout = { m_elements, m_numElements };
+			psoDesc.pRootSignature = m_rootSignature.Get();
+			psoDesc.VS =
+			{
+				reinterpret_cast<BYTE*>(deviceVS->GetCompiledCode()->GetBufferPointer()),
+				deviceVS->GetCompiledCode()->GetBufferSize()
 			};
-		}
-		psoDesc.PS =
-		{
-			reinterpret_cast<BYTE*>(devicePS->GetCompiledCode()->GetBufferPointer()),
-			devicePS->GetCompiledCode()->GetBufferSize()
-		};
-		ConfigRasterizerState(psoDesc.RasterizerState);
-		ConfigBlendState(psoDesc.BlendState);
-		ConfigDepthStencilState(psoDesc.DepthStencilState);
-		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
-		psoDesc.NumRenderTargets = 0;
-		for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
-		{
-			auto rt = pso.m_OMState.m_renderTargetResources[i];
-			if (rt)
+			if (gsshader && gsshader->DeviceObject())
 			{
-				++psoDesc.NumRenderTargets;
-				psoDesc.RTVFormats[i] = static_cast<DXGI_FORMAT>(rt->GetFormat());
-			}
-		}
-		if (!psoDesc.NumRenderTargets)
-		{
-			psoDesc.SampleDesc.Count = 1;
-			psoDesc.SampleDesc.Quality = 0;
-		}
-		else
-		{
-			psoDesc.SampleDesc.Count = pso.m_OMState.m_renderTargetResources[0]->GetSampCount();
-			psoDesc.SampleDesc.Quality = 0;
-		}
-		if (pso.m_OMState.m_depthStencilResource)
-		{
-			psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
-		}
-		HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
-	}
-
-	// setup vertex buffers
-	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
-	{
-		auto vb = pso.m_IAState.m_vertexBuffers[i];
-		if (vb)
-		{
-			if (!vb->DeviceObject())
-			{
-				auto deviceVB = forward::make_shared<DeviceBufferDX12>(commandList, vb.get(), *d);
-				vb->SetDeviceObject(deviceVB);
-			}
-
-			//auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
-			//deviceVB->SyncCPUToGPU(m_pContext.Get());
-			//deviceVB->Bind(m_pContext.Get());
-		}
-	}
-	// setup index buffer
-	auto ib = pso.m_IAState.m_indexBuffer;
-	if (ib && !ib->DeviceObject())
-	{
-		auto deviceIB = forward::make_shared<DeviceBufferDX12>(commandList, ib.get(), *d);
-		ib->SetDeviceObject(deviceIB);
-	}
-	// setup shader resources
-	if (pso.m_PSState.m_shader)
-	{
-		for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
-		{
-			auto res = pso.m_PSState.m_shaderResources[i];
-			if (res)
-			{
-				if (dynamic_cast<Texture2D*>(res.get()))
+				psoDesc.GS =
 				{
-					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
-					res->SetDeviceObject(deviceTex);
-				}
-				else if (dynamic_cast<TextureCube*>(res.get()))
+					reinterpret_cast<BYTE*>(deviceGS->GetCompiledCode()->GetBufferPointer()),
+					deviceGS->GetCompiledCode()->GetBufferSize()
+				};
+			}
+			psoDesc.PS =
+			{
+				reinterpret_cast<BYTE*>(devicePS->GetCompiledCode()->GetBufferPointer()),
+				devicePS->GetCompiledCode()->GetBufferSize()
+			};
+			ConfigRasterizerState(psoDesc.RasterizerState);
+			ConfigBlendState(psoDesc.BlendState);
+			ConfigDepthStencilState(psoDesc.DepthStencilState);
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
+			psoDesc.NumRenderTargets = 0;
+			for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
+			{
+				auto rt = pso.m_OMState.m_renderTargetResources[i];
+				if (rt)
 				{
-					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
-					res->SetDeviceObject(deviceTex);
+					++psoDesc.NumRenderTargets;
+					psoDesc.RTVFormats[i] = static_cast<DXGI_FORMAT>(rt->GetFormat());
 				}
 			}
+			if (!psoDesc.NumRenderTargets)
+			{
+				psoDesc.SampleDesc.Count = 1;
+				psoDesc.SampleDesc.Quality = 0;
+			}
+			else
+			{
+				psoDesc.SampleDesc.Count = pso.m_OMState.m_renderTargetResources[0]->GetSampCount();
+				psoDesc.SampleDesc.Quality = 0;
+			}
+			if (pso.m_OMState.m_depthStencilResource)
+			{
+				psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
+			}
+			HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
 		}
-	}
-	// setup render targets
-	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
-		if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
-		{
-			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *d);
-			ptr->SetDeviceObject(deviceTex);
-		}
-	});
-	// setup depth stencil buffer
-	if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
-	{
-		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pso.m_OMState.m_depthStencilResource.get(), *d);
-		pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
-	}
 
-	// Execute the initialization commands
-	d->GetDefaultQueue()->ExecuteCommandList([](){});
-	d->GetDefaultQueue()->Flush();
+		// setup vertex buffers
+		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+		{
+			auto vb = pso.m_IAState.m_vertexBuffers[i];
+			if (vb)
+			{
+				if (!vb->DeviceObject())
+				{
+					auto deviceVB = forward::make_shared<DeviceBufferDX12>(commandList, vb.get(), *d);
+					vb->SetDeviceObject(deviceVB);
+				}
+
+				//auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
+				//deviceVB->SyncCPUToGPU(m_pContext.Get());
+				//deviceVB->Bind(m_pContext.Get());
+			}
+		}
+		// setup index buffer
+		auto ib = pso.m_IAState.m_indexBuffer;
+		if (ib && !ib->DeviceObject())
+		{
+			auto deviceIB = forward::make_shared<DeviceBufferDX12>(commandList, ib.get(), *d);
+			ib->SetDeviceObject(deviceIB);
+		}
+		// setup shader resources
+		if (pso.m_PSState.m_shader)
+		{
+			for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+			{
+				auto res = pso.m_PSState.m_shaderResources[i];
+				if (res)
+				{
+					if (dynamic_cast<Texture2D*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
+						res->SetDeviceObject(deviceTex);
+					}
+					else if (dynamic_cast<TextureCube*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
+						res->SetDeviceObject(deviceTex);
+					}
+				}
+			}
+		}
+		// setup render targets
+		std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
+			if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
+			{
+				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *d);
+				ptr->SetDeviceObject(deviceTex);
+			}
+			});
+		// setup depth stencil buffer
+		if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
+		{
+			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pso.m_OMState.m_depthStencilResource.get(), *d);
+			pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
+		}
+
+		// Execute the initialization commands
+		d->GetDefaultQueue()->ExecuteCommandList([]() {});
+		d->GetDefaultQueue()->Flush();
+	}
+	else if (pso.m_CSState.m_shader)
+	{
+		// setup compute pipeline
+		ComputeShader* csshader = pso.m_CSState.m_shader.get();
+		forward::shared_ptr<ShaderDX12> deviceCS = nullptr;
+		if (!csshader->DeviceObject())
+		{
+			deviceCS = forward::make_shared<ShaderDX12>(csshader);
+			csshader->SetDeviceObject(deviceCS);
+		}
+
+		// setup root signature
+		if (!m_rootSignature.Get())
+			BuildRootSignature(device);
+
+		// setup pso
+		if (!m_devicePSO.Get())
+		{
+			D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc;
+			ZeroMemory(&psoDesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
+			psoDesc.pRootSignature = m_rootSignature.Get();
+			psoDesc.CS =
+			{
+				reinterpret_cast<BYTE*>(deviceCS->GetCompiledCode()->GetBufferPointer()),
+				deviceCS->GetCompiledCode()->GetBufferSize()
+			};
+			psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+			HR(device->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
+		}
+
+		// setup shader resources
+		if (pso.m_CSState.m_shader)
+		{
+			for (auto i = 0U; i < pso.m_CSState.m_shaderResources.size(); ++i)
+			{
+				auto res = pso.m_CSState.m_shaderResources[i];
+				if (res)
+				{
+					if (dynamic_cast<Texture2D*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
+						res->SetDeviceObject(deviceTex);
+					}
+					else if (dynamic_cast<TextureCube*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
+						res->SetDeviceObject(deviceTex);
+					}
+				}
+			}
+			for (auto i = 0U; i < pso.m_CSState.m_uavShaderRes.size(); ++i)
+			{
+				auto res = pso.m_CSState.m_uavShaderRes[i];
+				if (res)
+				{
+					if (dynamic_cast<Texture2D*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
+						res->SetDeviceObject(deviceTex);
+					}
+				}
+			}
+		}
+
+	}
 }
 
 DevicePipelineStateObjectDX12::~DevicePipelineStateObjectDX12()
@@ -221,26 +290,6 @@ ID3D12PipelineState* DevicePipelineStateObjectDX12::GetDevicePSO()
 	return m_devicePSO.Get();
 }
 
-void DevicePipelineStateObjectDX12::Bind(ID3D12GraphicsCommandList* commandList)
-{
-	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-	commandList->SetPipelineState(m_devicePSO.Get());
-	for (auto i = 0U; i < m_pso.m_IAState.m_vertexBuffers.size(); ++i)
-	{
-		if (m_pso.m_IAState.m_vertexBuffers[i])
-		{
-			auto vbv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
-			commandList->IASetVertexBuffers(i, 1, &vbv);
-		}
-	}
-	if (m_pso.m_IAState.m_indexBuffer)
-	{
-		auto ibv = device_cast<DeviceBufferDX12*>(m_pso.m_IAState.m_indexBuffer)->IndexBufferView();
-		commandList->IASetIndexBuffer(&ibv);
-	}
-	commandList->IASetPrimitiveTopology(Convert2D3DTopology(m_pso.m_IAState.m_topologyType));
-}
-
 void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 {
 	const auto MaxDescriptor = 256;
@@ -248,9 +297,11 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	descriptorRanges.reserve(MaxDescriptor);
 	std::array<u32, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> usedRegisterCBV{ 0 };
 	std::array<u32, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> usedRegisterSRV{ 0 };
+	std::array<u32, 8> usedRegisterUAV{ 0 };
 
 	collectBindingInfo(m_pso.m_VSState, usedRegisterCBV, usedRegisterSRV);
 	collectBindingInfo(m_pso.m_PSState, usedRegisterCBV, usedRegisterSRV);
+	collectBindingInfo(m_pso.m_CSState, usedRegisterCBV, usedRegisterSRV, usedRegisterUAV);
 
 	checkBindingInfo(usedRegisterCBV);
 	const auto usedCBVCount = std::count(usedRegisterCBV.begin(), usedRegisterCBV.end(), 2U);
@@ -262,7 +313,12 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	if (usedSRVCount > 0)
 		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (u32)usedSRVCount, 0));
 
-	m_pso.m_usedCBV_SRV_UAV_Count = static_cast<u32>(usedCBVCount + usedSRVCount);
+	checkBindingInfo(usedRegisterUAV);
+	const auto usedUAVCount = std::count(usedRegisterUAV.begin(), usedRegisterUAV.end(), 2U);
+	if (usedUAVCount > 0)
+		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, (u32)usedUAVCount, 0));
+
+	m_pso.m_usedCBV_SRV_UAV_Count = static_cast<u32>(usedCBVCount + usedSRVCount + usedUAVCount);
 
 	CD3DX12_ROOT_PARAMETER slotRootParameter;
 	slotRootParameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
@@ -400,6 +456,11 @@ std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigSt
 	}
 
 	return samplers;
+}
+
+bool DevicePipelineStateObjectDX12::IsEmptyRootParams() const
+{
+	return m_pso.m_usedCBV_SRV_UAV_Count == 0;
 }
 
 D3D12_FILL_MODE const DevicePipelineStateObjectDX12::msFillMode[] =

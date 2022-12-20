@@ -17,12 +17,13 @@ namespace forward
 
 	class DevicePipelineStateObjectDX12 : public DeviceObject
 	{
+		friend class CommandListDX12;
 	public:
 		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
 		virtual ~DevicePipelineStateObjectDX12();
 
 		ID3D12PipelineState* GetDevicePSO();
-		void Bind(ID3D12GraphicsCommandList* commandList);
+		bool IsEmptyRootParams() const;
 
 	private:
 		u32							m_numElements;
@@ -76,6 +77,7 @@ namespace forward
 
 				for (auto& tex : deviceShader->GetTextures())
 				{
+					if (tex.IsGpuWritable()) continue;
 					auto register_index = tex.GetBindPoint();
 					assert(usedRegisterSRV[register_index] == 0
 						&& tex.GetBindCount() == 1);
@@ -87,6 +89,34 @@ namespace forward
 					{
 						assert(usedRegisterSRV[i] == 1);
 						++usedRegisterSRV[i];
+					}
+				}
+			}
+		}
+
+		template<class T, i32 N, i32 K>
+		void collectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV, std::array<u32, 8>& usedRegisterUAV) const
+		{
+			collectBindingInfo(shaderStageState, usedRegisterCBV, usedRegisterSRV);
+			if (shaderStageState.m_shader)
+			{
+				auto deviceShader = device_cast<ShaderDX12*>(shaderStageState.m_shader);
+				for (auto& tex : deviceShader->GetTextures())
+				{
+					if (tex.IsGpuWritable())
+					{
+						auto register_index = tex.GetBindPoint();
+						assert(usedRegisterUAV[register_index] == 0
+							&& tex.GetBindCount() == 1);
+						++usedRegisterUAV[register_index];
+					}
+				}
+				for (auto i = 0U; i < shaderStageState.m_uavShaderRes.size(); ++i)
+				{
+					if (shaderStageState.m_uavShaderRes[i])
+					{
+						assert(usedRegisterUAV[i] == 1);
+						++usedRegisterUAV[i];
 					}
 				}
 			}

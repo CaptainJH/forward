@@ -14,7 +14,6 @@ public:
 	{
 		mMainWndCaption = L"HelloFrameGraph";
 #ifdef WINDOWS
-		//RenderType = RendererType::Renderer_Forward_DX11;
 		DeviceType = DeviceType::Device_Forward_DX12;
 #endif
 	}
@@ -35,6 +34,9 @@ protected:
 
 private:
 	RenderPass* m_renderPass;
+
+	std::unique_ptr<RenderPass> m_computePass;
+	forward::shared_ptr<Texture2D> m_uavTex;
 };
 
 void HelloFrameGraph::DrawScene()
@@ -42,6 +44,7 @@ void HelloFrameGraph::DrawScene()
 	ProfilingHelper::BeginPixEvent("DrawScene", 0, 200, 0);
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
+	fg.DrawRenderPass(m_computePass.get());
 	fg.DrawRenderPass(m_renderPass);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
 	m_pDevice->EndDrawFrameGraph();
@@ -92,10 +95,23 @@ bool HelloFrameGraph::Init()
 
 		auto rsPtr = m_pDevice->GetDefaultRT();
 		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
-	},
-	[](Device& device) {
-		device.Draw(4);
+		},
+		[](Device& device) {
+			device.GetCmdList().Draw(4);
 	});
+
+
+	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_B8G8R8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
+	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+	m_computePass = std::make_unique<RenderPass>(
+		[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+			// setup shaders
+			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", L"BakerMain");
+			pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
+		},
+		[](Device& device) {
+			device.GetCmdList().Dispatch(64, 64, 1);
+		});
 
 
 	return true;

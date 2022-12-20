@@ -82,12 +82,12 @@ namespace forward
 		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
 		void Shutdown() override;
 
-		void Draw(u32 vertexNum, u32 startVertexLocation = 0) override;
 		void DrawIndexed(u32 indexCount) override;
 
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
 		void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) override;
+		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 
@@ -97,6 +97,8 @@ namespace forward
 		shared_ptr<Texture2D> GetDefaultRT() const override;
 		shared_ptr<Texture2D> GetDefaultDS() const override;
 
+		CommandQueue& GetQueue() override;
+		CommandList& GetCmdList() override;
 		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
 		CommandQueueDX12* GetDefaultQueue();
 

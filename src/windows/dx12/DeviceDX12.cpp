@@ -430,53 +430,65 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 {
 	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
 
-	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-	DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
-	D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-	memset(aRects, 0, sizeof(aRects));
-	if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
+	if (!pass.GetPSO().m_CSState.m_shader)
 	{
-		for (auto i = 0U; i < pass.GetPSO().m_RSState.m_activeScissorRectNum; ++i)
+		// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
+		DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
+		D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+		memset(aRects, 0, sizeof(aRects));
+		if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
 		{
-			auto rect = pass.GetPSO().m_RSState.m_scissorRects[i];
-			aRects[i].left = rect.left;
-			aRects[i].bottom = rect.height;
-			aRects[i].right = rect.width;
-			aRects[i].top = rect.top;
+			for (auto i = 0U; i < pass.GetPSO().m_RSState.m_activeScissorRectNum; ++i)
+			{
+				auto rect = pass.GetPSO().m_RSState.m_scissorRects[i];
+				aRects[i].left = rect.left;
+				aRects[i].bottom = rect.height;
+				aRects[i].right = rect.width;
+				aRects[i].top = rect.top;
+			}
+			DeviceCommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
 		}
-		DeviceCommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
-	}
-	else
-	{
-		DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
-	}
+		else
+		{
+			DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
+		}
 
-	// Indicate a state transition on the resource usage.
-	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_RENDER_TARGET);
+		// Indicate a state transition on the resource usage.
+		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	// Specify the buffers we are going to render to.
-	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
-	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
-	DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
-	// Clear the back buffer and depth buffer.
-	f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
-	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
-	{
-		DeviceCommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
-	}
-	if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
-	{
-		DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	}
+		// Specify the buffers we are going to render to.
+		D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
+		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
+		DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+		// Clear the back buffer and depth buffer.
+		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
+		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
+		{
+			DeviceCommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+		}
+		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
+		{
+			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		}
 
-	pso->Bind(DeviceCommandList());
-	m_queue->GetCommandListDX12()->BindDescriptorTableToRootParam();
+		m_queue->GetCommandListDX12()->BindGraphicsPSO(*pso);
+		//m_queue->GetCommandListDX12()->BindGraphicsDescriptorTableToRootParam();
 
-	// Draw
-	pass.Execute(*this);
+		// Draw
+		pass.Execute(*this);
 	
-	// Indicate a state transition on the resource usage.
-	TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
+		// Indicate a state transition on the resource usage.
+		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
+	}
+	else if (pass.GetPSO().m_CSState.m_shader)
+	{
+		m_queue->GetCommandListDX12()->BindComputePSO(*pso);
+		//m_queue->GetCommandListDX12()->BindComputeDescriptorTableToRootParam();
+
+		// Draw
+		pass.Execute(*this);
+	}
+
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DeleteResource(ResourcePtr /*ptr*/)
@@ -550,11 +562,6 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	return true;
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::Draw(u32 vertexNum, u32 startVertexLocation)
-{
-	DeviceCommandList()->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
-}
-//--------------------------------------------------------------------------------
 void DeviceDX12::DrawIndexed(u32 indexCount)
 {
 	DeviceCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
@@ -586,21 +593,27 @@ void DeviceDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObj
 {
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
 	auto rtPtr = deviceRT->GetTexture2D();
+	SaveTexture(filename, rtPtr.get());
+}
+//--------------------------------------------------------------------------------
+void DeviceDX12::SaveTexture(const std::wstring& filename, Texture2D* tex)
+{
+	DeviceTexture2DDX12* deviceRT = device_cast<DeviceTexture2DDX12*>(tex);
 	deviceRT->SyncGPUToCPU();
 
-	u8* tempBuffer = new u8[rtPtr->GetNumBytes()];
-	memcpy(tempBuffer, rtPtr->GetData(), rtPtr->GetNumBytes());
-	if (rtPtr->GetElementSize() >= 3)
+	u8* tempBuffer = new u8[tex->GetNumBytes()];
+	memcpy(tempBuffer, tex->GetData(), tex->GetNumBytes());
+	if (tex->GetElementSize() >= 3)
 	{
 		// transform from RGBA to BGRA
-		for (auto i = 0U; i < rtPtr->GetNumBytes(); i += rtPtr->GetElementSize())
+		for (auto i = 0U; i < tex->GetNumBytes(); i += tex->GetElementSize())
 		{
 			std::swap(tempBuffer[i], tempBuffer[i + 2]);
 		}
 	}
 
 	FileSaver outfile;
-	outfile.SaveAsBMP(filename, tempBuffer, rtPtr->GetWidth(), rtPtr->GetHeight());
+	outfile.SaveAsBMP(filename, tempBuffer, tex->GetWidth(), tex->GetHeight());
 	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
@@ -757,4 +770,14 @@ ID3D12CommandQueue* DeviceDX12::DeviceCommandQueue()
 CommandQueueDX12* DeviceDX12::GetDefaultQueue()
 {
 	return m_queue.get();
+}
+
+CommandQueue& DeviceDX12::GetQueue()
+{
+	return *m_queue.get();
+}
+
+CommandList& DeviceDX12::GetCmdList()
+{
+	return *GetQueue().GetCommandList().get();
 }

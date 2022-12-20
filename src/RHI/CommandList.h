@@ -27,6 +27,7 @@ namespace forward
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation = 0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
+		virtual void Dispatch(u32 x, u32 y, u32 z) = 0;
 
 		// FrameGraph APIs
 		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;

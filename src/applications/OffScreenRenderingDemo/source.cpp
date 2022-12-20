@@ -91,9 +91,9 @@ bool OffScreenRenderingDemo::Init()
 		auto dsPtr = forward::make_shared<Texture2D>(std::string("DS"), DF_D32_FLOAT,
 			mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
 		pso.m_OMState.m_depthStencilResource = dsPtr;
-	},
+		},
 		[](Device& device) {
-		device.Draw(4);
+			device.GetCmdList().Draw(4);
 	});
 
 

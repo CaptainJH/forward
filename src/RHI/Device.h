@@ -67,7 +67,6 @@ namespace forward
 		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 		virtual void Shutdown() = 0;
 
-		virtual void Draw(u32 vertexNum, u32 startVertexLocation=0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
 
 		virtual void BeginDrawFrameGraph(FrameGraph* fg);
@@ -76,11 +75,14 @@ namespace forward
 		virtual void ResolveResource(Texture2D* dst, Texture2D* src) = 0;
 
 		virtual void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) = 0;
+		virtual void SaveTexture(const std::wstring& filename, Texture2D* tex) = 0;
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
 
 		virtual shared_ptr<Texture2D> GetDefaultRT() const = 0;
 		virtual shared_ptr<Texture2D> GetDefaultDS() const = 0;
+		virtual CommandQueue& GetQueue() = 0;
+		virtual CommandList& GetCmdList() = 0;
 
 		virtual shared_ptr<CommandQueue> MakeCommandQueue(QueueType t=QueueType::Direct) = 0;
 

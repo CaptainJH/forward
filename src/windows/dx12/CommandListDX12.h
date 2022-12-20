@@ -10,6 +10,7 @@ namespace forward
 {
 	enum class QueueType;
 	class CommandQueueDX12;
+	class DevicePipelineStateObjectDX12;
 
 	class CommandListDX12 final : public CommandList
 	{
@@ -21,9 +22,11 @@ namespace forward
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
 		void Draw(u32 vertexNum, u32 startVertexLocation) override;
 		void DrawIndexed(u32 indexCount) override;
+		void Dispatch(u32 x, u32 y, u32 z) override;
 
-		void BindDescriptorTableToRootParam();
 		void BindGPUVisibleHeaps();
+		void BindGraphicsPSO(DevicePipelineStateObjectDX12&);
+		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
 		void CommitStagedDescriptors();
 

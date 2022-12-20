@@ -191,9 +191,9 @@ bool MSAA_Demo::Init()
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
 
-	},
+		},
 		[&](Device& device) {
-		device.Draw(m_quad->GetVertexCount());
+			device.GetCmdList().Draw(m_quad->GetVertexCount());
 	});
 	//m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());
 
