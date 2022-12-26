@@ -33,6 +33,7 @@ option(forward_CompileWithSuperluminalAPI "SuperluminalAPI integration")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     include_directories("${forward_repository_root}/extern/src/assimp/include/")
     include_directories("${CMAKE_CURRENT_BINARY_DIR}/../extern/src/assimp/include/")
+    include_directories("${forward_repository_root}/extern/src/DirectXTex/DirectXTex/")
     include_directories("windows/")
   
     set(warnings "/W4 /WX")

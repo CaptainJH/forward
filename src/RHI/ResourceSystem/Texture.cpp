@@ -10,7 +10,7 @@
 #include "stb/stb_image.h"
 
 #ifdef WINDOWS
-#include <DirectXTex/DirectXTex/DirectXTex.h>
+#include <DirectXTex.h>
 #endif
 
 using namespace forward;
