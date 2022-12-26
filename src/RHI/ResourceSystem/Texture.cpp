@@ -126,46 +126,6 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 #ifdef WINDOWS
 	else if (ext == L".dds" || ext == L".DDS")
 	{
-		//DDSFileLoader loader;
-		//if (loader.Open(m_fileFullPath))
-		//{
-		//	return;
-		//}
-
-		//m_width = loader.GetImageWidth();
-		//m_height = loader.GetImageHeight();
-		//m_format = loader.GetImageFormat();
-		//m_mipLevelNum = loader.GetMipCount();
-
-		//bool isCubeMap = false;
-		//std::wstringstream wss;
-		//u32 dimension = 0;
-		//if (!loader.GetTextureDimension(dimension, isCubeMap))
-		//{
-		//	assert(dimension == 2);
-		//	assert(!isCubeMap);
-		//	if (dimension != 2 || isCubeMap)
-		//	{
-		//		wss << L"Get Texture Dimension Failed! (" << filename << ")";
-		//		auto text = wss.str();
-		//		Log::Get().Write(text);
-		//	}
-		//}
-		//else
-		//{
-		//	wss << L"Get Texture Dimension Failed! (" << filename << ")";
-		//	auto text = wss.str();
-		//	Log::Get().Write(text);
-		//}
-
-		//assert(m_format != DataFormatType::DF_UNKNOWN);
-
-		//m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
-		//m_numElements = loader.GetImageContentSize() / m_elementSize;
-		//Initialize(m_numElements, m_elementSize);
-		//memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
-
-		///////////////////////////
 		DirectX::TexMetadata  metadata;
 		DirectX::ScratchImage scratchImage;
 		auto ret = DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
