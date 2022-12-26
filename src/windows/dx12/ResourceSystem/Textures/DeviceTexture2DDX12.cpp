@@ -139,8 +139,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	if (tex->GetUsage() == ResourceUsage::RU_IMMUTABLE && (TBP & TBP_Shader) && tex->GetData())
 	{
 		u64 uploadSize = 0U;
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT PlacedFootprint;
-		device->GetCopyableFootprints(&desc, 0, 1, 0, &PlacedFootprint, nullptr, nullptr, &uploadSize);
+		device->GetCopyableFootprints(&desc, 0, tex->GetMipLevelNum(), 0, nullptr, nullptr, nullptr, &uploadSize);
 		auto uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadSize);
 
 		// In order to copy CPU memory data into our default buffer, we need to create
@@ -215,7 +214,7 @@ void DeviceTexture2DDX12::SyncCPUToGPU()
 			GetResourceState(),
 			D3D12_RESOURCE_STATE_COPY_DEST);
 		cmdList->ResourceBarrier(1, &transitionToCopyDest);
-		UpdateSubresources(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, initData.get());
+		UpdateSubresources(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, resTex2->GetMipLevelNum(), initData.get());
 		auto transitionBack = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 		cmdList->ResourceBarrier(1, &transitionBack);

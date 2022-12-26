@@ -181,6 +181,13 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		}
 		else if (metadata.dimension == DirectX::TEX_DIMENSION_TEXTURE2D)
 		{
+			for (auto i = 1; i < scratchImage.GetImageCount(); ++i)
+			{
+				const auto& img = scratchImage.GetImages()[i];
+				const auto& img_prev = scratchImage.GetImages()[i - 1];
+				assert(img.pixels == img_prev.pixels + img_prev.slicePitch);
+			}
+
 			m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
 			m_numElements = (u32)scratchImage.GetPixelsSize() / m_elementSize;
 			Initialize(m_numElements, m_elementSize);
