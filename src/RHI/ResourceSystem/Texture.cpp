@@ -8,7 +8,10 @@
 #include "FileSystem.h"
 #include "Log.h"
 #include "stb/stb_image.h"
-#include "tinyddsloader.h"
+
+#ifdef WINDOWS
+#include <DirectXTex/DirectXTex/DirectXTex.h>
+#endif
 
 using namespace forward;
 
@@ -162,31 +165,27 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		//Initialize(m_numElements, m_elementSize);
 		//memcpy(m_data, loader.GetImageContentDataPtr(), loader.GetImageContentSize());
 
-		tinyddsloader::DDSFile loader;
-		auto filePathChar = TextHelper::ToAscii(m_fileFullPath);
-		auto ret = loader.Load(filePathChar.c_str());
-		if (tinyddsloader::Result::Success != ret) 
+		///////////////////////////
+		DirectX::TexMetadata  metadata;
+		DirectX::ScratchImage scratchImage;
+		auto ret = DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+		assert(SUCCEEDED(ret));
+
+		m_width = (u32)metadata.width;
+		m_height = (u32)metadata.height;
+		m_format = (forward::DataFormatType)metadata.format;
+		m_mipLevelNum = (u32)metadata.mipLevels;
+		if (metadata.IsCubemap())
 		{
-			std::cout << "Failed to load.[" << filePathChar << "]\n";
-			std::cout << "Result : " << int(ret) << "\n";
+
 		}
-
-		m_width = loader.GetWidth();
-		m_height = loader.GetHeight();
-		m_format = (forward::DataFormatType)loader.GetFormat();
-		m_mipLevelNum = loader.GetMipCount();
-
-		assert(loader.GetTextureDimension() == tinyddsloader::DDSFile::TextureDimension::Texture2D);
-		assert(!loader.IsCubemap());
-		assert(m_format != DataFormatType::DF_UNKNOWN);
-		auto p = loader.GetBitsPerPixel(loader.GetFormat()); p;
-
-		auto imageData = loader.GetImageData();
-		m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
-		m_numElements = imageData->m_memSlicePitch;
-		Initialize(1, imageData->m_memSlicePitch);
-		memcpy(m_data, imageData->m_mem, imageData->m_memSlicePitch);
-
+		else if (metadata.dimension == DirectX::TEX_DIMENSION_TEXTURE2D)
+		{
+			m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
+			m_numElements = (u32)scratchImage.GetPixelsSize() / m_elementSize;
+			Initialize(m_numElements, m_elementSize);
+			memcpy(m_data, scratchImage.GetPixels(), scratchImage.GetPixelsSize());
+		}
 	}
 #endif
 }

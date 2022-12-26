@@ -24,6 +24,9 @@
 #define SAFE_DELETE( x ) {if(x){delete (x);(x)=NULL;}}
 #define SAFE_DELETE_ARRAY( x ) {if(x){delete[] (x);(x)=NULL;}}
 
-const forward::i32 NUM_THREADS = 1;
-const forward::f32 Infinity = FLT_MAX;
-const forward::f32 Pi = 3.1415926535f;
+namespace forward
+{
+	const i32 NUM_THREADS = 1;
+	const f32 Infinity = FLT_MAX;
+	const f32 Pi = 3.1415926535f;
+}

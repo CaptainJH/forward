@@ -6,7 +6,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     target_link_libraries(BasicGeometryFrameGraph forwardDX12)
     target_link_libraries(BasicGeometryFrameGraph assimp)
 
-    if(CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
+    if(forward_CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
         target_link_libraries(BasicGeometryFrameGraph SuperluminalAPI)
     endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")

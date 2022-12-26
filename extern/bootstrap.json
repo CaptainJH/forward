@@ -28,6 +28,15 @@
 },
 
 {
+    "name": "DirectXTex",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/microsoft/DirectXTex.git",
+        "revision" : "23b7fd1f385d33f40093a0786ca5b54147f2f24a"
+    }
+},
+
+{
     "name": "mitsuba",
     "source": {
         "type": "archive",

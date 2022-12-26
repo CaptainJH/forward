@@ -14,3 +14,5 @@ set_property(TARGET uninstall PROPERTY FOLDER "ThirdPartyLibraries")
 #set_property(TARGET unit PROPERTY FOLDER "ThirdPartyLibraries")
 
 add_subdirectory("cmake/dear_imgui/")
+add_subdirectory("src/DirectXTex")
+set_property(TARGET DirectXTex PROPERTY FOLDER "ThirdPartyLibraries")
