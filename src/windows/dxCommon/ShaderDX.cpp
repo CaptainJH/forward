@@ -118,3 +118,8 @@ void ShaderDX::Insert(HLSLTextureArray const& tarray)
 {
 	m_TextureArrays.push_back(tarray);
 }
+
+void ShaderDX::Insert(HLSLSamplerState const& samp)
+{
+	m_Samplers.push_back(samp);
+}

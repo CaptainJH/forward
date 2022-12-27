@@ -13,6 +13,7 @@
 #include "dxCommon/ShaderReflection/HLSLTextureBuffer.h"
 #include "dxCommon/ShaderReflection/HLSLTexture.h"
 #include "dxCommon/ShaderReflection/HLSLTextureArray.h"
+#include "dxCommon/ShaderReflection/HLSLSamplerState.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -73,6 +74,7 @@ namespace forward
 		void Insert(HLSLTextureBuffer const& tbuffer);
 		void Insert(HLSLTexture const& texture);
 		void Insert(HLSLTextureArray const& tarray);
+		void Insert(HLSLSamplerState const& samp);
 
 		template<class D3D_SHADER_DESC>
 		void SetDescription(const D3D_SHADER_DESC& desc)
@@ -195,6 +197,7 @@ namespace forward
 		std::vector<HLSLTextureBuffer> m_TBuffers;
 		std::vector<HLSLTexture> m_Textures;
 		std::vector<HLSLTextureArray> m_TextureArrays;
+		std::vector<HLSLSamplerState> m_Samplers;
 	};
 };
 //--------------------------------------------------------------------------------

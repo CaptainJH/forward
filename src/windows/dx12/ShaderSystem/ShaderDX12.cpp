@@ -230,20 +230,20 @@ void ShaderDX12::ReflectShader()
 					}
 				}
 			}
-			//else if (resDesc.Type == D3D_SIT_SAMPLER)   // SamplerState
-			//{
-			//	if (resDesc.BindCount == 1)
-			//	{
-			//		shader.Insert(HLSLSamplerState(resDesc));
-			//	}
-			//	else
-			//	{
-			//		for (UINT j = 0; j < resDesc.BindCount; ++j)
-			//		{
-			//			shader.Insert(HLSLSamplerState(resDesc, j));
-			//		}
-			//	}
-			//}
+			else if (resDesc.Type == D3D_SIT_SAMPLER)   // SamplerState
+			{
+				if (resDesc.BindCount == 1)
+				{
+					Insert(HLSLSamplerState(resDesc));
+				}
+				else
+				{
+					for (UINT j = 0; j < resDesc.BindCount; ++j)
+					{
+						Insert(HLSLSamplerState(resDesc, j));
+					}
+				}
+			}
 			//else if (
 			//	resDesc.Type == D3D_SIT_BYTEADDRESS         // ByteAddressBuffer
 			//	|| resDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)  // RWByteAddressBuffer
