@@ -19,7 +19,6 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "Utils.h"
-#include "DataFormat.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -41,58 +40,6 @@ namespace forward
 
 	};
 
-#ifdef _WINDOWS
-	struct DDS_PIXELFORMAT
-	{
-		u32    size;
-		u32    flags;
-		u32    fourCC;
-		u32    RGBBitCount;
-		u32    RBitMask;
-		u32    GBitMask;
-		u32    BBitMask;
-		u32    ABitMask;
-	};
-
-	struct DDS_HEADER
-	{
-		u32        size;
-		u32        flags;
-		u32        height;
-		u32        width;
-		u32        pitchOrLinearSize;
-		u32        depth; // only if DDS_HEADER_FLAGS_VOLUME is set in flags
-		u32        mipMapCount;
-		u32        reserved1[11];
-		DDS_PIXELFORMAT ddspf;
-		u32        caps;
-		u32        caps2;
-		u32        caps3;
-		u32        caps4;
-		u32        reserved2;
-	};
-
-	class DDSFileLoader : public FileLoader
-	{
-	public:
-		DDSFileLoader();
-		virtual ~DDSFileLoader();
-
-		EResult Open(const std::wstring& filename) override;
-		u32 GetImageContentSize() const;
-		i8* GetImageContentDataPtr() const;
-		u32 GetImageWidth() const;
-		u32 GetImageHeight() const;
-		u32 GetMipCount() const;
-		EResult GetTextureDimension(u32& dimension, bool& isCube) const;
-		DataFormatType GetImageFormat() const;
-
-	protected:
-		DDS_HEADER*	m_header;
-		u32			m_contentSize;
-		i8*			m_contentDataPtr;
-	};
-#endif
 };
 //--------------------------------------------------------------------------------
 #endif // FileLoader_h
