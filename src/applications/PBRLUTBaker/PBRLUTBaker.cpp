@@ -76,7 +76,7 @@ bool PBRLUTBaker::Init()
 	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_B8G8R8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
 	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 	m_renderPass = std::make_unique<RenderPass>(
-		[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", L"BakerMain");
 		pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
