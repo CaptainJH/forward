@@ -83,6 +83,14 @@ namespace forward
 						&& tex.GetBindCount() == 1);
 					++usedRegisterSRV[register_index];
 				}
+				for (auto& tex : deviceShader->GetTextureArrays())
+				{
+					if (tex.IsGpuWritable()) continue;
+					auto register_index = tex.GetBindPoint();
+					assert(usedRegisterSRV[register_index] == 0
+						&& tex.GetBindCount() == 1);
+					++usedRegisterSRV[register_index];
+				}
 				for (auto i = 0U; i < shaderStageState.m_shaderResources.size(); ++i)
 				{
 					if (shaderStageState.m_shaderResources[i])
