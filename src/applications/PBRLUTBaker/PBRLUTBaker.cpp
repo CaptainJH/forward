@@ -73,7 +73,7 @@ bool PBRLUTBaker::Init()
 	if (!Application::Init())
 		return false;
 
-	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_B8G8R8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
+	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
 	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 	m_renderPass = std::make_unique<RenderPass>(
 		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
