@@ -36,6 +36,7 @@ ProcessPackage $args[0] WinPixEventRuntime $PixVersion HelloPyQT
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion MSAA
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion OffScreenRenderingDemo
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion TexLoadingTest
+ProcessPackage $args[0] WinPixEventRuntime $PixVersion PBRLUTBaker
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion forwardDX12
 ProcessPackage $args[0] WinPixEventRuntime $PixVersion libForward
 

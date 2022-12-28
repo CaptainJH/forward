@@ -12,6 +12,8 @@ namespace forward
 		static void BeginPixEvent(const i8* label, const u8 r, const u8 g, const u8 b);
 		static void BeginPixEvent(const i8* label);
 		static void EndPixEvent();
+		static void BeginPixCapture(const i8* filePath);
+		static void EndPixCapture();
 
 		ProfilingHelper();
 	};

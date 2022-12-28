@@ -1,4 +1,5 @@
 #include "ProfilingHelper.h"
+#include "Utils.h"
 #ifdef USE_SUPERLUMINAL
 #include "Superluminal/PerformanceAPI.h"
 #endif
@@ -45,6 +46,23 @@ void ProfilingHelper::EndPixEvent()
 {
 #ifdef USE_PIX
 	PIXEndEvent();
+#endif
+}
+
+void ProfilingHelper::BeginPixCapture(const i8* filePath)
+{
+#ifdef USE_PIX
+	PIXCaptureParameters pp = {};
+	auto filePathW = TextHelper::ToUnicode(filePath);
+	pp.GpuCaptureParameters.FileName = filePathW.c_str();
+	PIXBeginCapture(PIX_CAPTURE_GPU, &pp);
+#endif
+}
+
+void ProfilingHelper::EndPixCapture()
+{
+#ifdef USE_PIX
+	PIXEndCapture(TRUE);
 #endif
 }
 
