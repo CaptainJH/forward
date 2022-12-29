@@ -1,5 +1,6 @@
 #include "ProfilingHelper.h"
 #include "Utils.h"
+#include "FileSystem.h"
 #ifdef USE_SUPERLUMINAL
 #include "Superluminal/PerformanceAPI.h"
 #endif
@@ -54,6 +55,8 @@ void ProfilingHelper::BeginPixCapture(const i8* filePath)
 #ifdef USE_PIX
 	PIXCaptureParameters pp = {};
 	auto filePathW = TextHelper::ToUnicode(filePath);
+	if (!FileSystem::getSingleton().FileExists(filePathW))
+		filePathW = FileSystem::getSingleton().GetSavedFolder() + filePathW;
 	pp.GpuCaptureParameters.FileName = filePathW.c_str();
 	PIXBeginCapture(PIX_CAPTURE_GPU, &pp);
 #endif

@@ -2,6 +2,7 @@
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 #include <iostream>
+#include "ProfilingHelper.h"
 
 using namespace forward;
 
@@ -49,7 +50,9 @@ i32 main()
 	if (!theApp.Init())
 		return 0;
 
+	ProfilingHelper::BeginPixCapture("PBRLUTBaker_Capture2.wpix");
 	theApp.Run();
+	ProfilingHelper::EndPixCapture();
 	theApp.SaveRT();
 }
 
