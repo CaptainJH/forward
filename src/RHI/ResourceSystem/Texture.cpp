@@ -128,8 +128,13 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 	{
 		DirectX::TexMetadata  metadata;
 		DirectX::ScratchImage scratchImage;
-		auto ret = DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+#ifdef _DEBUG
+		auto ret =
+#endif
+			DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+#ifdef _DEBUG
 		assert(SUCCEEDED(ret));
+#endif
 
 		m_width = (u32)metadata.width;
 		m_height = (u32)metadata.height;
@@ -138,12 +143,14 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		assert(!metadata.IsCubemap());
 		if (metadata.dimension == DirectX::TEX_DIMENSION_TEXTURE2D)
 		{
+#ifdef _DEBUG
 			for (auto i = 1; i < scratchImage.GetImageCount(); ++i)
 			{
 				const auto& img = scratchImage.GetImages()[i];
 				const auto& img_prev = scratchImage.GetImages()[i - 1];
 				assert(img.pixels == img_prev.pixels + img_prev.slicePitch);
 			}
+#endif
 
 			m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
 			m_numElements = (u32)scratchImage.GetPixelsSize() / m_elementSize;
@@ -204,20 +211,27 @@ TextureCube::TextureCube(const std::string& name, const std::wstring& filename)
 #ifdef WINDOWS
 	DirectX::TexMetadata  metadata;
 	DirectX::ScratchImage scratchImage;
-	auto ret = DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+#if _DEBUG
+	auto ret = 
+#endif
+		DirectX::LoadFromDDSFile(m_fileFullPath.c_str(), DirectX::DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+#if _DEBUG
 	assert(SUCCEEDED(ret));
+#endif
 
 	m_width = (u32)metadata.width;
 	m_height = (u32)metadata.height;
 	m_format = (forward::DataFormatType)metadata.format;
 	m_mipLevelNum = (u32)metadata.mipLevels;
 	assert(metadata.IsCubemap());
+#ifdef _DEBUG
 	for (auto i = 1; i < scratchImage.GetImageCount(); ++i)
 	{
 		const auto& img = scratchImage.GetImages()[i];
 		const auto& img_prev = scratchImage.GetImages()[i - 1];
 		assert(img.pixels == img_prev.pixels + img_prev.slicePitch);
 	}
+#endif
 
 	m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
 	m_numElements = (u32)scratchImage.GetPixelsSize() / m_elementSize;

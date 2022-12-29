@@ -50,7 +50,7 @@ void ProfilingHelper::EndPixEvent()
 #endif
 }
 
-void ProfilingHelper::BeginPixCapture(const i8* filePath)
+void ProfilingHelper::BeginPixCapture([[maybe_unused]] const i8* filePath)
 {
 #ifdef USE_PIX
 	PIXCaptureParameters pp = {};
