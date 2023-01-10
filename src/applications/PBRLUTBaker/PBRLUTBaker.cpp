@@ -94,5 +94,5 @@ bool PBRLUTBaker::Init()
 
 void PBRLUTBaker::SaveRT()
 {
-	m_pDevice->SaveTexture(L"ComputeShaderResultDX12.bmp", m_uavTex.get());
+	m_pDevice->SaveTexture(L"ComputeShaderResultDX12.dds", m_uavTex.get());
 }

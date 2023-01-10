@@ -22,8 +22,10 @@
 #include "dx12/CommandQueueDX12.h"
 #include "dx12/CommandListDX12.h"
 #include "utilities/FileSaver.h"
+#include "utilities/FileSystem.h"
 
 #include <dxgidebug.h>
+#include <DirectXTex.h>
 
 #include "ProfilingHelper.h"
 
@@ -603,18 +605,35 @@ void DeviceDX12::SaveTexture(const std::wstring& filename, Texture2D* tex)
 
 	u8* tempBuffer = new u8[tex->GetNumBytes()];
 	memcpy(tempBuffer, tex->GetData(), tex->GetNumBytes());
-	if (tex->GetElementSize() >= 3)
+	if (filename.ends_with(L".bmp"))
 	{
-		// transform from RGBA to BGRA
-		for (auto i = 0U; i < tex->GetNumBytes(); i += tex->GetElementSize())
+		if (tex->GetElementSize() >= 3)
 		{
-			std::swap(tempBuffer[i], tempBuffer[i + 2]);
+			// transform from RGBA to BGRA
+			for (auto i = 0U; i < tex->GetNumBytes(); i += tex->GetElementSize())
+			{
+				std::swap(tempBuffer[i], tempBuffer[i + 2]);
+			}
 		}
-	}
 
-	FileSaver outfile;
-	outfile.SaveAsBMP(filename, tempBuffer, tex->GetWidth(), tex->GetHeight());
-	SAFE_DELETE_ARRAY(tempBuffer);
+		FileSaver outfile;
+		outfile.SaveAsBMP(filename, tempBuffer, tex->GetWidth(), tex->GetHeight());
+		SAFE_DELETE_ARRAY(tempBuffer);
+	}
+	else if (filename.ends_with(L".dds"))
+	{
+		DirectX::Image image = {
+			tex->GetWidth(),
+			tex->GetHeight(),
+			(DXGI_FORMAT)tex->GetFormat(),
+			tex->GetWidth() * 4,
+			tex->GetNumBytes(),
+			tempBuffer
+		};
+
+		std::wstring filepath = FileSystem::getSingleton().GetSavedFolder() + filename;
+		DirectX::SaveToDDSFile(image, DirectX::DDS_FLAGS_NONE, filepath.c_str());
+	}
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)

@@ -5,7 +5,7 @@
 #include "Superluminal/PerformanceAPI.h"
 #endif
 #ifdef USE_PIX
-#include "pix3.h"
+#include <pix3.h>
 #endif
 
 using namespace forward;
