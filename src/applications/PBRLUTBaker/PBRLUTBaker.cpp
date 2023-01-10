@@ -76,7 +76,7 @@ bool PBRLUTBaker::Init()
 	if (!Application::Init())
 		return false;
 
-	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
+	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_R16G16_FLOAT, 256, 256, forward::TextureBindPosition::TBP_Shader);
 	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 	m_renderPass = std::make_unique<RenderPass>(
 		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
@@ -85,7 +85,7 @@ bool PBRLUTBaker::Init()
 		pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
 		},
 		[](Device& device) {
-			device.GetCmdList().Dispatch(64, 64, 1);
+			device.GetCmdList().Dispatch(32, 32, 1);
 	});
 
 

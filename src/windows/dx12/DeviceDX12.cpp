@@ -618,7 +618,6 @@ void DeviceDX12::SaveTexture(const std::wstring& filename, Texture2D* tex)
 
 		FileSaver outfile;
 		outfile.SaveAsBMP(filename, tempBuffer, tex->GetWidth(), tex->GetHeight());
-		SAFE_DELETE_ARRAY(tempBuffer);
 	}
 	else if (filename.ends_with(L".dds"))
 	{
@@ -634,6 +633,7 @@ void DeviceDX12::SaveTexture(const std::wstring& filename, Texture2D* tex)
 		std::wstring filepath = FileSystem::getSingleton().GetSavedFolder() + filename;
 		DirectX::SaveToDDSFile(image, DirectX::DDS_FLAGS_NONE, filepath.c_str());
 	}
+	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
