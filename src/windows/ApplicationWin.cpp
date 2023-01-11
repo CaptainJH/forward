@@ -13,8 +13,8 @@
 #endif
 
 #if USE_RENDERDOC
-#include "renderdoc_app.h"
-RENDERDOC_API_1_2_0 *rdoc_api = nullptr;
+#include <renderdoc_app.h>
+RENDERDOC_API_1_6_0* rdoc_api = nullptr;
 #endif
 
 //--------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	{
 		pRENDERDOC_GetAPI RENDERDOC_GetAPI =
 			(pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
-		auto ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_2_0, (void**)&rdoc_api);
+		auto ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&rdoc_api);
 		assert(ret == 1);
 	}
 #endif
@@ -165,6 +165,9 @@ i32 ApplicationWin::Run()
 		if (rdoc_api)
 		{
 			rdoc_api->StartFrameCapture(NULL, NULL);
+			const auto saveFolderW = FileSystem::getSingleton().GetSavedFolder() + mMainWndCaption;
+			const auto saveFolder = TextHelper::ToAscii(saveFolderW);
+			rdoc_api->SetCaptureFilePathTemplate(saveFolder.c_str());
 		}
 #endif
 		DrawScene();
