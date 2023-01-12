@@ -50,7 +50,7 @@ i32 main()
 	if (!theApp.Init())
 		return 0;
 
-	ProfilingHelper::BeginPixCapture("PBRLUTBaker_Capture2.wpix");
+	ProfilingHelper::BeginPixCapture("PBRLUTBaker_PIX_Capture.wpix");
 	theApp.Run();
 	ProfilingHelper::EndPixCapture();
 	theApp.SaveRT();

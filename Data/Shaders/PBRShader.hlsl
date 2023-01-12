@@ -1,5 +1,5 @@
 
-RWTexture2D<float4> OutputTexture : register(u0);
+RWTexture2D<float2> OutputTexture : register(u0);
 
 static const uint BRDF_W = 256;
 static const uint BRDF_H = 256;
@@ -95,5 +95,5 @@ void BakerMain(uint3 DTid : SV_DispatchThreadID)
 	uv.y = (float(DTid.y) + 0.5) / float(BRDF_H);
 
 	float2 v = BRDF(uv.x, 1.0 - uv.y);
-	OutputTexture[DTid.xy] = float4(v.x, v.y, 0, 0);
+	OutputTexture[DTid.xy] = v;
 }

@@ -120,7 +120,7 @@ ProfilingHelper::ProfilingHelper()
 #endif
 }
 
-void ProfilingHelper::BeginRenderDocCapture(const i8* filePath)
+void ProfilingHelper::BeginRenderDocCapture([[maybe_unused]] const i8* filePath)
 {
 #if USE_RENDERDOC
 	if (s_rdoc_api)
