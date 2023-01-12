@@ -7,12 +7,20 @@
 #ifdef USE_PIX
 #include <pix3.h>
 #endif
+#if USE_RENDERDOC
+#include <renderdoc_app.h>
+#endif
 
 using namespace forward;
 
 #ifdef USE_SUPERLUMINAL
 static PerformanceAPI_Functions s_PerformanceAPI;
 #endif
+
+#if USE_RENDERDOC
+static RENDERDOC_API_1_6_0* s_rdoc_api = nullptr;
+#endif
+
 
 
 void ProfilingHelper::BeginSuperluminalEvent([[maybe_unused]] const i8* label, [[maybe_unused]] const u8 r, [[maybe_unused]] const u8 g, [[maybe_unused]] const u8 b)
@@ -98,6 +106,36 @@ ProfilingHelper::ProfilingHelper()
 #ifdef USE_SUPERLUMINAL
 	memset(&s_PerformanceAPI, 0, sizeof(PerformanceAPI_Functions));
 	PerformanceAPI_Load(L"C:\\Program Files\\Superluminal\\Performance\\API\\dll\\x64\\PerformanceAPI.dll", &s_PerformanceAPI);
+#endif
+
+#if USE_RENDERDOC
+	HMODULE mod = LoadLibraryA(RENDERDOC_PATH"/renderdoc.dll");
+	if (mod)
+	{
+		pRENDERDOC_GetAPI RENDERDOC_GetAPI =
+			(pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+		auto ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&s_rdoc_api);
+		assert(ret == 1);
+	}
+#endif
+}
+
+void ProfilingHelper::BeginRenderDocCapture(const i8* filePath)
+{
+#if USE_RENDERDOC
+	if (s_rdoc_api)
+	{
+		s_rdoc_api->StartFrameCapture(NULL, NULL);
+		s_rdoc_api->SetCaptureFilePathTemplate(filePath);
+	}
+#endif
+}
+
+void ProfilingHelper::EndRenderDocCapture()
+{
+#if USE_RENDERDOC
+	if (s_rdoc_api)
+		s_rdoc_api->EndFrameCapture(NULL, NULL);
 #endif
 }
 

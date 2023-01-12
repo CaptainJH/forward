@@ -15,6 +15,9 @@ namespace forward
 		static void BeginPixCapture(const i8* filePath);
 		static void EndPixCapture();
 
+		static void BeginRenderDocCapture(const i8* filePath);
+		static void EndRenderDocCapture();
+
 		ProfilingHelper();
 	};
 }
