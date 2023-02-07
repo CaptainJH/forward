@@ -19,19 +19,11 @@ public:
 	bool Init() override;
 
 protected:
-	void UpdateScene(f32 dt) override;
+	void UpdateScene(f32) override {}
 	void DrawScene() override;
 
 private:
-
-	Matrix4f m_viewMat;
-	Matrix4f m_projMat;
-
-	shared_ptr<ConstantBuffer<Matrix4f>> m_constantBuffer;
-
 	std::unique_ptr<RenderPass> m_renderPass;
-	std::unique_ptr<SimpleGeometry> m_geometry;
-
 };
 
 bool HelloPyQTDll::Init()
@@ -41,52 +33,59 @@ bool HelloPyQTDll::Init()
 		return false;
 
 	m_renderPass = std::make_unique<RenderPass>(
-		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
+		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
 
-		// Build the view matrix.
-		Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
-		Vector3f target; target.MakeZero();
-		Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-		m_viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
-		// Build the projection matrix
-		m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+			// setup shaders
+			pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMainQuad");
+			pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMainQuad");
 
-		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader.hlsl", L"VSMain");
-		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader.hlsl", L"PSMain");
+			// setup geometry
+			auto& vf = pso.m_IAState.m_vertexLayout;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 
-		// setup geometry
-		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
-		builder << *m_geometry;
+			pso.m_IAState.m_topologyType = PT_TRIANGLESTRIP;
 
-		// setup constant buffer
-		m_constantBuffer = make_shared<ConstantBuffer<Matrix4f>>("CB");
-		pso.m_VSState.m_constantBuffers[0] = m_constantBuffer;
+			/////////////
+			///build quad
+			/////////////
+			Vertex_POS_COLOR quadVertices[] =
+			{
+				{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
+				{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
+				{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
+				{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
+			};
 
-		// setup render states
-		auto dsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
-		pso.m_OMState.m_depthStencilResource = dsPtr;
+			auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, 4);
+			for (auto i = 0; i < sizeof(quadVertices) / sizeof(Vertex_POS_COLOR); ++i)
+			{
+				vb->AddVertex(quadVertices[i]);
+			}
+			vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
+			pso.m_IAState.m_vertexBuffers[0] = vb;
 
-		auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
-		pso.m_OMState.m_renderTargetResources[0] = rsPtr;
-	},
-		[&](Device& render) {
-		render.DrawIndexed(m_geometry->GetIndexCount());
+			// setup render states
+			auto dsPtr = m_pDevice->GetDefaultDS();
+			pso.m_OMState.m_depthStencilResource = dsPtr;
+
+			auto rsPtr = m_pDevice->GetDefaultRT();
+			pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+		},
+		[](Device& device) {
+			device.GetCmdList().Draw(4);
 	});
 
 	return true;
 }
 
-void HelloPyQTDll::UpdateScene(f32 /*dt*/)
-{
-	auto frames = (f32)mTimer.FrameCount() / 100;
-	auto worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
-	*m_constantBuffer = worldMat * m_viewMat * m_projMat;
-}
-
 void HelloPyQTDll::DrawScene()
 {
-	m_pDevice->DrawRenderPass(*m_renderPass);
+	FrameGraph fg;
+	m_pDevice->BeginDrawFrameGraph(&fg);
+	fg.DrawRenderPass(m_renderPass.get());
+	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
+	m_pDevice->EndDrawFrameGraph();
 }
 
 BOOL APIENTRY DllMain(HMODULE /*hModule*/,

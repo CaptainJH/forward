@@ -76,7 +76,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 }
 
 ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
-	: mMainWndCaption(L"D3D11 Application")
+	: mMainWndCaption(L"D3D12 Application")
 	, mClientWidth(width)
 	, mClientHeight(height)
 	, mEnable4xMsaa(false)
@@ -90,7 +90,7 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	, m_pDevice(nullptr)
 {
 	gApplication = this;
-	DeviceType = DeviceType::Device_Forward_DX11;
+	DeviceType = DeviceType::Device_Forward_DX12;
 }
 
 ApplicationWin::ApplicationWin(void* /*dxDevice*/, forward::DeviceType renderType, const char* forwardPath)
@@ -168,7 +168,7 @@ i32 ApplicationWin::Run()
 	else if (IsDll())
 	{
 		mTimer.Tick();
-		CalculateFrameStats();
+		mFrameStatsText = CalculateFrameStats();
 		UpdateScene(mTimer.Elapsed());
 		DrawScene();
 		return 0;
