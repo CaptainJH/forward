@@ -37,6 +37,15 @@
 },
 
 {
+    "name": "MaterialX",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/AcademySoftwareFoundation/MaterialX.git",
+        "revision" : "923d607a34697139b513f4ed3b8f6bcb849daca2"
+    }
+},
+
+{
     "name": "mitsuba",
     "source": {
         "type": "archive",
