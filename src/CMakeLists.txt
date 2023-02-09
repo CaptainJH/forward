@@ -83,6 +83,7 @@ add_subdirectory(geometry)
 add_subdirectory(intersection)
 add_subdirectory(utilities)
 add_subdirectory(applications)
+add_subdirectory(MaterialXGenHlsl)
     
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
@@ -96,6 +97,7 @@ remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/appli
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/tools")
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/windows")
 remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/macOS")
+remove_paths_from_list(forward_COMMON_SOURCE_FILES "${forward_source_root}/MaterialXGenHlsl")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     list(REMOVE_ITEM forward_COMMON_SOURCE_FILES "${forward_source_root}/utilities/GeometryLoader.h")
