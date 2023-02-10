@@ -1,8 +1,11 @@
 
-find_source_files(materialx_gen_hlsl_SOURCE_FILES "${forward_source_root}/MaterialXGenHlsl")
-set_source_groups("${materialx_gen_hlsl_SOURCE_FILES}")
+file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.c*")
+file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
-add_library(MaterialXGenHlsl ${materialx_gen_hlsl_SOURCE_FILES})
+assign_source_group("Source Files" ${materialx_source})
+assign_source_group("Header Files" ${materialx_headers})
+
+add_library(MaterialXGenHlsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_GENHLSL_EXPORTS)
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "MaterialXGenHlsl/Export.h"
+#include <MaterialXGenHlsl/Export.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN

@@ -32,7 +32,7 @@
     "source": {
         "type": "git",
         "url": "https://github.com/microsoft/DirectXTex.git",
-        "revision" : "23b7fd1f385d33f40093a0786ca5b54147f2f24a"
+        "revision" : "dec2022"
     }
 },
 
@@ -41,7 +41,7 @@
     "source": {
         "type": "git",
         "url": "https://github.com/AcademySoftwareFoundation/MaterialX.git",
-        "revision" : "923d607a34697139b513f4ed3b8f6bcb849daca2"
+        "revision" : "v1.38.6"
     }
 },
 
