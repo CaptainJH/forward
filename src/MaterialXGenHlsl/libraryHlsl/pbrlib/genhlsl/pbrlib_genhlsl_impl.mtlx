@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <!-- <oren_nayar_diffuse_bsdf> -->
+  <implementation name="IM_oren_nayar_diffuse_bsdf_genhlsl" nodedef="ND_oren_nayar_diffuse_bsdf" file="mx_oren_nayar_diffuse_bsdf.glsl" function="mx_oren_nayar_diffuse_bsdf" target="genhlsl" />
+
+  <!-- <burley_diffuse_bsdf> -->
+  <implementation name="IM_burley_diffuse_bsdf_genhlsl" nodedef="ND_burley_diffuse_bsdf" file="mx_burley_diffuse_bsdf.glsl" function="mx_burley_diffuse_bsdf" target="genhlsl" />
+
+  <!-- <translucent_bsdf> -->
+  <implementation name="IM_translucent_bsdf_genhlsl" nodedef="ND_translucent_bsdf" file="mx_translucent_bsdf.glsl" function="mx_translucent_bsdf" target="genhlsl" />
+
+  <!-- <dielectric_bsdf> -->
+  <implementation name="IM_dielectric_bsdf_genhlsl" nodedef="ND_dielectric_bsdf" file="mx_dielectric_bsdf.glsl" function="mx_dielectric_bsdf" target="genhlsl" />
+
+  <!-- <conductor_bsdf> -->
+  <implementation name="IM_conductor_bsdf_genhlsl" nodedef="ND_conductor_bsdf" file="mx_conductor_bsdf.glsl" function="mx_conductor_bsdf" target="genhlsl" />
+
+  <!-- <generalized_schlick_bsdf> -->
+  <implementation name="IM_generalized_schlick_bsdf_genhlsl" nodedef="ND_generalized_schlick_bsdf" file="mx_generalized_schlick_bsdf.glsl" function="mx_generalized_schlick_bsdf" target="genhlsl" />
+
+  <!-- <subsurface_bsdf> -->
+  <implementation name="IM_subsurface_bsdf_genhlsl" nodedef="ND_subsurface_bsdf" file="mx_subsurface_bsdf.glsl" function="mx_subsurface_bsdf" target="genhlsl" />
+
+  <!-- <sheen_bsdf> -->
+  <implementation name="IM_sheen_bsdf_genhlsl" nodedef="ND_sheen_bsdf" file="mx_sheen_bsdf.glsl" function="mx_sheen_bsdf" target="genhlsl" />
+
+  <!-- <anisotropic_vdf> -->
+  <implementation name="IM_anisotropic_vdf_genhlsl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genhlsl" />
+
+  <!-- <thin_film_bsdf> -->
+  <implementation name="IM_thin_film_bsdf_genhlsl" nodedef="ND_thin_film_bsdf" target="genhlsl" />
+
+  <!-- <layer> -->
+  <implementation name="IM_layer_bsdf_genhlsl" nodedef="ND_layer_bsdf" target="genhlsl" />
+  <implementation name="IM_layer_vdf_genhlsl" nodedef="ND_layer_vdf" target="genhlsl" />
+
+  <!-- <mix> -->
+  <implementation name="IM_mix_bsdf_genhlsl" nodedef="ND_mix_bsdf" target="genhlsl" />
+  <implementation name="IM_mix_edf_genhlsl" nodedef="ND_mix_edf" target="genhlsl" />
+
+  <!-- <add> -->
+  <implementation name="IM_add_bsdf_genhlsl" nodedef="ND_add_bsdf" target="genhlsl" />
+  <implementation name="IM_add_edf_genhlsl" nodedef="ND_add_edf" target="genhlsl" />
+
+  <!-- <multiply> -->
+  <implementation name="IM_multiply_bsdfC_genhlsl" nodedef="ND_multiply_bsdfC" target="genhlsl" />
+  <implementation name="IM_multiply_bsdfF_genhlsl" nodedef="ND_multiply_bsdfF" target="genhlsl" />
+  <implementation name="IM_multiply_edfC_genhlsl" nodedef="ND_multiply_edfC" target="genhlsl" />
+  <implementation name="IM_multiply_edfF_genhlsl" nodedef="ND_multiply_edfF" target="genhlsl" />
+
+  <!-- <uniform_edf> -->
+  <implementation name="IM_uniform_edf_genhlsl" nodedef="ND_uniform_edf" file="mx_uniform_edf.glsl" function="mx_uniform_edf" target="genhlsl" />
+
+  <!-- <surface> -->
+  <implementation name="IM_surface_genhlsl" nodedef="ND_surface" target="genhlsl" />
+
+  <!-- <displacement> -->
+  <implementation name="IM_displacement_float_genhlsl" nodedef="ND_displacement_float" file="mx_displacement_float.glsl" function="mx_displacement_float" target="genhlsl" />
+  <implementation name="IM_displacement_vector3_genhlsl" nodedef="ND_displacement_vector3" file="mx_displacement_vector3.glsl" function="mx_displacement_vector3" target="genhlsl" />
+
+  <!-- <light> -->
+  <implementation name="IM_light_genhlsl" nodedef="ND_light" target="genhlsl" />
+
+  <!-- <roughness_anisotropy> -->
+  <implementation name="IM_roughness_anisotropy_genhlsl" nodedef="ND_roughness_anisotropy" file="mx_roughness_anisotropy.glsl" function="mx_roughness_anisotropy" target="genhlsl" />
+
+  <!-- <roughness_dual> -->
+  <implementation name="IM_roughness_dual_genhlsl" nodedef="ND_roughness_dual" file="mx_roughness_dual.glsl" function="mx_roughness_dual" target="genhlsl" />
+
+  <!-- <artistic_ior> -->
+  <implementation name="IM_artistic_ior_genhlsl" nodedef="ND_artistic_ior" file="mx_artistic_ior.glsl" function="mx_artistic_ior" target="genhlsl" />
+
+</materialx>

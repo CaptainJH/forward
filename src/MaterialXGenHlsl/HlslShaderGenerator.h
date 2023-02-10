@@ -11,6 +11,18 @@ class MX_GENHLSL_API HlslShaderGenerator : public HwShaderGenerator
 public:
     HlslShaderGenerator();
 
+    static ShaderGeneratorPtr create() { return std::make_shared<HlslShaderGenerator>(); }
+
+    /// Generate a shader starting from the given element, translating
+    /// the element and all dependencies upstream into shader code.
+    ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
+
+    /// Return a unique identifier for the target this generator is for
+    const string& getTarget() const override { return TARGET; }
+
+    /// Return the version string for the GLSL version this generator is for
+    virtual const string& getVersion() const { return VERSION; }
+
     /// Determine the prefix of vertex data variables. 
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
 
@@ -20,6 +32,11 @@ public:
 
     /// Version string for the generator target
     static const string VERSION;
+
+private:
+    void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
+
+    void emitDirectives(GenContext& context, ShaderStage& stage) const;
 };
 
 /// Base class for common HLSL node implementations
