@@ -1,4 +1,4 @@
-#include "mx_burn_float.glsl"
+#include "mx_burn_float.hlsl"
 
 void mx_burn_color4(vec4 fg, vec4 bg, float mixval, out vec4 result)
 {

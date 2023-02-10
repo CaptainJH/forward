@@ -1,4 +1,4 @@
-#include "lib/mx_hsv.glsl"
+#include "lib/mx_hsv.hlsl"
 
 void mx_hsvtorgb_color3(vec3 _in, out vec3 result)
 {

@@ -1,4 +1,4 @@
-#include "lib/mx_noise.glsl"
+#include "lib/mx_noise.hlsl"
 
 void mx_fractal3d_float(float amplitude, int octaves, float lacunarity, float diminish, vec3 position, out float result)
 {

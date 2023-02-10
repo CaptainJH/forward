@@ -1,4 +1,4 @@
-#include "lib/mx_noise.glsl"
+#include "lib/mx_noise.hlsl"
 
 void mx_noise3d_float(float amplitude, float pivot, vec3 position, out float result)
 {

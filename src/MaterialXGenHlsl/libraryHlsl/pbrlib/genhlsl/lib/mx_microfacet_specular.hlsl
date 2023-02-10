@@ -1,4 +1,4 @@
-#include "mx_microfacet.glsl"
+#include "mx_microfacet.hlsl"
 
 // Fresnel model options.
 const int FRESNEL_MODEL_DIELECTRIC = 0;

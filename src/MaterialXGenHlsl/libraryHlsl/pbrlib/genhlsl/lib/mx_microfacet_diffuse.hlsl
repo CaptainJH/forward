@@ -1,4 +1,4 @@
-#include "mx_microfacet.glsl"
+#include "mx_microfacet.hlsl"
 
 // Based on the OSL implementation of Oren-Nayar diffuse, which is in turn
 // based on https://mimosa-pudica.net/improved-oren-nayar.html.

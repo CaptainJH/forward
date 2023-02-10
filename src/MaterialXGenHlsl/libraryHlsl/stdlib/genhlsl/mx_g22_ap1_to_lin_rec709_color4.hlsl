@@ -1,4 +1,4 @@
-#include "lib/mx_transform_color.glsl"
+#include "lib/mx_transform_color.hlsl"
 
 void mx_g22_ap1_to_lin_rec709_color4(vec4 _in, out vec4 result)
 {

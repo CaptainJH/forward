@@ -1,4 +1,4 @@
-#include "mx_dodge_float.glsl"
+#include "mx_dodge_float.hlsl"
 
 void mx_dodge_color4(vec4 fg , vec4 bg , float mixval, out vec4 result)
 {

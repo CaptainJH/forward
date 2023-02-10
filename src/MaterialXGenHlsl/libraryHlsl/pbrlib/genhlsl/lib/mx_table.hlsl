@@ -1,5 +1,5 @@
-#include "mx_microfacet_sheen.glsl"
-#include "mx_microfacet_specular.glsl"
+#include "mx_microfacet_sheen.hlsl"
+#include "mx_microfacet_specular.hlsl"
 
 vec3 mx_generate_dir_albedo_table()
 {
