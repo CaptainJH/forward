@@ -1,6 +1,7 @@
-//***************************************************************************************
-// PositionNodeHlsl.h by Heqi Ju (C) 2023 All Rights Reserved.
-//***************************************************************************************
+//
+// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// All rights reserved.  See LICENSE.txt for license.
+//
 
 #pragma once
 
@@ -8,10 +9,10 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Position node implementation for HLSL
-class MX_GENHLSL_API PositionNodeHlsl : public HlslImplementation
+/// Time node implementation for HLSL
+class MX_GENHLSL_API TimeNodeHlsl : public HlslImplementation
 {
-  public:
+public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

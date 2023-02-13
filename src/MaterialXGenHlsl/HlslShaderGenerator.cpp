@@ -2,6 +2,26 @@
 
 #include <MaterialXGenHlsl/HlslSyntax.h>
 #include <MaterialXGenHlsl/Nodes/PositionNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/NormalNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TangentNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/BitangentNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TexCoordNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/GeomColorNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/GeomPropValueNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/FrameNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TimeNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/SurfaceNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/UnlitSurfaceNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/LightNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/LightCompoundNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/LightShaderNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/HeightToNormalNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/LightSamplerNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/NumLightsNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TransformVectorNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TransformPointNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/TransformNormalNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/BlurNodeHlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
@@ -122,68 +142,68 @@ HlslShaderGenerator::HlslShaderGenerator() :
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + HlslShaderGenerator::TARGET, PositionNodeHlsl::create);
-    //// <!-- <normal> -->
-    //registerImplementation("IM_normal_vector3_" + HlslShaderGenerator::TARGET, NormalNodeGlsl::create);
-    //// <!-- <tangent> -->
-    //registerImplementation("IM_tangent_vector3_" + HlslShaderGenerator::TARGET, TangentNodeGlsl::create);
-    //// <!-- <bitangent> -->
-    //registerImplementation("IM_bitangent_vector3_" + HlslShaderGenerator::TARGET, BitangentNodeGlsl::create);
-    //// <!-- <texcoord> -->
-    //registerImplementation("IM_texcoord_vector2_" + HlslShaderGenerator::TARGET, TexCoordNodeGlsl::create);
-    //registerImplementation("IM_texcoord_vector3_" + HlslShaderGenerator::TARGET, TexCoordNodeGlsl::create);
-    //// <!-- <geomcolor> -->
-    //registerImplementation("IM_geomcolor_float_" + HlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
-    //registerImplementation("IM_geomcolor_color3_" + HlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
-    //registerImplementation("IM_geomcolor_color4_" + HlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
-    //// <!-- <geompropvalue> -->
-    //registerImplementation("IM_geompropvalue_integer_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_boolean_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
-    //registerImplementation("IM_geompropvalue_string_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
-    //registerImplementation("IM_geompropvalue_float_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_color3_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_color4_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_vector2_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_vector3_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
-    //registerImplementation("IM_geompropvalue_vector4_" + HlslShaderGenerator::TARGET, GeomPropValueNodeGlsl::create);
+    // <!-- <normal> -->
+    registerImplementation("IM_normal_vector3_" + HlslShaderGenerator::TARGET, NormalNodeHlsl::create);
+    // <!-- <tangent> -->
+    registerImplementation("IM_tangent_vector3_" + HlslShaderGenerator::TARGET, TangentNodeHlsl::create);
+    // <!-- <bitangent> -->
+    registerImplementation("IM_bitangent_vector3_" + HlslShaderGenerator::TARGET, BitangentNodeHlsl::create);
+    // <!-- <texcoord> -->
+    registerImplementation("IM_texcoord_vector2_" + HlslShaderGenerator::TARGET, TexCoordNodeHlsl::create);
+    registerImplementation("IM_texcoord_vector3_" + HlslShaderGenerator::TARGET, TexCoordNodeHlsl::create);
+    // <!-- <geomcolor> -->
+    registerImplementation("IM_geomcolor_float_" + HlslShaderGenerator::TARGET, GeomColorNodeHlsl::create);
+    registerImplementation("IM_geomcolor_color3_" + HlslShaderGenerator::TARGET, GeomColorNodeHlsl::create);
+    registerImplementation("IM_geomcolor_color4_" + HlslShaderGenerator::TARGET, GeomColorNodeHlsl::create);
+    // <!-- <geompropvalue> -->
+    registerImplementation("IM_geompropvalue_integer_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_boolean_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlslAsUniform::create);
+    registerImplementation("IM_geompropvalue_string_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlslAsUniform::create);
+    registerImplementation("IM_geompropvalue_float_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_color3_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_color4_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_vector2_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_vector3_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
+    registerImplementation("IM_geompropvalue_vector4_" + HlslShaderGenerator::TARGET, GeomPropValueNodeHlsl::create);
 
-    //// <!-- <frame> -->
-    //registerImplementation("IM_frame_float_" + HlslShaderGenerator::TARGET, FrameNodeGlsl::create);
-    //// <!-- <time> -->
-    //registerImplementation("IM_time_float_" + HlslShaderGenerator::TARGET, TimeNodeGlsl::create);
+    // <!-- <frame> -->
+    registerImplementation("IM_frame_float_" + HlslShaderGenerator::TARGET, FrameNodeHlsl::create);
+    // <!-- <time> -->
+    registerImplementation("IM_time_float_" + HlslShaderGenerator::TARGET, TimeNodeHlsl::create);
 
-    //// <!-- <surface> -->
-    //registerImplementation("IM_surface_" + HlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
-    //registerImplementation("IM_surface_unlit_" + HlslShaderGenerator::TARGET, UnlitSurfaceNodeGlsl::create);
+    // <!-- <surface> -->
+    registerImplementation("IM_surface_" + HlslShaderGenerator::TARGET, SurfaceNodeHlsl::create);
+    registerImplementation("IM_surface_unlit_" + HlslShaderGenerator::TARGET, UnlitSurfaceNodeHlsl::create);
 
-    //// <!-- <light> -->
-    //registerImplementation("IM_light_" + HlslShaderGenerator::TARGET, LightNodeGlsl::create);
+    // <!-- <light> -->
+    registerImplementation("IM_light_" + HlslShaderGenerator::TARGET, LightNodeHlsl::create);
 
-    //// <!-- <point_light> -->
-    //registerImplementation("IM_point_light_" + HlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
-    //// <!-- <directional_light> -->
-    //registerImplementation("IM_directional_light_" + HlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
-    //// <!-- <spot_light> -->
-    //registerImplementation("IM_spot_light_" + HlslShaderGenerator::TARGET, LightShaderNodeGlsl::create);
+    // <!-- <point_light> -->
+    registerImplementation("IM_point_light_" + HlslShaderGenerator::TARGET, LightShaderNodeHlsl::create);
+    // <!-- <directional_light> -->
+    registerImplementation("IM_directional_light_" + HlslShaderGenerator::TARGET, LightShaderNodeHlsl::create);
+    // <!-- <spot_light> -->
+    registerImplementation("IM_spot_light_" + HlslShaderGenerator::TARGET, LightShaderNodeHlsl::create);
 
-    //// <!-- <heighttonormal> -->
-    //registerImplementation("IM_heighttonormal_vector3_" + HlslShaderGenerator::TARGET, HeightToNormalNodeGlsl::create);
+    // <!-- <heighttonormal> -->
+    registerImplementation("IM_heighttonormal_vector3_" + HlslShaderGenerator::TARGET, HeightToNormalNodeHlsl::create);
 
-    //// <!-- <blur> -->
-    //registerImplementation("IM_blur_float_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
-    //registerImplementation("IM_blur_color3_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
-    //registerImplementation("IM_blur_color4_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
-    //registerImplementation("IM_blur_vector2_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
-    //registerImplementation("IM_blur_vector3_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
-    //registerImplementation("IM_blur_vector4_" + HlslShaderGenerator::TARGET, BlurNodeGlsl::create);
+    // <!-- <blur> -->
+    registerImplementation("IM_blur_float_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
+    registerImplementation("IM_blur_color3_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
+    registerImplementation("IM_blur_color4_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
+    registerImplementation("IM_blur_vector2_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
+    registerImplementation("IM_blur_vector3_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
+    registerImplementation("IM_blur_vector4_" + HlslShaderGenerator::TARGET, BlurNodeHlsl::create);
 
-    //// <!-- <ND_transformpoint> ->
-    //registerImplementation("IM_transformpoint_vector3_" + HlslShaderGenerator::TARGET, TransformPointNodeGlsl::create);
+    // <!-- <ND_transformpoint> ->
+    registerImplementation("IM_transformpoint_vector3_" + HlslShaderGenerator::TARGET, TransformPointNodeHlsl::create);
 
-    //// <!-- <ND_transformvector> ->
-    //registerImplementation("IM_transformvector_vector3_" + HlslShaderGenerator::TARGET, TransformVectorNodeGlsl::create);
+    // <!-- <ND_transformvector> ->
+    registerImplementation("IM_transformvector_vector3_" + HlslShaderGenerator::TARGET, TransformVectorNodeHlsl::create);
 
-    //// <!-- <ND_transformnormal> ->
-    //registerImplementation("IM_transformnormal_vector3_" + HlslShaderGenerator::TARGET, TransformNormalNodeGlsl::create);
+    // <!-- <ND_transformnormal> ->
+    registerImplementation("IM_transformnormal_vector3_" + HlslShaderGenerator::TARGET, TransformNormalNodeHlsl::create);
 
     // <!-- <image> -->
     registerImplementation("IM_image_float_" + HlslShaderGenerator::TARGET, HwImageNode::create);
@@ -214,8 +234,8 @@ HlslShaderGenerator::HlslShaderGenerator() :
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + HlslShaderGenerator::TARGET, MaterialNode::create);
 
-    //_lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
-    //_lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeHlsl::create()));
+    _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeHlsl::create()));
 
 }
 

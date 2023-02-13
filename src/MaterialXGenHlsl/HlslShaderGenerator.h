@@ -37,6 +37,9 @@ private:
     void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     void emitDirectives(GenContext& context, ShaderStage& stage) const;
+
+    /// Nodes used internally for light sampling.
+    vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
 /// Base class for common HLSL node implementations
