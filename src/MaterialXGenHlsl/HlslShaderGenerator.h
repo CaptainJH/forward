@@ -37,6 +37,12 @@ private:
     void emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     void emitDirectives(GenContext& context, ShaderStage& stage) const;
+    void emitConstants(GenContext& context, ShaderStage& stage) const;
+    void emitUniforms(GenContext& context, ShaderStage& stage) const;
+    void emitInputs(GenContext& context, ShaderStage& stage) const;
+    void emitOutputs(GenContext& context, ShaderStage& stage) const;
+
+    HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
     /// Nodes used internally for light sampling.
     vector<ShaderNodePtr> _lightSamplingNodes;
