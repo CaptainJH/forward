@@ -26,6 +26,9 @@ public:
     /// Determine the prefix of vertex data variables. 
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
 
+    void emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, GenContext& context, ShaderStage& stage,
+                                         bool assignValue = true) const override;
+
 public:
     /// Unique identifier for this generator target
     static const string TARGET;

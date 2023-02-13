@@ -50,7 +50,7 @@ void TangentNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize((" + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mul(float4(" + HW::T_IN_TANGENT+ ", 0.0)," + HW::T_WORLD_MATRIX + ")).xyz", stage);
             }
         }
         else
