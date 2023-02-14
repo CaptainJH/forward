@@ -22,6 +22,7 @@
 #include <MaterialXGenHlsl/Nodes/TransformPointNodeHlsl.h>
 #include <MaterialXGenHlsl/Nodes/TransformNormalNodeHlsl.h>
 #include <MaterialXGenHlsl/Nodes/BlurNodeHlsl.h>
+#include <MaterialXGenHlsl/Nodes/ClosureMixNodeHlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
@@ -33,7 +34,6 @@
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
-#include <MaterialXGenShader/Nodes/ClosureMixNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
 
@@ -248,8 +248,8 @@ HlslShaderGenerator::HlslShaderGenerator() :
     registerImplementation("IM_layer_bsdf_" + HlslShaderGenerator::TARGET, ClosureLayerNode::create);
     registerImplementation("IM_layer_vdf_" + HlslShaderGenerator::TARGET, ClosureLayerNode::create);
     // <!-- <mix> -->
-    registerImplementation("IM_mix_bsdf_" + HlslShaderGenerator::TARGET, ClosureMixNode::create);
-    registerImplementation("IM_mix_edf_" + HlslShaderGenerator::TARGET, ClosureMixNode::create);
+    registerImplementation("IM_mix_bsdf_" + HlslShaderGenerator::TARGET, ClosureMixNodeHlsl::create);
+    registerImplementation("IM_mix_edf_" + HlslShaderGenerator::TARGET, ClosureMixNodeHlsl::create);
     // <!-- <add> -->
     registerImplementation("IM_add_bsdf_" + HlslShaderGenerator::TARGET, ClosureAddNode::create);
     registerImplementation("IM_add_edf_" + HlslShaderGenerator::TARGET, ClosureAddNode::create);
@@ -375,10 +375,6 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add vertex data inputs block
     emitInputs(context, stage);
-
-    // Add the pixel shader output. This needs to be a vec4 for rendering
-    // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
-    emitOutputs(context, stage);
 
     // Add common math functions
     emitLibraryInclude("stdlib/genhlsl/lib/mx_math.hlsl", context, stage);
@@ -520,7 +516,7 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             {
                 if (context.getOptions().hwTransparency)
                 {
-                    emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)", stage);
+                    emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, float3(0.3333)), 0.0, 1.0)", stage);
                     emitLine(outputSocket->getVariable() + " = float4(" + finalOutput + ".color, outAlpha)", stage);
                     emitLine("if (outAlpha < " + HW::T_ALPHA_THRESHOLD + ")", stage, false);
                     emitScopeBegin(stage);
@@ -748,11 +744,11 @@ void HlslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) co
     const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
     if (!vertexData.empty())
     {
-        emitLine("in " + vertexData.getName(), stage, false);
+        emitLine("struct " + vertexData.getName(), stage, false);
         emitScopeBegin(stage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+        emitVariableDeclarations(vertexData, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
         emitScopeEnd(stage, false, false);
-        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+        emitString(Syntax::SEMICOLON, stage);
         emitLineBreak(stage);
         emitLineBreak(stage);
     }
@@ -775,13 +771,6 @@ void HlslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) c
         emitLineBreak(stage);
     }
     END_SHADER_STAGE(stage, Stage::VERTEX)
-
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    emitComment("Pixel shader outputs", stage);
-    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
-    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
-    emitLineBreak(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 HwResourceBindingContextPtr HlslShaderGenerator::getResourceBindingContext(GenContext& context) const
@@ -797,6 +786,7 @@ string HlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData)
 void HlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
                                               GenContext& ctx, ShaderStage& stage, bool assignValue) const
 {
+    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
     if (qualifier == _syntax->getInputQualifier())
     {
         string str = _syntax->getTypeName(variable->getType());
@@ -834,6 +824,31 @@ void HlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
     }
     else
         ShaderGenerator::emitVariableDeclaration(variable, qualifier, ctx, stage, assignValue);
+    END_SHADER_STAGE(stage, Stage::VERTEX)
+
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    if (qualifier == _syntax->getInputQualifier())
+    {
+        string str = _syntax->getTypeName(variable->getType());
+
+        str += " " + variable->getVariable();
+        if (variable->getName().ends_with("positionWorld"))
+            str += " : POSITION";
+        else if (variable->getName().ends_with("normalWorld"))
+            str += " : NORMAL";
+        else if (variable->getName().ends_with("tangentWorld"))
+            str += " : TANGENT";
+        else
+        {
+            // assert(false && "Shouldn't come to this place");
+            return ShaderGenerator::emitVariableDeclaration(variable, qualifier, ctx, stage, assignValue);
+        }
+
+        stage.addString(str);
+    }
+    else
+        ShaderGenerator::emitVariableDeclaration(variable, qualifier, ctx, stage, assignValue);
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 

@@ -93,8 +93,8 @@ void HlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     {
         if (uniform->getType() == Type::FILENAME)
         {
-            generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
+            generator.emitString(" : register(t" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ")", stage);
             generator.emitLineEnd(stage, true);
         }
     }
@@ -173,10 +173,8 @@ void HlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
 
     // Emit binding information
     generator.emitLineBreak(stage);
-    generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
-        ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
-        stage.getName(),
-    stage, false);
+    generator.emitLine(syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + 
+        stage.getName() + " : register(b" + std::to_string(_hwUniformBindLocation++) + ")", stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);

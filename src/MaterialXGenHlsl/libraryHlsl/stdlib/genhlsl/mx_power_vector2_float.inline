@@ -1,1 +1,1 @@
-pow({{in1}}, vec2({{in2}}))
+pow({{in1}}, float2({{in2}}))

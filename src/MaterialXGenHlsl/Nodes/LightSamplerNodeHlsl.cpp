@@ -9,7 +9,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, vec3 position, out lightshader result)";
+    const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, float3 position, out lightshader result)";
 }
 
 LightSamplerNodeHlsl::LightSamplerNodeHlsl()
@@ -30,8 +30,8 @@ void LightSamplerNodeHlsl::emitFunctionDefinition(const ShaderNode& node, GenCon
         // Emit light sampler function with all bound light types
         shadergen.emitLine(SAMPLE_LIGHTS_FUNC_SIGNATURE, stage, false);
         shadergen.emitFunctionBodyBegin(node, context, stage);
-        shadergen.emitLine("result.intensity = vec3(0.0)", stage);
-        shadergen.emitLine("result.direction = vec3(0.0)", stage);
+        shadergen.emitLine("result.intensity = float3(0.0)", stage);
+        shadergen.emitLine("result.direction = float3(0.0)", stage);
 
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)

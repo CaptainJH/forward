@@ -1,1 +1,1 @@
-mix({{bg}}, {{fg}}, {{mix}})
+lerp({{bg}}, {{fg}}, {{mix}})

@@ -12,7 +12,7 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
     const string LIGHT_DIRECTION_CALCULATION =
-        "vec3 L = light.position - position;\n"
+        "float3 L = light.position - position;\n"
         "float distance = length(L);\n"
         "L /= distance;\n"
         "result.direction = L;\n";
@@ -86,7 +86,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     }
     else
     {
-        shadergen.emitLine("result.intensity = vec3(0.0)", stage);
+        shadergen.emitLine("result.intensity = float3(0.0)", stage);
     }
 END_SHADER_STAGE(shader, Stage::PIXEL)
 }

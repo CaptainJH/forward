@@ -1,8 +1,8 @@
 #include "mx_microfacet_specular.hlsl"
 
-vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
+float3 mx_surface_transmission(float3 N, float3 V, float3 X, float2 alpha, int distribution, FresnelData fd)
 {
-    vec3 transmission;
+    float3 transmission;
     if ($refractionEnv)
     {
         // Approximate the appearance of surface transmission as glossy
