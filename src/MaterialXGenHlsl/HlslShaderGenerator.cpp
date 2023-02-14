@@ -338,7 +338,7 @@ void HlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitLine(vertexData_Output.getName() + " main( " + _syntax->getInputQualifier() + " " + vertexData_Input.getName() + " " + vertexData_Input.getInstance() + " )", stage, false);
     emitFunctionBodyBegin(graph, context, stage);
     emitLine(vertexData_Output.getName() + " " + vertexData_Output.getInstance() + " = (" + vertexData_Output.getName() + ")0", stage, true);
-    emitLine(std::string("float4 hPositionWorld = mul(") + "float4(" + HW::T_IN_POSITION + ", 1.0), " + HW::T_WORLD_MATRIX + ")", stage);
+    emitLine(std::string("float4 hPositionWorld = mul(") + "float4(" + vertexData_Input.getInstance() + "." + HW::T_IN_POSITION + ", 1.0), " + HW::T_WORLD_MATRIX + ")", stage);
     emitLine(vertexData_Output.getInstance() + ".position = mul(hPositionWorld, " + HW::T_VIEW_PROJECTION_MATRIX + ")", stage);
 
     // For vertex stage just emit all function calls in order
@@ -348,6 +348,7 @@ void HlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
         emitFunctionCall(*node, context, stage, false);
     }
 
+    emitLine(std::string("return ") + vertexData_Output.getInstance(), stage, true);
     emitFunctionBodyEnd(graph, context, stage);
 }
 
@@ -767,7 +768,7 @@ void HlslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) c
         emitLine("struct " + vertexData.getName(), stage, false);
         emitScopeBegin(stage);
         emitVariableDeclarations(vertexData, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
-        emitLine("float3 position : SV_POSITION", stage, true);
+        emitLine("float4 position : SV_POSITION", stage, true);
         emitScopeEnd(stage, false, false);
         emitString(Syntax::SEMICOLON, stage);
         emitLineBreak(stage);

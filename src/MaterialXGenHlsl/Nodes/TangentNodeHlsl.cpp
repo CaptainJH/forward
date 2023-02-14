@@ -42,6 +42,7 @@ void TangentNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        const VariableBlock& vertexData_Input = stage.getInputBlock(HW::VERTEX_INPUTS);
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
@@ -50,7 +51,7 @@ void TangentNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mul(float4(" + HW::T_IN_TANGENT+ ", 0.0)," + HW::T_WORLD_MATRIX + ")).xyz", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mul(float4(" + vertexData_Input.getInstance() + "." + HW::T_IN_TANGENT + ", 0.0)," + HW::T_WORLD_MATRIX + ")).xyz", stage);
             }
         }
         else

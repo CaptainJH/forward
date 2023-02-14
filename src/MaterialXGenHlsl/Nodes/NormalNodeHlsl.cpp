@@ -42,6 +42,7 @@ void NormalNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        const VariableBlock& vertexData_Input = stage.getInputBlock(HW::VERTEX_INPUTS);
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
@@ -50,7 +51,7 @@ void NormalNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             if (!normal->isEmitted())
             {
                 normal->setEmitted();
-                shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mul(float4(" + HW::T_IN_NORMAL + ", 0.0), " + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ")).xyz", stage);
+                shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mul(float4(" + vertexData_Input.getInstance() + "." + HW::T_IN_NORMAL + ", 0.0), " + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ")).xyz", stage);
             }
         }
         else
