@@ -253,7 +253,7 @@ HlslSyntax::HlslSyntax()
     registerTypeSyntax(
         Type::FILENAME,
         std::make_shared<ScalarTypeSyntax>(
-            "sampler2D",
+            "Texture2D",
             EMPTY_STRING,
             EMPTY_STRING));
 

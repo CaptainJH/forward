@@ -56,7 +56,7 @@ float3 mx_forward_facing_normal(float3 N, float3 V)
 float mx_golden_ratio_sequence(int i)
 {
     const float GOLDEN_RATIO = 1.6180339887498948;
-    return fract((float(i) + 1.0) * GOLDEN_RATIO);
+    return frac((float(i) + 1.0) * GOLDEN_RATIO);
 }
 
 // https://people.irisa.fr/Ricardo.Marques/articles/2013/SF_CGF.pdf
