@@ -272,6 +272,7 @@ HlslShaderGenerator::HlslShaderGenerator() :
 
 ShaderPtr HlslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    context.getOptions().libraryPrefix = "libraryHlsl";
     // Set binding context to handle resource binding layouts
     HlslResourceBindingContextPtr hlslresourceBinding(HlslResourceBindingContext::create());
     context.pushUserData(HW::USER_DATA_BINDING_CONTEXT, hlslresourceBinding);
@@ -295,10 +296,10 @@ ShaderPtr HlslShaderGenerator::generate(const string& name, ElementPtr element, 
     emitVertexStage(shader->getGraph(), context, vs);
     replaceTokens(_tokenSubstitutions, vs);
 
-    //// Emit code for pixel shader stage
-    //ShaderStage& ps = shader->getStage(Stage::PIXEL);
-    //emitPixelStage(shader->getGraph(), context, ps);
-    //replaceTokens(_tokenSubstitutions, ps);
+    // Emit code for pixel shader stage
+    ShaderStage& ps = shader->getStage(Stage::PIXEL);
+    emitPixelStage(shader->getGraph(), context, ps);
+    replaceTokens(_tokenSubstitutions, ps);
 
     context.popUserData(HW::USER_DATA_BINDING_CONTEXT);
 
@@ -350,6 +351,319 @@ void HlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitFunctionBodyEnd(graph, context, stage);
 }
 
+void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+
+    // Add directives
+    emitDirectives(context, stage);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitDirectives(context, stage);
+    }
+    emitLineBreak(stage);
+
+    // Add type definitions
+    emitTypeDefinitions(context, stage);
+
+    // Add all constants
+    emitConstants(context, stage);
+
+    // Add all uniforms
+    emitUniforms(context, stage);
+
+    // Add vertex data inputs block
+    emitInputs(context, stage);
+
+    // Add the pixel shader output. This needs to be a vec4 for rendering
+    // and upstream connection will be converted to vec4 if needed in emitFinalOutput()
+    emitOutputs(context, stage);
+
+    // Add common math functions
+    emitLibraryInclude("stdlib/genhlsl/lib/mx_math.hlsl", context, stage);
+    emitLineBreak(stage);
+
+    // Determine whether lighting is required
+    bool lighting = requiresLighting(graph);
+
+    // Define directional albedo approach
+    if (lighting || context.getOptions().hwWriteAlbedoTable)
+    {
+        emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
+        emitLineBreak(stage);
+    }
+
+    // Add lighting support
+    if (lighting)
+    {
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
+            emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
+        }
+        emitSpecularEnvironment(context, stage);
+        emitTransmissionRender(context, stage);
+
+        if (context.getOptions().hwMaxActiveLightSources > 0)
+        {
+            emitLightData(context, stage);
+        }
+    }
+
+    // Add shadowing support
+    bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                     context.getOptions().hwWriteDepthMoments;
+    if (shadowing)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_shadow.hlsl", context, stage);
+    }
+
+    // Emit directional albedo table code.
+    if (context.getOptions().hwWriteAlbedoTable)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_table.hlsl", context, stage);
+        emitLineBreak(stage);
+    }
+
+    // Set the include file to use for uv transformations,
+    // depending on the vertical flip flag.
+    if (context.getOptions().fileTextureVerticalFlip)
+    {
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv_vflip.hlsl";
+    }
+    else
+    {
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.hlsl";
+    }
+
+    // Emit uv transform code globally if needed.
+    if (context.getOptions().hwAmbientOcclusion)
+    {
+        emitLibraryInclude("stdlib/genhlsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
+    }
+
+    emitLightFunctionDefinitions(graph, context, stage);
+
+    // Emit function definitions for all nodes in the graph.
+    emitFunctionDefinitions(graph, context, stage);
+
+    const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
+
+    // Add main function
+    setFunctionName("main", stage);
+    emitLine("void main()", stage, false);
+    emitFunctionBodyBegin(graph, context, stage);
+
+    if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
+        !graph.hasClassification(ShaderNode::Classification::SHADER))
+    {
+        // Handle the case where the graph is a direct closure.
+        // We don't support rendering closures without attaching
+        // to a surface shader, so just output black.
+        emitLine(outputSocket->getVariable() + " = float4(0.0, 0.0, 0.0, 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteDepthMoments)
+    {
+        emitLine(outputSocket->getVariable() + " = float4(mx_compute_depth_moments(), 0.0, 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteAlbedoTable)
+    {
+        emitLine(outputSocket->getVariable() + " = float4(mx_generate_dir_albedo_table(), 1.0)", stage);
+    }
+    else
+    {
+        // Add all function calls.
+        //
+        // Surface shaders need special handling.
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit all texturing nodes. These are inputs to any
+            // closure/shader nodes and need to be emitted first.
+            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
+
+            // Emit function calls for "root" closure/shader nodes.
+            // These will internally emit function calls for any dependent closure nodes upstream.
+            for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
+            {
+                if (socket->getConnection())
+                {
+                    const ShaderNode* upstream = socket->getConnection()->getNode();
+                    if (upstream->getParent() == &graph &&
+                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                         upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                    {
+                        emitFunctionCall(*upstream, context, stage);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // No surface shader graph so just generate all
+            // function calls in order.
+            emitFunctionCalls(graph, context, stage);
+        }
+
+        // Emit final output
+        const ShaderOutput* outputConnection = outputSocket->getConnection();
+        if (outputConnection)
+        {
+            string finalOutput = outputConnection->getVariable();
+            const string& channels = outputSocket->getChannels();
+            if (!channels.empty())
+            {
+                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
+            }
+
+            if (graph.hasClassification(ShaderNode::Classification::SURFACE))
+            {
+                if (context.getOptions().hwTransparency)
+                {
+                    emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)", stage);
+                    emitLine(outputSocket->getVariable() + " = float4(" + finalOutput + ".color, outAlpha)", stage);
+                    emitLine("if (outAlpha < " + HW::T_ALPHA_THRESHOLD + ")", stage, false);
+                    emitScopeBegin(stage);
+                    emitLine("discard", stage);
+                    emitScopeEnd(stage);
+                }
+                else
+                {
+                    emitLine(outputSocket->getVariable() + " = float4(" + finalOutput + ".color, 1.0)", stage);
+                }
+            }
+            else
+            {
+                if (!outputSocket->getType()->isFloat4())
+                {
+                    toFloat4(outputSocket->getType(), finalOutput);
+                }
+                emitLine(outputSocket->getVariable() + " = " + finalOutput, stage);
+            }
+        }
+        else
+        {
+            string outputValue = outputSocket->getValue() ? _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) : _syntax->getDefaultValue(outputSocket->getType());
+            if (!outputSocket->getType()->isFloat4())
+            {
+                string finalOutput = outputSocket->getVariable() + "_tmp";
+                emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, stage);
+                toFloat4(outputSocket->getType(), finalOutput);
+                emitLine(outputSocket->getVariable() + " = " + finalOutput, stage);
+            }
+            else
+            {
+                emitLine(outputSocket->getVariable() + " = " + outputValue, stage);
+            }
+        }
+    }
+
+    // End main function
+    emitFunctionBodyEnd(graph, context, stage);
+}
+
+void HlslShaderGenerator::toFloat4(const TypeDesc* type, string& variable)
+{
+    if (type->isFloat3())
+    {
+        variable = "float4(" + variable + ", 1.0)";
+    }
+    else if (type->isFloat2())
+    {
+        variable = "float4(" + variable + ", 0.0, 1.0)";
+    }
+    else if (type == Type::FLOAT || type == Type::INTEGER)
+    {
+        variable = "float4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+    }
+    else if (type == Type::BSDF || type == Type::EDF)
+    {
+        variable = "float4(" + variable + ", 1.0)";
+    }
+    else
+    {
+        // Can't understand other types. Just return black.
+        variable = "float4(0.0, 0.0, 0.0, 1.0)";
+    }
+}
+
+bool HlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
+{
+    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
+    return isBsdf || isLitSurfaceShader;
+}
+
+void HlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
+{
+    int specularMethod = context.getOptions().hwSpecularEnvironmentMethod;
+    if (specularMethod == SPECULAR_ENVIRONMENT_FIS)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_environment_fis.hlsl", context, stage);
+    }
+    else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_environment_prefilter.hlsl", context, stage);
+    }
+    else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_environment_none.hlsl", context, stage);
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Invalid hardware specular environment method specified: '" + std::to_string(specularMethod) + "'");
+    }
+    emitLineBreak(stage);
+}
+
+void HlslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStage& stage) const
+{
+    int transmissionMethod = context.getOptions().hwTransmissionRenderMethod;
+    if (transmissionMethod == TRANSMISSION_REFRACTION)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_transmission_refract.hlsl", context, stage);
+    }
+    else if (transmissionMethod == TRANSMISSION_OPACITY)
+    {
+        emitLibraryInclude("pbrlib/genhlsl/lib/mx_transmission_opacity.hlsl", context, stage);
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Invalid transmission render specified: '" + std::to_string(transmissionMethod) + "'");
+    }
+    emitLineBreak(stage);
+}
+
+void HlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
+{
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+
+    // Emit Light functions if requested
+    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
+    {
+        // For surface shaders we need light shaders
+        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        {
+            // Emit functions for all bound light shaders
+            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+            if (lightShaders)
+            {
+                for (const auto& it : lightShaders->get())
+                {
+                    emitFunctionDefinition(*it.second, context, stage);
+                }
+            }
+            // Emit functions for light sampling
+            for (const auto& it : _lightSamplingNodes)
+            {
+                emitFunctionDefinition(*it, context, stage);
+            }
+        }
+    }
+    END_SHADER_STAGE(stage, Stage::PIXEL)
+}
+
 void HlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("// Generated by JHQ using MaterialXGenHlsl ", stage, false);
@@ -387,6 +701,29 @@ void HlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) 
             }
         }
     }
+}
+
+void HlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) const
+{
+    const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
+    const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
+    const string structName = lightData.getInstance();
+    HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
+    if (resourceBindingCtx)
+    {
+        resourceBindingCtx->emitStructuredResourceBindings(
+            context, lightData, stage, structName, structArraySuffix);
+    }
+    else
+    {
+        emitLine("struct " + lightData.getName(), stage, false);
+        emitScopeBegin(stage);
+        emitVariableDeclarations(lightData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+        emitScopeEnd(stage, true);
+        emitLineBreak(stage);
+        emitLine("uniform " + lightData.getName() + " " + structName + structArraySuffix, stage);
+    }
+    emitLineBreak(stage);
 }
 
 void HlslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const
@@ -487,7 +824,10 @@ void HlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         else if (variable->getName().ends_with("tangentWorld"))
             str += " : TANGENT";
         else
-            assert(false && "Shouldn't come to this place");
+        {
+            //assert(false && "Shouldn't come to this place");
+            return ShaderGenerator::emitVariableDeclaration(variable, qualifier, ctx, stage, assignValue);
+        }
 
         stage.addString(str);
     }
