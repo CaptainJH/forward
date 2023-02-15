@@ -186,8 +186,8 @@ HlslSyntax::HlslSyntax()
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             "float3",
-            "float3(0.0)",
-            "float3(0.0)",
+            "(float3)0.0",
+            "(float3)0.0",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS));
@@ -196,8 +196,8 @@ HlslSyntax::HlslSyntax()
         Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
             "float4",
-            "float4(0.0)",
-            "float4(0.0)",
+            "(float4)0.0",
+            "(float4)0.0",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS));
@@ -206,8 +206,8 @@ HlslSyntax::HlslSyntax()
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
             "float2",
-            "float2(0.0)",
-            "float2(0.0)",
+            "(float2)0.0",
+            "(float2)0.0",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC2_MEMBERS));
@@ -216,8 +216,8 @@ HlslSyntax::HlslSyntax()
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
             "float3",
-            "float3(0.0)",
-            "float3(0.0)",
+            "(float3)0.0",
+            "(float3)0.0",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC3_MEMBERS));
@@ -226,8 +226,8 @@ HlslSyntax::HlslSyntax()
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
             "float4",
-            "float4(0.0)",
-            "float4(0.0)",
+            "(float4)0.0",
+            "(float4)0.0",
             EMPTY_STRING,
             EMPTY_STRING,
             VEC4_MEMBERS));
@@ -261,7 +261,7 @@ HlslSyntax::HlslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(float3(0.0),float3(1.0), 0.0, 0.0)",
+            "{(float3)0.0,(float3)1.0, 0.0, 0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct BSDF { float3 response; float3 throughput; float thickness; float ior; };"));
@@ -270,8 +270,8 @@ HlslSyntax::HlslSyntax()
         Type::EDF,
         std::make_shared<AggregateTypeSyntax>(
             "EDF",
-            "EDF(0.0)",
-            "EDF(0.0)",
+            "(EDF)0.0",
+            "(EDF)0.0",
             "float3",
             "#define EDF float3"));
 
@@ -279,14 +279,14 @@ HlslSyntax::HlslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(float3(0.0),float3(1.0), 0.0, 0.0)",
+            "{(float3)0.0,(float3)1.0, 0.0, 0.0}",
             EMPTY_STRING));
 
     registerTypeSyntax(
         Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",
-            "surfaceshader(float3(0.0),float3(0.0))",
+            "{(float3)0.0,(float3)0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct surfaceshader { float3 color; float3 transparency; };"));
@@ -295,7 +295,7 @@ HlslSyntax::HlslSyntax()
         Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "volumeshader",
-            "volumeshader(float3(0.0),float3(0.0))",
+            "{(float3)0.0,(float3)0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct volumeshader { float3 color; float3 transparency; };"));
@@ -304,7 +304,7 @@ HlslSyntax::HlslSyntax()
         Type::DISPLACEMENTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "displacementshader",
-            "displacementshader(float3(0.0),1.0)",
+            "{(float3)0.0,1.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct displacementshader { float3 offset; float scale; };"));
@@ -313,7 +313,7 @@ HlslSyntax::HlslSyntax()
         Type::LIGHTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "lightshader",
-            "lightshader(float3(0.0),float3(0.0))",
+            "{(float3)0.0,(float3)0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
             "struct lightshader { float3 intensity; float3 direction; };"));
@@ -322,7 +322,7 @@ HlslSyntax::HlslSyntax()
         Type::MATERIAL,
         std::make_shared<AggregateTypeSyntax>(
             "material",
-            "material(float3(0.0),float3(0.0))",
+            "{(float3)0.0,(float3)0.0}",
             EMPTY_STRING,
             "surfaceshader",
             "#define material surfaceshader"));

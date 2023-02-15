@@ -57,11 +57,11 @@ float3 mx_integrate_burley_diffusion(float3 N, float3 L, float radius, float3 mf
     float theta = acos(dot(N, L));
 
     // Estimate the Burley diffusion shape from mean free path.
-    float3 shape = float3(1.0) / max(mfp, 0.1);
+    float3 shape = (float3)(1.0) / max(mfp, 0.1);
 
     // Integrate the profile over the sphere.
-    float3 sumD = float3(0.0);
-    float3 sumR = float3(0.0);
+    float3 sumD = (float3)0.0;
+    float3 sumR = (float3)0.0;
     const int SAMPLE_COUNT = 32;
     const float SAMPLE_WIDTH = (2.0 * M_PI) / float(SAMPLE_COUNT);
     for (int i = 0; i < SAMPLE_COUNT; i++)
@@ -80,5 +80,5 @@ float3 mx_subsurface_scattering_approx(float3 N, float3 L, float3 P, float3 albe
 {
     float curvature = length(fwidth(N)) / length(fwidth(P));
     float radius = 1.0 / max(curvature, 0.01);
-    return albedo * mx_integrate_burley_diffusion(N, L, radius, mfp) / float3(M_PI);
+    return albedo * mx_integrate_burley_diffusion(N, L, radius, mfp) / (float3)(M_PI);
 }

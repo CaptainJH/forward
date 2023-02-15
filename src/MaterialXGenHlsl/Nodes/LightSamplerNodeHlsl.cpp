@@ -30,8 +30,8 @@ void LightSamplerNodeHlsl::emitFunctionDefinition(const ShaderNode& node, GenCon
         // Emit light sampler function with all bound light types
         shadergen.emitLine(SAMPLE_LIGHTS_FUNC_SIGNATURE, stage, false);
         shadergen.emitFunctionBodyBegin(node, context, stage);
-        shadergen.emitLine("result.intensity = float3(0.0)", stage);
-        shadergen.emitLine("result.direction = float3(0.0)", stage);
+        shadergen.emitLine("result.intensity = (float3)0.0", stage);
+        shadergen.emitLine("result.direction = (float3)0.0", stage);
 
         HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
         if (lightShaders)

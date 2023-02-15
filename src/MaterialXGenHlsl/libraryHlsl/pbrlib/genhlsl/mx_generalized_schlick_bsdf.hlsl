@@ -18,7 +18,7 @@ void mx_generalized_schlick_bsdf_reflection(float3 L, float3 V, float3 P, float 
 
     float2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgAlpha = mx_average_alpha(safeAlpha);
-    float3 Ht = float3(dot(H, X), dot(H, Y), dot(H, N));
+    float3 Ht = (float3)(dot(H, X), dot(H, Y), dot(H, N));
 
     FresnelData fd;
     if (bsdf.thickness > 0.0)
@@ -35,8 +35,8 @@ void mx_generalized_schlick_bsdf_reflection(float3 L, float3 V, float3 P, float 
 
     float3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
     float3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, color0, color90) * comp;
-    float avgDirAlbedo = dot(dirAlbedo, float3(1.0 / 3.0));
-    bsdf.throughput = float3(1.0 - avgDirAlbedo * weight);
+    float avgDirAlbedo = dot(dirAlbedo, (float3)(1.0 / 3.0));
+    bsdf.throughput = (float3)(1.0 - avgDirAlbedo * weight);
 
     // Note: NdotL is cancelled out
     bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
@@ -68,13 +68,13 @@ void mx_generalized_schlick_bsdf_transmission(float3 V, float weight, float3 col
 
     float3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
     float3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, color0, color90) * comp;
-    float avgDirAlbedo = dot(dirAlbedo, float3(1.0 / 3.0));
-    bsdf.throughput = float3(1.0 - avgDirAlbedo * weight);
+    float avgDirAlbedo = dot(dirAlbedo, (float3)(1.0 / 3.0));
+    bsdf.throughput = (float3)(1.0 - avgDirAlbedo * weight);
 
     if (scatter_mode != 0)
     {
-        float avgF0 = dot(color0, float3(1.0 / 3.0));
-        fd.ior = float3(mx_f0_to_ior(avgF0));
+        float avgF0 = dot(color0, (float3)(1.0 / 3.0));
+        fd.ior = (float3)(mx_f0_to_ior(avgF0));
         bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd) * color0 * weight;
     }
 }
@@ -104,8 +104,8 @@ void mx_generalized_schlick_bsdf_indirect(float3 V, float weight, float3 color0,
     float avgAlpha = mx_average_alpha(safeAlpha);
     float3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
     float3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, color0, color90) * comp;
-    float avgDirAlbedo = dot(dirAlbedo, float3(1.0 / 3.0));
-    bsdf.throughput = float3(1.0 - avgDirAlbedo * weight);
+    float avgDirAlbedo = dot(dirAlbedo, (float3)(1.0 / 3.0));
+    bsdf.throughput = (float3)(1.0 - avgDirAlbedo * weight);
 
     float3 Li = mx_environment_radiance(N, V, X, safeAlpha, distribution, fd);
     bsdf.response = Li * comp * weight;

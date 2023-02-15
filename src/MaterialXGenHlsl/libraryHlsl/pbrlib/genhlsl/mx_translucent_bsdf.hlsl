@@ -2,7 +2,7 @@
 // So this BTDF is really a BRDF.
 void mx_translucent_bsdf_reflection(float3 L, float3 V, float3 P, float occlusion, float weight, float3 color, float3 normal, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     // Invert normal since we're transmitting light from the other side
     float NdotL = dot(L, -normal);
@@ -16,7 +16,7 @@ void mx_translucent_bsdf_reflection(float3 L, float3 V, float3 P, float occlusio
 
 void mx_translucent_bsdf_indirect(float3 V, float weight, float3 color, float3 normal, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     if (weight < M_FLOAT_EPS)
     {

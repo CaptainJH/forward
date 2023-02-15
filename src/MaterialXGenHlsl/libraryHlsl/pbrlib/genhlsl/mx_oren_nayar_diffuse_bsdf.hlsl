@@ -2,7 +2,7 @@
 
 void mx_oren_nayar_diffuse_bsdf_reflection(float3 L, float3 V, float3 P, float occlusion, float weight, float3 color, float roughness, float3 normal, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     if (weight < M_FLOAT_EPS)
     {
@@ -22,7 +22,7 @@ void mx_oren_nayar_diffuse_bsdf_reflection(float3 L, float3 V, float3 P, float o
 
 void mx_oren_nayar_diffuse_bsdf_indirect(float3 V, float weight, float3 color, float roughness, float3 normal, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     if (weight < M_FLOAT_EPS)
     {

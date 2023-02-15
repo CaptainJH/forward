@@ -216,7 +216,7 @@ void SurfaceNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitComment("Compute and apply surface opacity", stage);
             shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-            shadergen.emitLine(outTransparency + " = lerp(float3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
+            shadergen.emitLine(outTransparency + " = lerp((float3)1.0, " + outTransparency + ", surfaceOpacity)", stage);
             shadergen.emitScopeEnd(stage);
         }
 

@@ -17,7 +17,7 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, vec2 alpha, int dis
     float avgAlpha = mx_average_alpha(alpha);
     float3 F = mx_compute_fresnel(NdotV, fd);
     float G = mx_ggx_smith_G2(NdotV, NdotV, avgAlpha);
-    float3 FG = fd.refraction ? float3(1.0) - (F * G) : F * G;
+    float3 FG = fd.refraction ? (float3)(1.0) - (F * G) : F * G;
 
     float3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_compute_lod(avgAlpha), $envRadiance);
     return Li * FG;

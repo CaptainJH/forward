@@ -2,7 +2,7 @@
 
 void mx_conductor_bsdf_reflection(float3 L, float3 V, float3 P, float occlusion, float weight, float3 ior_n, float3 ior_k, float2 roughness, float3 N, float3 X, int distribution, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     if (weight < M_FLOAT_EPS)
     {
@@ -40,7 +40,7 @@ void mx_conductor_bsdf_reflection(float3 L, float3 V, float3 P, float occlusion,
 
 void mx_conductor_bsdf_indirect(float3 V, float weight, float3 ior_n, float3 ior_k, float2 roughness, float3 N, float3 X, int distribution, inout BSDF bsdf)
 {
-    bsdf.throughput = float3(0.0);
+    bsdf.throughput = (float3)0.0;
 
     if (weight < M_FLOAT_EPS)
     {

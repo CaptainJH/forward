@@ -15,10 +15,10 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int d
     // Generate tangent frame.
     float3 Y = normalize(cross(N, X));
     X = cross(Y, N);
-    mat3 tangentToWorld = mat3(X, Y, N);
+    float3x3 tangentToWorld = float3x3(X, Y, N);
 
     // Transform the view vector to tangent space.
-    V = float3(dot(V, X), dot(V, Y), dot(V, N));
+    V = (float3)(dot(V, X), dot(V, Y), dot(V, N));
 
     // Compute derived properties.
     float NdotV = clamp(V.z, M_FLOAT_EPS, 1.0);
@@ -26,7 +26,7 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int d
     
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
-    float3 radiance = float3(0.0);
+    float3 radiance = (float3)0.0;
     int envRadianceSamples = $envRadianceSamples;
     for (int i = 0; i < envRadianceSamples; i++)
     {
@@ -55,7 +55,7 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int d
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
         // Compute the combined FG term, which is inverted for refraction.
-        float3 FG = fd.refraction ? float3(1.0) - (F * G) : F * G;
+        float3 FG = fd.refraction ? (float3)(1.0) - (F * G) : F * G;
 
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
