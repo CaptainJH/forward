@@ -15,5 +15,5 @@ void mx_rotate_vector3(float3 _in, float amount, float3 axis, out float3 result)
 {
     float rotationRadians = radians(amount);
     float4x4 m = mx_rotationMatrix(axis, rotationRadians);
-    result = (float4(_in, 1.0) * m).xyz;
+    result = mul(m, float4(_in, 1.0)).xyz;
 }

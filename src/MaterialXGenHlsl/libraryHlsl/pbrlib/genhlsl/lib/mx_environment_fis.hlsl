@@ -18,7 +18,7 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int d
     float3x3 tangentToWorld = float3x3(X, Y, N);
 
     // Transform the view vector to tangent space.
-    V = (float3)(dot(V, X), dot(V, Y), dot(V, N));
+    V = float3(dot(V, X), dot(V, Y), dot(V, N));
 
     // Compute derived properties.
     float NdotV = clamp(V.z, M_FLOAT_EPS, 1.0);
@@ -43,7 +43,7 @@ float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int d
         float LdotH = VdotH;
 
         // Sample the environment light from the given direction.
-        float3 Lw = tangentToWorld * L;
+        float3 Lw = mul(L, tangentToWorld);
         float pdf = mx_ggx_PDF(H, LdotH, alpha);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
         float3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);

@@ -448,7 +448,7 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Add main function
     setFunctionName("main", stage);
-    emitLine("void main()", stage, false);
+    emitLine("float4 main(in VertexData vd) : SV_Target", stage, false);
     emitFunctionBodyBegin(graph, context, stage);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
@@ -525,7 +525,7 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
                 }
                 else
                 {
-                    emitLine(outputSocket->getVariable() + " = float4(" + finalOutput + ".color, 1.0)", stage);
+                    emitLine("return float4(" + finalOutput + ".color, 1.0)", stage);
                 }
             }
             else

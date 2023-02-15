@@ -483,14 +483,15 @@ float3 mx_fresnel_airy(float cosTheta, float3 ior, float3 extinction, float tf_t
     I *= 0.5;
 
     // Convert back to RGB reflectance
-    I = clamp(XYZ_TO_RGB * I, (float3)(0.0), (float3)(1.0));
+    I = clamp(mul(I, XYZ_TO_RGB), (float3)0.0, (float3)1.0);
 
     return I;
 }
 
 FresnelData mx_init_fresnel_data(int model)
 {
-    return FresnelData(model, (float3)(0.0), (float3)(0.0), (float3)(0.0), (float3)(0.0), 0.0, 0.0, 0.0, false);
+    FresnelData o = {model, (float3)(0.0), (float3)(0.0), (float3)(0.0), (float3)(0.0), 0.0, 0.0, 0.0, false};
+    return o;
 }
 
 FresnelData mx_init_fresnel_dielectric(float ior)
@@ -593,9 +594,9 @@ float2 mx_latlong_projection(float3 dir)
     return float2(longitude, latitude);
 }
 
-float3 mx_latlong_map_lookup(float3 dir, mat4 transform, float lod, sampler2D envSampler)
+float3 mx_latlong_map_lookup(float3 dir, float4x4 transform, float lod, sampler2D envSampler)
 {
-    float3 envDir = normalize((transform * float4(dir,0.0)).xyz);
+    float3 envDir = normalize(mul(float4(dir,0.0), transform).xyz);
     float2 uv = mx_latlong_projection(envDir);
     return textureLod(envSampler, uv, lod).rgb;
 }
