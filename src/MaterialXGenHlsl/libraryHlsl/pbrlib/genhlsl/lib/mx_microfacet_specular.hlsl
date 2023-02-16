@@ -1,14 +1,14 @@
 #include "mx_microfacet.hlsl"
 
 // Fresnel model options.
-static int FRESNEL_MODEL_DIELECTRIC = 0;
-static int FRESNEL_MODEL_CONDUCTOR = 1;
-static int FRESNEL_MODEL_SCHLICK = 2;
-static int FRESNEL_MODEL_AIRY = 3;
-static int FRESNEL_MODEL_SCHLICK_AIRY = 4;
+int FRESNEL_MODEL_DIELECTRIC = 0;
+int FRESNEL_MODEL_CONDUCTOR = 1;
+int FRESNEL_MODEL_SCHLICK = 2;
+int FRESNEL_MODEL_AIRY = 3;
+int FRESNEL_MODEL_SCHLICK_AIRY = 4;
 
 // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
-static float3x3 XYZ_TO_RGB = float3x3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
+float3x3 XYZ_TO_RGB = float3x3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
 
 // Parameters for Fresnel calculations.
 struct FresnelData
