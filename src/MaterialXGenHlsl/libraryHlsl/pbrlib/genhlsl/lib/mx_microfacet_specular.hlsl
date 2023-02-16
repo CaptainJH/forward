@@ -333,7 +333,7 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
 // Phase shift due to a conducting material
 void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, float3 eta2, float3 kappa2, out float3 phiP, out float3 phiS)
 {
-    if (kappa2 == float3(0, 0, 0) && eta2.x == eta2.y && eta2.y == eta2.z) {
+    if (all(kappa2 == float3(0, 0, 0)) && eta2.x == eta2.y && eta2.y == eta2.z) {
         // Use dielectric formula to increase performance
         mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiP.x, phiS.x);
         phiP = phiP.xxx;
@@ -594,9 +594,10 @@ float2 mx_latlong_projection(float3 dir)
     return float2(longitude, latitude);
 }
 
-float3 mx_latlong_map_lookup(float3 dir, float4x4 transform, float lod, sampler2D envSampler)
+SamplerState s;
+float3 mx_latlong_map_lookup(float3 dir, float4x4 transform, float lod, Texture2D envSampler)
 {
     float3 envDir = normalize(mul(float4(dir,0.0), transform).xyz);
     float2 uv = mx_latlong_projection(envDir);
-    return textureLod(envSampler, uv, lod).rgb;
+    return envSampler.SampleLevel(s, uv, lod).rgb;
 }

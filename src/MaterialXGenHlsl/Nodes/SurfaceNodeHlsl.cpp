@@ -107,9 +107,9 @@ void SurfaceNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitLine("float3 N = normalize(" + prefix + HW::T_NORMAL_WORLD + ")", stage);
-        shadergen.emitLine("float3 V = normalize(" + HW::T_VIEW_POSITION + " - " + prefix + HW::T_POSITION_WORLD + ")", stage);
-        shadergen.emitLine("float3 P = " + prefix + HW::T_POSITION_WORLD, stage);
+        shadergen.emitLine("float3 N = normalize(NormalWorld_PS_INPUT)", stage);
+        shadergen.emitLine("float3 V = normalize(" + HW::T_VIEW_POSITION + " - PositionWorld_PS_INPUT)", stage);
+        shadergen.emitLine("float3 P = PositionWorld_PS_INPUT", stage);
         shadergen.emitLineBreak(stage);
 
         const string outColor = output->getVariable() + ".color";
@@ -247,7 +247,7 @@ void SurfaceNodeHlsl::emitLightLoop(const ShaderNode& node, GenContext& context,
 
         shadergen.emitScopeBegin(stage);
 
-        shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], " + prefix + HW::T_POSITION_WORLD + ", lightShader)", stage);
+        shadergen.emitLine("sampleLightSource(" + HW::T_LIGHT_DATA_INSTANCE + "[activeLightIndex], PositionWorld_PS_INPUT, lightShader)", stage);
         shadergen.emitLine("float3 L = lightShader.direction", stage);
         shadergen.emitLineBreak(stage);
 

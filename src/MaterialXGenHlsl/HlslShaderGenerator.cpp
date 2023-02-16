@@ -373,6 +373,18 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Add all uniforms
     emitUniforms(context, stage);
 
+    // emit global variables
+    emitLineBegin(stage);
+    emitString("static float3 PositionWorld_PS_INPUT", stage);
+    emitLineEnd(stage);
+    emitLineBegin(stage);
+    emitString("static float3 NormalWorld_PS_INPUT", stage);
+    emitLineEnd(stage);
+    emitLineBegin(stage);
+    emitString("static float3 TangentWorld_PS_INPUT", stage);
+    emitLineEnd(stage);
+    emitLineEnd(stage, false);
+
     // Add vertex data inputs block
     emitInputs(context, stage);
 
@@ -450,6 +462,17 @@ void HlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     setFunctionName("main", stage);
     emitLine("float4 main(in VertexData vd) : SV_Target", stage, false);
     emitFunctionBodyBegin(graph, context, stage);
+
+    emitLineBegin(stage);
+    emitString("PositionWorld_PS_INPUT = vd.positionWorld", stage);
+    emitLineEnd(stage);
+    emitLineBegin(stage);
+    emitString("NormalWorld_PS_INPUT = vd.normalWorld", stage);
+    emitLineEnd(stage);
+    emitLineBegin(stage);
+    emitString("TangentWorld_PS_INPUT = vd.tangentWorld", stage);
+    emitLineEnd(stage);
+    emitLineEnd(stage, false);
 
     if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
         !graph.hasClassification(ShaderNode::Classification::SHADER))

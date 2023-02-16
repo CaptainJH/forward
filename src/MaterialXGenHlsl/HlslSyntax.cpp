@@ -114,7 +114,7 @@ const StringVec HlslSyntax::VEC4_MEMBERS = { ".x", ".y", ".z", ".w" };
 
 HlslSyntax::HlslSyntax()
 {
-    // Add in all reserved words and keywords in GLSL
+    // Add in all reserved words and keywords in HLSL
     registerReservedWords({ 
         // keywords: https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-appendix-keywords
         "AppendStructuredBuffer", "asm", "asm_fragment",
