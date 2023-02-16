@@ -20,7 +20,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 	assert(FileSystem::getSingleton().FileExists(sceneFilePathW));
 	const String sceneFileFullPath = TextHelper::ToAscii(sceneFilePathW);
 
-	const aiScene* scene = aiImportFile(sceneFileFullPath.c_str(), aiProcess_MakeLeftHanded | aiProcess_Triangulate);
+	const aiScene* scene = aiImportFile(sceneFileFullPath.c_str(), aiProcess_MakeLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
 	if (!scene || !scene->HasMeshes())
 	{

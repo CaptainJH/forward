@@ -42,7 +42,7 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
-	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
+	auto sceneData = SceneData::LoadFromFile(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
 	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData);
 	m_albedoEffect->mAlbedoTex = make_shared<Texture2D>("helmet_albedo", L"DamagedHelmet/Default_albedo.jpg");
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
@@ -52,10 +52,8 @@ bool ModelViewer::Init()
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	auto viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
 	auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
-	m_albedoEffect->mUpdateFunc = [=](f32 dt) {
-		static f32 frames = 0.0f;
-		frames += dt * 0.001f;
-		*m_albedoEffect->mCB = Matrix4f::RotationMatrixY(frames) * viewMat * projMat;
+	m_albedoEffect->mUpdateFunc = [=](f32 /*dt*/) {
+		*m_albedoEffect->mCB = Matrix4f::RotationMatrixX(-forward::f_PIDIV2) * Matrix4f::RotationMatrixY(forward::Pi) * viewMat * projMat;
 	};
 
 	return true;
