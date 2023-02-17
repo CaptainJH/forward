@@ -13,12 +13,63 @@ namespace forward
 
 	struct CB1
 	{
-
+		Matrix4f		u_envMatrix = Matrix4f(
+			-1.0f, 0, 0, 0, 
+			0, 1.0f, 0, 0, 
+			0, 0, -1.0f, 0,
+			0, 0, 0, 1.0f);
+		int				u_envRadianceMips = 1;
+		int				u_envRadianceSamples = 16;
+		int				u_refractionEnv = 0; int padding_0;
+		Vector3f		u_refractionColor = Vector3f(0, 0, 0); int padding_1;
+		Vector3f		u_viewPosition;
+		int				u_numActiveLightSources = 1;
 	};
 
 	struct CB2
 	{
-
+		//displacementshader displacementshader1;
+		Vector3f		offset;
+		float				scale;
+		float				 SR_default_base = 1.000000;
+		Vector3f		 SR_default_base_color = Vector3f(0.800000f, 0.800000f, 0.800000f);
+		float				 SR_default_diffuse_roughness = 0.000000;
+		float				 SR_default_metalness = 0.000000;
+		float				 SR_default_specular = 1.000000; int padding_0;
+		Vector3f		 SR_default_specular_color = Vector3f(1.000000, 1.000000, 1.000000);
+		float				 SR_default_specular_roughness = 0.200000f;
+		float				 SR_default_specular_IOR = 1.500000;
+		float				 SR_default_specular_anisotropy = 0.000000;
+		float				 SR_default_specular_rotation = 0.000000;
+		float				 SR_default_transmission = 0.000000;
+		Vector3f		 SR_default_transmission_color = Vector3f(1.000000, 1.000000, 1.000000);
+		float				 SR_default_transmission_depth = 0.000000;
+		Vector3f		 SR_default_transmission_scatter = Vector3f(0.000000, 0.000000, 0.000000);
+		float				 SR_default_transmission_scatter_anisotropy = 0.000000;
+		float				 SR_default_transmission_dispersion = 0.000000;
+		float				 SR_default_transmission_extra_roughness = 0.000000;
+		float				 SR_default_subsurface = 0.000000; int padding_1;
+		Vector3f		 SR_default_subsurface_color = Vector3f(1.000000, 1.000000, 1.000000); int padding_2;
+		Vector3f		 SR_default_subsurface_radius = Vector3f(1.000000, 1.000000, 1.000000);
+		float				 SR_default_subsurface_scale = 1.000000;
+		float				 SR_default_subsurface_anisotropy = 0.000000;
+		float				 SR_default_sheen = 0.000000; int padding_3[2];
+		Vector3f		 SR_default_sheen_color = Vector3f(1.000000, 1.000000, 1.000000);
+		float				 SR_default_sheen_roughness = 0.300000f;
+		float				 SR_default_coat = 0.000000;
+		Vector3f		 SR_default_coat_color = Vector3f(1.000000, 1.000000, 1.000000);
+		float				 SR_default_coat_roughness = 0.100000f;
+		float				 SR_default_coat_anisotropy = 0.000000;
+		float				 SR_default_coat_rotation = 0.000000;
+		float				 SR_default_coat_IOR = 1.500000;
+		float				 SR_default_coat_affect_color = 0.000000;
+		float				 SR_default_coat_affect_roughness = 0.000000;
+		float				 SR_default_thin_film_thickness = 0.000000;
+		float				 SR_default_thin_film_IOR = 1.500000;
+		float				 SR_default_emission = 0.000000;
+		Vector3f		 SR_default_emission_color = Vector3f(1.000000, 1.000000, 1.000000);
+		Vector3f		 SR_default_opacity = Vector3f(1.000000, 1.000000, 1.000000);
+		int				 SR_default_thin_walled = 0;
 	};
 
 	class AutodeskStandardSurface final : public Effect

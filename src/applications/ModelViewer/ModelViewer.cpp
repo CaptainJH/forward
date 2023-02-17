@@ -53,12 +53,19 @@ bool ModelViewer::Init()
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	auto viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
 	auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+	auto viewProjMat = viewMat * projMat;
+	auto worldMat = Matrix4f::Identity();
+	auto worldInvT = worldMat.Inverse().Transpose();
 	m_standardSurface->mUpdateFunc = [=](f32 /*dt*/) {
 		*m_standardSurface->mCB0 = {
-			.worldMat = Matrix4f::RotationMatrixX(-forward::f_PIDIV2) * Matrix4f::RotationMatrixY(forward::Pi),
-			.viewProjMat = viewMat * projMat,
-			.worldInverseTransMat = Matrix4f::Identity()
+			.worldMat = worldMat,
+			.viewProjMat = viewProjMat,
+			.worldInverseTransMat = worldInvT
 		};
+		auto cb1 = CB1();
+		cb1.u_viewPosition = pos;
+		*m_standardSurface->mCB1 = cb1;
+		*m_standardSurface->mCB2 = CB2();
 	};
 
 	return true;

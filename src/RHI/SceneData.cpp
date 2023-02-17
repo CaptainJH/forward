@@ -112,7 +112,7 @@ SceneData SceneData::LoadFromFileForStandSurface(const std::wstring fileName, Lo
 				const aiVector3D n = mesh->mNormals[i];
 				const aiVector3D t = mesh->mTangents[i];
 				sgeo.AddVertex<Vertex_StandSurface>({ 
-					.Pos = Vector3f(v.x, v.z, v.y),
+					.Pos = Vector3f(v.x, v.y, v.z),
 					.Normal = Vector3f(n.x, n.y, n.z), 
 					.Tangent = Vector3f(t.x, t.y, t.z)
 					});

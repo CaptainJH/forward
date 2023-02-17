@@ -1068,7 +1068,7 @@ void mx_rotate_vector3(float3 _in, float amount, float3 axis, out float3 result)
 {
     float rotationRadians = radians(amount);
     float4x4 m = mx_rotationMatrix(axis, rotationRadians);
-    result = mul(m, float4(_in, 1.0)).xyz;
+    result = mul(float4(_in, 1.0), m).xyz;
 }
 
 void mx_artistic_ior(float3 reflectivity, float3 edge_color, out float3 ior, out float3 extinction)
