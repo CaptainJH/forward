@@ -131,6 +131,8 @@ namespace forward
 						pso.m_PSState.m_constantBuffers[1] = mCB1;
 						pso.m_PSState.m_constantBuffers[2] = mCB2;
 
+						pso.m_RSState.m_rsState.frontCCW = true;
+						
 						// setup render states
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
 						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
