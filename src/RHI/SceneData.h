@@ -11,6 +11,7 @@ namespace forward
 	struct SceneData
 	{
 		static SceneData LoadFromFile(const std::wstring fileName, LoadedResourceManager& resMgr);
+		static SceneData LoadFromFileForStandSurface(const std::wstring fileName, LoadedResourceManager& resMgr);
 
 		Vector<SimpleGeometry> mMeshData;
 	};

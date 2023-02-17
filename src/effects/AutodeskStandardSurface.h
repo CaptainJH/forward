@@ -1,0 +1,94 @@
+#pragma once
+#include "FrameGraph/Effect.h"
+#include "RHI/SceneData.h"
+
+namespace forward
+{
+	struct CB0
+	{
+		Matrix4f worldMat;
+		Matrix4f viewProjMat;
+		Matrix4f worldInverseTransMat;
+	};
+
+	struct CB1
+	{
+
+	};
+
+	struct CB2
+	{
+
+	};
+
+	class AutodeskStandardSurface final : public Effect
+	{
+	public:
+		AutodeskStandardSurface(SceneData& sd)
+		{
+			mVS = forward::make_shared<VertexShader>("StandSurface_VS", L"standard_surface_default_vs", L"main");
+			mPS = forward::make_shared<PixelShader>("StandSurface_PS", L"standard_surface_default_ps", L"main");
+			mCB0 = forward::make_shared<ConstantBuffer<CB0>>("CB_0");
+			mCB1 = forward::make_shared<ConstantBuffer<CB1>>("CB_1");
+			mCB2 = forward::make_shared<ConstantBuffer<CB2>>("CB_2");
+			mSamp = forward::make_shared<SamplerState>("Env_Samp");
+
+			FeedWithSceneData(sd);
+		}
+
+		shared_ptr<VertexShader> mVS;
+		shared_ptr<PixelShader> mPS;
+		shared_ptr<ConstantBuffer<CB0>> mCB0;
+		shared_ptr<ConstantBuffer<CB1>> mCB1;
+		shared_ptr<ConstantBuffer<CB2>> mCB2;
+
+		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
+		shared_ptr<SamplerState> mSamp;
+		shared_ptr<Texture2D> envRadianceTex;
+		shared_ptr<Texture2D> envIrradianceTex;
+
+		void FeedWithSceneData(SceneData& sd)
+		{
+			for (auto& geo : sd.mMeshData)
+				mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
+		}
+
+		void SetupRenderPass(Device& r)
+		{
+			for (auto& p : mMeshBuffers)
+				m_renderPassVec.push_back(RenderPass(
+					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN,
+					[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+						// setup shaders
+						pso.m_VSState.m_shader = mVS;
+						pso.m_PSState.m_shader = mPS;
+
+						pso.m_PSState.m_shaderResources[0] = envRadianceTex;
+						pso.m_PSState.m_shaderResources[1] = envIrradianceTex;
+						pso.m_PSState.m_samplers[0] = mSamp;
+
+						// setup geometry
+						if (p.second && p.second->GetNumElements())
+							pso.m_IAState.m_indexBuffer = p.second;
+						pso.m_IAState.m_topologyType = p.second->GetPrimitiveType();
+
+						pso.m_IAState.m_vertexBuffers[0] = p.first;
+						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
+
+						// setup constant buffer
+						pso.m_VSState.m_constantBuffers[0] = mCB0;
+						pso.m_PSState.m_constantBuffers[1] = mCB1;
+						pso.m_PSState.m_constantBuffers[2] = mCB2;
+
+						// setup render states
+						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
+						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
+					},
+					[&](Device& r) {
+						r.DrawIndexed(p.second->GetNumElements());
+					}
+					));
+
+		}
+	};
+}

@@ -36,10 +36,13 @@ Texture::Texture(const std::string& name, const std::wstring& filename)
 	{
 		auto fileFullPath_data = forward::FileSystem::getSingleton().GetModelsFolder() + filename;
 		auto fileFullPath_deps = forward::FileSystem::getSingleton().GetExternFolder() + filename;
+		auto fileFullPath_tex = forward::FileSystem::getSingleton().GetTextureFolder() + filename;
 		if (forward::FileSystem::getSingleton().FileExists(fileFullPath_data))
 			m_fileFullPath = fileFullPath_data;
 		else if (forward::FileSystem::getSingleton().FileExists(fileFullPath_deps))
 			m_fileFullPath = fileFullPath_deps;
+		else if (forward::FileSystem::getSingleton().FileExists(fileFullPath_tex))
+			m_fileFullPath = fileFullPath_tex;
 	}
 	else
 		m_fileFullPath = forward::FileSystem::getSingletonPtr()->GetTextureFolder() + filename;
@@ -109,7 +112,7 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 	m_type = FGOT_TEXTURE2;
 
 	const auto ext = std::filesystem::path(m_fileFullPath).extension();
-	if (ext == L".png" || ext == L".jpg" || ext == L".bmp" || ext == L".tga")
+	if (ext == L".png" || ext == L".jpg" || ext == L".bmp" || ext == L".tga" || ext == L".hdr")
 	{
 		auto texPath = TextHelper::ToAscii(m_fileFullPath);
 		i32 w, h, comp;
