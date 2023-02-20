@@ -1,7 +1,7 @@
 
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real>::Quaternion( ) :
+forward::Quaternion<Real>::Quaternion( ) :
 	w( 0 ),
 	x( 0 ),
 	y( 0 ),
@@ -10,7 +10,7 @@ Quaternion<Real>::Quaternion( ) :
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real>::Quaternion( Real W, Real X, Real Y, Real Z ) :
+forward::Quaternion<Real>::Quaternion( Real W, Real X, Real Y, Real Z ) :
 	w( W ),
 	x( X ),
 	y( Y ),
@@ -19,79 +19,79 @@ Quaternion<Real>::Quaternion( Real W, Real X, Real Y, Real Z ) :
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real>::~Quaternion( )
+forward::Quaternion<Real>::~Quaternion( )
 {
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Real Quaternion<Real>::length() const
+Real forward::Quaternion<Real>::length() const
 {
 	return( sqrt( w*w + x*x + y*y + z*z ) );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Real Quaternion<Real>::lengthSquared() const
+Real forward::Quaternion<Real>::lengthSquared() const
 {
 	return( w*w + x*x + y*y + z*z );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Real Quaternion<Real>::dot( const Quaternion<Real>& a ) const
+Real forward::Quaternion<Real>::dot( const forward::Quaternion<Real>& a ) const
 {
 	return(	w*a.w + x*a.x + y*a.y + z*a.z );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::conjugate() const
+forward::Quaternion<Real> forward::Quaternion<Real>::conjugate() const
 {
 	return( Quaternion<Real>( w, -x, -y, -z ) );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::inverse() const
+forward::Quaternion<Real> forward::Quaternion<Real>::inverse() const
 {
 	return( conjugate() / lengthSquared() );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator+( const Quaternion<Real>& a ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator+( const forward::Quaternion<Real>& a ) const
 {
 	return( Quaternion<Real>( a.w+w, a.x+x, a.y+y, a.z+z ) );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator-( const Quaternion& a ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator-( const forward::Quaternion<Real>& a ) const
 {
 	return( Quaternion<Real>( a.w-w, a.x-x, a.y-y, a.z-z ) );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator*( const Quaternion<Real>& a ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator*( const forward::Quaternion<Real>& a ) const
 {
 	Quaternion q;
 
-	q.w = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
-	q.x = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y;
-	q.y = a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x;
-	q.z = a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w;
+	q.w = a.w*w - a.x*x - a.y*y - a.z*z;
+	q.x = a.w*x + a.x*w + a.y*z - a.z*y;
+	q.y = a.w*y - a.x*z + a.y*w + a.z*x;
+	q.z = a.w*z + a.x*y - a.y*x + a.z*w;
 
 	return( q );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator/( const Quaternion<Real>& a ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator/( const forward::Quaternion<Real>& a ) const
 {
 	return( *this * a.inverse() );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator*( const Real& real ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator*( const Real& real ) const
 {
 	return( Quaternion<Real>( w*real, x*real, y*real, z*real ) );
 }
 //--------------------------------------------------------------------------------
 template <typename Real>
-Quaternion<Real> Quaternion<Real>::operator/( const Real& real ) const
+forward::Quaternion<Real> forward::Quaternion<Real>::operator/( const Real& real ) const
 {
 	assert( real != 0.0 );
 
