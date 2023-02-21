@@ -29,3 +29,6 @@ set_property(TARGET MaterialXRenderGlsl PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET MaterialXRenderHw PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET MaterialXRenderOsl PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET MaterialXTest PROPERTY FOLDER "ThirdPartyLibraries")
+
+add_subdirectory("src/Imath")
+set_property(TARGET Imath PROPERTY FOLDER "ThirdPartyLibraries")

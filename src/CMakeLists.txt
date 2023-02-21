@@ -111,5 +111,5 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(libForward "CLANG_CXX_LANGUAGE_STANDARD" "c++17")
     set_xcode_property(libForward "CLANG_CXX_LIBRARY" "libc++")
 endif()
-target_link_libraries(libForward DirectXTex)
+target_link_libraries(libForward DirectXTex Imath)
 
