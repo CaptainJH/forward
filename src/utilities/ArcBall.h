@@ -10,7 +10,6 @@
 #pragma once
 #include <math/Quaternion.h>
 #include <math/Vector3f.h>
-#include <math/Vector4f.h>
 
 class ArcBall
 {
@@ -23,7 +22,7 @@ public:
 
     void Reset()
     {
-        m_qdown = m_qnow;// = DirectX::SimpleMath::Quaternion::Identity;
+        m_qdown = m_qnow = forward::Quaternion<float>::Identity();
     }
 
     void OnBegin( int x, int y )
@@ -39,8 +38,8 @@ public:
         {
             auto curr = ScreenToVector(float(x), float(y));
 
-            //m_qnow = XMQuaternionMultiply(m_qdown, QuatFromBallPoints(m_downPoint, curr));
-            //m_qnow.Normalize();
+            m_qnow = m_qdown * QuatFromBallPoints(m_downPoint, curr);
+            m_qnow.normalize();
         }
     }
 
@@ -70,10 +69,10 @@ private:
     float                           m_radius;
     forward::Quaternion<float> m_qdown;
     forward::Quaternion<float> m_qnow;
-    forward::Vector4f    m_downPoint;
+    forward::Vector3f       m_downPoint;
     bool                            m_drag;
 
-    forward::Vector4f ScreenToVector(float screenx, float screeny)
+    forward::Vector3f ScreenToVector(float screenx, float screeny)
     {
         float x = -( screenx - m_width / 2.f ) / ( m_radius * m_width / 2.f );
         float y = ( screeny - m_height / 2.f ) / ( m_radius * m_height / 2.f );
@@ -90,14 +89,13 @@ private:
         else
             z = sqrtf( 1.0f - mag );
 
-        return forward::Vector4f( x, y, z, 0 );
+        return forward::Vector3f( x, y, z);
     }
 
-    static forward::Vector3f QuatFromBallPoints(forward::Vector3f vFrom, forward::Vector3f vTo )
+    static forward::Quaternion<float> QuatFromBallPoints(forward::Vector3f vFrom, forward::Vector3f vTo )
     {
-        //XMVECTOR dot = XMVector3Dot( vFrom, vTo );
-        //XMVECTOR vPart = XMVector3Cross( vFrom, vTo );
-        //return XMVectorSelect( dot, vPart, g_XMSelect1110 );
-        return vFrom;
+        auto dot = vFrom.Dot(vTo);
+        auto vPart = vFrom.Cross(vTo);
+        return forward::Quaternion(dot, vPart.x, vPart.y, vPart.z);
     }
 };

@@ -24,13 +24,20 @@ namespace forward
 
 		Quaternion conjugate() const;
 		Quaternion inverse() const;
+		Quaternion& normalize();
 
 		Quaternion operator+( const Quaternion& a ) const;
 		Quaternion operator-( const Quaternion& a ) const;
 		Quaternion operator*( const Quaternion& a ) const;
 		Quaternion operator/( const Quaternion& a ) const;
 		Quaternion operator*( const Real& real ) const;
+		Quaternion& operator*=(const Real& real);
 		Quaternion operator/( const Real& real ) const;
+
+		static Quaternion Identity()
+		{
+			return Quaternion(1.0, 0.0, 0.0, 0.0);
+		}
 
 	public:
 		Real w;

@@ -1714,6 +1714,12 @@ void NG_standard_surface_surfaceshader_100(float base, float3 base_color, float 
     out1 = shader_constructor_out;
 }
 
+float3 LinearToSRGB(float3 color)
+{
+    // Approximately pow(color, 1.0 / 2.2)
+    return color < 0.0031308 ? 12.92 * color : 1.055 * pow(abs(color), 1.0 / 2.4) - 0.055;
+}
+
 float4 main(in VertexData input) : SV_Target
 {
     vd = input;
@@ -1723,6 +1729,7 @@ float4 main(in VertexData input) : SV_Target
     surfaceshader SR_default_out = {(float3)0.0,(float3)0.0};
     NG_standard_surface_surfaceshader_100(SR_default_base, SR_default_base_color, SR_default_diffuse_roughness, SR_default_metalness, SR_default_specular, SR_default_specular_color, SR_default_specular_roughness, SR_default_specular_IOR, SR_default_specular_anisotropy, SR_default_specular_rotation, SR_default_transmission, SR_default_transmission_color, SR_default_transmission_depth, SR_default_transmission_scatter, SR_default_transmission_scatter_anisotropy, SR_default_transmission_dispersion, SR_default_transmission_extra_roughness, SR_default_subsurface, SR_default_subsurface_color, SR_default_subsurface_radius, SR_default_subsurface_scale, SR_default_subsurface_anisotropy, SR_default_sheen, SR_default_sheen_color, SR_default_sheen_roughness, SR_default_coat, SR_default_coat_color, SR_default_coat_roughness, SR_default_coat_anisotropy, SR_default_coat_rotation, SR_default_coat_IOR, geomprop_Nworld_out, SR_default_coat_affect_color, SR_default_coat_affect_roughness, SR_default_thin_film_thickness, SR_default_thin_film_IOR, SR_default_emission, SR_default_emission_color, SR_default_opacity, SR_default_thin_walled, geomprop_Nworld_out, geomprop_Tworld_out, SR_default_out);
     material Default_out = SR_default_out;
-    return float4(Default_out.color, 1.0);
+    // return float4(Default_out.color, 1.0);
+    return float4(LinearToSRGB(Default_out.color), 1.0);
 }
 

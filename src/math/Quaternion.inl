@@ -89,6 +89,12 @@ forward::Quaternion<Real> forward::Quaternion<Real>::operator*( const Real& real
 {
 	return( Quaternion<Real>( w*real, x*real, y*real, z*real ) );
 }
+template <typename Real>
+forward::Quaternion<Real>& forward::Quaternion<Real>::operator*=(const Real& real)
+{
+	w *= real; x *= real; y *= real; z *= real;
+	return *this;
+}
 //--------------------------------------------------------------------------------
 template <typename Real>
 forward::Quaternion<Real> forward::Quaternion<Real>::operator/( const Real& real ) const
@@ -98,3 +104,8 @@ forward::Quaternion<Real> forward::Quaternion<Real>::operator/( const Real& real
 	return( Quaternion<Real>( w/real, x/real, y/real, z/real ) );
 }
 //--------------------------------------------------------------------------------
+template<typename Real>
+forward::Quaternion<Real>& forward::Quaternion<Real>::normalize()
+{
+	return (*this *= 1.0f / sqrtf(x * x + y * y + z * z + w * w));
+}
