@@ -874,16 +874,24 @@ float3 mx_surface_transmission(float3 N, float3 V, float3 X, float2 alpha, int d
 
 struct LightData
 {
+    float3 direction;
+    float3 color;
     int type;
+    float intensity;
     float pad0;
     float pad1;
-    float pad2;
 };
 
 cbuffer LightData_pixel : register(b3)
 {
     LightData u_lightData[MAX_LIGHT_SOURCES];
 };
+
+void mx_directional_light(LightData light, float3 position, out lightshader result)
+{
+    result.direction = -light.direction;
+    result.intensity = light.color * light.intensity;
+}
 
 int numActiveLightSources()
 {
@@ -894,6 +902,10 @@ void sampleLightSource(LightData light, float3 position, out lightshader result)
 {
     result.intensity = (float3)0.0;
     result.direction = (float3)0.0;
+    if (light.type == 1)
+    {
+        mx_directional_light(light, position, result);
+    }
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out float2 result)
