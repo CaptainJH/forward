@@ -72,6 +72,22 @@ namespace forward
 		int				 SR_default_thin_walled = 0;
 	};
 
+	struct LightData
+	{
+		Vector3f direction = Vector3f(0.0f, 0.0f, 0.0f); 
+		int pad0;
+		Vector3f color = Vector3f(0.0f, 0.0f, 0.0f);;
+		int type = 0;
+		float intensity = 0;
+		float pad1;
+		float pad2;
+		float pad3;
+	};
+	struct CB3
+	{
+		LightData u_lightData[3];
+	};
+
 	class AutodeskStandardSurface final : public Effect
 	{
 	public:
@@ -82,6 +98,7 @@ namespace forward
 			mCB0 = forward::make_shared<ConstantBuffer<CB0>>("CB_0");
 			mCB1 = forward::make_shared<ConstantBuffer<CB1>>("CB_1");
 			mCB2 = forward::make_shared<ConstantBuffer<CB2>>("CB_2");
+			mCB3 = forward::make_shared<ConstantBuffer<CB3>>("CB_3");
 			mSamp = forward::make_shared<SamplerState>("Env_Samp");
 
 			FeedWithSceneData(sd);
@@ -92,6 +109,7 @@ namespace forward
 		shared_ptr<ConstantBuffer<CB0>> mCB0;
 		shared_ptr<ConstantBuffer<CB1>> mCB1;
 		shared_ptr<ConstantBuffer<CB2>> mCB2;
+		shared_ptr<ConstantBuffer<CB3>> mCB3;
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
 		shared_ptr<SamplerState> mSamp;
@@ -130,6 +148,13 @@ namespace forward
 						pso.m_VSState.m_constantBuffers[0] = mCB0;
 						pso.m_PSState.m_constantBuffers[1] = mCB1;
 						pso.m_PSState.m_constantBuffers[2] = mCB2;
+						pso.m_PSState.m_constantBuffers[3] = mCB3;
+
+						auto& lightData0 = mCB3->GetTypedData()->u_lightData[0];
+						lightData0.color = Vector3f(1.0f, 0.89447f, 0.56723f);
+						lightData0.direction = Vector3f(0.51443f, -0.47901f, -0.71127f);
+						lightData0.intensity = 2.52776f;
+						lightData0.type = 1;
 
 						pso.m_RSState.m_rsState.frontCCW = true;
 						
