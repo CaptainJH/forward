@@ -853,6 +853,8 @@ void HlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
             str += " : NORMAL";
         else if (variable->getName().ends_with("tangentWorld"))
             str += " : TANGENT";
+        else if (variable->getName().ends_with("texcoord_0"))
+            str += " : TEXCOORD0";
         else
         {
             // assert(false && "Shouldn't come to this place");
