@@ -36,12 +36,13 @@ void TexCoordNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     const string variable = HW::T_TEXCOORD + "_" + index;
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+        const VariableBlock& vertexData_Input = stage.getInputBlock(HW::VERTEX_INPUTS);
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
         if (!texcoord->isEmitted())
         {
-            shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_" + index, stage);
+            shadergen.emitLine(prefix + texcoord->getVariable() + " = " + vertexData_Input.getInstance() + "." + HW::T_IN_TEXCOORD + "_" + index, stage);
             texcoord->setEmitted();
         }
     END_SHADER_STAGE(shader, Stage::VERTEX)
