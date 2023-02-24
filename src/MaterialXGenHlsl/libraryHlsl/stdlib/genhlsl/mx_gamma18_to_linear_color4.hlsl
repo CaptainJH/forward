@@ -1,5 +1,5 @@
-void mx_gamma18_to_linear_color4(vec4 _in, out vec4 result)
+void mx_gamma18_to_linear_color4(float4 _in, out float4 result)
 {
-    vec4 gamma = vec4(1.8, 1.8, 1.8, 1.0);
-    result = pow(max(vec4(0.0), _in), gamma);
+    float4 gamma = float4(1.8, 1.8, 1.8, 1.0);
+    result = pow(max((float4)(0.0), _in), gamma);
 }

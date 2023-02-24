@@ -17,7 +17,7 @@ ShaderNodeImplPtr TransformPointNodeHlsl::create()
 string TransformPointNodeHlsl::getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    return "vec4(" + shadergen.getUpstreamResult(in, context) + ", 1.0)";
+    return "float4(" + shadergen.getUpstreamResult(in, context) + ", 1.0)";
 }
 
 MATERIALX_NAMESPACE_END

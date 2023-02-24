@@ -7,7 +7,7 @@ float mx_latlong_compute_lod(float alpha)
     return lodBias * float($envRadianceMips);
 }
 
-float3 mx_environment_radiance(float3 N, float3 V, float3 X, vec2 alpha, int distribution, FresnelData fd)
+float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 alpha, int distribution, FresnelData fd)
 {
     N = mx_forward_facing_normal(N, V);
     float3 L = fd.refraction ? mx_refraction_solid_sphere(-V, N, fd.ior.x) : -reflect(V, N);

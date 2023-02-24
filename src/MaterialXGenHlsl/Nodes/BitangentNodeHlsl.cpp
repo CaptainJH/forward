@@ -52,13 +52,13 @@ void BitangentNodeHlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             if (!normal->isEmitted())
             {
                 normal->setEmitted();
-                shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * float4(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
             }
             ShaderPort* tangent = vertexData[HW::T_TANGENT_WORLD];
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize((" + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize((" + HW::T_WORLD_MATRIX + " * float4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
             }
             ShaderPort* bitangent = vertexData[HW::T_BITANGENT_WORLD];
             if (!bitangent->isEmitted())

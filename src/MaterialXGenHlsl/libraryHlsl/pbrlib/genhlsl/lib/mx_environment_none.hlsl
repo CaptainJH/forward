@@ -1,6 +1,6 @@
 #include "mx_microfacet_specular.hlsl"
 
-float3 mx_environment_radiance(float3 N, float3 V, float3 X, vec2 roughness, int distribution, FresnelData fd)
+float3 mx_environment_radiance(float3 N, float3 V, float3 X, float2 roughness, int distribution, FresnelData fd)
 {
     return (float3)0.0;
 }

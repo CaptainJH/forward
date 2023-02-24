@@ -78,7 +78,7 @@ const string& TransformVectorNodeHlsl::getMatrix(const string& fromSpace, const 
 string TransformVectorNodeHlsl::getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    return "vec4(" + shadergen.getUpstreamResult(in, context) + ", 0.0)";
+    return "float4(" + shadergen.getUpstreamResult(in, context) + ", 0.0)";
 }
 
 MATERIALX_NAMESPACE_END
