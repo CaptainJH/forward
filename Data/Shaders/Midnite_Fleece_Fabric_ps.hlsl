@@ -954,29 +954,33 @@ float2 mx_transform_uv(float2 uv, float2 uv_scale, float2 uv_offset)
 
 void mx_image_color3(Texture2D tex_sampler, int layer, float3 defaultval, float2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, float2 uv_scale, float2 uv_offset, out float3 result)
 {
-    // if (textureSize(tex_sampler, 0).x > 1)
+    int w, h;
+    tex_sampler.GetDimensions(w, h);
+    if (w > 1)
     {
         float2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
         result = tex_sampler.Sample(s, uv).rgb;
     }
-    // else
-    // {
-    //     result = defaultval;
-    // }
+    else
+    {
+        result = defaultval;
+    }
 }
 
 
 void mx_image_vector3(Texture2D tex_sampler, int layer, float3 defaultval, float2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, float2 uv_scale, float2 uv_offset, out float3 result)
 {
-    // if (textureSize(tex_sampler, 0).x > 1)
+    int w, h;
+    tex_sampler.GetDimensions(w, h);
+    if (w > 1)
     {
         float2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
         result = tex_sampler.Sample(s, uv).rgb;
     }
-    // else
-    // {
-    //     result = defaultval;
-    // }
+    else
+    {
+        result = defaultval;
+    }
 }
 
 #define M_AP1_TO_REC709 float3x3(1.705079555511475, -0.1297005265951157, -0.02416634373366833, -0.6242334842681885, 1.138468623161316, -0.1246141716837883, -0.0808461606502533, -0.008768022060394287, 1.148780584335327)
@@ -1891,7 +1895,7 @@ float4 main(in VertexData input) : SV_Target
     surfaceshader SR_Midnite_Fleece_Fabric_out = {(float3)0.0,(float3)0.0};
     NG_standard_surface_surfaceshader_100(SR_Midnite_Fleece_Fabric_base, node_image_color3_2_out_cm_out, SR_Midnite_Fleece_Fabric_diffuse_roughness, SR_Midnite_Fleece_Fabric_metalness, SR_Midnite_Fleece_Fabric_specular, SR_Midnite_Fleece_Fabric_specular_color, node_mix_3_out, SR_Midnite_Fleece_Fabric_specular_IOR, SR_Midnite_Fleece_Fabric_specular_anisotropy, SR_Midnite_Fleece_Fabric_specular_rotation, SR_Midnite_Fleece_Fabric_transmission, SR_Midnite_Fleece_Fabric_transmission_color, SR_Midnite_Fleece_Fabric_transmission_depth, SR_Midnite_Fleece_Fabric_transmission_scatter, SR_Midnite_Fleece_Fabric_transmission_scatter_anisotropy, SR_Midnite_Fleece_Fabric_transmission_dispersion, SR_Midnite_Fleece_Fabric_transmission_extra_roughness, SR_Midnite_Fleece_Fabric_subsurface, SR_Midnite_Fleece_Fabric_subsurface_color, SR_Midnite_Fleece_Fabric_subsurface_radius, SR_Midnite_Fleece_Fabric_subsurface_scale, SR_Midnite_Fleece_Fabric_subsurface_anisotropy, SR_Midnite_Fleece_Fabric_sheen, SR_Midnite_Fleece_Fabric_sheen_color, SR_Midnite_Fleece_Fabric_sheen_roughness, SR_Midnite_Fleece_Fabric_coat, SR_Midnite_Fleece_Fabric_coat_color, SR_Midnite_Fleece_Fabric_coat_roughness, SR_Midnite_Fleece_Fabric_coat_anisotropy, SR_Midnite_Fleece_Fabric_coat_rotation, SR_Midnite_Fleece_Fabric_coat_IOR, onthefly_4_out, SR_Midnite_Fleece_Fabric_coat_affect_color, SR_Midnite_Fleece_Fabric_coat_affect_roughness, SR_Midnite_Fleece_Fabric_thin_film_thickness, SR_Midnite_Fleece_Fabric_thin_film_IOR, SR_Midnite_Fleece_Fabric_emission, SR_Midnite_Fleece_Fabric_emission_color, SR_Midnite_Fleece_Fabric_opacity, SR_Midnite_Fleece_Fabric_thin_walled, node_normalmap_out, onthefly_6_out, SR_Midnite_Fleece_Fabric_out);
     material Default_out = SR_Midnite_Fleece_Fabric_out;
-    //return float4(Default_out.color, 1.0);
+    // return float4(Default_out.color, 1.0);
     return float4(LinearToSRGB(Default_out.color), 1.0);
 }
 
