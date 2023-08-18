@@ -58,24 +58,6 @@ namespace forward
 		}
 	};
 
-	// Vertex inputs for standard surface
-	struct Vertex_StandSurface
-	{
-		Vector3f Pos;
-		Vector3f Normal;
-		Vector3f Tangent;
-
-		static forward::VertexFormat GetVertexFormat()
-		{
-			VertexFormat vf;
-			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_NORMAL, DataFormatType::DF_R32G32B32_FLOAT, 0);
-			vf.Bind(VASemantic::VA_TANGENT, DataFormatType::DF_R32G32B32_FLOAT, 0);
-
-			return vf;
-		}
-	};
-
 	enum GeometryPrefab
 	{
 		GP_COLOR_BOX,

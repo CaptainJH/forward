@@ -95,7 +95,7 @@ SceneData SceneData::LoadFromFileForStandSurface(const std::wstring fileName, Lo
 	for (auto idx = 0U; idx < scene->mNumMeshes; ++idx)
 	{
 		const aiMesh* mesh = scene->mMeshes[idx];
-		auto vf = Vertex_StandSurface::GetVertexFormat();
+		auto vf = Vertex_P_N_T_UV::GetVertexFormat();
 		auto meshFullName = TextHelper::ToAscii(fileName) + ":" + mesh->mName.C_Str();
 		auto loadedVB = shared_ptr<VertexBuffer>(dynamic_cast<VertexBuffer*>(resMgr.FindVertexBufferByName(meshFullName).get()));
 		auto loadedIB = shared_ptr<IndexBuffer>(dynamic_cast<IndexBuffer*>(resMgr.FindIndexBufferByName(meshFullName).get()));
@@ -111,10 +111,12 @@ SceneData SceneData::LoadFromFileForStandSurface(const std::wstring fileName, Lo
 				const aiVector3D v = mesh->mVertices[i];
 				const aiVector3D n = mesh->mNormals[i];
 				const aiVector3D t = mesh->mTangents[i];
-				sgeo.AddVertex<Vertex_StandSurface>({ 
+				const aiVector3D uv = mesh->mTextureCoords[0][i];
+				sgeo.AddVertex<Vertex_P_N_T_UV>({
 					.Pos = Vector3f(v.x, v.y, v.z),
 					.Normal = Vector3f(n.x, n.y, n.z), 
-					.Tangent = Vector3f(t.x, t.y, t.z)
+					.Tangent = Vector3f(t.x, t.y, t.z),
+					.UV = Vector2f(uv.x, uv.y)
 					});
 			}
 

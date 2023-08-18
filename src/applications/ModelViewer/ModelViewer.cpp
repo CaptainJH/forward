@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "effects/AutodeskStandardSurface.h"
+#include "effects/Midnite_Fleece_Fabric.h"
 #include "ArcBall.h"
 
 using namespace forward;
@@ -28,7 +29,7 @@ protected:
 	Vector3f rotateVector(Quaternion<f32> q, Vector3f v);
 
 private:
-	shared_ptr<forward::AutodeskStandardSurface> m_standardSurface;
+	shared_ptr<forward::Midnite_Fleece_Fabric> m_standardSurface;
 	ArcBall m_arcCam;
 };
 
@@ -53,9 +54,12 @@ bool ModelViewer::Init()
 		return false;
 
 	auto sceneData = SceneData::LoadFromFileForStandSurface(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
-	m_standardSurface = make_shared<AutodeskStandardSurface>(sceneData);
+	m_standardSurface = make_shared<Midnite_Fleece_Fabric>(sceneData);
 	m_standardSurface->envRadianceTex = make_shared<Texture2D>("envRadianceTex", L"Lights/san_giuseppe_bridge_split.hdr");
 	m_standardSurface->envIrradianceTex = make_shared<Texture2D>("envIrradianceTex", L"Lights/irradiance/san_giuseppe_bridge_split.hdr");
+	m_standardSurface->image_color3_2 = make_shared<Texture2D>("node_image_color3_2_file", L"Midnite_Fleece_Fabric_baseColor.png");
+	m_standardSurface->image_vec3_12 = make_shared<Texture2D>("node_image_vector3_12_file", L"Midnite_Fleece_Fabric_Mask.png");
+	m_standardSurface->image_vec3_10 = make_shared<Texture2D>("node_image_vector3_10_file", L"Midnite_Fleece_Fabric_Normal.png");
 	m_standardSurface->SetupRenderPass(*m_pDevice);
 
 	m_standardSurface->mUpdateFunc = [&](f32 /*dt*/) {
@@ -81,7 +85,7 @@ bool ModelViewer::Init()
 		auto cb1 = CB1();
 		cb1.u_viewPosition = camPos;
 		*m_standardSurface->mCB1 = cb1;
-		*m_standardSurface->mCB2 = CB2();
+		*m_standardSurface->mCB2 = Midnite_Fleece_Fabric_CB2();
 	};
 
 	return true;
