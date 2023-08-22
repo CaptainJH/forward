@@ -37,15 +37,6 @@
 },
 
 {
-    "name": "MaterialX",
-    "source": {
-        "type": "git",
-        "url": "https://github.com/AcademySoftwareFoundation/MaterialX.git",
-        "revision" : "v1.38.6"
-    }
-},
-
-{
     "name": "Imath",
     "source": {
         "type": "git",

@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.10)
+
+file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
+add_executable(MaterialXCmd ${SOURCE_FILES})
+set_target_properties(MaterialXCmd PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+target_link_libraries(MaterialXCmd forwardDX12 MaterialXFormat MaterialXGenGlsl MaterialXGenHlsl MaterialXRender)
+
+set_target_properties(MaterialXCmd PROPERTIES FOLDER Application)
