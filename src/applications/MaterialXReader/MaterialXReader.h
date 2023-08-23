@@ -8,4 +8,4 @@
 #include <unordered_map>
 
 extern "C" FORWARD_API int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& outPS, 
-	std::unordered_map<std::string, std::string>& params);
+	std::unordered_map<std::string, std::string>& paramsPS);

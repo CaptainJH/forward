@@ -13,67 +13,68 @@
 using namespace MaterialX;
 namespace mx = MaterialX;
 
-DocumentPtr _stdLib;
-FileSearchPath _searchPath;
-FilePathVec _libraryFolders;
-UnitConverterRegistryPtr _unitRegistry;
-
-FileSearchPath getDefaultSearchPath()
+FileSearchPath GetDefaultSearchPath(FilePath& outMaterialXRoot)
 {
     FilePath modulePath = FilePath::getModulePath();
-    FilePath installRootPath = modulePath.getParentPath();
-    FilePath devRootPath = installRootPath.getParentPath().getParentPath().getParentPath().getParentPath().getParentPath();
+    FilePath forwardRootPath = modulePath;
+    while (forwardRootPath.getBaseName() != "forward")
+        forwardRootPath = forwardRootPath.getParentPath();
+    FilePath materialXRootPath = forwardRootPath / "extern" / "src" / "MaterialX";
+    outMaterialXRoot = materialXRootPath;
 
     FileSearchPath searchPath;
-    if ((devRootPath / "MaterialX_JHQ" / "MaterialX").exists())
+    if (materialXRootPath.exists())
     {
-        searchPath.append(devRootPath / "MaterialX_JHQ" / "MaterialX");
+        searchPath.append(materialXRootPath);
     }
-    searchPath.append(devRootPath / "MaterialX_JHQ" / "MaterialX" / "source" / "MaterialXGenHlsl");
+    searchPath.append(materialXRootPath / "source" / "MaterialXGenHlsl");
 
     return searchPath;
 }
 
-void initContext(GenContext& context)
+void InitContext(GenContext& context, DocumentPtr stdLib, FileSearchPath searchPath, UnitConverterRegistryPtr unitRegistry)
 {
     // Initialize search path.
-    context.registerSourceCodeSearchPath(_searchPath);
+    context.registerSourceCodeSearchPath(searchPath);
 
     // Initialize color management.
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
-    cms->loadLibrary(_stdLib);
+    cms->loadLibrary(stdLib);
     context.getShaderGenerator().setColorManagementSystem(cms);
 
     // Initialize unit management.
     UnitSystemPtr unitSystem = UnitSystem::create(context.getShaderGenerator().getTarget());
-    unitSystem->loadLibrary(_stdLib);
-    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    unitSystem->loadLibrary(stdLib);
+    unitSystem->setUnitConverterRegistry(unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
 }
 
-int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& outPS, std::unordered_map<std::string, std::string>& params)
+int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& outPS, 
+    std::unordered_map<std::string, std::string>& paramsPS)
 {
-	GenContext _genContextHlsl = HlslShaderGenerator::create();
-	_genContextHlsl.getOptions().targetColorSpaceOverride = "lin_rec709";
-	_genContextHlsl.getOptions().fileTextureVerticalFlip = false;
+	GenContext genContextHlsl = HlslShaderGenerator::create();
+	genContextHlsl.getOptions().targetColorSpaceOverride = "lin_rec709";
+	genContextHlsl.getOptions().fileTextureVerticalFlip = false;
 
-    _searchPath = getDefaultSearchPath();
-    _libraryFolders.push_back("libraryHlsl");
-    _libraryFolders.push_back("libraries");
-	_stdLib = createDocument();
-	auto _xincludeFiles = loadLibraries(_libraryFolders, _searchPath, _stdLib);
+    FilePath materialXRoot;
+    FileSearchPath searchPath = GetDefaultSearchPath(materialXRoot);
+    FilePathVec libraryFolders;
+    libraryFolders.push_back("libraryHlsl");
+    libraryFolders.push_back("libraries");
+	DocumentPtr stdLib = createDocument();
+	auto _xincludeFiles = loadLibraries(libraryFolders, searchPath, stdLib);
 	assert(!_xincludeFiles.empty());
 
-    _unitRegistry = mx::UnitConverterRegistry::create();
+    UnitConverterRegistryPtr unitRegistry = mx::UnitConverterRegistry::create();
 
     // Initialize unit management.
-    mx::UnitTypeDefPtr distanceTypeDef = _stdLib->getUnitTypeDef("distance");
+    mx::UnitTypeDefPtr distanceTypeDef = stdLib->getUnitTypeDef("distance");
     mx::LinearUnitConverterPtr _distanceUnitConverter = mx::LinearUnitConverter::create(distanceTypeDef);
-    _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
-    mx::UnitTypeDefPtr angleTypeDef = _stdLib->getUnitTypeDef("angle");
+    unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
+    mx::UnitTypeDefPtr angleTypeDef = stdLib->getUnitTypeDef("angle");
     mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
-    _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
+    unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
 
     // Create the list of supported distance units.
     auto unitScales = _distanceUnitConverter->getUnitScale();
@@ -85,7 +86,7 @@ int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& ou
         _distanceUnitOptions[location] = unitScale.first;
     }
 
-    initContext(_genContextHlsl);
+    InitContext(genContextHlsl, stdLib, searchPath, unitRegistry);
 
     // load document
     // Set up read options.
@@ -95,45 +96,40 @@ int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& ou
         {
             mx::FilePath resolvedFilename = searchPath.find(filename);
             if (resolvedFilename.exists())
-            {
                 readFromXmlFile(doc, resolvedFilename, searchPath, options);
-            }
             else
-            {
                 std::cerr << "Include file not found: " << filename.asString() << std::endl;
-            }
         };
 
     // Load source document.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, file, _searchPath, &readOptions);
+    mx::readFromXmlFile(doc, file, searchPath, &readOptions);
     //_materialSearchPath = mx::getSourceSearchPath(doc);
 
     // Import libraries.
-    doc->importLibrary(_stdLib);
+    doc->importLibrary(stdLib);
 
     // applyDirectLights
-    mx::FilePath _lightRigFilename = "D:\\Documents\\GitHub\\MaterialX_JHQ\\MaterialX\\resources\\Lights\\san_giuseppe_bridge_split.mtlx";
+    mx::FilePath _lightRigFilename = materialXRoot / "resources" / "Lights" / "san_giuseppe_bridge_split.mtlx";
     mx::DocumentPtr _lightRigDoc = mx::createDocument();
-    mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
+    mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, searchPath);
 
     doc->importLibrary(_lightRigDoc);
 
     std::vector<mx::NodePtr> lights;
     mx::LightHandlerPtr _lightHandler = mx::LightHandler::create();
     _lightHandler->findLights(doc, lights);
-    _lightHandler->registerLights(doc, lights, _genContextHlsl);
+    _lightHandler->registerLights(doc, lights, genContextHlsl);
     _lightHandler->setLightSources(lights);
 
     std::vector<mx::TypedElementPtr> elems;
     mx::findRenderableElements(doc, elems);
     assert(elems.size() == 1);
-    auto shader = _genContextHlsl.getShaderGenerator().generate("MaterialXTest_JHQ", elems[0], _genContextHlsl);
+    auto shader = genContextHlsl.getShaderGenerator().generate("MaterialXTest_JHQ", elems[0], genContextHlsl);
     outPS = shader->getSourceCode(mx::Stage::PIXEL);
     outVS = shader->getSourceCode(mx::Stage::VERTEX);
 
     const auto& ps = shader->getStage(mx::Stage::PIXEL);
-    // Process pixel stage uniforms
     for (const auto& uniformMap : ps.getUniformBlocks())
     {
         const mx::VariableBlock& uniforms = *uniformMap.second;
@@ -141,7 +137,7 @@ int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& ou
         {
             const mx::ShaderPort* v = uniforms[i];
             if (v->getValue())
-                params[v->getName()] = v->getValue()->getValueString();
+                paramsPS[v->getName()] = v->getValue()->getValueString();
         }
     }
 
