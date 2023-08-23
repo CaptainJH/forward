@@ -83,7 +83,6 @@ add_subdirectory(geometry)
 add_subdirectory(intersection)
 add_subdirectory(utilities)
 add_subdirectory(applications)
-add_subdirectory(MaterialXGenHlsl)
     
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory(windows)
@@ -112,4 +111,3 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(libForward "CLANG_CXX_LIBRARY" "libc++")
 endif()
 target_link_libraries(libForward DirectXTex Imath)
-

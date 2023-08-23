@@ -1,6 +1,6 @@
-#include "PCH.h"
-#include "FileSystem.h"
+#include "MaterialXReader.h"
 #include <iostream>
+#include <assert.h>
 
 #include <MaterialXRender/LightHandler.h>
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
@@ -10,7 +10,6 @@
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-using namespace forward;
 using namespace MaterialX;
 namespace mx = MaterialX;
 
@@ -53,11 +52,8 @@ void initContext(GenContext& context)
     context.getOptions().targetDistanceUnit = "meter";
 }
 
-i32 main()
+int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& outPS, std::unordered_map<std::string, std::string>& params)
 {
-	FileSystem fileSystem;
-	const std::string materialFileName = "D:\\Downloads\\Midnite_Fleece_Fabric_1k_8b\\Midnite_Fleece_Fabric.mtlx";
-
 	GenContext _genContextHlsl = HlslShaderGenerator::create();
 	_genContextHlsl.getOptions().targetColorSpaceOverride = "lin_rec709";
 	_genContextHlsl.getOptions().fileTextureVerticalFlip = false;
@@ -110,7 +106,7 @@ i32 main()
 
     // Load source document.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, materialFileName, _searchPath, &readOptions);
+    mx::readFromXmlFile(doc, file, _searchPath, &readOptions);
     //_materialSearchPath = mx::getSourceSearchPath(doc);
 
     // Import libraries.
@@ -133,8 +129,8 @@ i32 main()
     mx::findRenderableElements(doc, elems);
     assert(elems.size() == 1);
     auto shader = _genContextHlsl.getShaderGenerator().generate("MaterialXTest_JHQ", elems[0], _genContextHlsl);
-    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+    outPS = shader->getSourceCode(mx::Stage::PIXEL);
+    outVS = shader->getSourceCode(mx::Stage::VERTEX);
 
     const auto& ps = shader->getStage(mx::Stage::PIXEL);
     // Process pixel stage uniforms
@@ -145,7 +141,7 @@ i32 main()
         {
             const mx::ShaderPort* v = uniforms[i];
             if (v->getValue())
-                std::cout << v->getName() << "[" << v->getType()->getName() << "] : " << v->getValue()->getValueString() << std::endl;
+                params[v->getName()] = v->getValue()->getValueString();
         }
     }
 
