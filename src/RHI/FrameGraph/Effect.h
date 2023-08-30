@@ -23,7 +23,9 @@ namespace forward
 		std::function<void(f32)> mUpdateFunc = nullptr;
 
 	protected:
-		u8	m_currentPassIndex = 0;
+		u8 m_currentPassIndex = 0;
+
+	public:
 		Vector<RenderPass> m_renderPassVec;
 	};
 }

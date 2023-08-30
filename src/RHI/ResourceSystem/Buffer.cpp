@@ -103,6 +103,14 @@ ConstantBufferBase::ConstantBufferBase(const std::string& name)
 	m_usage = RU_DYNAMIC_UPDATE;
 }
 
+ConstantBufferBase::ConstantBufferBase(const std::string& name, u32 size)
+	: Buffer(name)
+{
+	m_usage = RU_DYNAMIC_UPDATE;
+	m_type = FGOT_CONSTANT_BUFFER;
+	Initialize(1, size);
+}
+
 void ConstantBufferBase::ResetDeviceBuffer(u64 u)
 {
 	for (auto& pair : m_DeviceResPool)

@@ -386,6 +386,22 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
 	}
 
+	const auto cbCounts = std::count_if(pso.m_VSState.m_constantBuffers.begin(), pso.m_VSState.m_constantBuffers.end(),
+		[](auto& ptr)->bool { return static_cast<bool>(ptr); }) +
+		std::count_if(pso.m_PSState.m_constantBuffers.begin(), pso.m_PSState.m_constantBuffers.end(),
+			[](auto& ptr)->bool { return static_cast<bool>(ptr); });
+
+	if (cbCounts == 0)
+	{
+		auto deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
+		for (auto& cb : deviceVS->GetCBuffers())
+			pso.m_VSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+
+		auto devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
+		for (auto& cb : devicePS->GetCBuffers())
+			pso.m_PSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+	}
+
 	// create & update device constant buffers
 	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
 	{

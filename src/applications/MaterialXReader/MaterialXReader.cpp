@@ -129,15 +129,29 @@ int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& ou
     outPS = shader->getSourceCode(mx::Stage::PIXEL);
     outVS = shader->getSourceCode(mx::Stage::VERTEX);
 
-    const auto& ps = shader->getStage(mx::Stage::PIXEL);
-    for (const auto& uniformMap : ps.getUniformBlocks())
+    const auto& vs = shader->getStage(mx::Stage::VERTEX);
+    for (const auto& uniformMap : vs.getUniformBlocks())
     {
         const mx::VariableBlock& uniforms = *uniformMap.second;
+        std::string prefix = uniformMap.first + "_vertex.";
         for (size_t i = 0; i < uniforms.size(); ++i)
         {
             const mx::ShaderPort* v = uniforms[i];
             if (v->getValue())
-                paramsPS[v->getName()] = v->getValue()->getValueString();
+                paramsPS[prefix + v->getName()] = v->getValue()->getValueString();
+        }
+    }
+
+    const auto& ps = shader->getStage(mx::Stage::PIXEL);
+    for (const auto& uniformMap : ps.getUniformBlocks())
+    {
+        const mx::VariableBlock& uniforms = *uniformMap.second;
+        std::string prefix = uniformMap.first + "_pixel.";
+        for (size_t i = 0; i < uniforms.size(); ++i)
+        {
+            const mx::ShaderPort* v = uniforms[i];
+            if (v->getValue())
+                paramsPS[prefix + v->getName()] = v->getValue()->getValueString();
         }
     }
 

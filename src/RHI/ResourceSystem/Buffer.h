@@ -68,6 +68,7 @@ namespace forward
 	{
 	public:
 		ConstantBufferBase(const std::string& name);
+		ConstantBufferBase(const std::string& name, u32 size);
 		template<class F>
 		ResourcePtr FetchDeviceBuffer(u64 u, F&& failFunc);
 		void ResetDeviceBuffer(u64 u);

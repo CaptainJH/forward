@@ -5,6 +5,7 @@
 
 #include "RHI/ResourceSystem/GraphicsObject.h"
 #include "RHI/MemberLayout.h"
+#include <unordered_map>
 
 namespace forward
 {
@@ -53,7 +54,15 @@ namespace forward
 		std::vector<Data> m_Data[NUM_LOOKUP_INDICES];
 		std::vector<BufferLayout> m_CBufferLayouts;
 		std::vector<BufferLayout> m_TBufferLayouts;
-		
+
+		struct ShaderParamData
+		{
+			u32 size;
+			u32 offset;
+			u32 bind;
+			String typeName;
+		};
+		std::unordered_map<String, ShaderParamData> m_shaderParamsInfo;
 	};
 
 

@@ -303,6 +303,12 @@ namespace forward
 		std::array<shared_ptr<ConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
 		std::array<shared_ptr<Texture>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
 		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
+
+		void SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params);
+		void SetConstantBufferDataFromPtr(u32 index, void* data)
+		{
+			memcpy(m_constantBuffers[index]->GetData(), data, m_constantBuffers[index]->GetNumBytes());
+		}
 	};
 
 	struct VertexShaderStageState : public ShaderStageState
@@ -313,6 +319,11 @@ namespace forward
 	struct PixelShaderStageState : public ShaderStageState
 	{
 		shared_ptr<PixelShader> m_shader;
+
+		void SetConstantBufferDataFromStr(u32 index, std::unordered_map<String, String>& params)
+		{
+			ShaderStageState::SetConstantBufferData(*m_shader, index, params);
+		}
 	};
 
 	struct GeometryShaderStageState : public ShaderStageState

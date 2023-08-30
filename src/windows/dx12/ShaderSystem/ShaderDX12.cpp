@@ -41,6 +41,21 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 	assert(m_pCompiledShader);
 
 	ReflectShader();
+
+	for (auto& cb : GetCBuffers())
+	{
+		auto bufferName = cb.GetName();
+		for (auto& m : cb.GetMembers())
+		{
+			String paramName = bufferName + "." + m.first.GetName();
+			shader->m_shaderParamsInfo[paramName] = {
+				.size = m.first.GetNumBytes(),
+				.offset = m.first.GetOffset(),
+				.bind = cb.GetBindPoint(),
+				.typeName = m.second.GetTypeName(),
+			};
+		}
+	}
 }
 
 ShaderDX12::~ShaderDX12()

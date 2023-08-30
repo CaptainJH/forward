@@ -2,6 +2,9 @@
 // PipelineStateObject.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #include "PipelineStateObjects.h"
+#include "pystring.h"
+#include "Vector2f.h"
+#include "Vector3f.h"
 
 using namespace forward;
 
@@ -98,4 +101,54 @@ SamplerState::SamplerState(const std::string& name)
 	mode[0] = CLAMP;
 	mode[1] = CLAMP;
 	mode[2] = CLAMP;
+}
+
+void ShaderStageState::SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params)
+{
+	auto dst = m_constantBuffers[index]->GetData();
+
+	for (auto& p : params)
+	{
+		if (shader.m_shaderParamsInfo.contains(p.first))
+		{
+			const auto& info = shader.m_shaderParamsInfo[p.first];
+			if (index != info.bind)
+				continue;
+			const auto offset = info.offset;
+			const auto size = info.size;
+			void* dataPtr = nullptr;
+			if (info.typeName == "float")
+			{
+				f32 f = std::stof(p.second);
+				dataPtr = &f;
+			}
+			else if (info.typeName == "float2")
+			{
+				Vector<String> v = pystring::split(p.second, ",");
+				assert(v.size() == 2);
+				Vector2f data(std::stof(v[0]), std::stof(v[1]));
+				dataPtr = &data;
+			}
+			else if (info.typeName == "float3")
+			{
+				Vector<String> v = pystring::split(p.second, ",");
+				assert(v.size() == 3);
+				Vector3f data(std::stof(v[0]), std::stof(v[1]), std::stof(v[2]));
+				dataPtr = &data;
+			}
+			else if (info.typeName == "int")
+			{
+				i32 data = std::stoi(p.second);
+				dataPtr = &data;
+			}
+			else if (info.typeName == "bool")
+			{
+				i32 data = p.second == "false" ? 0 : 1;
+				dataPtr = &data;
+			}
+
+			assert(dataPtr);
+			memcpy(dst + offset, dataPtr, size);
+		}
+	}
 }
