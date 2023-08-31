@@ -57,7 +57,8 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
-	std::filesystem::path materialXFilePath = "D:\\Downloads\\Midnite_Fleece_Fabric_1k_8b\\Midnite_Fleece_Fabric.mtlx";
+	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
+	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
 	auto ret = Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS);
 	assert(ret == 0);
