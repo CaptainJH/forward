@@ -2,7 +2,7 @@
 
 float3 mx_srgb_texture_to_lin_rec709(float3 color)
 {
-    bvec3 isAbove = greaterThan(color, (float3)(0.04045));
+    bool3 isAbove = bool3(color.x > 0.04045, color.y > 0.04045, color.z > 0.04045);
     float3 linSeg = color / 12.92;
     float3 powSeg = pow(max(color + (float3)(0.055), (float3)(0.0)) / 1.055, (float3)(2.4));
     return lerp(linSeg, powSeg, isAbove);
