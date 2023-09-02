@@ -57,6 +57,8 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
+	//std::filesystem::path materialXFilePath = "D:/Downloads/Verde_Guatemala_Slatted_Marble_1k_8b_MP7615l/Verde_Guatemala_Slatted_Marble.mtlx";
+	//std::filesystem::path materialXFilePath = "D:/Downloads/Aluminum_Hexagon_1k_8b/Aluminum_Hexagon.mtlx";
 	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
@@ -106,7 +108,7 @@ bool ModelViewer::Init()
 		CB3 cb3;
 		auto& lightData0 = cb3.u_lightData[0];
 		lightData0.color = Vector3f(1.0f, 0.89447f, 0.56723f);
-		lightData0.direction = Vector3f(0.51443f, -0.47901f, -0.71127f);
+		lightData0.direction = Vector3f(0.51443f, -0.47901f, 0.71127f);
 		lightData0.intensity = 2.52776f;
 		lightData0.type = 1;
 

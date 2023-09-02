@@ -175,6 +175,16 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 		// setup shader resources
 		if (pso.m_PSState.m_shader)
 		{
+			const auto& allTextures = devicePS->GetTextures();
+			std::sort(pso.m_PSState.m_shaderResources.begin(), pso.m_PSState.m_shaderResources.begin() + allTextures.size(), 
+				[&](auto& lhs, auto& rhs)->bool {
+					return std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
+						return p.GetName() == lhs->Name();
+						}) <
+					std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
+						return p.GetName() == rhs->Name();
+						});
+				});
 			for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
 			{
 				auto res = pso.m_PSState.m_shaderResources[i];
@@ -303,8 +313,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	collectBindingInfo(m_pso.m_PSState, usedRegisterCBV, usedRegisterSRV);
 	collectBindingInfo(m_pso.m_CSState, usedRegisterCBV, usedRegisterSRV, usedRegisterUAV);
 
-	checkBindingInfo(usedRegisterCBV);
-	const auto usedCBVCount = std::count(usedRegisterCBV.begin(), usedRegisterCBV.end(), 2U);
+	const auto usedCBVCount = std::count_if(usedRegisterCBV.begin(), usedRegisterCBV.end(), [](u32 u)->bool { return u > 0; });
 	if (usedCBVCount > 0)
 		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, (u32)usedCBVCount, 0));
 
