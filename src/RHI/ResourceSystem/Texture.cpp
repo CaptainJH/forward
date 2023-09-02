@@ -119,7 +119,7 @@ Texture2D::Texture2D(const std::string& name, const std::wstring& filename)
 		const auto img = stbi_load(texPath.c_str(), &w, &h, &comp, 4);
 		m_width = static_cast<u32>(w);
 		m_height = static_cast<u32>(h);
-		m_format = DF_R8G8B8A8_UNORM_SRGB;
+		m_format = DF_R8G8B8A8_UNORM;
 		m_elementSize = DataFormat::GetNumBytesPerStruct(m_format);
 		m_numElements = m_width * m_height;
 		Initialize(m_numElements, m_elementSize);
