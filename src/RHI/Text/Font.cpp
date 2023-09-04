@@ -71,8 +71,8 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 	memcpy(mTexture->GetData(), texels, mTexture->GetNumBytes());
 	memcpy(mCharacterData, characterData, 257 * sizeof(f32));
 
-	mVertexShader = make_shared<VertexShader>("ArialVS", L"TextEffect", L"VSMain");
-	mPixelShader = make_shared<PixelShader>("ArialPS", L"TextEffect", L"PSMain");
+	mVertexShader = make_shared<VertexShader>("ArialVS", L"TextEffect", "VSMain");
+	mPixelShader = make_shared<PixelShader>("ArialPS", L"TextEffect", "PSMain");
 	mConstantBufferVS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_VS");
 	mConstantBufferPS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_PS");
 	mSampler = make_shared<SamplerState>("ArialSamp");

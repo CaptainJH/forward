@@ -90,8 +90,8 @@ namespace forward
 	public:
 		Midnite_Fleece_Fabric(SceneData& sd)
 		{
-			mVS = forward::make_shared<VertexShader>("StandSurface_VS", L"Midnite_Fleece_Fabric_vs", L"main");
-			mPS = forward::make_shared<PixelShader>("StandSurface_PS", L"Midnite_Fleece_Fabric_ps", L"main");
+			mVS = forward::make_shared<VertexShader>("StandSurface_VS", L"Midnite_Fleece_Fabric_vs", "main");
+			mPS = forward::make_shared<PixelShader>("StandSurface_PS", L"Midnite_Fleece_Fabric_ps", "main");
 
 			mSamp = forward::make_shared<SamplerState>("Env_Samp");
 			mSamp->mode[0] = SamplerState::Mode::WRAP;

@@ -93,8 +93,8 @@ namespace forward
 	public:
 		AutodeskStandardSurface(SceneData& sd)
 		{
-			mVS = forward::make_shared<VertexShader>("StandSurface_VS", L"standard_surface_default_vs", L"main");
-			mPS = forward::make_shared<PixelShader>("StandSurface_PS", L"standard_surface_default_ps", L"main");
+			mVS = forward::make_shared<VertexShader>("StandSurface_VS", L"standard_surface_default_vs", "main");
+			mPS = forward::make_shared<PixelShader>("StandSurface_PS", L"standard_surface_default_ps", "main");
 			mCB0 = forward::make_shared<ConstantBuffer<CB0>>("CB_0");
 			mCB1 = forward::make_shared<ConstantBuffer<CB1>>("CB_1");
 			mCB2 = forward::make_shared<ConstantBuffer<CB2>>("CB_2");

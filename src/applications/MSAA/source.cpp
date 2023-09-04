@@ -104,14 +104,12 @@ bool MSAA_Demo::Init()
 	// Build the projection matrix
 	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
 
-	const std::wstring ShaderFile = L"MSAA_Shader";
-
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass1VS", ShaderFile, L"VSMain");
-		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass1PS", ShaderFile, L"PSMain");
-		pso.m_GSState.m_shader = forward::make_shared<GeometryShader>("Pass1GS", ShaderFile, L"GSMain");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass1VS", L"MSAA_Shader", "VSMain");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass1PS", L"MSAA_Shader", "PSMain");
+		pso.m_GSState.m_shader = forward::make_shared<GeometryShader>("Pass1GS", L"MSAA_Shader", "GSMain");
 
 		// setup geometry
 		m_geometry = std::make_unique<SimpleGeometry>("BOX", forward::GeometryBuilder<forward::GP_COLOR_BOX>());
@@ -146,7 +144,7 @@ bool MSAA_Demo::Init()
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
 		pso.m_VSState.m_shader = GraphicsObject::FindFrameGraphObject<VertexShader>("Pass1VS");
-		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass2PS", ShaderFile, L"PSMainAA");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass2PS", L"MSAA_Shader", "PSMainAA");
 		pso.m_GSState.m_shader = GraphicsObject::FindFrameGraphObject<GeometryShader>("Pass1GS");
 
 		// setup geometry
@@ -172,8 +170,8 @@ bool MSAA_Demo::Init()
 	m_renderPassResolve = std::make_unique<RenderPass>(RenderPass::OF_NO_CLEAN,
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass3VS", ShaderFile, L"VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass3PS", ShaderFile, L"PSMainQuad");
+		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass3VS", L"MSAA_Shader", "VSMainQuad");
+		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass3PS", L"MSAA_Shader", "PSMainQuad");
 		pso.m_PSState.m_shaderResources[0] = m_msaa_resolved;
 		pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("QuadSampler");
 

@@ -8,7 +8,7 @@
 
 using namespace forward;
 
-Shader::Shader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+Shader::Shader(const i8* name, const WString shaderFile, const i8* entryFunction)
 	:
 #ifdef WINDOWS
 	  m_shaderFile(shaderFile + L".hlsl")
@@ -33,6 +33,14 @@ Shader::Shader(const std::string& name, const std::wstring& shaderFile, const st
 	m_shader = SourceFile.GetDataPtr();
 }
 
+Shader::Shader(const i8* name, const String shaderText)
+	: m_entryFunction("main")
+	, m_shaderFile(L"")
+	, m_shader(shaderText)
+{
+	SetName(name);
+}
+
 Shader::Data::Data(GraphicsObjectType inType, std::string const& inName,
 	i32 inBindPoint, i32 inNumBytes, u32 inExtra,
 	bool inIsGpuWritable)
@@ -46,25 +54,37 @@ Shader::Data::Data(GraphicsObjectType inType, std::string const& inName,
 {
 }
 
-VertexShader::VertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+VertexShader::VertexShader(const i8* name, const WString shaderFile, const i8* entryFunction)
 	: Shader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_VERTEX_SHADER;
 }
 
-PixelShader::PixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+VertexShader::VertexShader(const i8* name, const String shaderText)
+	: Shader(name, shaderText)
+{
+	m_type = FGOT_VERTEX_SHADER;
+}
+
+PixelShader::PixelShader(const i8* name, const WString shaderFile, const i8* entryFunction)
 	: Shader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_PIXEL_SHADER;
 }
 
-GeometryShader::GeometryShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+PixelShader::PixelShader(const i8* name, const String shaderText)
+	: Shader(name, shaderText)
+{
+	m_type = FGOT_PIXEL_SHADER;
+}
+
+GeometryShader::GeometryShader(const i8* name, const WString shaderFile, const i8* entryFunction)
 	: Shader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_GEOMETRY_SHADER;
 }
 
-ComputeShader::ComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction)
+ComputeShader::ComputeShader(const i8* name, const WString shaderFile, const i8* entryFunction)
 	: Shader(name, shaderFile, entryFunction)
 {
 	m_type = FGOT_COMPUTE_SHADER;
@@ -80,7 +100,7 @@ const std::wstring& Shader::GetShaderFile() const
 	return m_shaderFile;
 }
 
-const std::wstring& Shader::GetShaderEntry() const
+const std::string& Shader::GetShaderEntry() const
 {
 	return m_entryFunction;
 }

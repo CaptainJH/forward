@@ -9,8 +9,8 @@ namespace forward
 	public:
 		SimpleAlbedo(SceneData& sd)
 		{
-			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", L"VSMain_P_UV");
-			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", L"PSMain");
+			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
+			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
 			mCB = forward::make_shared<ConstantBuffer<Matrix4f>>("SimpleAlbedo_CB");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 

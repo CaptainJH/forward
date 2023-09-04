@@ -54,7 +54,7 @@ int Forward_Read_MaterialX(const char* file, std::string& outVS, std::string& ou
     std::unordered_map<std::string, std::string>& paramsPS)
 {
 	GenContext genContextHlsl = HlslShaderGenerator::create();
-	genContextHlsl.getOptions().targetColorSpaceOverride = "lin_rec709";
+	genContextHlsl.getOptions().targetColorSpaceOverride = "srgb_texture";
 	genContextHlsl.getOptions().fileTextureVerticalFlip = false;
 
     FilePath materialXRoot;

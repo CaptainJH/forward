@@ -13,11 +13,12 @@ namespace forward
 	class Shader : public GraphicsObject
 	{
 	public:
-		Shader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		Shader(const i8* name, const WString shaderFile, const i8* entryFunction);
+		Shader(const i8* name, const String shaderText);
 
 		const std::string& GetShaderText() const;
 		const std::wstring& GetShaderFile() const;
-		const std::wstring& GetShaderEntry() const;
+		const std::string& GetShaderEntry() const;
 
 		enum
 		{
@@ -48,7 +49,7 @@ namespace forward
 
 	public:
 		std::wstring m_shaderFile;
-		std::wstring m_entryFunction;
+		std::string m_entryFunction;
 		std::string m_shader;
 
 		std::vector<Data> m_Data[NUM_LOOKUP_INDICES];
@@ -69,26 +70,28 @@ namespace forward
 	class VertexShader : public Shader
 	{
 	public:
-		VertexShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		VertexShader(const i8* name, const WString shaderFile, const i8* entryFunction);
+		VertexShader(const i8* name, const String shaderText);
 
 	};
 
 	class PixelShader : public Shader
 	{
 	public:
-		PixelShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		PixelShader(const i8* name, const WString shaderFile, const i8* entryFunction);
+		PixelShader(const i8* name, const String shaderText);
 	};
 
 	class GeometryShader : public Shader
 	{
 	public:
-		GeometryShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		GeometryShader(const i8* name, const WString shaderFile, const i8* entryFunction);
 	};
 
 	class ComputeShader : public Shader
 	{
 	public:
-		ComputeShader(const std::string& name, const std::wstring& shaderFile, const std::wstring& entryFunction);
+		ComputeShader(const i8* name, const WString shaderFile, const i8* entryFunction);
 	};
 
 }

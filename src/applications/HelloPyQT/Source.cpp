@@ -36,8 +36,8 @@ bool HelloPyQTDll::Init()
 		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
 
 			// setup shaders
-			pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMainQuad");
-			pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMainQuad");
+			pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", "VSMainQuad");
+			pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", "PSMainQuad");
 
 			// setup geometry
 			auto& vf = pso.m_IAState.m_vertexLayout;

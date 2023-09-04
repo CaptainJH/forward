@@ -4,6 +4,7 @@
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandQueueDX12.h"
 #include "dxCommon/ShaderFactoryDX.h"
+#include "utilities/FileLoader.h"
 
 //#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
@@ -130,11 +131,16 @@ bool HelloDX12::Init()
 void HelloDX12::BuildShadersAndInputLayout()
 {
 	const std::wstring shaderfile = L"BasicShader.hlsl";
-	const std::wstring VSMain = L"VSMainQuad";
-	const std::wstring PSMain = L"PSMainQuad";
+	const std::string VSMain = "VSMainQuad";
+	const std::string PSMain = "PSMainQuad";
 
-	m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderfile, VSMain, std::wstring(L"vs_5_0"));
-	m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderfile, PSMain, std::wstring(L"ps_5_0"));
+	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + shaderfile;
+	FileLoader sourceFile;
+	sourceFile.Open(filepath);
+	String shaderText = sourceFile.GetDataPtr();
+
+	m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderText, VSMain, "vs_5_0");
+	m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderText, PSMain, "ps_5_0");
 
 	m_inputLayout = 
 	{

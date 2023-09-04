@@ -12,32 +12,32 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 	{
 	case FGOT_VERTEX_SHADER:
 		m_shaderType = VERTEX_SHADER;
-		ShaderModel = L"vs";
+		ShaderModel = "vs";
 		break;
 
 	case FGOT_PIXEL_SHADER:
 		m_shaderType = PIXEL_SHADER;
-		ShaderModel = L"ps";
+		ShaderModel = "ps";
 		break;
 
 	case FGOT_GEOMETRY_SHADER:
 		m_shaderType = GEOMETRY_SHADER;
-		ShaderModel = L"gs";
+		ShaderModel = "gs";
 		break;
 
 	case FGOT_COMPUTE_SHADER:
 		m_shaderType = COMPUTE_SHADER;
-		ShaderModel = L"cs";
+		ShaderModel = "cs";
 		break;
 
 	default:
 		assert(false);
 	}
 
-	ShaderModel += L"_5_0";
+	ShaderModel += "_5_0";
 
 	m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
-		shader->GetShaderFile(), shader->GetShaderEntry(), ShaderModel);
+		shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel);
 	assert(m_pCompiledShader);
 
 	ReflectShader();

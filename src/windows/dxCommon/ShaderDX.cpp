@@ -54,7 +54,7 @@ std::wstring ShaderDX::ToString()
 {
 	std::wstringstream s;
 
-	s << L"[" << FileName << L"][" << Function << L"][" << ShaderModel << L"]";
+	s << L"[" << FileName << L"][" << Function << L"][" << TextHelper::ToUnicode(ShaderModel) << L"]";
 
 	return( s.str() );
 }

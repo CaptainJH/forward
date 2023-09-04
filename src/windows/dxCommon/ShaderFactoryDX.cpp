@@ -28,8 +28,8 @@ ShaderFactoryDX::~ShaderFactoryDX()
 {
 }
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstring& filename, const std::wstring& function,
-            const std::wstring& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
+ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::string& shaderText, const std::string& function,
+            const std::string& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 	HRESULT hr = S_OK;
 
@@ -37,9 +37,6 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstri
 
 	ID3DBlob* pCompiledShader = nullptr;
 	ID3DBlob* pErrorMessages = nullptr;
-
-	auto AsciiFunction = TextHelper::ToAscii(function);
-	auto AsciiModel = TextHelper::ToAscii(model);
 
 	// TODO: The compilation of shaders has to skip the warnings as errors 
 	//       for the moment, since the new FXC.exe compiler in VS2012 is
@@ -50,35 +47,21 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::wstri
     flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION; // | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #endif
 
-	// Get the current path to the shader folders, and add the filename to it.
-	std::wstring filepath = FileSystem::getSingleton().GetShaderFolder() + filename;
-
-	// Load the file into memory
-
-	FileLoader SourceFile;
-	if (SourceFile.Open(filepath)) 
-	{
-		message << "Unable to load shader from file: " << filepath;
-		auto str = message.str();
-		Log::Get().Write(str);
-		return(nullptr);
-	}
-
 	if ( FAILED( hr = D3DCompile( 
-		SourceFile.GetDataPtr(),
-		SourceFile.GetDataSize(),
+		shaderText.c_str(),
+		shaderText.length(),
 		nullptr,
 		pDefines,
 		nullptr,
-		AsciiFunction.c_str(),
-		AsciiModel.c_str(),
+		function.c_str(),
+		model.c_str(),
 		flags,
 		0,
 		&pCompiledShader,
 		&pErrorMessages ) ) )
 
 	{
-		message << L"Error compiling shader program: " << filepath << std::endl << std::endl;
+		message << L"Error compiling shader program" << std::endl;
 		message << L"The following error was reported:" << std::endl;
 
 		if ( ( enablelogging ) && ( pErrorMessages != nullptr ) )

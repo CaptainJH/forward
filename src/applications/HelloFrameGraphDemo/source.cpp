@@ -60,8 +60,8 @@ bool HelloFrameGraph::Init()
 	m_renderPass = new RenderPass(
 	[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 		// setup shaders
-        pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", L"VSMainQuad");
-        pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", L"PSMainQuad");
+        pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", "VSMainQuad");
+        pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", "PSMainQuad");
         
 		// setup geometry
 		auto& vf = pso.m_IAState.m_vertexLayout;
@@ -106,7 +106,7 @@ bool HelloFrameGraph::Init()
 	m_computePass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
 			// setup shaders
-			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", L"BakerMain");
+			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 			pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
 		},
 		[](Device& device) {

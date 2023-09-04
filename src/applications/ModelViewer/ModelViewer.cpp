@@ -57,16 +57,16 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
-	//std::filesystem::path materialXFilePath = "D:/Downloads/Verde_Guatemala_Slatted_Marble_1k_8b_MP7615l/Verde_Guatemala_Slatted_Marble.mtlx";
+	std::filesystem::path materialXFilePath = "D:/Downloads/Verde_Guatemala_Slatted_Marble_1k_8b_MP7615l/Verde_Guatemala_Slatted_Marble.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Downloads/Aluminum_Hexagon_1k_8b/Aluminum_Hexagon.mtlx";
-	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
+	//std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
 	auto ret = Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS);
 	assert(ret == 0);
 
 	auto sceneData = SceneData::LoadFromFileForStandSurface(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
-	m_material = make_shared<MaterialXEffect>(sceneData, materialXFilePath.filename().replace_extension().string().c_str());
+	m_material = make_shared<MaterialXEffect>(sceneData, materialXFilePath.filename().replace_extension().string().c_str(), outVS.c_str(), outPS.c_str());
 	m_material->envRadianceTex = make_shared<Texture2D>("u_envRadiance", L"Lights/san_giuseppe_bridge_split.hdr");
 	m_material->envIrradianceTex = make_shared<Texture2D>("u_envIrradiance", L"Lights/irradiance/san_giuseppe_bridge_split.hdr");
 	for (auto pair : m_paramsPS)

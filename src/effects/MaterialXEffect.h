@@ -7,14 +7,12 @@ namespace forward
 	class MaterialXEffect final : public Effect
 	{
 	public:
-		MaterialXEffect(SceneData& sd, const std::string& shaderName)
+		MaterialXEffect(SceneData& sd, const i8* shaderName, const i8* vs, const i8* ps)
 		{
-			const std::string vs = shaderName + "_vs";
-			const std::wstring vsW = TextHelper::ToUnicode(vs);
-			const std::string ps = shaderName + "_ps";
-			const std::wstring psW = TextHelper::ToUnicode(ps);
-			mVS = forward::make_shared<VertexShader>(vs, vsW, L"main");
-			mPS = forward::make_shared<PixelShader>(ps, psW, L"main");
+			const std::string vsName = String(shaderName) + "_vs";
+			const std::string psName = String(shaderName) + "_ps";
+			mVS = forward::make_shared<VertexShader>(vsName.c_str(), vs);
+			mPS = forward::make_shared<PixelShader>(psName.c_str(), ps);
 
 			mSamp = forward::make_shared<SamplerState>("Sampler0");
 			mSamp->mode[0] = SamplerState::Mode::WRAP;

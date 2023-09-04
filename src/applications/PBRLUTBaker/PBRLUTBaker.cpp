@@ -81,7 +81,7 @@ bool PBRLUTBaker::Init()
 	m_renderPass = std::make_unique<RenderPass>(
 		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
 		// setup shaders
-		pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", L"BakerMain");
+		pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 		pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
 		},
 		[](Device& device) {
