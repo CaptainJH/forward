@@ -58,7 +58,6 @@ void TexLoadingTest::UpdateScene([[maybe_unused]]f32 dt) {}
 void TexLoadingTest::DrawScene()
 {
 	auto device = static_cast<DeviceDX12*>(m_pDevice);
-	device->ResetCommandList();
 	std::vector<forward::shared_ptr<Texture2D>> texList;
 	for (auto it : std::filesystem::directory_iterator(m_folder))
 	{
@@ -71,7 +70,7 @@ void TexLoadingTest::DrawScene()
 			auto tex = make_shared<Texture2D>("Tex", fileToLoad);
 			if (!tex->DeviceObject())
 			{
-				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(device->GetDevice(), tex.get());
+				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(tex.get(), *device);
 				tex->SetDeviceObject(deviceTex);
 			}
 
@@ -80,12 +79,12 @@ void TexLoadingTest::DrawScene()
 	}
 
 	// Execute the initialization commands
-	HR(device->CommandList()->Close());
-	ID3D12CommandList* cmdLists[] = { device->CommandList()};
-	device->CommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+	HR(device->DeviceCommandList()->Close());
+	ID3D12CommandList* cmdLists[] = { device->DeviceCommandList()};
+	device->DeviceCommandQueue()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
 	// Wait until initialization is complete.
-	device->FlushCommandQueue();
+	//device->FlushCommandQueue();
 	std::cout << texList.size() << " textures loaded" << std::endl;
 }
 
