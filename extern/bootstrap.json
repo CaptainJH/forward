@@ -37,15 +37,6 @@
 },
 
 {
-    "name": "Imath",
-    "source": {
-        "type": "git",
-        "url": "https://github.com/AcademySoftwareFoundation/Imath.git",
-        "revision" : "v3.1.6"
-    }
-},
-
-{
     "name": "mitsuba",
     "source": {
         "type": "archive",
