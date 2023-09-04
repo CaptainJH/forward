@@ -57,9 +57,9 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
-	std::filesystem::path materialXFilePath = "D:/Downloads/Verde_Guatemala_Slatted_Marble_1k_8b_MP7615l/Verde_Guatemala_Slatted_Marble.mtlx";
+	//std::filesystem::path materialXFilePath = "D:/Downloads/Verde_Guatemala_Slatted_Marble_1k_8b_MP7615l/Verde_Guatemala_Slatted_Marble.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Downloads/Aluminum_Hexagon_1k_8b/Aluminum_Hexagon.mtlx";
-	//std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
+	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
 	auto ret = Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS);
@@ -75,10 +75,8 @@ bool ModelViewer::Init()
 		{
 			const auto v0 = pystring::split(pair.first, ".");
 			assert(v0.size() == 2);
-			const auto v1 = pystring::split(pair.second, "/");
-			assert(v1.size() == 2);
-			WString texFile = TextHelper::ToUnicode(v1[1]);
-			m_material->mTextures.emplace_back(make_shared<Texture2D>(v0[1].c_str(), texFile.c_str()));
+			std::filesystem::path texPath = materialXFilePath.parent_path() / pair.second;
+			m_material->mTextures.emplace_back(make_shared<Texture2D>(v0[1].c_str(), texPath.wstring().c_str()));
 		}
 	}
 	m_material->SetupRenderPass(*m_pDevice);
