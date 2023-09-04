@@ -103,7 +103,9 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	desc.SampleDesc.Count = tex->GetSampCount();
 	desc.SampleDesc.Quality = 0;
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	if (tex->GetSampCount() == 1) // MSAA texture doesn't support UAV
+		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	const auto TBP = tex->GetBindPosition();
 	D3D12_CLEAR_VALUE optClear;
@@ -121,6 +123,13 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 		optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 		optClear.DepthStencil.Depth = 1.0f;
 		optClear.DepthStencil.Stencil = 0;
+		optClearPtr = &optClear;
+	}
+	else if (TBP & TBP_RT)
+	{
+		optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
+		f32 clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		memcpy(optClear.Color, clearColor, sizeof(clearColor));
 		optClearPtr = &optClear;
 	}
 

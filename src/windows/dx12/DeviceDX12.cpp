@@ -391,7 +391,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		std::count_if(pso.m_PSState.m_constantBuffers.begin(), pso.m_PSState.m_constantBuffers.end(),
 			[](auto& ptr)->bool { return static_cast<bool>(ptr); });
 
-	if (cbCounts == 0)
+	if (cbCounts == 0 && pso.m_VSState.m_shader && pso.m_PSState.m_shader)
 	{
 		auto deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
 		for (auto& cb : deviceVS->GetCBuffers())
