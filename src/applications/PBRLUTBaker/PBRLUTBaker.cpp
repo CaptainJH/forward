@@ -25,15 +25,10 @@ public:
 	void SaveRT();
 
 protected:
-	void UpdateScene(f32 dt) override;
+	void UpdateScene(f32) override {}
 	void DrawScene() override;
 
 private:
-
-	Matrix4f m_worldMat;
-	Matrix4f m_viewMat;
-	Matrix4f m_projMat;
-
 	std::unique_ptr<RenderPass> m_renderPass;
 	forward::shared_ptr<Texture2D> m_uavTex;
 };
@@ -54,12 +49,6 @@ i32 main()
 	theApp.Run();
 	ProfilingHelper::EndPixCapture();
 	theApp.SaveRT();
-}
-
-void PBRLUTBaker::UpdateScene(f32 /*dt*/)
-{
-	auto frames = (f32)mTimer.FrameCount() / 1000;
-	m_worldMat = Matrix4f::RotationMatrixY(frames) * Matrix4f::RotationMatrixX(frames);
 }
 
 void PBRLUTBaker::DrawScene()
@@ -87,7 +76,6 @@ bool PBRLUTBaker::Init()
 		[](Device& device) {
 			device.GetCmdList().Dispatch(32, 32, 1);
 	});
-
 
 	return true;
 }
