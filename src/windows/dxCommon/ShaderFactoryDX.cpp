@@ -98,8 +98,9 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(ShaderType /*type*/, const WString& 
                                                      // and for PIX shader source view.  
         L"-E", entry.c_str(),              // Entry point.
         L"-T", model.c_str(),            // Target.
-        L"-Zi",                      // Enable debug information (slim format)
+        L"-Zi",                                 // Enable debug information (slim format)
         L"-Fd", pdbFolder.c_str(),
+        L"-Zpr",                              //	Pack matrices in row - major order
 #ifdef _DEBUG
         L"-Od",
 #endif
