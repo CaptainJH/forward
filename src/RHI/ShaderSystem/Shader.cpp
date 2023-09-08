@@ -64,6 +64,10 @@ VertexShader::VertexShader(const i8* name, const String shaderText)
 	: Shader(name, shaderText)
 {
 	m_type = FGOT_VERTEX_SHADER;
+#ifdef WINDOWS
+	WString file = TextHelper::ToUnicode(String(name));
+	m_shaderFile = file + L".hlsl";
+#endif
 }
 
 PixelShader::PixelShader(const i8* name, const WString shaderFile, const i8* entryFunction)
@@ -76,6 +80,10 @@ PixelShader::PixelShader(const i8* name, const String shaderText)
 	: Shader(name, shaderText)
 {
 	m_type = FGOT_PIXEL_SHADER;
+#ifdef WINDOWS
+	WString file = TextHelper::ToUnicode(String(name));
+	m_shaderFile = file + L".hlsl";
+#endif
 }
 
 GeometryShader::GeometryShader(const i8* name, const WString shaderFile, const i8* entryFunction)

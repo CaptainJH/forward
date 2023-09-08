@@ -4,7 +4,7 @@
 #include "FileSystem.h"
 
 using namespace forward;
-static const bool USE_DXC = false;
+static const bool USE_DXC = true;
 
 ShaderDX12::ShaderDX12(forward::Shader* shader)
 	: ShaderDX(shader)
@@ -39,18 +39,14 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 	if (USE_DXC)
 	{
 		ShaderModel += "_6_0";
-		auto shaderEntryW = TextHelper::ToUnicode(shader->GetShaderEntry());
-		auto shaderModelW = TextHelper::ToUnicode(ShaderModel);
-		std::wstring shaderPath = FileSystem::getSingleton().GetShaderFolder() + shader->GetShaderFile();
-		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(GetType(), shaderPath, shaderEntryW, shaderModelW,
+		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(shader->GetShaderFile(), shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel,
 			[&](Microsoft::WRL::ComPtr<ID3D12ShaderReflection> r) { ReflectShader(r); });
-
 	}
 	else
 	{
 		ShaderModel += "_5_0";
 
-		m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
+		m_pCompiledShader = ShaderFactoryDX::GenerateShader(shader->GetShaderFile(),
 			shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel);
 		assert(m_pCompiledShader);
 		const void* buffer = m_pCompiledShader->GetBufferPointer();

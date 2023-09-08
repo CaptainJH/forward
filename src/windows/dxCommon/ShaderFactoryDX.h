@@ -11,11 +11,11 @@ namespace forward
 	public:
 		ShaderFactoryDX() = delete;
 
-		static ID3DBlob* GenerateShader( ShaderType type, const std::string& shaderText, const std::string& function,
-            const std::string& model, const D3D_SHADER_MACRO* pDefines = nullptr, bool enablelogging = true );
+		static ID3DBlob* GenerateShader(const WString& shaderFileName, const String& shaderText, const String& function,
+            const String& model, const D3D_SHADER_MACRO* pDefines = nullptr, bool enablelogging = true );
 
-		static Vector<u8> GenerateShader6(ShaderType type, const WString& shaderPath, const WString& function, 
-			const WString& model, std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)>);
+		static Vector<u8> GenerateShader6(const WString& shaderFileName, const String& shaderText, const String& function, 
+			const String& model, std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)>);
 	};
 
 };

@@ -141,11 +141,11 @@ void HelloDX12::BuildShadersAndInputLayout()
 	sourceFile.Open(filepath);
 	String shaderText = sourceFile.GetDataPtr();
 
-	//m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderText, VSMain, "vs_5_0");
-	//m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderText, PSMain, "ps_5_0");
+	//m_vsByteCode = ShaderFactoryDX::GenerateShader(shaderfile, shaderText, VSMain, "vs_5_0");
+	//m_psByteCode = ShaderFactoryDX::GenerateShader(shaderfile, shaderText, PSMain, "ps_5_0");
 
-	m_vsByteCode6 = ShaderFactoryDX::GenerateShader6(ShaderType::VERTEX_SHADER, L"D:/Documents/GitHub/forward/Data/Shaders/BasicShader.hlsl", L"VSMainQuad", L"vs_6_0", [](auto){});
-	m_psByteCode6 = ShaderFactoryDX::GenerateShader6(ShaderType::PIXEL_SHADER, L"D:/Documents/GitHub/forward/Data/Shaders/BasicShader.hlsl", L"PSMainQuad", L"ps_6_0", [](auto) {});
+	m_vsByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, VSMain, "vs_6_0", [](auto){});
+	m_psByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, PSMain, "ps_6_0", [](auto) {});
 
 	m_inputLayout = 
 	{

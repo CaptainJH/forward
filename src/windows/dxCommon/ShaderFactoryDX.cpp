@@ -13,8 +13,8 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::string& shaderText, const std::string& function,
-            const std::string& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
+ID3DBlob* ShaderFactoryDX::GenerateShader(const WString&, const String& shaderText, const String& function,
+            const String& model, const D3D_SHADER_MACRO* pDefines, bool enablelogging )
 {
 	HRESULT hr = S_OK;
 
@@ -69,7 +69,7 @@ ID3DBlob* ShaderFactoryDX::GenerateShader( ShaderType /*type*/, const std::strin
 	return pCompiledShader;
 }
 //--------------------------------------------------------------------------------
-Vector<u8> ShaderFactoryDX::GenerateShader6(ShaderType /*type*/, const WString& shaderFilePath, const WString& entry, const WString& model, 
+Vector<u8> ShaderFactoryDX::GenerateShader6(const WString& shaderFileName, const String& shaderText, const String& entry, const String& model, 
     std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)> reflectionCallback)
 {
     Vector<u8> resultShader = {};
@@ -92,13 +92,14 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(ShaderType /*type*/, const WString& 
     // COMMAND LINE:
     // dxc myshader.hlsl -E main -T ps_6_0 -Zi -D MYDEFINE=1 -Fo myshader.bin -Fd myshader.pdb -Qstrip_reflect
     //
+    const WString entryW = TextHelper::ToUnicode(entry);
+    const WString modelW = TextHelper::ToUnicode(model);
     LPCWSTR pszArgs[] =
     {
-        shaderFilePath.c_str(),            // Optional shader source file name for error reporting
-                                                     // and for PIX shader source view.  
-        L"-E", entry.c_str(),              // Entry point.
-        L"-T", model.c_str(),            // Target.
-        L"-Zi",                                 // Enable debug information (slim format)
+        shaderFileName.c_str(),            // Optional shader source file name for error reporting and for PIX shader source view.  
+        L"-E", entryW.c_str(),                // Entry point.
+        L"-T", modelW.c_str(),              // Target.
+        L"-Zi",                                      // Enable debug information (slim format)
         L"-Fd", pdbFolder.c_str(),
         L"-Zpr",                              //	Pack matrices in row - major order
 #ifdef _DEBUG
@@ -109,14 +110,9 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(ShaderType /*type*/, const WString& 
         L"-Qstrip_debug"
     };
 
-    //
-    // Open source file.  
-    //
-    Microsoft::WRL::ComPtr<IDxcBlobEncoding> pSource = nullptr;
-    pUtils->LoadFile(shaderFilePath.c_str(), nullptr, &pSource);
     DxcBuffer Source;
-    Source.Ptr = pSource->GetBufferPointer();
-    Source.Size = pSource->GetBufferSize();
+    Source.Ptr = shaderText.c_str();
+    Source.Size = shaderText.length();
     Source.Encoding = DXC_CP_ACP; // Assume BOM says UTF8 or UTF16 or this is ANSI text.
 
     //
@@ -206,7 +202,7 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(ShaderType /*type*/, const WString& 
     }
 
     std::wstringstream ss;
-    ss << "Compile shader : " << shaderFilePath << " succeeded" << std::endl;
+    ss << "Compile shader : " << shaderFileName << " succeeded" << std::endl;
     auto str = ss.str();
     Log::Get().Write(str);
     return resultShader;
