@@ -100,21 +100,21 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			psoDesc.pRootSignature = m_rootSignature.Get();
 			psoDesc.VS =
 			{
-				reinterpret_cast<BYTE*>(deviceVS->GetCompiledCode()->GetBufferPointer()),
-				deviceVS->GetCompiledCode()->GetBufferSize()
+				deviceVS->GetCompiledCode(),
+				deviceVS->GetCompiledCodeSize()
 			};
 			if (gsshader && gsshader->DeviceObject())
 			{
 				psoDesc.GS =
 				{
-					reinterpret_cast<BYTE*>(deviceGS->GetCompiledCode()->GetBufferPointer()),
-					deviceGS->GetCompiledCode()->GetBufferSize()
+					deviceGS->GetCompiledCode(),
+					deviceGS->GetCompiledCodeSize()
 				};
 			}
 			psoDesc.PS =
 			{
-				reinterpret_cast<BYTE*>(devicePS->GetCompiledCode()->GetBufferPointer()),
-				devicePS->GetCompiledCode()->GetBufferSize()
+				devicePS->GetCompiledCode(),
+				devicePS->GetCompiledCodeSize()
 			};
 			ConfigRasterizerState(psoDesc.RasterizerState);
 			ConfigBlendState(psoDesc.BlendState);
@@ -245,8 +245,8 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			psoDesc.pRootSignature = m_rootSignature.Get();
 			psoDesc.CS =
 			{
-				reinterpret_cast<BYTE*>(deviceCS->GetCompiledCode()->GetBufferPointer()),
-				deviceCS->GetCompiledCode()->GetBufferSize()
+				deviceCS->GetCompiledCode(),
+				deviceCS->GetCompiledCodeSize()
 			};
 			psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 			HR(device->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));

@@ -59,9 +59,20 @@ std::wstring ShaderDX::ToString()
 	return( s.str() );
 }
 //--------------------------------------------------------------------------------
-ID3DBlob* ShaderDX::GetCompiledCode()
+void* ShaderDX::GetCompiledCode()
 {
-	return m_pCompiledShader;
+	if (m_CompiledShader6.empty())
+		return m_pCompiledShader->GetBufferPointer();
+	else
+		return m_CompiledShader6.data();
+}
+
+u64 ShaderDX::GetCompiledCodeSize() const
+{
+	if (m_CompiledShader6.empty())
+		return m_pCompiledShader->GetBufferSize();
+	else
+		return m_CompiledShader6.size();
 }
 
 std::vector<HLSLConstantBuffer> const& ShaderDX::GetCBuffers() const

@@ -132,6 +132,10 @@ std::wstring FileSystem::GetSavedFolder() const
 {
 	return mSavedFolder;
 }
+std::wstring FileSystem::GetShaderPDBFolder() const
+{
+	return GetSavedFolder() + L"pdbs/";
+}
 //--------------------------------------------------------------------------------
 std::wstring FileSystem::GetFontFolder() const
 {

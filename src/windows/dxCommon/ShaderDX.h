@@ -50,7 +50,8 @@ namespace forward
 
 		virtual ShaderType GetType() const = 0;
 
-		ID3DBlob*	GetCompiledCode();	
+		void*	GetCompiledCode();	
+		u64		GetCompiledCodeSize() const;
 
 		std::wstring ToString();
 
@@ -64,7 +65,8 @@ namespace forward
 		std::wstring							Function;
 		std::string								ShaderModel;
 		std::string								ShaderText;
-		ID3DBlob*								m_pCompiledShader;
+		ID3DBlob*							m_pCompiledShader;
+		Vector<u8>							m_CompiledShader6;
 
 	protected:
 		void InsertInput(HLSLParameter const& parameter);

@@ -1,8 +1,10 @@
 #include "ShaderDX12.h"
 #include "RHI/ShaderSystem/Shader.h"
 #include "dxCommon/ShaderFactoryDX.h"
+#include "FileSystem.h"
 
 using namespace forward;
+static const bool USE_DXC = false;
 
 ShaderDX12::ShaderDX12(forward::Shader* shader)
 	: ShaderDX(shader)
@@ -34,13 +36,31 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 		assert(false);
 	}
 
-	ShaderModel += "_5_0";
+	if (USE_DXC)
+	{
+		ShaderModel += "_6_0";
+		auto shaderEntryW = TextHelper::ToUnicode(shader->GetShaderEntry());
+		auto shaderModelW = TextHelper::ToUnicode(ShaderModel);
+		std::wstring shaderPath = FileSystem::getSingleton().GetShaderFolder() + shader->GetShaderFile();
+		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(GetType(), shaderPath, shaderEntryW, shaderModelW,
+			[&](Microsoft::WRL::ComPtr<ID3D12ShaderReflection> r) { ReflectShader(r); });
 
-	m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
-		shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel);
-	assert(m_pCompiledShader);
+	}
+	else
+	{
+		ShaderModel += "_5_0";
 
-	ReflectShader();
+		m_pCompiledShader = ShaderFactoryDX::GenerateShader(GetType(),
+			shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel);
+		assert(m_pCompiledShader);
+		const void* buffer = m_pCompiledShader->GetBufferPointer();
+		auto numBytes = m_pCompiledShader->GetBufferSize();
+
+		Microsoft::WRL::ComPtr<ID3D12ShaderReflection> reflector;
+		HR(D3DReflect(buffer, numBytes, IID_ID3D12ShaderReflection, (void**)reflector.GetAddressOf()));
+
+		ReflectShader(reflector);
+	}
 
 	for (auto& cb : GetCBuffers())
 	{
@@ -66,15 +86,8 @@ ShaderType ShaderDX12::GetType() const
 	return m_shaderType;
 }
 
-void ShaderDX12::ReflectShader()
+void ShaderDX12::ReflectShader(Microsoft::WRL::ComPtr<ID3D12ShaderReflection> reflector)
 {
-	assert(m_pCompiledShader);
-	const void* buffer = m_pCompiledShader->GetBufferPointer();
-	auto numBytes = m_pCompiledShader->GetBufferSize();
-
-	ID3D12ShaderReflection* reflector = nullptr;
-	HR(D3DReflect(buffer, numBytes, IID_ID3D12ShaderReflection, (void**)&reflector));
-
 	{
 		/// get description
 		D3D12_SHADER_DESC desc;
@@ -297,8 +310,6 @@ void ShaderDX12::ReflectShader()
 			//}
 		}
 	}
-
-	reflector->Release();
 }
 
 bool ShaderDX12::GetVariables(ID3D12ShaderReflectionConstantBuffer* cbuffer,

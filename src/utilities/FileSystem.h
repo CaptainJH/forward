@@ -35,6 +35,7 @@ namespace forward
 		std::wstring GetShaderFolder() const;
 		std::wstring GetTextureFolder() const;
 		std::wstring GetSavedFolder() const;
+		std::wstring GetShaderPDBFolder() const;
 		std::wstring GetFontFolder() const;
 		std::wstring GetExternFolder() const;
 

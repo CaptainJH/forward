@@ -55,6 +55,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3DBlob> m_vsByteCode = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> m_psByteCode = nullptr;
+	Vector<u8> m_vsByteCode6;
+	Vector<u8> m_psByteCode6;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> m_inputLayout;
 	PipelineStateComPtr m_pso = nullptr;
@@ -139,8 +141,11 @@ void HelloDX12::BuildShadersAndInputLayout()
 	sourceFile.Open(filepath);
 	String shaderText = sourceFile.GetDataPtr();
 
-	m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderText, VSMain, "vs_5_0");
-	m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderText, PSMain, "ps_5_0");
+	//m_vsByteCode = ShaderFactoryDX::GenerateShader(ShaderType::VERTEX_SHADER, shaderText, VSMain, "vs_5_0");
+	//m_psByteCode = ShaderFactoryDX::GenerateShader(ShaderType::PIXEL_SHADER, shaderText, PSMain, "ps_5_0");
+
+	m_vsByteCode6 = ShaderFactoryDX::GenerateShader6(ShaderType::VERTEX_SHADER, L"D:/Documents/GitHub/forward/Data/Shaders/BasicShader.hlsl", L"VSMainQuad", L"vs_6_0", [](auto){});
+	m_psByteCode6 = ShaderFactoryDX::GenerateShader6(ShaderType::PIXEL_SHADER, L"D:/Documents/GitHub/forward/Data/Shaders/BasicShader.hlsl", L"PSMainQuad", L"ps_6_0", [](auto) {});
 
 	m_inputLayout = 
 	{
@@ -236,15 +241,17 @@ void HelloDX12::BuildPSO()
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	psoDesc.InputLayout = { m_inputLayout.data(), (u32)m_inputLayout.size() };
 	psoDesc.pRootSignature = m_rootSignature.Get();
-	psoDesc.VS = 
+	psoDesc.VS =
 	{
-		reinterpret_cast<BYTE*>(m_vsByteCode->GetBufferPointer()),
-		m_vsByteCode->GetBufferSize()
+		//reinterpret_cast<BYTE*>(m_vsByteCode->GetBufferPointer()),
+		//m_vsByteCode->GetBufferSize()
+		m_vsByteCode6.data(), m_vsByteCode6.size()
 	};
-	psoDesc.PS = 
+	psoDesc.PS =
 	{
-		reinterpret_cast<BYTE*>(m_psByteCode->GetBufferPointer()),
-		m_psByteCode->GetBufferSize()
+		//reinterpret_cast<BYTE*>(m_psByteCode->GetBufferPointer()),
+		//m_psByteCode->GetBufferSize()
+		m_psByteCode6.data(), m_psByteCode6.size()
 	};
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

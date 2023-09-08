@@ -1,39 +1,22 @@
-//--------------------------------------------------------------------------------
-// This file is a portion of the Hieroglyph 3 Rendering Engine.  It is distributed
-// under the MIT License, available in the root of this distribution and 
-// at the following URL:
-//
-// http://www.opensource.org/licenses/mit-license.php
-//
-// Copyright (c) Jason Zink 
-//--------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------
-// ShaderFactoryDX11
-//
-//--------------------------------------------------------------------------------
-#ifndef ShaderFactoryDX11_h
-#define ShaderFactoryDX11_h
+#pragma once
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "ShaderDX.h"
+#include <functional>
 //--------------------------------------------------------------------------------
 namespace forward
 {
 	class ShaderFactoryDX
 	{
 	public:
-		~ShaderFactoryDX();
+		ShaderFactoryDX() = delete;
 
 		static ID3DBlob* GenerateShader( ShaderType type, const std::string& shaderText, const std::string& function,
             const std::string& model, const D3D_SHADER_MACRO* pDefines = nullptr, bool enablelogging = true );
 
-	private:
-		ShaderFactoryDX();
+		static Vector<u8> GenerateShader6(ShaderType type, const WString& shaderPath, const WString& function, 
+			const WString& model, std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)>);
 	};
 
 };
-//--------------------------------------------------------------------------------
-#endif // ShaderFactoryDX11_h
-//--------------------------------------------------------------------------------
 
