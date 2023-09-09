@@ -287,12 +287,12 @@ void D3D12RaytracingHelloWorld::BuildGeometry()
         // The sample raytraces in screen space coordinates.
         // Since DirectX screen space coordinates are right handed (i.e. Y axis points down).
         // Define the vertices in counter clockwise order ~ clockwise in left handed.
-        //{ 0, -offset, depthValue },
-        //{ -offset, offset, depthValue },
-        //{ offset, offset, depthValue }
-        {-1, +1, depthValue},
-        {+1, +1, depthValue},
-        {-1, -1, depthValue}
+        { 0, -offset, depthValue },
+        { -offset, offset, depthValue },
+        { offset, offset, depthValue }
+        //{-1, +1, depthValue},
+        //{+1, +1, depthValue},
+        //{-1, -1, depthValue}
     };
 
     AllocateUploadBuffer(device, vertices, sizeof(vertices), &m_vertexBuffer);

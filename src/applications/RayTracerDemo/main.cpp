@@ -27,6 +27,7 @@ public:
 
 	~HelloRaytracing()
 	{
+		m_pDemo->OnDestroy();
 		Log::Get().Close();
 	}
 
@@ -43,8 +44,16 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32 dt) override {}
-	void DrawScene() override {}
+	void UpdateScene(f32 dt) override
+	{
+		if (m_pDemo)
+			m_pDemo->OnUpdate();
+	}
+	void DrawScene() override
+	{
+		if (m_pDemo)
+			m_pDemo->OnRender();
+	}
 
 	std::unique_ptr<D3D12RaytracingHelloWorld> m_pDemo;
 };
