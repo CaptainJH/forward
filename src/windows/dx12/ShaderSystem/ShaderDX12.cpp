@@ -39,7 +39,8 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 	if (USE_DXC)
 	{
 		ShaderModel += "_6_0";
-		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(shader->GetShaderFile(), shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel,
+		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(shader->GetShaderFile(), 
+			shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel,
 			[&](Microsoft::WRL::ComPtr<ID3D12ShaderReflection> r) { ReflectShader(r); });
 	}
 	else

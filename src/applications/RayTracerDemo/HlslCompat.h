@@ -9,12 +9,13 @@
 //
 //*********************************************************
 
-#include "stdafx.h"
-#include "D3D12RaytracingHelloWorld.h"
+#ifndef HLSLCOMPAT_H
+#define HLSLCOMPAT_H
 
-_Use_decl_annotations_
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
-{
-    D3D12RaytracingHelloWorld sample(1280, 720, L"D3D12 Raytracing - Hello World");
-    return Win32Application::Run(&sample, hInstance, nCmdShow);
-}
+typedef float3 XMFLOAT3;
+typedef float4 XMFLOAT4;
+typedef float4 XMVECTOR;
+typedef float4x4 XMMATRIX;
+typedef uint UINT;
+
+#endif // HLSLCOMPAT_H

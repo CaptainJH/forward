@@ -9,12 +9,21 @@
 //
 //*********************************************************
 
-#include "stdafx.h"
-#include "D3D12RaytracingHelloWorld.h"
+#ifndef RAYTRACINGHLSLCOMPAT_H
+#define RAYTRACINGHLSLCOMPAT_H
 
-_Use_decl_annotations_
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+struct Viewport
 {
-    D3D12RaytracingHelloWorld sample(1280, 720, L"D3D12 Raytracing - Hello World");
-    return Win32Application::Run(&sample, hInstance, nCmdShow);
-}
+    float left;
+    float top;
+    float right;
+    float bottom;
+};
+
+struct RayGenConstantBuffer
+{
+    Viewport viewport;
+    Viewport stencil;
+};
+
+#endif // RAYTRACINGHLSLCOMPAT_H
