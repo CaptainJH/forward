@@ -12,9 +12,41 @@
 #include "stdafx.h"
 #include "D3D12RaytracingHelloWorld.h"
 
-_Use_decl_annotations_
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+#include "Application.h"
+
+using namespace forward;
+
+class HelloRaytracing : public Application
 {
-    D3D12RaytracingHelloWorld sample(1280, 720, L"D3D12 Raytracing - Hello World");
-    return Win32Application::Run(&sample, hInstance, nCmdShow);
-}
+public:
+	HelloRaytracing(i32 width, i32 height)
+		: Application(width, height)
+	{
+		mMainWndCaption = L"Hello Raytracing!";
+	}
+
+	~HelloRaytracing()
+	{
+		Log::Get().Close();
+	}
+
+	bool Init() override
+	{
+		Log::Get().Open();
+		if (!InitMainWindow())
+			return false;
+
+		m_pDemo = std::make_unique<D3D12RaytracingHelloWorld>(mClientWidth, mClientHeight, mMainWndCaption, mhMainWnd);
+		m_pDemo->OnInit();
+
+		return true;
+	}
+
+protected:
+	void UpdateScene(f32 dt) override {}
+	void DrawScene() override {}
+
+	std::unique_ptr<D3D12RaytracingHelloWorld> m_pDemo;
+};
+
+FORWARD_APPLICATION_MAIN(HelloRaytracing, 1920, 1080);

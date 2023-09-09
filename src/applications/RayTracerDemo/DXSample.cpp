@@ -48,14 +48,6 @@ std::wstring DXSample::GetAssetFullPath(LPCWSTR assetName)
     return m_assetsPath + assetName;
 }
 
-
-// Helper function for setting the window's title text.
-void DXSample::SetCustomWindowText(LPCWSTR text)
-{
-    std::wstring windowText = m_title + L": " + text;
-    SetWindowText(Win32Application::GetHwnd(), windowText.c_str());
-}
-
 // Helper function for parsing any supplied command line args.
 _Use_decl_annotations_
 void DXSample::ParseCommandLineArgs(WCHAR* argv[], int argc)

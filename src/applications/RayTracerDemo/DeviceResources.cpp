@@ -11,7 +11,6 @@
 
 #include "stdafx.h"
 #include "DeviceResources.h"
-#include "Win32Application.h"
 #include <algorithm>
 
 using namespace DX;
@@ -313,18 +312,18 @@ void DeviceResources::CreateWindowSizeDependentResources()
         
         // DXGI does not allow creating a swapchain targeting a window which has fullscreen styles(no border + topmost).
         // Temporarily remove the topmost property for creating the swapchain.
-        bool prevIsFullscreen = Win32Application::IsFullscreen();
-        if (prevIsFullscreen)
-        {
-            Win32Application::SetWindowZorderToTopMost(false);
-        }
+        //bool prevIsFullscreen = Win32Application::IsFullscreen();
+        //if (prevIsFullscreen)
+        //{
+        //    Win32Application::SetWindowZorderToTopMost(false);
+        //}
         
         ThrowIfFailed(m_dxgiFactory->CreateSwapChainForHwnd(m_commandQueue.Get(), m_window, &swapChainDesc, &fsSwapChainDesc, nullptr, &swapChain));
         
-        if (prevIsFullscreen)
-        {
-            Win32Application::SetWindowZorderToTopMost(true);
-        }
+        //if (prevIsFullscreen)
+        //{
+        //    Win32Application::SetWindowZorderToTopMost(true);
+        //}
 
         ThrowIfFailed(swapChain.As(&m_swapChain));
 

@@ -12,7 +12,6 @@
 #pragma once
 
 #include "DXSample.h"
-#include "StepTimer.h"
 #include "RaytracingHlslCompat.h"
 
 namespace GlobalRootSignatureParams {
@@ -33,7 +32,7 @@ namespace LocalRootSignatureParams {
 class D3D12RaytracingHelloWorld : public DXSample
 {
 public:
-    D3D12RaytracingHelloWorld(UINT width, UINT height, std::wstring name);
+    D3D12RaytracingHelloWorld(UINT width, UINT height, std::wstring name, HWND hwnd);
 
     // IDeviceNotify
     virtual void OnDeviceLost() override;
@@ -84,6 +83,8 @@ private:
     D3D12_GPU_DESCRIPTOR_HANDLE m_raytracingOutputResourceUAVGpuDescriptor;
     UINT m_raytracingOutputResourceUAVDescriptorHeapIndex;
 
+    HWND m_hwnd;
+
     // Shader tables
     static const wchar_t* c_hitGroupName;
     static const wchar_t* c_raygenShaderName;
@@ -92,9 +93,6 @@ private:
     ComPtr<ID3D12Resource> m_missShaderTable;
     ComPtr<ID3D12Resource> m_hitGroupShaderTable;
     ComPtr<ID3D12Resource> m_rayGenShaderTable;
-    
-    // Application state
-    StepTimer m_timer;
 
     void RecreateD3D();
     void DoRaytracing();   

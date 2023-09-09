@@ -25,9 +25,10 @@ const wchar_t* D3D12RaytracingHelloWorld::c_raygenShaderName = L"MyRaygenShader"
 const wchar_t* D3D12RaytracingHelloWorld::c_closestHitShaderName = L"MyClosestHitShader";
 const wchar_t* D3D12RaytracingHelloWorld::c_missShaderName = L"MyMissShader";
 
-D3D12RaytracingHelloWorld::D3D12RaytracingHelloWorld(UINT width, UINT height, std::wstring name) :
-    DXSample(width, height, name),
-    m_raytracingOutputResourceUAVDescriptorHeapIndex(UINT_MAX)
+D3D12RaytracingHelloWorld::D3D12RaytracingHelloWorld(UINT width, UINT height, std::wstring name, HWND hwnd) 
+    : DXSample(width, height, name)
+    , m_raytracingOutputResourceUAVDescriptorHeapIndex(UINT_MAX)
+    , m_hwnd(hwnd)
 {
     m_rayGenCB.viewport = { -1.0f, -1.0f, 1.0f, 1.0f };
     UpdateForSizeChange(width, height);
@@ -46,7 +47,7 @@ void D3D12RaytracingHelloWorld::OnInit()
         m_adapterIDoverride
         );
     m_deviceResources->RegisterDeviceNotify(this);
-    m_deviceResources->SetWindow(Win32Application::GetHwnd(), m_width, m_height);
+    m_deviceResources->SetWindow(m_hwnd, m_width, m_height);
     m_deviceResources->InitializeDXGIAdapter();
 
     ThrowIfFalse(IsDirectXRaytracingSupported(m_deviceResources->GetAdapter()),
@@ -169,7 +170,6 @@ void D3D12RaytracingHelloWorld::CreateRaytracingPipelineStateObject()
     // 1 - Pipeline config
     CD3DX12_STATE_OBJECT_DESC raytracingPipeline{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
 
-    forward::FileSystem fs;
     const std::wstring rtShaderfile = L"Raytracing.hlsl";
     std::wstring rtFilepath = forward::FileSystem::getSingleton().GetShaderFolder() + rtShaderfile;
     forward::FileLoader rtSourceFile;
@@ -467,7 +467,6 @@ void D3D12RaytracingHelloWorld::BuildShaderTables()
 // Update frame-based values.
 void D3D12RaytracingHelloWorld::OnUpdate()
 {
-    m_timer.Tick();
     CalculateFrameStats();
 }
 
@@ -639,29 +638,29 @@ void D3D12RaytracingHelloWorld::OnDeviceRestored()
 // Compute the average frames per second and million rays per second.
 void D3D12RaytracingHelloWorld::CalculateFrameStats()
 {
-    static int frameCnt = 0;
-    static double elapsedTime = 0.0f;
-    double totalTime = m_timer.GetTotalSeconds();
-    frameCnt++;
+    //static int frameCnt = 0;
+    //static double elapsedTime = 0.0f;
+    //double totalTime = m_timer.GetTotalSeconds();
+    //frameCnt++;
 
-    // Compute averages over one second period.
-    if ((totalTime - elapsedTime) >= 1.0f)
-    {
-        float diff = static_cast<float>(totalTime - elapsedTime);
-        float fps = static_cast<float>(frameCnt) / diff; // Normalize to an exact second.
+    //// Compute averages over one second period.
+    //if ((totalTime - elapsedTime) >= 1.0f)
+    //{
+    //    float diff = static_cast<float>(totalTime - elapsedTime);
+    //    float fps = static_cast<float>(frameCnt) / diff; // Normalize to an exact second.
 
-        frameCnt = 0;
-        elapsedTime = totalTime;
+    //    frameCnt = 0;
+    //    elapsedTime = totalTime;
 
-        float MRaysPerSecond = (m_width * m_height * fps) / static_cast<float>(1e6);
+    //    float MRaysPerSecond = (m_width * m_height * fps) / static_cast<float>(1e6);
 
-        wstringstream windowText;
+    //    wstringstream windowText;
 
-        windowText << setprecision(2) << fixed
-            << L"    fps: " << fps << L"     ~Million Primary Rays/s: " << MRaysPerSecond
-            << L"    GPU[" << m_deviceResources->GetAdapterID() << L"]: " << m_deviceResources->GetAdapterDescription();
-        SetCustomWindowText(windowText.str().c_str());
-    }
+    //    windowText << setprecision(2) << fixed
+    //        << L"    fps: " << fps << L"     ~Million Primary Rays/s: " << MRaysPerSecond
+    //        << L"    GPU[" << m_deviceResources->GetAdapterID() << L"]: " << m_deviceResources->GetAdapterDescription();
+        //SetCustomWindowText(windowText.str().c_str());
+    //}
 }
 
 // Handle OnSizeChanged message event.

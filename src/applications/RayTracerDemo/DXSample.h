@@ -12,7 +12,6 @@
 #pragma once
 
 #include "DXSampleHelper.h"
-#include "Win32Application.h"
 #include "DeviceResources.h"
 
 class DXSample : public DX::IDeviceNotify
@@ -52,7 +51,6 @@ public:
     std::wstring GetAssetFullPath(LPCWSTR assetName);
 
 protected:
-    void SetCustomWindowText(LPCWSTR text);
 
     // Viewport dimensions.
     UINT m_width;
