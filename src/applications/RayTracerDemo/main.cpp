@@ -44,7 +44,7 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32 dt) override
+	void UpdateScene(f32) override
 	{
 		if (m_pDemo)
 			m_pDemo->OnUpdate();
