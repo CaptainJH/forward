@@ -23,6 +23,7 @@ namespace forward
 
 		void										SetResourceState(D3D12_RESOURCE_STATES state);
 		D3D12_RESOURCE_STATES	GetResourceState() const;
+		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() { return m_gpuVirtualAddress; }
 
 	protected:
 		DeviceResCom12Ptr		m_deviceResPtr;

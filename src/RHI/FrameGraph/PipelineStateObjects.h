@@ -351,7 +351,28 @@ namespace forward
 		u32 m_usedCBV_SRV_UAV_Count = 0;
 		u32 m_usedSampler_Count = 0;
 
-		// For DirectX12
 		shared_ptr<DeviceObject>	m_devicePSO;
+	};
+
+	struct ShaderRecord
+	{
+		const u8* name;
+		const u8* shaderData;
+	};
+
+	struct ShaderTable
+	{
+		Vector<ShaderRecord> m_shaderRecords;
+	};
+
+	struct RTPipelineStateObject
+	{
+		Vector<std::pair<VertexBuffer, IndexBuffer>> m_geometry;
+
+		ShaderTable m_rayGenShaderTable;
+		ShaderTable m_hitShaderTable;
+		ShaderTable m_missShaderTable;
+
+		shared_ptr<DeviceObject> m_deviceRTPSO;
 	};
 }

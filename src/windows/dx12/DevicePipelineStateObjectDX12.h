@@ -13,6 +13,7 @@
 namespace forward
 {
 	struct PipelineStateObject;
+	struct RTPipelineStateObject;
 	class DeviceDX12;
 
 	class DevicePipelineStateObjectDX12 : public DeviceObject
@@ -145,5 +146,28 @@ namespace forward
 			assert(false && "something wrong with the binding info!");
 			return false;
 		}
+	};
+
+	class DeviceRTPipelineStateObjectDX12 : public DeviceObject
+	{
+		friend class CommandListDX12;
+	public:
+		DeviceRTPipelineStateObjectDX12(DeviceDX12* d, RTPipelineStateObject& rtPSO);
+		~DeviceRTPipelineStateObjectDX12() override;
+
+		ID3D12StateObject* GetDeviceRTPSO();
+
+	private:
+		RTPipelineStateComPtr			m_devicePSO;
+		RootSignatureComPtr				m_raytracingGlobalRootSignature;
+		RootSignatureComPtr				m_raytracingLocalRootSignature;
+		DeviceResCom12Ptr					m_bottomLevelAccelerationStructure;
+		DeviceResCom12Ptr					m_topLevelAccelerationStructure;
+		RTPipelineStateObject&			m_rtPSO;
+
+	private:
+		void BuildAccelerationStructures(DeviceDX12* device);
+		void BuildRootSignature(DeviceDX12* device);
+
 	};
 }

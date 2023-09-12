@@ -204,6 +204,15 @@ bool DeviceDX12::InitializeD3D(D3D_DRIVER_TYPE DriverType, D3D_FEATURE_LEVEL Fea
 
 	m_CbvSrvUavDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	// Check if the device supports ray tracing.
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 features = {};
+	hr = m_pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &features, sizeof(features));
+	if (FAILED(hr) || features.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+	{
+		Log::Get().Write(L"Ray tracing not supported!");
+		return false;
+	}
+
 	// Check 4X MSAA quality support for our back buffer format.
 	// All Direct3D 11 capable devices support 4X MSAA for all render 
 	// target formats, so we only need to check quality support.
@@ -239,9 +248,9 @@ void DeviceDX12::Shutdown()
 	SAFE_DELETE(m_SwapChain);
 }
 //--------------------------------------------------------------------------------
-ID3D12Device* DeviceDX12::GetDevice()
+ID3D12Device5* DeviceDX12::GetDevice()
 {
-	return(m_pDevice.Get());
+	return m_pDevice.Get();
 }
 //--------------------------------------------------------------------------------
 i32	DeviceDX12::GetUnusedResourceIndex()
@@ -521,7 +530,7 @@ void DeviceDX12::OnResize(u32 /*width*/, u32 /*height*/)
 //--------------------------------------------------------------------------------
 bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 {
-	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_12_0))
+	if (!InitializeD3D(D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL_12_1))
 	{
 		Log::Get().Write(L"Could not create hardware device, trying to create the reference device...");
 
@@ -792,7 +801,7 @@ shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
 	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t));
 }
 
-ID3D12GraphicsCommandList* DeviceDX12::DeviceCommandList()
+ID3D12GraphicsCommandList4* DeviceDX12::DeviceCommandList()
 {
 	return m_queue->GetCommandListDX12()->GetDeviceCmdListPtr().Get();
 }

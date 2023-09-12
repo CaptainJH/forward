@@ -11,15 +11,16 @@
 #include "utilities/Utils.h"
 #include <unordered_map>
 
-typedef Microsoft::WRL::ComPtr<ID3D12Device> DeviceCom12Ptr;
+typedef Microsoft::WRL::ComPtr<ID3D12Device5> DeviceCom12Ptr;
 typedef Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandAllocatorComPtr;
-typedef Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CommandListComPtr;
+typedef Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> CommandListComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12Fence> FenceComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12Resource> DeviceResCom12Ptr;
 typedef Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DescriptorHeapComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureComPtr;
 typedef Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineStateComPtr;
+typedef Microsoft::WRL::ComPtr<ID3D12StateObject> RTPipelineStateComPtr;
 typedef Microsoft::WRL::ComPtr<ID3DBlob> BlobComPtr;
 
 namespace forward

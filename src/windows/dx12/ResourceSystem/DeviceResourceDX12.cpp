@@ -73,3 +73,4 @@ void DeviceResourceDX12::SetResourceState(D3D12_RESOURCE_STATES state)
 {
 	m_currentUsageState = state;
 }
+

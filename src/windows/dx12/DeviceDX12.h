@@ -107,8 +107,8 @@ namespace forward
 		D3D12_CPU_DESCRIPTOR_HANDLE AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, u32 Count = 1);
 		u32 GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const;
 
-		ID3D12Device* GetDevice();
-		ID3D12GraphicsCommandList* DeviceCommandList();
+		ID3D12Device5* GetDevice();
+		ID3D12GraphicsCommandList4* DeviceCommandList();
 		ID3D12CommandQueue* DeviceCommandQueue();
 		void TransitionResource(DeviceResourceDX12* resource, D3D12_RESOURCE_STATES newState);
 		void BeginDraw();

@@ -15,85 +15,79 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 	m_cbvHandleGPU.ptr = 0;
 	m_uavHandle.ptr = 0;
 
-	auto type = obj->GetType();
-	bool isConstantBuffer = type == FGOT_CONSTANT_BUFFER;
-	if (type == FGOT_VERTEX_BUFFER)
+	const auto type = obj->GetType();
+	if (type > FGOT_BUFFER && type < FGOT_TEXTURE)
 	{
+		bool isConstantBuffer = type == FGOT_CONSTANT_BUFFER;
+		Resource* res = dynamic_cast<Resource*>(obj);
+		auto byteSize = res->GetNumBytes();
+		ResourceUsage usage = res->GetUsage();
+		auto device = m_device.GetDevice();
 
-	}
-	else if(type == FGOT_INDEX_BUFFER)
-	{
-
-	}
-
-	Resource* res = dynamic_cast<Resource*>(obj);
-	auto byteSize = res->GetNumBytes();
-	ResourceUsage usage = res->GetUsage();
-	auto device = m_device.GetDevice();
-
-	if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
-	{
-		CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-		CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
-		assert(GetResourceState() == D3D12_RESOURCE_STATE_COMMON);
-		HR(device->CreateCommittedResource(
-			&heap_properties,
-			D3D12_HEAP_FLAG_NONE,
-			&resource_desc,
-			GetResourceState(),
-			nullptr,
-			IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
-
-		// In order to copy CPU memory data into our default buffer, we need to create
-		// an intermediate upload heap. 
-		CD3DX12_HEAP_PROPERTIES heap_staging_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-		HR(device->CreateCommittedResource(
-			&heap_staging_properties,
-			D3D12_HEAP_FLAG_NONE,
-			&resource_desc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
-
-		SyncCPUToGPU(cmdList);
-		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
-	}
-	else if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
-	{
-		// Constant buffer elements need to be multiples of 256 bytes.
-		// This is because the hardware can only view constant data 
-		// at m*256 byte offsets and of n*256 byte lengths. 
-		if (isConstantBuffer)
+		if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
 		{
-			byteSize = CalcConstantBufferByteSize(byteSize);
+			CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+			CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
+			assert(GetResourceState() == D3D12_RESOURCE_STATE_COMMON);
+			HR(device->CreateCommittedResource(
+				&heap_properties,
+				D3D12_HEAP_FLAG_NONE,
+				&resource_desc,
+				GetResourceState(),
+				nullptr,
+				IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
+
+			// In order to copy CPU memory data into our default buffer, we need to create
+			// an intermediate upload heap. 
+			CD3DX12_HEAP_PROPERTIES heap_staging_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+			HR(device->CreateCommittedResource(
+				&heap_staging_properties,
+				D3D12_HEAP_FLAG_NONE,
+				&resource_desc,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
+
+			SyncCPUToGPU(cmdList);
+			m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 		}
-
-		CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-		CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
-		HR(device->CreateCommittedResource(
-			&heap_properties,
-			D3D12_HEAP_FLAG_NONE,
-			&resource_desc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
-
-		HR(m_deviceResPtr->Map(0, nullptr, reinterpret_cast<void**>(&m_mappedData)));
-
-		if (isConstantBuffer)
+		else if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
 		{
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-			cbvDesc.BufferLocation = m_deviceResPtr->GetGPUVirtualAddress();
-			cbvDesc.SizeInBytes = byteSize;
-			CreateCBView(cbvDesc);
-		}
+			// Constant buffer elements need to be multiples of 256 bytes.
+			// This is because the hardware can only view constant data 
+			// at m*256 byte offsets and of n*256 byte lengths. 
+			if (isConstantBuffer)
+			{
+				byteSize = CalcConstantBufferByteSize(byteSize);
+			}
 
-		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
-		SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
-	}
-	else
-	{
-		assert(false && "Not Implemented yet!");
+			CD3DX12_HEAP_PROPERTIES heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+			CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
+			HR(device->CreateCommittedResource(
+				&heap_properties,
+				D3D12_HEAP_FLAG_NONE,
+				&resource_desc,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
+
+			HR(m_deviceResPtr->Map(0, nullptr, reinterpret_cast<void**>(&m_mappedData)));
+
+			if (isConstantBuffer)
+			{
+				D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+				cbvDesc.BufferLocation = m_deviceResPtr->GetGPUVirtualAddress();
+				cbvDesc.SizeInBytes = byteSize;
+				CreateCBView(cbvDesc);
+			}
+
+			m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
+			SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
+		}
+		else
+		{
+			assert(false && "Not Implemented yet!");
+		}
 	}
 }
 
@@ -186,4 +180,43 @@ D3D12_GPU_DESCRIPTOR_HANDLE DeviceBufferDX12::GetCBViewGPUHandle()
 void DeviceBufferDX12::SetCBViewGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE inHandle)
 {
 	m_cbvHandleGPU = inHandle;
+}
+
+DeviceResCom12Ptr DeviceBufferDX12::AllocateUploadBuffer(ID3D12Device* pDevice, void* pData, u64 datasize, const wchar_t* resourceName /*= nullptr*/)
+{
+	DeviceResCom12Ptr ret;
+	auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(datasize);
+	HR(pDevice->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(ret.GetAddressOf())));
+	if (resourceName)
+		ret->SetName(resourceName);
+	void* pMappedData;
+	ret->Map(0, nullptr, &pMappedData);
+	memcpy(pMappedData, pData, datasize);
+	ret->Unmap(0, nullptr);
+	return ret;
+}
+
+DeviceResCom12Ptr DeviceBufferDX12::AllocateUAVBuffer(ID3D12Device* pDevice, u64 bufferSize, 
+	D3D12_RESOURCE_STATES initialResourceState /*= D3D12_RESOURCE_STATE_COMMON*/, const wchar_t* resourceName /*= nullptr*/)
+{
+	DeviceResCom12Ptr ret;
+	auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	HR(pDevice->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		initialResourceState,
+		nullptr,
+		IID_PPV_ARGS(ret.GetAddressOf())));
+	if (resourceName)
+		ret->SetName(resourceName);
+	return ret;
 }

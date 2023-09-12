@@ -45,5 +45,10 @@ namespace forward
 		u8*														m_mappedData = nullptr;
 
 		void CreateCBView(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc);
+
+	public:
+		static DeviceResCom12Ptr AllocateUploadBuffer(ID3D12Device* pDevice, void* pData, u64 datasize, const wchar_t* resourceName = nullptr);
+		static DeviceResCom12Ptr AllocateUAVBuffer(ID3D12Device* pDevice, u64 bufferSize, 
+			D3D12_RESOURCE_STATES initialResourceState = D3D12_RESOURCE_STATE_COMMON, const wchar_t* resourceName = nullptr);
 	};
 }

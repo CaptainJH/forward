@@ -1,12 +1,9 @@
 #include "Application.h"
 #include "Vector3f.h"
-#include "dx12/UploadBuffer.h"
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandQueueDX12.h"
 #include "dxCommon/ShaderFactoryDX.h"
 #include "utilities/FileLoader.h"
-
-//#include "ResourceSystem\Buffer\BufferConfigDX11.h"
 
 #include "ProfilingHelper.h"
 

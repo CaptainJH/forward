@@ -40,6 +40,7 @@ namespace forward
 
 	protected:
 		PipelineStateObject				m_pso;
+		RTPipelineStateObject			m_rtPSO;
 
 		const SetupFuncType				m_setupCallback;
 		const ExecuteFuncType			m_executeCallback;
