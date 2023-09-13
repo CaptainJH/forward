@@ -341,17 +341,21 @@ namespace forward
 	struct RaytracingShaderStageState : public ShaderStageState
 	{
 		shared_ptr<RaytracingShaders> m_shader;
+
+		shared_ptr<ShaderTable> m_rayGenShaderTable;
+		shared_ptr<ShaderTable> m_hitShaderTable;
+		shared_ptr<ShaderTable> m_missShaderTable;
 	};
 
 	struct PipelineStateObject
 	{
 		InputAssemblerStageState	m_IAState;
-		RasterizerStageState		m_RSState;
+		RasterizerStageState			m_RSState;
 		OutputMergerStageState		m_OMState;
 
 		VertexShaderStageState		m_VSState;
 		GeometryShaderStageState	m_GSState;
-		PixelShaderStageState		m_PSState;
+		PixelShaderStageState			m_PSState;
 		ComputeShaderStageState		m_CSState;
 
 		u32 m_usedCBV_SRV_UAV_Count = 0;
@@ -364,10 +368,6 @@ namespace forward
 	{
 		Vector<std::pair<VertexBuffer, IndexBuffer>> m_geometry;
 		RaytracingShaderStageState m_rtState;
-
-		shared_ptr<ShaderTable> m_rayGenShaderTable;
-		shared_ptr<ShaderTable> m_hitShaderTable;
-		shared_ptr<ShaderTable> m_missShaderTable;
 
 		shared_ptr<DeviceObject> m_deviceRTPSO;
 	};

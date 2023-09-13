@@ -609,7 +609,7 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
 	geometryDesc.Triangles.IndexBuffer = indexBuffer->GetGPUAddress();
 	geometryDesc.Triangles.IndexCount = m_rtPSO.m_geometry.front().second.GetNumElements();
-	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R16_UINT;
+	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 	geometryDesc.Triangles.Transform3x4 = 0;
 	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 	geometryDesc.Triangles.VertexCount = m_rtPSO.m_geometry.front().first.GetNumElements();
@@ -781,17 +781,18 @@ void DeviceRTPipelineStateObjectDX12::BuildRaytracingPipelineStateObject(DeviceD
 	// If no shader exports are defined for a DXIL library subobject, all shaders will be surfaced.
 	// In this sample, this could be omitted for convenience since the sample uses all shaders in the library. 
 	{
-		lib->DefineExport(m_rtPSO.m_rtState.m_shader->m_rayGenShaderName.c_str());
-		lib->DefineExport(m_rtPSO.m_rtState.m_shader->m_closestHitShaderName.c_str());
-		lib->DefineExport(m_rtPSO.m_rtState.m_shader->m_missShaderName.c_str());
+		lib->DefineExport(m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderName.c_str());
+		lib->DefineExport(m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords.front().shaderName.c_str());
+		lib->DefineExport(m_rtPSO.m_rtState.m_missShaderTable->m_shaderRecords.front().shaderName.c_str());
 	}
 
 	// Triangle hit group
 	// A hit group specifies closest hit, any hit and intersection shaders to be executed when a ray intersects the geometry's triangle/AABB.
 	// In this sample, we only use triangle geometry with a closest hit shader, so others are not set.
 	auto hitGroup = raytracingPipeline.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
-	hitGroup->SetClosestHitShaderImport(m_rtPSO.m_rtState.m_shader->m_closestHitShaderName.c_str());
-	hitGroup->SetHitGroupExport(m_rtPSO.m_rtState.m_shader->m_hitGroupName.c_str());
+	hitGroup->SetClosestHitShaderImport(m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords.front().shaderName.c_str());
+	const WString hitGroupName = TextHelper::ToUnicode(m_rtPSO.m_rtState.m_hitShaderTable->Name());
+	hitGroup->SetHitGroupExport(hitGroupName.c_str());
 	hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
 	// Shader config
@@ -837,21 +838,28 @@ void DeviceRTPipelineStateObjectDX12::CreateLocalRootSignatureSubobjects(CD3DX12
 		// Shader association
 		auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
 		rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
-		rootSignatureAssociation->AddExport(m_rtPSO.m_rtState.m_shader->m_rayGenShaderName.c_str());
+		rootSignatureAssociation->AddExport(m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderName.c_str());
 	}
 }
 
 void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 {
-	void* rayGenShaderIdentifier;
-	void* missShaderIdentifier;
-	void* hitGroupShaderIdentifier;
+	std::unordered_map<WString, void*> shaderName2ShaderIdentifierTable;
 
 	auto GetShaderIdentifiers = [&](auto* stateObjectProperties)
 	{
-		rayGenShaderIdentifier = stateObjectProperties->GetShaderIdentifier(m_rtPSO.m_rtState.m_shader->m_rayGenShaderName.c_str());
-		missShaderIdentifier = stateObjectProperties->GetShaderIdentifier(m_rtPSO.m_rtState.m_shader->m_missShaderName.c_str());
-		hitGroupShaderIdentifier = stateObjectProperties->GetShaderIdentifier(m_rtPSO.m_rtState.m_shader->m_hitGroupName.c_str());
+			for (auto& record : m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords)
+			{
+				shaderName2ShaderIdentifierTable[record.shaderName] = 
+					stateObjectProperties->GetShaderIdentifier(record.shaderName.c_str());
+			}
+			for (auto& record : m_rtPSO.m_rtState.m_missShaderTable->m_shaderRecords)
+			{
+				shaderName2ShaderIdentifierTable[record.shaderName] =
+					stateObjectProperties->GetShaderIdentifier(record.shaderName.c_str());
+			}
+			const WString hitGroupName = TextHelper::ToUnicode(m_rtPSO.m_rtState.m_hitShaderTable->Name());
+			shaderName2ShaderIdentifierTable[hitGroupName] = stateObjectProperties->GetShaderIdentifier(hitGroupName.c_str());
 	};
 
 	// Get shader identifiers.
@@ -863,51 +871,21 @@ void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 		shaderIdentifierSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 	}
 
+
 	auto CreateDeviceShaderTable = [&](shared_ptr<ShaderTable> st) {
 		if (st && !st->DeviceObject())
 		{
+			st->SetupShaderRecords(shaderName2ShaderIdentifierTable);
 			auto cmdListDevice = d->DeviceCommandList();
 			auto deviceShaderTable = make_shared<DeviceBufferDX12>(cmdListDevice, st.get(), *d);
+			deviceShaderTable->SyncCPUToGPU();
 			st->SetDeviceObject(deviceShaderTable);
 		}
 	};
 
-	CreateDeviceShaderTable(m_rtPSO.m_rayGenShaderTable);
-	CreateDeviceShaderTable(m_rtPSO.m_missShaderTable);
-	CreateDeviceShaderTable(m_rtPSO.m_hitShaderTable);
-
-	// Ray gen shader table
-	//{
-	//	struct RootArguments {
-	//		//RayGenConstantBuffer cb;
-	//	} rootArguments;
-	//	//rootArguments.cb = m_rayGenCB;
-
-	//	UINT numShaderRecords = 1;
-	//	UINT shaderRecordSize = shaderIdentifierSize + sizeof(rootArguments);
-
-	//	//ShaderTable rayGenShaderTable(device, numShaderRecords, shaderRecordSize, L"RayGenShaderTable");
-	//	//rayGenShaderTable.push_back(ShaderRecord(rayGenShaderIdentifier, shaderIdentifierSize, &rootArguments, sizeof(rootArguments)));
-	//	//m_rayGenShaderTable = rayGenShaderTable.GetResource();
-	//}
-
-	// Miss shader table
-	//{
-	//	UINT numShaderRecords = 1;
-	//	UINT shaderRecordSize = shaderIdentifierSize;
-	//	ShaderTable missShaderTable(device, numShaderRecords, shaderRecordSize, L"MissShaderTable");
-	//	missShaderTable.push_back(ShaderRecord(missShaderIdentifier, shaderIdentifierSize));
-	//	m_missShaderTable = missShaderTable.GetResource();
-	//}
-
-	// Hit group shader table
-	//{
-	//	UINT numShaderRecords = 1;
-	//	UINT shaderRecordSize = shaderIdentifierSize;
-	//	//ShaderTable hitGroupShaderTable(device, numShaderRecords, shaderRecordSize, L"HitGroupShaderTable");
-	//	//hitGroupShaderTable.push_back(ShaderRecord(hitGroupShaderIdentifier, shaderIdentifierSize));
-	//	//m_hitGroupShaderTable = hitGroupShaderTable.GetResource();
-	//}
+	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_rayGenShaderTable);
+	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_missShaderTable);
+	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_hitShaderTable);
 }
 
 // Pretty-print a state object tree.

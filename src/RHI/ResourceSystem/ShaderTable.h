@@ -32,11 +32,6 @@ namespace forward
             }
         }
 
-        //void operator=(const ShaderRecord& rhs)
-        //{
-        //    rhs.CopyTo(this);
-        //}
-
         struct PointerWithSize {
             void* ptr;
             u32 size;
@@ -48,6 +43,12 @@ namespace forward
         PointerWithSize localRootArguments;
     };
 
+    struct ShaderRecordDesc
+    {
+        WString shaderName = L"";
+        Vector<u8> shaderArguments = {};
+    };
+
 
 	class ShaderTable : public Resource
 	{
@@ -57,6 +58,9 @@ namespace forward
 
         ShaderRecord& operator[](u32 index);
         u32 GetShaderRecordSize() const { return GetElementSize(); }
+        void SetupShaderRecords(const std::unordered_map<WString, void*>& name2identifier);
+
+        Vector<ShaderRecordDesc> m_shaderRecords;
 
         // Pretty-print the shader records.
         void DebugPrint(std::unordered_map<void*, WString> shaderIdToStringMap);

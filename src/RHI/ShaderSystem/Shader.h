@@ -98,11 +98,6 @@ namespace forward
 	{
 	public:
 		RaytracingShaders(const i8* name, const WString shaderFile);
-
-		WString m_rayGenShaderName;
-		WString m_closestHitShaderName;
-		WString m_missShaderName;
-		WString m_hitGroupName;
 	};
 
 }
