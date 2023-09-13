@@ -16,13 +16,13 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 	m_uavHandle.ptr = 0;
 
 	const auto type = obj->GetType();
-	if (type > FGOT_BUFFER && type < FGOT_TEXTURE)
+	Resource* res = dynamic_cast<Resource*>(obj);
+	auto byteSize = res->GetNumBytes();
+	auto device = m_device.GetDevice();
+	if (type >= FGOT_CONSTANT_BUFFER && type <= FGOT_INDEX_BUFFER)
 	{
 		bool isConstantBuffer = type == FGOT_CONSTANT_BUFFER;
-		Resource* res = dynamic_cast<Resource*>(obj);
-		auto byteSize = res->GetNumBytes();
 		ResourceUsage usage = res->GetUsage();
-		auto device = m_device.GetDevice();
 
 		if (usage == ResourceUsage::RU_IMMUTABLE && res->GetData())
 		{
@@ -88,6 +88,23 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 		{
 			assert(false && "Not Implemented yet!");
 		}
+	}
+	else if (type == FGOT_SHADER_TABLE)
+	{
+		auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+		auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
+		HR(device->CreateCommittedResource(
+			&uploadHeapProperties,
+			D3D12_HEAP_FLAG_NONE,
+			&bufferDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
+		//m_resource->SetName(resourceName);
+
+		CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+		HR(m_deviceResPtr->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
 	}
 }
 

@@ -98,6 +98,12 @@ ComputeShader::ComputeShader(const i8* name, const WString shaderFile, const i8*
 	m_type = FGOT_COMPUTE_SHADER;
 }
 
+RaytracingShaders::RaytracingShaders(const i8* name, const WString shaderFile)
+	: Shader(name, shaderFile, "")
+{
+	m_type = FGOT_RT_SHADER;
+}
+
 const std::string& Shader::GetShaderText() const
 {
 	return m_shader;

@@ -132,4 +132,9 @@ namespace forward
 		Func1 m_func1;
 		Func2 m_func2;
 	};
+
+	inline u32 Align(u32 size, u32 alignment)
+	{
+		return (size + (alignment - 1)) & ~(alignment - 1);
+	}
 }

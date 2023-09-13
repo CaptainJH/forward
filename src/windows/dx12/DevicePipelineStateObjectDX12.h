@@ -21,7 +21,7 @@ namespace forward
 		friend class CommandListDX12;
 	public:
 		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
-		virtual ~DevicePipelineStateObjectDX12();
+		~DevicePipelineStateObjectDX12() override;
 
 		ID3D12PipelineState* GetDevicePSO();
 		bool IsEmptyRootParams() const;
@@ -165,9 +165,19 @@ namespace forward
 		DeviceResCom12Ptr					m_topLevelAccelerationStructure;
 		RTPipelineStateObject&			m_rtPSO;
 
+		// temp
+		//const wchar_t* c_hitGroupName = L"MyHitGroup";
+		//const wchar_t* c_raygenShaderName = L"MyRaygenShader";
+		//const wchar_t* c_closestHitShaderName = L"MyClosestHitShader";
+		//const wchar_t* c_missShaderName = L"MyMissShader";
+
 	private:
 		void BuildAccelerationStructures(DeviceDX12* device);
 		void BuildRootSignature(DeviceDX12* device);
+		void BuildRaytracingPipelineStateObject(DeviceDX12* device);
+		void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
+		void BuildShaderTables(DeviceDX12* device);
 
+		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);
 	};
 }

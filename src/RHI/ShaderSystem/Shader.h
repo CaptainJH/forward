@@ -94,4 +94,15 @@ namespace forward
 		ComputeShader(const i8* name, const WString shaderFile, const i8* entryFunction);
 	};
 
+	class RaytracingShaders : public Shader
+	{
+	public:
+		RaytracingShaders(const i8* name, const WString shaderFile);
+
+		WString m_rayGenShaderName;
+		WString m_closestHitShaderName;
+		WString m_missShaderName;
+		WString m_hitGroupName;
+	};
+
 }

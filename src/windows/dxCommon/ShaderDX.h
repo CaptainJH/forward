@@ -26,7 +26,8 @@ namespace forward
 		DOMAIN_SHADER = 2,
 		GEOMETRY_SHADER = 3,
 		PIXEL_SHADER = 4,
-		COMPUTE_SHADER = 5
+		COMPUTE_SHADER = 5,
+		RT_SHADER = 6
 	};
 
 

@@ -6,6 +6,7 @@
 #include "Vector4f.h"
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ResourceSystem/Texture.h"
+#include "RHI/ResourceSystem/ShaderTable.h"
 #include "RHI/ShaderSystem/Shader.h"
 #include "RHI/RendererCapability.h"
 #include "PrimitiveTopology.h"
@@ -337,6 +338,11 @@ namespace forward
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 	};
 
+	struct RaytracingShaderStageState : public ShaderStageState
+	{
+		shared_ptr<RaytracingShaders> m_shader;
+	};
+
 	struct PipelineStateObject
 	{
 		InputAssemblerStageState	m_IAState;
@@ -354,24 +360,14 @@ namespace forward
 		shared_ptr<DeviceObject>	m_devicePSO;
 	};
 
-	struct ShaderRecord
-	{
-		const u8* name;
-		const u8* shaderData;
-	};
-
-	struct ShaderTable
-	{
-		Vector<ShaderRecord> m_shaderRecords;
-	};
-
 	struct RTPipelineStateObject
 	{
 		Vector<std::pair<VertexBuffer, IndexBuffer>> m_geometry;
+		RaytracingShaderStageState m_rtState;
 
-		ShaderTable m_rayGenShaderTable;
-		ShaderTable m_hitShaderTable;
-		ShaderTable m_missShaderTable;
+		shared_ptr<ShaderTable> m_rayGenShaderTable;
+		shared_ptr<ShaderTable> m_hitShaderTable;
+		shared_ptr<ShaderTable> m_missShaderTable;
 
 		shared_ptr<DeviceObject> m_deviceRTPSO;
 	};
