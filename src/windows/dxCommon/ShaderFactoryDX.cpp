@@ -70,7 +70,7 @@ ID3DBlob* ShaderFactoryDX::GenerateShader(const WString&, const String& shaderTe
 }
 //--------------------------------------------------------------------------------
 Vector<u8> ShaderFactoryDX::GenerateShader6(const WString& shaderFileName, const String& shaderText, const String& entry, const String& model, 
-    std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)> reflectionCallback)
+    std::function<void(IDxcUtils*, const DxcBuffer*)> reflectionCallback)
 {
     Vector<u8> resultShader = {};
     // 
@@ -89,7 +89,7 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(const WString& shaderFileName, const
 
     const auto pdbFolder = FileSystem::getSingleton().GetShaderPDBFolder();
     //
-    // COMMAND LINE:
+    // example COMMAND LINE:
     // dxc myshader.hlsl -E main -T ps_6_0 -Zi -D MYDEFINE=1 -Fo myshader.bin -Fd myshader.pdb -Qstrip_reflect
     //
     const WString entryW = TextHelper::ToUnicode(entry);
@@ -195,10 +195,7 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(const WString& shaderFileName, const
         ReflectionData.Encoding = DXC_CP_ACP;
         ReflectionData.Ptr = pReflectionData->GetBufferPointer();
         ReflectionData.Size = pReflectionData->GetBufferSize();
-
-        Microsoft::WRL::ComPtr< ID3D12ShaderReflection > pReflection;
-        pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&pReflection));
-        reflectionCallback(pReflection);
+        reflectionCallback(pUtils.Get(), &ReflectionData);
     }
 
     std::wstringstream ss;

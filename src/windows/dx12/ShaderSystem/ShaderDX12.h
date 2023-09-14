@@ -20,6 +20,7 @@ namespace forward
 
 	private:
 		void ReflectShader(Microsoft::WRL::ComPtr<ID3D12ShaderReflection> reflector);
+		void ReflectLibrary(Microsoft::WRL::ComPtr<ID3D12LibraryReflection> reflector);
 
 		static bool GetVariables(ID3D12ShaderReflectionConstantBuffer* cbuffer,
 			u32 numVariables, std::vector<HLSLBaseBuffer::Member>& members);

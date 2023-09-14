@@ -26,15 +26,16 @@ namespace forward
 		// Get an available command list from the command queue.
 		virtual shared_ptr<CommandList> GetCommandList() = 0;
 
-		// Execute a command list.
-		virtual void ExecuteCommandList() = 0;
-
 		virtual u64 Signal() = 0;
 		virtual bool IsFenceComplete(u64 fenceValue) = 0;
 		virtual void Flush() = 0;
 		virtual void WaitForGPU(u64 fenceValue) = 0;	// CPU wait for GPU
 		// Wait for another command queue to finish.
 		virtual void WaitFor(const CommandQueue& other) = 0;	// GPU wait for GPU
+
+	protected:
+		// Execute a command list.
+		virtual void ExecuteCommandList() = 0;
 
 	protected:
 		Device& m_device;

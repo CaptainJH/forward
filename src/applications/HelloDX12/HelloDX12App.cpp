@@ -141,8 +141,8 @@ void HelloDX12::BuildShadersAndInputLayout()
 	//m_vsByteCode = ShaderFactoryDX::GenerateShader(shaderfile, shaderText, VSMain, "vs_5_0");
 	//m_psByteCode = ShaderFactoryDX::GenerateShader(shaderfile, shaderText, PSMain, "ps_5_0");
 
-	m_vsByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, VSMain, "vs_6_0", [](auto){});
-	m_psByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, PSMain, "ps_6_0", [](auto) {});
+	m_vsByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, VSMain, "vs_6_0", [](auto, auto){});
+	m_psByteCode6 = ShaderFactoryDX::GenerateShader6(shaderfile, shaderText, PSMain, "ps_6_0", [](auto, auto) {});
 
 	m_inputLayout = 
 	{

@@ -175,7 +175,7 @@ void D3D12RaytracingHelloWorld::CreateRaytracingPipelineStateObject()
     forward::FileLoader rtSourceFile;
     rtSourceFile.Open(rtFilepath);
     std::string rtShaderText = rtSourceFile.GetDataPtr();
-    auto rtShader = forward::ShaderFactoryDX::GenerateShader6(rtShaderfile, rtShaderText, "", "lib_6_3", [](auto) {});
+    auto rtShader = forward::ShaderFactoryDX::GenerateShader6(rtShaderfile, rtShaderText, "", "lib_6_3", [](auto, auto) {});
 
     // DXIL library
     // This contains the shaders and their entrypoints for the state object.

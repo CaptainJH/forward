@@ -4,6 +4,8 @@
 #include "ShaderDX.h"
 #include <functional>
 //--------------------------------------------------------------------------------
+struct DxcBuffer;
+struct IDxcUtils;
 namespace forward
 {
 	class ShaderFactoryDX
@@ -15,7 +17,7 @@ namespace forward
             const String& model, const D3D_SHADER_MACRO* pDefines = nullptr, bool enablelogging = true );
 
 		static Vector<u8> GenerateShader6(const WString& shaderFileName, const String& shaderText, const String& function, 
-			const String& model, std::function<void(Microsoft::WRL::ComPtr<ID3D12ShaderReflection>)>);
+			const String& model, std::function<void(IDxcUtils*, const DxcBuffer*)>);
 	};
 
 };

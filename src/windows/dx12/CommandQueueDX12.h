@@ -15,7 +15,6 @@ namespace forward
 		virtual ~CommandQueueDX12();
 
 		shared_ptr<CommandList> GetCommandList() override;
-		void ExecuteCommandList() override;
 		u64 Signal() override;
 		bool IsFenceComplete(u64 fenceValue) override;
 		void WaitForGPU(u64 fenceValue) override;
@@ -34,6 +33,9 @@ namespace forward
 			m_CurrentCmdList = nullptr;
 			return fenceValue;
 		}
+
+	protected:
+		void ExecuteCommandList() override;
 
 	protected:
 		CommandQueueDX12(Device& d, QueueType t);

@@ -38,11 +38,12 @@ ShaderRecord& ShaderTable::operator[](u32 index)
     return *ret;
 }
 
-ShaderTable::ShaderTable(const String& name, u32 numShaderRecords, u32 shaderRecordSize)
+ShaderTable::ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSize)
     : Resource(name)
 {
     m_type = FGOT_SHADER_TABLE;
-    auto shaderRecordSizeAligned = Align(shaderRecordSize, RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+    SetUsage(RU_DYNAMIC_UPDATE);
+    auto shaderRecordSizeAligned = Align(payloadSize + SHADER_IDENTIFIER_SIZE_IN_BYTES, RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
     Initialize(numShaderRecords, shaderRecordSizeAligned);
 }
 
@@ -51,14 +52,25 @@ void ShaderTable::SetupShaderRecords(const std::unordered_map<WString, void*>& n
     auto dst = GetData();
     for (auto& record : m_shaderRecords)
     {
+        void* ident = nullptr;
+        if (name2identifier.contains(record.shaderName))
+            ident = name2identifier.at(record.shaderName);
+        else
+        {
+            auto nameW = TextHelper::ToUnicode(Name());
+            if (!name2identifier.contains(nameW))
+                continue;
+            ident = name2identifier.at(nameW);
+        }
+
         if (record.shaderArguments.empty())
         {
-            ShaderRecord sr(name2identifier.at(record.shaderName), SHADER_IDENTIFIER_SIZE_IN_BYTES);
+            ShaderRecord sr(ident, SHADER_IDENTIFIER_SIZE_IN_BYTES);
             sr.CopyTo(dst);
         }
         else
         {
-            ShaderRecord sr(name2identifier.at(record.shaderName), SHADER_IDENTIFIER_SIZE_IN_BYTES, 
+            ShaderRecord sr(ident, SHADER_IDENTIFIER_SIZE_IN_BYTES, 
                 record.shaderArguments.data(), static_cast<u32>(record.shaderArguments.size()));
             sr.CopyTo(dst);
         }

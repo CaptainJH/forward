@@ -54,7 +54,7 @@ namespace forward
 	{
 	public:
         ShaderTable() = delete;
-		ShaderTable(const String& name, u32 numShaderRecords, u32 shaderRecordSize);
+		ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSize);
 
         ShaderRecord& operator[](u32 index);
         u32 GetShaderRecordSize() const { return GetElementSize(); }

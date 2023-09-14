@@ -2,6 +2,7 @@
 #include "RHI/ShaderSystem/Shader.h"
 #include "dxCommon/ShaderFactoryDX.h"
 #include "FileSystem.h"
+#include <dxcapi.h>
 
 using namespace forward;
 static const bool USE_DXC = true;
@@ -32,16 +33,34 @@ ShaderDX12::ShaderDX12(forward::Shader* shader)
 		ShaderModel = "cs";
 		break;
 
+	case FGOT_RT_SHADER:
+		m_shaderType = RT_SHADER;
+		ShaderModel = "lib";
+		break;
+
 	default:
 		assert(false);
 	}
 
 	if (USE_DXC)
 	{
-		ShaderModel += "_6_0";
-		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(shader->GetShaderFile(), 
+		ShaderModel += "_6_3";
+		m_CompiledShader6 = ShaderFactoryDX::GenerateShader6(shader->GetShaderFile(),
 			shader->GetShaderText(), shader->GetShaderEntry(), ShaderModel,
-			[&](Microsoft::WRL::ComPtr<ID3D12ShaderReflection> r) { ReflectShader(r); });
+			[&](IDxcUtils* pUtils, const DxcBuffer* reflectionData) {
+				if (type == FGOT_RT_SHADER)
+				{
+					Microsoft::WRL::ComPtr<ID3D12LibraryReflection> pReflection;
+					pUtils->CreateReflection(reflectionData, IID_PPV_ARGS(&pReflection));
+					ReflectLibrary(pReflection);
+				}
+				else
+				{
+					Microsoft::WRL::ComPtr<ID3D12ShaderReflection> pReflection;
+					pUtils->CreateReflection(reflectionData, IID_PPV_ARGS(&pReflection));
+					ReflectShader(pReflection); 
+				}
+			});
 	}
 	else
 	{
@@ -81,6 +100,18 @@ ShaderDX12::~ShaderDX12()
 ShaderType ShaderDX12::GetType() const
 {
 	return m_shaderType;
+}
+
+void ShaderDX12::ReflectLibrary(Microsoft::WRL::ComPtr<ID3D12LibraryReflection> reflector)
+{
+	/// get description
+	D3D12_LIBRARY_DESC desc;
+	HR(reflector->GetDesc(&desc));
+	for (auto i = 0U; i < desc.FunctionCount; ++i)
+	{
+		auto fun = reflector->GetFunctionByIndex(i);
+		fun;
+	}
 }
 
 void ShaderDX12::ReflectShader(Microsoft::WRL::ComPtr<ID3D12ShaderReflection> reflector)

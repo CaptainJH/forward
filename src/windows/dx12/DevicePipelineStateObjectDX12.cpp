@@ -580,7 +580,10 @@ DeviceRTPipelineStateObjectDX12::DeviceRTPipelineStateObjectDX12(DeviceDX12* d, 
 	: DeviceObject(nullptr)
 	, m_rtPSO(rtPSO)
 {
+	BuildRootSignature(d);
+	BuildRaytracingPipelineStateObject(d);
 	BuildAccelerationStructures(d);
+	BuildShaderTables(d);
 }
 
 DeviceRTPipelineStateObjectDX12::~DeviceRTPipelineStateObjectDX12()
@@ -598,23 +601,20 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 {
 	auto device = d->GetDevice();
 	auto cmdListDevice = d->DeviceCommandList();
-	auto& cmdList = d->GetCmdList();
 
-	auto vertexBuffer = device_cast<DeviceResourceDX12*>(&m_rtPSO.m_geometry.front().first);
-	auto indexBuffer = device_cast<DeviceResourceDX12*>(&m_rtPSO.m_geometry.front().second);
-
-	cmdList.Reset();
+	auto vertexBuffer = device_cast<DeviceResourceDX12*>(m_rtPSO.m_geometry.front().first.get());
+	auto indexBuffer = device_cast<DeviceResourceDX12*>(m_rtPSO.m_geometry.front().second.get());
 
 	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
 	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
 	geometryDesc.Triangles.IndexBuffer = indexBuffer->GetGPUAddress();
-	geometryDesc.Triangles.IndexCount = m_rtPSO.m_geometry.front().second.GetNumElements();
+	geometryDesc.Triangles.IndexCount = m_rtPSO.m_geometry.front().second->GetNumElements();
 	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 	geometryDesc.Triangles.Transform3x4 = 0;
 	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-	geometryDesc.Triangles.VertexCount = m_rtPSO.m_geometry.front().first.GetNumElements();
+	geometryDesc.Triangles.VertexCount = m_rtPSO.m_geometry.front().first->GetNumElements();
 	geometryDesc.Triangles.VertexBuffer.StartAddress = vertexBuffer->GetGPUAddress();
-	geometryDesc.Triangles.VertexBuffer.StrideInBytes = m_rtPSO.m_geometry.front().first.GetElementSize();
+	geometryDesc.Triangles.VertexBuffer.StrideInBytes = m_rtPSO.m_geometry.front().first->GetElementSize();
 
 	// Mark the geometry as opaque. 
 	// PERFORMANCE TIP: mark geometry as opaque whenever applicable as it can enable important ray processing optimizations.
@@ -694,7 +694,7 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	// Build acceleration structure.
 	BuildAccelerationStructure(cmdListDevice);
 
-	d->GetDefaultQueue()->ExecuteCommandList();
+	d->GetDefaultQueue()->ExecuteCommandList([]() {});
 	d->GetDefaultQueue()->Flush();
 }
 

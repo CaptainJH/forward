@@ -366,7 +366,7 @@ namespace forward
 
 	struct RTPipelineStateObject
 	{
-		Vector<std::pair<VertexBuffer, IndexBuffer>> m_geometry;
+		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer> > > m_geometry;
 		RaytracingShaderStageState m_rtState;
 
 		shared_ptr<DeviceObject> m_deviceRTPSO;
