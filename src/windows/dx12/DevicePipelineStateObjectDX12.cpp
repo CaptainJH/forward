@@ -602,41 +602,53 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	auto device = d->GetDevice();
 	auto cmdListDevice = d->DeviceCommandList();
 
-	auto vertexBuffer = device_cast<DeviceResourceDX12*>(m_rtPSO.m_geometry.front().first.get());
-	auto indexBuffer = device_cast<DeviceResourceDX12*>(m_rtPSO.m_geometry.front().second.get());
-
-	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
-	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-	geometryDesc.Triangles.IndexBuffer = indexBuffer->GetGPUAddress();
-	geometryDesc.Triangles.IndexCount = m_rtPSO.m_geometry.front().second->GetNumElements();
-	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
-	geometryDesc.Triangles.Transform3x4 = 0;
-	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-	geometryDesc.Triangles.VertexCount = m_rtPSO.m_geometry.front().first->GetNumElements();
-	geometryDesc.Triangles.VertexBuffer.StartAddress = vertexBuffer->GetGPUAddress();
-	geometryDesc.Triangles.VertexBuffer.StrideInBytes = m_rtPSO.m_geometry.front().first->GetElementSize();
-
-	// Mark the geometry as opaque. 
-	// PERFORMANCE TIP: mark geometry as opaque whenever applicable as it can enable important ray processing optimizations.
-	// Note: When rays encounter opaque geometry an any hit shader will not be executed whether it is present or not.
-	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+	Vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometryDescs;
+	for (auto& geo : m_rtPSO.m_geometry)
+	{
+		auto vertexBuffer = device_cast<DeviceResourceDX12*>(geo.first);
+		auto indexBuffer = device_cast<DeviceResourceDX12*>(geo.second);
+		geometryDescs.emplace_back(D3D12_RAYTRACING_GEOMETRY_DESC {
+			.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES,
+			// Mark the geometry as opaque. 
+			// PERFORMANCE TIP: mark geometry as opaque whenever applicable as it can enable important ray processing optimizations.
+			// Note: When rays encounter opaque geometry an any hit shader will not be executed whether it is present or not.
+			.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE,
+			.Triangles = {
+				.Transform3x4 = 0,
+				.IndexFormat = DXGI_FORMAT_R32_UINT,
+				.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT,
+				.IndexCount = geo.second->GetNumElements(),
+				.VertexCount = geo.first->GetNumElements(),
+				.IndexBuffer = indexBuffer->GetGPUAddress(),
+				.VertexBuffer = {
+					.StartAddress = vertexBuffer->GetGPUAddress(),
+					.StrideInBytes = geo.first->GetElementSize(),
+				}
+			}
+			});
+	}
 
 	// Get required sizes for an acceleration structure.
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS topLevelInputs = {};
-	topLevelInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-	topLevelInputs.Flags = buildFlags;
-	topLevelInputs.NumDescs = 1;
-	topLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS topLevelInputs = {
+		.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+		.Flags = buildFlags,
+		.NumDescs = static_cast<u32>(geometryDescs.size()),
+		.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY,
+		.pGeometryDescs = geometryDescs.data()
+	};
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO topLevelPrebuildInfo = {};
 	device->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 	assert(topLevelPrebuildInfo.ResultDataMaxSizeInBytes > 0);
 
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS bottomLevelInputs = {
+		.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
+		.Flags = buildFlags,
+		.NumDescs = static_cast<u32>(geometryDescs.size()),
+		.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY,
+		.pGeometryDescs = geometryDescs.data()
+	};
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
-	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS bottomLevelInputs = topLevelInputs;
-	bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-	bottomLevelInputs.pGeometryDescs = &geometryDesc;
 	device->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 	assert(bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes > 0);
 
@@ -667,21 +679,19 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	DeviceResCom12Ptr instanceDescs = DeviceBufferDX12::AllocateUploadBuffer(device, &instanceDesc, sizeof(instanceDesc), L"InstanceDescs");
 
 	// Bottom Level Acceleration Structure desc
-	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {};
-	{
-		bottomLevelBuildDesc.Inputs = bottomLevelInputs;
-		bottomLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
-		bottomLevelBuildDesc.DestAccelerationStructureData = m_bottomLevelAccelerationStructure->GetGPUVirtualAddress();
-	}
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC bottomLevelBuildDesc = {
+		.DestAccelerationStructureData = m_bottomLevelAccelerationStructure->GetGPUVirtualAddress(),
+		.Inputs = bottomLevelInputs,
+		.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress(),
+	};
 
 	// Top Level Acceleration Structure desc
-	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC topLevelBuildDesc = {};
-	{
-		topLevelInputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
-		topLevelBuildDesc.Inputs = topLevelInputs;
-		topLevelBuildDesc.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress();
-		topLevelBuildDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
-	}
+	topLevelInputs.InstanceDescs = instanceDescs->GetGPUVirtualAddress();
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC topLevelBuildDesc = {
+		.DestAccelerationStructureData = m_topLevelAccelerationStructure->GetGPUVirtualAddress(),
+		.Inputs = topLevelInputs,
+		.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress()
+	};
 
 	auto BuildAccelerationStructure = [&](auto* raytracingCommandList)
 	{
@@ -769,8 +779,8 @@ void DeviceRTPipelineStateObjectDX12::BuildRaytracingPipelineStateObject(DeviceD
 	// Since shaders are not considered a subobject, they need to be passed in via DXIL library subobjects.
 	auto lib = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
 	auto rtShader = m_rtPSO.m_rtState.m_shader;
-	forward::shared_ptr<ShaderDX12> deviceRT = nullptr;
-	if (rtShader && !rtShader->DeviceObject())
+	forward::shared_ptr<ShaderDX12> deviceRT = device_cast<ShaderDX12*>(rtShader);
+	if (rtShader && !deviceRT)
 	{
 		deviceRT = forward::make_shared<ShaderDX12>(rtShader.get());
 		rtShader->SetDeviceObject(deviceRT);
@@ -876,8 +886,7 @@ void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 		if (st && !st->DeviceObject())
 		{
 			st->SetupShaderRecords(shaderName2ShaderIdentifierTable);
-			auto cmdListDevice = d->DeviceCommandList();
-			auto deviceShaderTable = make_shared<DeviceBufferDX12>(cmdListDevice, st.get(), *d);
+			auto deviceShaderTable = make_shared<DeviceBufferDX12>(nullptr, st.get(), *d);
 			deviceShaderTable->SyncCPUToGPU();
 			st->SetDeviceObject(deviceShaderTable);
 		}
