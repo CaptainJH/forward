@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(SmartPtrDemo)
-add_subdirectory(RayTracerDemo)
 add_subdirectory(HelloRaytracing)
 add_subdirectory(HelloFrameGraphDemo)
 add_subdirectory(BasicGeometryFrameGraph)
