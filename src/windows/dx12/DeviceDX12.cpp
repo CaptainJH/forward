@@ -718,6 +718,11 @@ shared_ptr<Texture2D> DeviceDX12::GetDefaultRT() const
 	}
 }
 
+shared_ptr<Texture2D> DeviceDX12::GetCurrentSwapChainRT()
+{
+	return m_SwapChain ? m_SwapChain->GetCurrentRT() : nullptr;
+}
+
 shared_ptr<Texture2D> DeviceDX12::GetDefaultDS() const
 {
 	auto dsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");

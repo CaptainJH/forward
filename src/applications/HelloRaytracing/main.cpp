@@ -124,6 +124,7 @@ protected:
 		cmdList->CommitStagedDescriptors();
 		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
 		cmdList->DispatchRays(*m_rtPSO);
+		cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
 
 		m_pDeviceDX12->EndDraw();
 	}

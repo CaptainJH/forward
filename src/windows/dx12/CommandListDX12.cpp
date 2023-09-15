@@ -313,3 +313,26 @@ void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
 
 	m_CmdList->SetComputeRootShaderResourceView(1, deviceRTPSO.m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 }
+
+void CommandListDX12::CopyResource(Resource& dst, Resource& src)
+{
+	auto srcDevice = device_cast<DeviceTexture2DDX12*>(&src);
+	auto dstDevice = device_cast<DeviceTexture2DDX12*>(&dst);
+	auto srcDX = srcDevice->GetDeviceResource();
+	auto dstDX = dstDevice->GetDeviceResource();
+
+	const auto srcState = srcDevice->GetResourceState();
+	const auto dstState = dstDevice->GetResourceState();
+
+	D3D12_RESOURCE_BARRIER preCopyBarriers[2];
+	preCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(dstDX.Get(), dstState, D3D12_RESOURCE_STATE_COPY_DEST);
+	preCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(srcDX.Get(), srcState, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	m_CmdList->ResourceBarrier(ARRAYSIZE(preCopyBarriers), preCopyBarriers);
+
+	m_CmdList->CopyResource(dstDX.Get(), srcDX.Get());
+
+	D3D12_RESOURCE_BARRIER postCopyBarriers[2];
+	postCopyBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(dstDX.Get(), D3D12_RESOURCE_STATE_COPY_DEST, dstState);
+	postCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(srcDX.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, srcState);
+	m_CmdList->ResourceBarrier(ARRAYSIZE(postCopyBarriers), postCopyBarriers);
+}

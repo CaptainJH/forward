@@ -25,6 +25,7 @@ namespace forward
 		void DrawIndexed(u32 indexCount) override;
 		void Dispatch(u32 x, u32 y, u32 z) override;
 		void DispatchRays(RTPipelineStateObject& pso) override;
+		void CopyResource(Resource& dst, Resource& src) override;
 
 		void BindGPUVisibleHeaps();
 		void BindGraphicsPSO(DevicePipelineStateObjectDX12&);

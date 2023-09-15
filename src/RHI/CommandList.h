@@ -30,6 +30,7 @@ namespace forward
 		virtual void DrawIndexed(u32 indexCount) = 0;
 		virtual void Dispatch(u32 x, u32 y, u32 z) = 0;
 		virtual void DispatchRays(RTPipelineStateObject& pso) = 0;
+		virtual void CopyResource(Resource& dst, Resource& src) = 0;
 
 		// FrameGraph APIs
 		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;
