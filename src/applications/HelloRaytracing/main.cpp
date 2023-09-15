@@ -133,21 +133,25 @@ protected:
 			auto res = dynamic_cast<DeviceResourceDX12*>(st.GetDeviceResource());
 			return res->GetGPUAddress();
 			};
-
-		// Bind the heaps, acceleration structure and dispatch rays.    
-		D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
-		dispatchDesc.HitGroupTable.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_hitShaderTable);
-		dispatchDesc.HitGroupTable.SizeInBytes = m_rtPSO->m_rtState.m_hitShaderTable->GetNumBytes();
-		dispatchDesc.HitGroupTable.StrideInBytes = dispatchDesc.HitGroupTable.SizeInBytes;
-		dispatchDesc.MissShaderTable.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_missShaderTable);
-		dispatchDesc.MissShaderTable.SizeInBytes = m_rtPSO->m_rtState.m_missShaderTable->GetNumBytes();
-		dispatchDesc.MissShaderTable.StrideInBytes = dispatchDesc.MissShaderTable.SizeInBytes;
-		dispatchDesc.RayGenerationShaderRecord.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_rayGenShaderTable);
-		dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_rtPSO->m_rtState.m_rayGenShaderTable->GetNumBytes();
-		dispatchDesc.Width = mClientWidth;
-		dispatchDesc.Height = mClientHeight;
-		dispatchDesc.Depth = 1;
-
+		D3D12_DISPATCH_RAYS_DESC dispatchDesc = {
+			.RayGenerationShaderRecord = {
+				.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_rayGenShaderTable),
+				.SizeInBytes = m_rtPSO->m_rtState.m_rayGenShaderTable->GetNumBytes()
+			},
+			.MissShaderTable = {
+				.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_missShaderTable),
+				.SizeInBytes = m_rtPSO->m_rtState.m_missShaderTable->GetNumBytes(),
+				.StrideInBytes = m_rtPSO->m_rtState.m_missShaderTable->GetNumBytes()
+			},
+			.HitGroupTable = {
+				.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_hitShaderTable),
+				.SizeInBytes = m_rtPSO->m_rtState.m_hitShaderTable->GetNumBytes(),
+				.StrideInBytes = m_rtPSO->m_rtState.m_hitShaderTable->GetNumBytes()
+			},
+			.Width = static_cast<u32>(mClientWidth),
+			.Height = static_cast<u32>(mClientHeight),
+			.Depth = 1
+		};
 		deviceCommandList->DispatchRays(&dispatchDesc);
 		m_pDeviceDX12->EndDraw();
 	}
