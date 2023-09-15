@@ -13,6 +13,7 @@ namespace forward
 	class Device;
 	class FrameGraph;
 	class RenderPass;
+	struct RTPipelineStateObject;
 
 	class CommandList : public intrusive_ref_counter
 	{
@@ -28,6 +29,7 @@ namespace forward
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation = 0) = 0;
 		virtual void DrawIndexed(u32 indexCount) = 0;
 		virtual void Dispatch(u32 x, u32 y, u32 z) = 0;
+		virtual void DispatchRays(RTPipelineStateObject& pso) = 0;
 
 		// FrameGraph APIs
 		virtual void BeginDrawFrameGraph(FrameGraph* fg) = 0;

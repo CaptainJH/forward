@@ -706,7 +706,7 @@ shared_ptr<Texture2D> DeviceDX12::GetDefaultRT() const
 {
 	if (m_SwapChain)
 	{
-		return make_shared<Texture2D>("DefaultRT", m_BackBufferFormat, 0, 0, 0);
+		return make_shared<Texture2D>("DefaultRT", m_BackBufferFormat, m_width, m_height, 0);
 	}
 	else
 	{

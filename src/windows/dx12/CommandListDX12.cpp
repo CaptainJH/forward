@@ -74,6 +74,34 @@ void CommandListDX12::Dispatch(u32 x, u32 y, u32 z)
 	m_CmdList->Dispatch(x, y, z);
 }
 
+void CommandListDX12::DispatchRays(RTPipelineStateObject& pso)
+{
+	auto GetGPUAddress = [&](ShaderTable& st)->D3D12_GPU_VIRTUAL_ADDRESS {
+		auto res = dynamic_cast<DeviceResourceDX12*>(st.GetDeviceResource());
+		return res->GetGPUAddress();
+		};
+	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {
+		.RayGenerationShaderRecord = {
+			.StartAddress = GetGPUAddress(*pso.m_rtState.m_rayGenShaderTable),
+			.SizeInBytes = pso.m_rtState.m_rayGenShaderTable->GetNumBytes()
+		},
+		.MissShaderTable = {
+			.StartAddress = GetGPUAddress(*pso.m_rtState.m_missShaderTable),
+			.SizeInBytes = pso.m_rtState.m_missShaderTable->GetNumBytes(),
+			.StrideInBytes = pso.m_rtState.m_missShaderTable->GetNumBytes()
+		},
+		.HitGroupTable = {
+			.StartAddress = GetGPUAddress(*pso.m_rtState.m_hitShaderTable),
+			.SizeInBytes = pso.m_rtState.m_hitShaderTable->GetNumBytes(),
+			.StrideInBytes = pso.m_rtState.m_hitShaderTable->GetNumBytes()
+		},
+		.Width = GetDevice().GetDefaultRT()->GetWidth(),
+		.Height = GetDevice().GetDefaultRT()->GetHeight(),
+		.Depth = 1
+	};
+	m_CmdList->DispatchRays(&dispatchDesc);
+}
+
 void CommandListDX12::BeginDrawFrameGraph(FrameGraph* fg)
 {
 	fg;
@@ -282,4 +310,6 @@ void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
 
 	for (auto& heap : m_DynamicDescriptorHeaps)
 		heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+
+	m_CmdList->SetComputeRootShaderResourceView(1, deviceRTPSO.m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 }

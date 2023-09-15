@@ -157,7 +157,7 @@ namespace forward
 
 		ID3D12StateObject* GetDeviceRTPSO();
 
-	//private:
+	private:
 		RTPipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr				m_raytracingGlobalRootSignature;
 		RootSignatureComPtr				m_raytracingLocalRootSignature;
