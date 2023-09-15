@@ -102,6 +102,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 			nullptr,
 			IID_PPV_ARGS(m_deviceResPtr.GetAddressOf())));
 		//m_resource->SetName(resourceName);
+		m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 
 		CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
 		HR(m_deviceResPtr->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));

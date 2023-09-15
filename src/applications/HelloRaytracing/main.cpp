@@ -7,6 +7,7 @@
 #include "dx12/CommandQueueDX12.h"
 #include "dx12/ShaderSystem/ShaderDX12.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
+#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
 
 using namespace forward;
@@ -45,6 +46,13 @@ public:
 		if (!Application::Init())
 			return false;
 
+		m_rayGenCB.viewport = { -1, -1, 1, 1 };
+		const f32 border = 0.1f;
+		m_rayGenCB.stencil = {
+			-1 + border / AspectRatio(), -1 + border,
+			 1 - border / AspectRatio(), 1.0f - border
+		};
+
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		auto commandList = m_pDeviceDX12->DeviceCommandList();
 		m_rtPSO = std::make_unique<RTPipelineStateObject>();
@@ -74,12 +82,19 @@ public:
 		m_vb->SetDeviceObject(deviceVB);
 		m_rtPSO->m_geometry.emplace_back(std::make_pair(m_vb, m_ib));
 
+		m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
+		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+		auto deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uavTex.get(), *m_pDeviceDX12);
+		m_uavTex->SetDeviceObject(deviceUAVTex);
+		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
+
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"Raytracing");
 		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 
 			static_cast<u32>(sizeof(RayGenConstantBuffer)));
-		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader", 
-			Vector<u8>(sizeof(RayGenConstantBuffer), 0) });
+		Vector<u8> rayGenCBBuffer(sizeof(RayGenConstantBuffer), 0);
+		memcpy(rayGenCBBuffer.data(), &m_rayGenCB, rayGenCBBuffer.size());
+		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader", rayGenCBBuffer });
 		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader" });
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
@@ -99,15 +114,52 @@ protected:
 	{
 
 	}
+
 	void DrawScene() override
 	{
+		m_pDeviceDX12->BeginDraw();
+		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
+		auto deviceCommandList = cmdList->GetDeviceCmdListPtr();
+		auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
 
+		cmdList->BindGPUVisibleHeaps();
+		cmdList->PrepareGPUVisibleHeaps(*m_rtPSO);
+		cmdList->CommitStagedDescriptors();
+
+		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
+		deviceCommandList->SetComputeRootShaderResourceView(1, devicePSO->m_topLevelAccelerationStructure->GetGPUVirtualAddress());
+
+		auto GetGPUAddress = [&](ShaderTable& st)->D3D12_GPU_VIRTUAL_ADDRESS {
+			auto res = dynamic_cast<DeviceResourceDX12*>(st.GetDeviceResource());
+			return res->GetGPUAddress();
+			};
+
+		// Bind the heaps, acceleration structure and dispatch rays.    
+		D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
+		dispatchDesc.HitGroupTable.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_hitShaderTable);
+		dispatchDesc.HitGroupTable.SizeInBytes = m_rtPSO->m_rtState.m_hitShaderTable->GetNumBytes();
+		dispatchDesc.HitGroupTable.StrideInBytes = dispatchDesc.HitGroupTable.SizeInBytes;
+		dispatchDesc.MissShaderTable.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_missShaderTable);
+		dispatchDesc.MissShaderTable.SizeInBytes = m_rtPSO->m_rtState.m_missShaderTable->GetNumBytes();
+		dispatchDesc.MissShaderTable.StrideInBytes = dispatchDesc.MissShaderTable.SizeInBytes;
+		dispatchDesc.RayGenerationShaderRecord.StartAddress = GetGPUAddress(*m_rtPSO->m_rtState.m_rayGenShaderTable);
+		dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_rtPSO->m_rtState.m_rayGenShaderTable->GetNumBytes();
+		dispatchDesc.Width = mClientWidth;
+		dispatchDesc.Height = mClientHeight;
+		dispatchDesc.Depth = 1;
+
+		deviceCommandList->DispatchRays(&dispatchDesc);
+		m_pDeviceDX12->EndDraw();
 	}
 
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
 	shared_ptr<IndexBuffer> m_ib;
 	shared_ptr<VertexBuffer> m_vb;
+	forward::shared_ptr<Texture2D> m_uavTex;
 	DeviceDX12* m_pDeviceDX12 = nullptr;
+
+	// Raytracing scene
+	RayGenConstantBuffer m_rayGenCB;
 };
 
 FORWARD_APPLICATION_MAIN(HelloRaytracing, 1920, 1080);

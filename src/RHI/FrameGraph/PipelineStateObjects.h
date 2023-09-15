@@ -341,6 +341,7 @@ namespace forward
 	struct RaytracingShaderStageState : public ShaderStageState
 	{
 		shared_ptr<RaytracingShaders> m_shader;
+		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 
 		shared_ptr<ShaderTable> m_rayGenShaderTable;
 		shared_ptr<ShaderTable> m_hitShaderTable;

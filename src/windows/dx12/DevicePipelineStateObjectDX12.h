@@ -157,19 +157,13 @@ namespace forward
 
 		ID3D12StateObject* GetDeviceRTPSO();
 
-	private:
+	//private:
 		RTPipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr				m_raytracingGlobalRootSignature;
 		RootSignatureComPtr				m_raytracingLocalRootSignature;
 		DeviceResCom12Ptr					m_bottomLevelAccelerationStructure;
 		DeviceResCom12Ptr					m_topLevelAccelerationStructure;
 		RTPipelineStateObject&			m_rtPSO;
-
-		// temp
-		//const wchar_t* c_hitGroupName = L"MyHitGroup";
-		//const wchar_t* c_raygenShaderName = L"MyRaygenShader";
-		//const wchar_t* c_closestHitShaderName = L"MyClosestHitShader";
-		//const wchar_t* c_missShaderName = L"MyMissShader";
 
 	private:
 		void BuildAccelerationStructures(DeviceDX12* device);

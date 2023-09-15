@@ -11,6 +11,7 @@ namespace forward
 	enum class QueueType;
 	class CommandQueueDX12;
 	class DevicePipelineStateObjectDX12;
+	class DeviceRTPipelineStateObjectDX12;
 
 	class CommandListDX12 final : public CommandList
 	{
@@ -27,7 +28,9 @@ namespace forward
 		void BindGPUVisibleHeaps();
 		void BindGraphicsPSO(DevicePipelineStateObjectDX12&);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
+		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
+		void PrepareGPUVisibleHeaps(RTPipelineStateObject& pso);
 		void CommitStagedDescriptors();
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;

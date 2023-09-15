@@ -200,6 +200,32 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	}
 }
 
+void CommandListDX12::PrepareGPUVisibleHeaps(RTPipelineStateObject& pso)
+{
+	auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+	if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(1))
+	{
+		u32 stagedUAVs = 0;
+
+		auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
+			assert(deviceTex);
+			*(baseDescriptorHandleAddr + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
+			};
+
+		// stage UAVs
+		for (auto i = 0; i < 8; ++i)
+		{
+			if (auto res_cs = pso.m_rtState.m_uavShaderRes[i])
+			{
+				auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
+				stageUAVFunc(deviceTex);
+			}
+			else
+				break;
+		}
+	}
+}
+
 DeviceDX12& CommandListDX12::GetDeviceDX12()
 {
 	return static_cast<DeviceDX12&>(m_device);
@@ -247,4 +273,13 @@ void CommandListDX12::BindComputePSO(DevicePipelineStateObjectDX12& devicePSO)
 	if (!devicePSO.IsEmptyRootParams())
 		for (auto& heap : m_DynamicDescriptorHeaps)
 			heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+}
+
+void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
+{
+	m_CmdList->SetComputeRootSignature(deviceRTPSO.m_raytracingGlobalRootSignature.Get());
+	m_CmdList->SetPipelineState1(deviceRTPSO.m_devicePSO.Get());
+
+	for (auto& heap : m_DynamicDescriptorHeaps)
+		heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
 }
