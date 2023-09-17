@@ -136,6 +136,13 @@ void ShaderStageState::SetConstantBufferData(Shader& shader, u32 index, std::uno
 				Vector3f data(std::stof(v[0]), std::stof(v[1]), std::stof(v[2]));
 				dataPtr = &data;
 			}
+			else if (info.typeName == "float4")
+			{
+				Vector<String> v = pystring::split(p.second, ",");
+				assert(v.size() == 4);
+				Vector4f data(std::stof(v[0]), std::stof(v[1]), std::stof(v[2]), std::stof(v[3]));
+				dataPtr = &data;
+			}
 			else if (info.typeName == "int")
 			{
 				i32 data = std::stoi(p.second);
