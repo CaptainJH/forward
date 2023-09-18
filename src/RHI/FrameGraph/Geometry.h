@@ -20,6 +20,20 @@ namespace forward
 		}
 	};
 
+	struct Vertex_POS_N
+	{
+		Vector3f Pos;
+		Vector3f N;
+
+		static forward::VertexFormat GetVertexFormat()
+		{
+			VertexFormat vf;
+			vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			vf.Bind(VASemantic::VA_NORMAL, DataFormatType::DF_R32G32B32_FLOAT, 0);
+			return vf;
+		}
+	};
+
 	struct Vertex_POS_COLOR
 	{
 		Vector3f Pos;

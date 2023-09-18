@@ -88,7 +88,7 @@ public:
 		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
 
 		// setup shaders
-		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"Raytracing");
+		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"HelloRaytracing");
 		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 
 			static_cast<u32>(sizeof(RayGenConstantBuffer)));
 		Vector<u8> rayGenCBBuffer(sizeof(RayGenConstantBuffer), 0);
