@@ -120,7 +120,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			ConfigBlendState(psoDesc.BlendState);
 			ConfigDepthStencilState(psoDesc.DepthStencilState);
 			psoDesc.SampleMask = UINT_MAX;
-			psoDesc.PrimitiveTopologyType = Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
+			psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
 			psoDesc.NumRenderTargets = 0;
 			for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
 			{
@@ -309,20 +309,20 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	std::array<u32, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> usedRegisterSRV{ 0 };
 	std::array<u32, 8> usedRegisterUAV{ 0 };
 
-	collectBindingInfo(m_pso.m_VSState, usedRegisterCBV, usedRegisterSRV);
-	collectBindingInfo(m_pso.m_PSState, usedRegisterCBV, usedRegisterSRV);
-	collectBindingInfo(m_pso.m_CSState, usedRegisterCBV, usedRegisterSRV, usedRegisterUAV);
+	DevicePipelineStateObjectHelper::CollectBindingInfo(m_pso.m_VSState, usedRegisterCBV, usedRegisterSRV);
+	DevicePipelineStateObjectHelper::CollectBindingInfo(m_pso.m_PSState, usedRegisterCBV, usedRegisterSRV);
+	DevicePipelineStateObjectHelper::CollectBindingInfo(m_pso.m_CSState, usedRegisterCBV, usedRegisterSRV, usedRegisterUAV);
 
 	const auto usedCBVCount = std::count_if(usedRegisterCBV.begin(), usedRegisterCBV.end(), [](u32 u)->bool { return u > 0; });
 	if (usedCBVCount > 0)
 		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, (u32)usedCBVCount, 0));
 
-	checkBindingInfo(usedRegisterSRV);
+	DevicePipelineStateObjectHelper::CheckBindingInfo(usedRegisterSRV);
 	const auto usedSRVCount = std::count(usedRegisterSRV.begin(), usedRegisterSRV.end(), 2U);
 	if (usedSRVCount > 0)
 		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (u32)usedSRVCount, 0));
 
-	checkBindingInfo(usedRegisterUAV);
+	DevicePipelineStateObjectHelper::CheckBindingInfo(usedRegisterUAV);
 	const auto usedUAVCount = std::count(usedRegisterUAV.begin(), usedRegisterUAV.end(), 2U);
 	if (usedUAVCount > 0)
 		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, (u32)usedUAVCount, 0));
@@ -356,7 +356,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 		IID_PPV_ARGS(&m_rootSignature)));
 }
 
-D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectDX12::Convert2DX12TopologyType(PrimitiveTopologyType topo)
+D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectHelper::Convert2DX12TopologyType(PrimitiveTopologyType topo)
 {
 	if (topo == PT_UNDEFINED)
 	{
@@ -384,8 +384,8 @@ void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC&
 {
 	desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	auto& rsState = m_pso.m_RSState.m_rsState;
-	desc.FillMode = msFillMode[rsState.fillMode];
-	desc.CullMode = msCullMode[rsState.cullMode];
+	desc.FillMode = DevicePipelineStateObjectHelper::msFillMode[rsState.fillMode];
+	desc.CullMode = DevicePipelineStateObjectHelper::msCullMode[rsState.cullMode];
 	desc.FrontCounterClockwise = rsState.frontCCW ? TRUE : FALSE;
 	desc.DepthBias = rsState.depthBias;
 	desc.DepthBiasClamp = rsState.depthBiasClamp;
@@ -406,12 +406,12 @@ void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) con
 		D3D12_RENDER_TARGET_BLEND_DESC& out = desc.RenderTarget[i];
 		const BlendState::Target& in = blendState.target[i];
 		out.BlendEnable = in.enable ? TRUE : FALSE;
-		out.SrcBlend = msBlendMode[in.srcColor];
-		out.DestBlend = msBlendMode[in.dstColor];
-		out.BlendOp = msBlendOp[in.opColor];
-		out.SrcBlendAlpha = msBlendMode[in.srcAlpha];
-		out.DestBlendAlpha = msBlendMode[in.dstAlpha];
-		out.BlendOpAlpha = msBlendOp[in.opAlpha];
+		out.SrcBlend = DevicePipelineStateObjectHelper::msBlendMode[in.srcColor];
+		out.DestBlend = DevicePipelineStateObjectHelper::msBlendMode[in.dstColor];
+		out.BlendOp = DevicePipelineStateObjectHelper::msBlendOp[in.opColor];
+		out.SrcBlendAlpha = DevicePipelineStateObjectHelper::msBlendMode[in.srcAlpha];
+		out.DestBlendAlpha = DevicePipelineStateObjectHelper::msBlendMode[in.dstAlpha];
+		out.BlendOpAlpha = DevicePipelineStateObjectHelper::msBlendOp[in.opAlpha];
 		out.RenderTargetWriteMask = in.mask;
 	}
 }
@@ -421,21 +421,21 @@ void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_
 	desc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	auto& dsState = m_pso.m_OMState.m_dsState;
 	desc.DepthEnable = dsState.depthEnable ? TRUE : FALSE;
-	desc.DepthWriteMask = msWriteMask[dsState.writeMask];
-	desc.DepthFunc = msComparison[dsState.comparison];
+	desc.DepthWriteMask = DevicePipelineStateObjectHelper::msWriteMask[dsState.writeMask];
+	desc.DepthFunc = DevicePipelineStateObjectHelper::msComparison[dsState.comparison];
 	desc.StencilEnable = dsState.stencilEnable ? TRUE : FALSE;
 	desc.StencilReadMask = dsState.stencilReadMask;
 	desc.StencilWriteMask = dsState.stencilWriteMask;
 	DepthStencilState::Face front = dsState.frontFace;
-	desc.FrontFace.StencilFailOp = msStencilOp[front.fail];
-	desc.FrontFace.StencilDepthFailOp = msStencilOp[front.depthFail];
-	desc.FrontFace.StencilPassOp = msStencilOp[front.pass];
-	desc.FrontFace.StencilFunc = msComparison[front.comparison];
+	desc.FrontFace.StencilFailOp = DevicePipelineStateObjectHelper::msStencilOp[front.fail];
+	desc.FrontFace.StencilDepthFailOp = DevicePipelineStateObjectHelper::msStencilOp[front.depthFail];
+	desc.FrontFace.StencilPassOp = DevicePipelineStateObjectHelper::msStencilOp[front.pass];
+	desc.FrontFace.StencilFunc = DevicePipelineStateObjectHelper::msComparison[front.comparison];
 	DepthStencilState::Face back = dsState.backFace;
-	desc.BackFace.StencilFailOp = msStencilOp[back.fail];
-	desc.BackFace.StencilDepthFailOp = msStencilOp[back.depthFail];
-	desc.BackFace.StencilPassOp = msStencilOp[back.pass];
-	desc.BackFace.StencilFunc = msComparison[back.comparison];
+	desc.BackFace.StencilFailOp = DevicePipelineStateObjectHelper::msStencilOp[back.fail];
+	desc.BackFace.StencilDepthFailOp = DevicePipelineStateObjectHelper::msStencilOp[back.depthFail];
+	desc.BackFace.StencilPassOp = DevicePipelineStateObjectHelper::msStencilOp[back.pass];
+	desc.BackFace.StencilFunc = DevicePipelineStateObjectHelper::msComparison[back.comparison];
 }
 
 std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigStaticSamplerStates() const
@@ -448,13 +448,13 @@ std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigSt
 		if (samp)
 		{
 			CD3DX12_STATIC_SAMPLER_DESC desc(
-				i, msFilter[samp->filter],
-				msAddressMode[samp->mode[0]],
-				msAddressMode[samp->mode[1]],
-				msAddressMode[samp->mode[2]],
+				i, DevicePipelineStateObjectHelper::msFilter[samp->filter],
+				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[0]],
+				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[1]],
+				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[2]],
 				samp->mipLODBias,
 				samp->maxAnisotropy,
-				msComparison[samp->comparison],
+				DevicePipelineStateObjectHelper::msComparison[samp->comparison],
 				D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
 				samp->minLOD,
 				samp->maxLOD
@@ -472,20 +472,20 @@ bool DevicePipelineStateObjectDX12::IsEmptyRootParams() const
 	return m_pso.m_usedCBV_SRV_UAV_Count == 0;
 }
 
-D3D12_FILL_MODE const DevicePipelineStateObjectDX12::msFillMode[] =
+D3D12_FILL_MODE const DevicePipelineStateObjectHelper::msFillMode[] =
 {
 	D3D12_FILL_MODE_SOLID,
 	D3D12_FILL_MODE_WIREFRAME
 };
 
-D3D12_CULL_MODE const DevicePipelineStateObjectDX12::msCullMode[] =
+D3D12_CULL_MODE const DevicePipelineStateObjectHelper::msCullMode[] =
 {
 	D3D12_CULL_MODE_NONE,
 	D3D12_CULL_MODE_FRONT,
 	D3D12_CULL_MODE_BACK
 };
 
-D3D12_BLEND const DevicePipelineStateObjectDX12::msBlendMode[] =
+D3D12_BLEND const DevicePipelineStateObjectHelper::msBlendMode[] =
 {
 	D3D12_BLEND_ZERO,
 	D3D12_BLEND_ONE,
@@ -506,7 +506,7 @@ D3D12_BLEND const DevicePipelineStateObjectDX12::msBlendMode[] =
 	D3D12_BLEND_INV_SRC1_ALPHA
 };
 
-D3D12_BLEND_OP const DevicePipelineStateObjectDX12::msBlendOp[] =
+D3D12_BLEND_OP const DevicePipelineStateObjectHelper::msBlendOp[] =
 {
 	D3D12_BLEND_OP_ADD,
 	D3D12_BLEND_OP_SUBTRACT,
@@ -515,13 +515,13 @@ D3D12_BLEND_OP const DevicePipelineStateObjectDX12::msBlendOp[] =
 	D3D12_BLEND_OP_MAX,
 };
 
-D3D12_DEPTH_WRITE_MASK const DevicePipelineStateObjectDX12::msWriteMask[] =
+D3D12_DEPTH_WRITE_MASK const DevicePipelineStateObjectHelper::msWriteMask[] =
 {
 	D3D12_DEPTH_WRITE_MASK_ZERO,
 	D3D12_DEPTH_WRITE_MASK_ALL
 };
 
-D3D12_COMPARISON_FUNC const DevicePipelineStateObjectDX12::msComparison[] =
+D3D12_COMPARISON_FUNC const DevicePipelineStateObjectHelper::msComparison[] =
 {
 	D3D12_COMPARISON_FUNC_NEVER,
 	D3D12_COMPARISON_FUNC_LESS,
@@ -533,7 +533,7 @@ D3D12_COMPARISON_FUNC const DevicePipelineStateObjectDX12::msComparison[] =
 	D3D12_COMPARISON_FUNC_ALWAYS
 };
 
-D3D12_STENCIL_OP const DevicePipelineStateObjectDX12::msStencilOp[] =
+D3D12_STENCIL_OP const DevicePipelineStateObjectHelper::msStencilOp[] =
 {
 	D3D12_STENCIL_OP_KEEP,
 	D3D12_STENCIL_OP_ZERO,
@@ -545,7 +545,7 @@ D3D12_STENCIL_OP const DevicePipelineStateObjectDX12::msStencilOp[] =
 	D3D12_STENCIL_OP_DECR
 };
 
-D3D12_FILTER const DevicePipelineStateObjectDX12::msFilter[] =
+D3D12_FILTER const DevicePipelineStateObjectHelper::msFilter[] =
 {
 	D3D12_FILTER_MIN_MAG_MIP_POINT,
 	D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR,
@@ -567,7 +567,7 @@ D3D12_FILTER const DevicePipelineStateObjectDX12::msFilter[] =
 	D3D12_FILTER_COMPARISON_ANISOTROPIC
 };
 
-D3D12_TEXTURE_ADDRESS_MODE const DevicePipelineStateObjectDX12::msAddressMode[] =
+D3D12_TEXTURE_ADDRESS_MODE const DevicePipelineStateObjectHelper::msAddressMode[] =
 {
 	D3D12_TEXTURE_ADDRESS_MODE_WRAP,
 	D3D12_TEXTURE_ADDRESS_MODE_MIRROR,
@@ -580,7 +580,6 @@ DeviceRTPipelineStateObjectDX12::DeviceRTPipelineStateObjectDX12(DeviceDX12* d, 
 	: DeviceObject(nullptr)
 	, m_rtPSO(rtPSO)
 {
-	BuildRootSignature(d);
 	BuildRaytracingPipelineStateObject(d);
 	BuildAccelerationStructures(d);
 	BuildShaderTables(d);
@@ -712,21 +711,59 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 {
 	// Global Root Signature
 	// This is a root signature that is shared across all raytracing shaders invoked during a DispatchRays() call.
+	u32 usedCBVCount = 0U;
 	{
-		CD3DX12_DESCRIPTOR_RANGE UAVDescriptor;
-		UAVDescriptor.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
-		CD3DX12_ROOT_PARAMETER rootParameters[2];
-		rootParameters[0].InitAsDescriptorTable(1, &UAVDescriptor);
-		rootParameters[1].InitAsShaderResourceView(0);
-		CD3DX12_ROOT_SIGNATURE_DESC globalRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
+		std::vector<CD3DX12_ROOT_PARAMETER> slotRootParameters;
 
-		BlobComPtr serializedRootSig = nullptr;
-		BlobComPtr errorBlob = nullptr;
-		HR(D3D12SerializeRootSignature(&globalRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		const auto MaxDescriptor = 256;
+		std::vector<CD3DX12_DESCRIPTOR_RANGE> descriptorRanges;
+		descriptorRanges.reserve(MaxDescriptor);
+		std::array<u32, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> usedRegisterCBV{ 0 };
+		std::array<u32, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> usedRegisterSRV{ 0 };
+		std::array<u32, 8> usedRegisterUAV{ 0 };
+
+		DevicePipelineStateObjectHelper::CollectBindingInfo(m_rtPSO.m_rtState, usedRegisterCBV, usedRegisterSRV, usedRegisterUAV);
+
+		usedCBVCount = (u32)std::count(usedRegisterCBV.begin(), usedRegisterCBV.end(), 2U);
+		if (usedCBVCount > 0)
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, (u32)usedCBVCount, 0));
+
+		DevicePipelineStateObjectHelper::CheckBindingInfo(usedRegisterSRV);
+		const auto usedSRVCount = std::count(usedRegisterSRV.begin(), usedRegisterSRV.end(), 2U);
+		if (usedSRVCount > 0)
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (u32)usedSRVCount, 0));
+
+		DevicePipelineStateObjectHelper::CheckBindingInfo(usedRegisterUAV);
+		const auto usedUAVCount = std::count(usedRegisterUAV.begin(), usedRegisterUAV.end(), 2U);
+		if (usedUAVCount > 0)
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, (u32)usedUAVCount, 0));
+
+		m_rtPSO.m_usedCBV_SRV_UAV_Count = static_cast<u32>(usedCBVCount + usedSRVCount + usedUAVCount);
+
+		if (!descriptorRanges.empty())
+		{
+			CD3DX12_ROOT_PARAMETER cbv_srv_uav_root_parameter;
+			cbv_srv_uav_root_parameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
+			slotRootParameters.push_back(cbv_srv_uav_root_parameter);
+		}
+
+		CD3DX12_ROOT_PARAMETER scene_root_parameter;
+		scene_root_parameter.InitAsShaderResourceView(0, AccelerationStructuresSpace);
+		slotRootParameters.push_back(scene_root_parameter);
+
+		// A root signature is an array of root parameters.
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc((u32)slotRootParameters.size(), slotRootParameters.data());
+
+		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+		Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+		HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
 			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
 
 		if (errorBlob != nullptr)
+		{
 			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		}
 
 		HR(d->GetDevice()->CreateRootSignature(0,
 			serializedRootSig->GetBufferPointer(),
@@ -738,8 +775,10 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 	// This is a root signature that enables a shader to have unique arguments that come from shader tables.
 	{
 		CD3DX12_ROOT_PARAMETER rootParameters[1];
-		// temp
-		rootParameters[0].InitAsConstants(8, 0, 0);
+		const auto n = ( m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderArguments.size()
+			+ m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords.front().shaderArguments.size()
+			) / sizeof(u32);
+		rootParameters[0].InitAsConstants(static_cast<u32>(n), usedCBVCount);
 		CD3DX12_ROOT_SIGNATURE_DESC localRootSignatureDesc(ARRAYSIZE(rootParameters), rootParameters);
 		localRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 
@@ -787,6 +826,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRaytracingPipelineStateObject(DeviceD
 	}
 	D3D12_SHADER_BYTECODE libdxil = CD3DX12_SHADER_BYTECODE(deviceRT->GetCompiledCode(), deviceRT->GetCompiledCodeSize());
 	lib->SetDXILLibrary(&libdxil);
+	BuildRootSignature(device);
 	// Define which shader exports to surface from the library.
 	// If no shader exports are defined for a DXIL library subobject, all shaders will be surfaced.
 	// In this sample, this could be omitted for convenience since the sample uses all shaders in the library. 
@@ -846,9 +886,19 @@ void DeviceRTPipelineStateObjectDX12::CreateLocalRootSignatureSubobjects(CD3DX12
 		auto localRootSignature = raytracingPipeline->CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
 		localRootSignature->SetRootSignature(m_raytracingLocalRootSignature.Get());
 		// Shader association
-		auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
-		rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
-		rootSignatureAssociation->AddExport(m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderName.c_str());
+		if (m_rtPSO.m_rtState.m_rayGenShaderTable->ContainPayload())
+		{
+			auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+			rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
+			rootSignatureAssociation->AddExport(m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderName.c_str());
+		}
+		if (m_rtPSO.m_rtState.m_hitShaderTable->ContainPayload())
+		{
+			auto rootSignatureAssociation = raytracingPipeline->CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+			rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
+			const WString hitGroupName = TextHelper::ToUnicode(m_rtPSO.m_rtState.m_hitShaderTable->Name());
+			rootSignatureAssociation->AddExport(hitGroupName.c_str());
+		}
 	}
 }
 

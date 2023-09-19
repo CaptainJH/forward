@@ -13,11 +13,6 @@ DeviceTextureDX12::DeviceTextureDX12(Texture* tex, DeviceDX12& d)
 
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceTextureDX12::GetShaderResourceViewHandle()
-{
-	return m_srvHandle;
-}
-
 D3D12_CPU_DESCRIPTOR_HANDLE DeviceTextureDX12::GetUnorderedAccessViewHandle()
 {
 	return m_uavHandle;

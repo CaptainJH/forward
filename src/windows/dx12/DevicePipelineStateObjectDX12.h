@@ -16,46 +16,10 @@ namespace forward
 	struct RTPipelineStateObject;
 	class DeviceDX12;
 
-	class DevicePipelineStateObjectDX12 : public DeviceObject
+	struct DevicePipelineStateObjectHelper
 	{
-		friend class CommandListDX12;
-	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
-		~DevicePipelineStateObjectDX12() override;
-
-		ID3D12PipelineState* GetDevicePSO();
-		bool IsEmptyRootParams() const;
-
-	private:
-		u32							m_numElements;
-		D3D12_INPUT_ELEMENT_DESC	m_elements[VA_MAX_ATTRIBUTES];
-
-		PipelineStateComPtr			m_devicePSO;
-		RootSignatureComPtr			m_rootSignature;
-		PipelineStateObject&			m_pso;
-
-		// Conversions from FrameGraph values to DX12 values.
-		static D3D12_FILL_MODE const msFillMode[];
-		static D3D12_CULL_MODE const msCullMode[];
-		static D3D12_BLEND const msBlendMode[];
-		static D3D12_BLEND_OP const msBlendOp[];
-		static D3D12_DEPTH_WRITE_MASK const msWriteMask[];
-		static D3D12_COMPARISON_FUNC const msComparison[];
-		static D3D12_STENCIL_OP const msStencilOp[];
-		static D3D12_FILTER const msFilter[];
-		static D3D12_TEXTURE_ADDRESS_MODE const msAddressMode[];
-
-		static D3D12_PRIMITIVE_TOPOLOGY_TYPE Convert2DX12TopologyType(PrimitiveTopologyType topo);
-
-	private:
-		void BuildRootSignature(ID3D12Device* device);
-		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
-		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
-		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
-		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
-
 		template<class T, i32 N, i32 K>
-		void collectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV) const
+		static void CollectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV)
 		{
 			if (shaderStageState.m_shader)
 			{
@@ -92,6 +56,22 @@ namespace forward
 						&& tex.GetBindCount() == 1);
 					++usedRegisterSRV[register_index];
 				}
+				for (auto& buf : deviceShader->GetByteAddressBuffers())
+				{
+					if (buf.IsGpuWritable()) continue;
+					auto register_index = buf.GetBindPoint();
+					assert(usedRegisterSRV[register_index] == 0
+						&& buf.GetBindCount() == 1);
+					++usedRegisterSRV[register_index];
+				}
+				for (auto& buf : deviceShader->GetStructuredBuffers())
+				{
+					if (buf.IsGpuWritable()) continue;
+					auto register_index = buf.GetBindPoint();
+					assert(usedRegisterSRV[register_index] == 0
+						&& buf.GetBindCount() == 1);
+					++usedRegisterSRV[register_index];
+				}
 				for (auto i = 0U; i < shaderStageState.m_shaderResources.size(); ++i)
 				{
 					if (shaderStageState.m_shaderResources[i])
@@ -104,9 +84,9 @@ namespace forward
 		}
 
 		template<class T, i32 N, i32 K>
-		void collectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV, std::array<u32, 8>& usedRegisterUAV) const
+		static void CollectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV, std::array<u32, 8>& usedRegisterUAV)
 		{
-			collectBindingInfo(shaderStageState, usedRegisterCBV, usedRegisterSRV);
+			CollectBindingInfo(shaderStageState, usedRegisterCBV, usedRegisterSRV);
 			if (shaderStageState.m_shader)
 			{
 				auto deviceShader = device_cast<ShaderDX12*>(shaderStageState.m_shader);
@@ -132,7 +112,7 @@ namespace forward
 		}
 
 		template<i32 N>
-		bool checkBindingInfo(std::array<u32, N>& usedRegisterArray) const
+		static bool CheckBindingInfo(std::array<u32, N>& usedRegisterArray)
 		{
 			const u64 ZeroCount = std::count(usedRegisterArray.begin(), usedRegisterArray.end(), 0U);
 			if (ZeroCount == usedRegisterArray.size())
@@ -146,6 +126,45 @@ namespace forward
 			assert(false && "something wrong with the binding info!");
 			return false;
 		}
+
+		// Conversions from FrameGraph values to DX12 values.
+		static D3D12_FILL_MODE const msFillMode[];
+		static D3D12_CULL_MODE const msCullMode[];
+		static D3D12_BLEND const msBlendMode[];
+		static D3D12_BLEND_OP const msBlendOp[];
+		static D3D12_DEPTH_WRITE_MASK const msWriteMask[];
+		static D3D12_COMPARISON_FUNC const msComparison[];
+		static D3D12_STENCIL_OP const msStencilOp[];
+		static D3D12_FILTER const msFilter[];
+		static D3D12_TEXTURE_ADDRESS_MODE const msAddressMode[];
+
+		static D3D12_PRIMITIVE_TOPOLOGY_TYPE Convert2DX12TopologyType(PrimitiveTopologyType topo);
+	};
+
+	class DevicePipelineStateObjectDX12 : public DeviceObject
+	{
+		friend class CommandListDX12;
+	public:
+		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
+		~DevicePipelineStateObjectDX12() override;
+
+		ID3D12PipelineState* GetDevicePSO();
+		bool IsEmptyRootParams() const;
+
+	private:
+		u32							m_numElements;
+		D3D12_INPUT_ELEMENT_DESC	m_elements[VA_MAX_ATTRIBUTES];
+
+		PipelineStateComPtr			m_devicePSO;
+		RootSignatureComPtr			m_rootSignature;
+		PipelineStateObject&			m_pso;
+
+	private:
+		void BuildRootSignature(ID3D12Device* device);
+		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
+		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
+		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
+		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 	};
 
 	class DeviceRTPipelineStateObjectDX12 : public DeviceObject
@@ -173,5 +192,7 @@ namespace forward
 		void BuildShaderTables(DeviceDX12* device);
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);
+
+		static const u32 AccelerationStructuresSpace = 99U;
 	};
 }

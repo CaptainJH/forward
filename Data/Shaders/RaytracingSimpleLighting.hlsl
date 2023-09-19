@@ -32,10 +32,10 @@ struct Vertex
     float3 normal;
 };
 
-RaytracingAccelerationStructure Scene : register(t0, space0);
+RaytracingAccelerationStructure Scene : register(t0, space99);
 RWTexture2D<float4> RenderTarget : register(u0);
-ByteAddressBuffer Indices : register(t1, space0);
-StructuredBuffer<Vertex> Vertices : register(t2, space0);
+ByteAddressBuffer Indices : register(t0, space0);
+StructuredBuffer<Vertex> Vertices : register(t1, space0);
 
 ConstantBuffer<SceneConstantBuffer> g_sceneCB : register(b0);
 ConstantBuffer<CubeConstantBuffer> g_cubeCB : register(b1);

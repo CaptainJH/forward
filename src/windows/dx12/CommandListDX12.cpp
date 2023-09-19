@@ -231,14 +231,48 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 void CommandListDX12::PrepareGPUVisibleHeaps(RTPipelineStateObject& pso)
 {
 	auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-	if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(1))
+	if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
 	{
+		u32 stagedCBVs = 0;
+		u32 stagedSRVs = 0;
 		u32 stagedUAVs = 0;
-
+		auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
+			assert(deviceCB);
+			*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
+			};
+		auto stageSRVFunc = [&](DeviceResourceDX12* deviceTex) {
+			assert(deviceTex);
+			*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+			};
 		auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
 			assert(deviceTex);
-			*(baseDescriptorHandleAddr + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
+			*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
 			};
+
+		// stage CBVs
+		for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
+		{
+			if (auto cb = pso.m_rtState.m_constantBuffers[i])
+			{
+				SetDynamicConstantBuffer(cb.get());
+				auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+				stageCBVFunc(deviceCB);
+			}
+			else
+				break;
+		}
+
+		// stage SRVs
+		for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
+		{
+			if (auto res = pso.m_rtState.m_shaderResources[i])
+			{
+				auto deviceRes = device_cast<DeviceResourceDX12*>(res);
+				stageSRVFunc(deviceRes);
+			}
+			else
+				break;
+		}
 
 		// stage UAVs
 		for (auto i = 0; i < 8; ++i)

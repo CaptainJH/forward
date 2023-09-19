@@ -74,3 +74,8 @@ void DeviceResourceDX12::SetResourceState(D3D12_RESOURCE_STATES state)
 	m_currentUsageState = state;
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceResourceDX12::GetShaderResourceViewHandle()
+{
+	return m_srvHandle;
+}
+

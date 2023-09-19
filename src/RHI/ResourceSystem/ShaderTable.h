@@ -59,6 +59,7 @@ namespace forward
         ShaderRecord& operator[](u32 index);
         u32 GetShaderRecordSize() const { return GetElementSize(); }
         void SetupShaderRecords(const std::unordered_map<WString, void*>& name2identifier);
+        bool ContainPayload() const;
 
         Vector<ShaderRecordDesc> m_shaderRecords;
 

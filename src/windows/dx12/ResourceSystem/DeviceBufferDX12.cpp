@@ -50,6 +50,28 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 
 			SyncCPUToGPU(cmdList);
 			m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
+			if (type == FGOT_INDEX_BUFFER)
+			{
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+				srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				srvDesc.Buffer.NumElements = res->GetNumElements();
+				srvDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+				srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+				srvDesc.Buffer.StructureByteStride = 0;
+				CreateSRView(srvDesc);
+			}
+			else if (type == FGOT_VERTEX_BUFFER)
+			{
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+				srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				srvDesc.Buffer.NumElements = res->GetNumElements();
+				srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+				srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+				srvDesc.Buffer.StructureByteStride = res->GetElementSize();
+				CreateSRView(srvDesc);
+			}
 		}
 		else if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
 		{
@@ -181,6 +203,12 @@ void DeviceBufferDX12::CreateCBView(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc)
 {
 	m_cbvHandle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	m_device.GetDevice()->CreateConstantBufferView(&desc, m_cbvHandle);
+}
+
+void DeviceBufferDX12::CreateSRView(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+{
+	m_srvHandle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_device.GetDevice()->CreateShaderResourceView(m_deviceResPtr.Get(), &desc, m_srvHandle);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE	DeviceBufferDX12::GetCBViewCPUHandle()

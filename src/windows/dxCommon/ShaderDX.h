@@ -14,6 +14,8 @@
 #include "dxCommon/ShaderReflection/HLSLTexture.h"
 #include "dxCommon/ShaderReflection/HLSLTextureArray.h"
 #include "dxCommon/ShaderReflection/HLSLSamplerState.h"
+#include "dxCommon/ShaderReflection/HLSLByteAddressBuffer.h"
+#include "dxCommon/ShaderReflection/HLSLStructuredBuffer.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {
@@ -60,6 +62,8 @@ namespace forward
 		std::vector<HLSLTextureBuffer> const& GetTBuffers() const;
 		std::vector<HLSLTexture> const& GetTextures() const;
 		std::vector<HLSLTextureArray> const& GetTextureArrays() const;
+		std::vector<HLSLByteAddressBuffer> const& GetByteAddressBuffers() const;
+		std::vector<HLSLStructuredBuffer> const& GetStructuredBuffers() const;
 
 	public:
 		std::wstring							FileName;
@@ -78,6 +82,8 @@ namespace forward
 		void Insert(HLSLTexture const& texture);
 		void Insert(HLSLTextureArray const& tarray);
 		void Insert(HLSLSamplerState const& samp);
+		void Insert(HLSLByteAddressBuffer const& rbuffer);
+		void Insert(HLSLStructuredBuffer const& sbuffer);
 
 		template<class D3D_SHADER_DESC>
 		void SetDescription(const D3D_SHADER_DESC& desc)
@@ -201,6 +207,8 @@ namespace forward
 		std::vector<HLSLTexture> m_Textures;
 		std::vector<HLSLTextureArray> m_TextureArrays;
 		std::vector<HLSLSamplerState> m_Samplers;
+		std::vector<HLSLByteAddressBuffer> m_RBuffers;
+		std::vector<HLSLStructuredBuffer> m_SBuffers;
 	};
 };
 //--------------------------------------------------------------------------------

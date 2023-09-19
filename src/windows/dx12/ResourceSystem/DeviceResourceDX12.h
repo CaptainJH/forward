@@ -25,9 +25,13 @@ namespace forward
 		D3D12_RESOURCE_STATES	GetResourceState() const;
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() { return m_gpuVirtualAddress; }
 
+		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
+
 	protected:
 		DeviceResCom12Ptr		m_deviceResPtr;
 		DeviceResCom12Ptr		m_stagingResPtr;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE		m_srvHandle;
 
 		D3D12_RESOURCE_STATES				m_currentUsageState;
 		//D3D12_RESOURCE_STATES				m_transitioningState;

@@ -47,6 +47,11 @@ ShaderTable::ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSi
     Initialize(numShaderRecords, shaderRecordSizeAligned);
 }
 
+bool ShaderTable::ContainPayload() const
+{
+    return GetElementSize() > RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
+}
+
 void ShaderTable::SetupShaderRecords(const std::unordered_map<WString, void*>& name2identifier)
 {
     auto dst = GetData();

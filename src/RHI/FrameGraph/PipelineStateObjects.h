@@ -369,6 +369,7 @@ namespace forward
 	{
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer> > > m_geometry;
 		RaytracingShaderStageState m_rtState;
+		u32 m_usedCBV_SRV_UAV_Count = 0;
 
 		shared_ptr<DeviceObject> m_deviceRTPSO;
 	};

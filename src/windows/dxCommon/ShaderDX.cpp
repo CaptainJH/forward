@@ -95,6 +95,16 @@ std::vector<HLSLTextureArray> const& ShaderDX::GetTextureArrays() const
 	return m_TextureArrays;
 }
 
+std::vector<HLSLByteAddressBuffer> const& ShaderDX::GetByteAddressBuffers() const
+{
+	return m_RBuffers;
+}
+
+std::vector<HLSLStructuredBuffer> const& ShaderDX::GetStructuredBuffers() const
+{
+	return m_SBuffers;
+}
+
 void ShaderDX::InsertInput(HLSLParameter const& parameter)
 {
 	m_inputs.push_back(parameter);
@@ -107,12 +117,18 @@ void ShaderDX::InsertOutput(HLSLParameter const& parameter)
 
 void ShaderDX::Insert(HLSLConstantBuffer const& cbuffer)
 {
-	m_CBuffers.push_back(cbuffer);
+	if (std::find_if(m_CBuffers.begin(), m_CBuffers.end(), [&](auto& cb)->bool {
+		return cb.GetName() == cbuffer.GetName();
+		}) == m_CBuffers.end())
+		m_CBuffers.push_back(cbuffer);
 }
 
 void ShaderDX::Insert(HLSLResourceBindInfo const& rbinfo)
 {
-	m_RBInfos.push_back(rbinfo);
+	if (std::find_if(m_RBInfos.begin(), m_RBInfos.end(), [&](auto& rb)->bool {
+		return rb.GetName() == rbinfo.GetName();
+		}) == m_RBInfos.end())
+		m_RBInfos.push_back(rbinfo);
 }
 
 void ShaderDX::Insert(HLSLTextureBuffer const& tbuffer)
@@ -133,4 +149,20 @@ void ShaderDX::Insert(HLSLTextureArray const& tarray)
 void ShaderDX::Insert(HLSLSamplerState const& samp)
 {
 	m_Samplers.push_back(samp);
+}
+
+void ShaderDX::Insert(HLSLByteAddressBuffer const& rbuffer)
+{
+	if (std::find_if(m_RBuffers.begin(), m_RBuffers.end(), [&](auto& rb)->bool {
+		return rb.GetName() == rbuffer.GetName();
+		}) == m_RBuffers.end())
+		m_RBuffers.push_back(rbuffer);
+}
+
+void ShaderDX::Insert(HLSLStructuredBuffer const& sbuffer)
+{
+	if (std::find_if(m_SBuffers.begin(), m_SBuffers.end(), [&](auto& sb)->bool {
+		return sb.GetName() == sbuffer.GetName();
+		}) == m_SBuffers.end())
+		m_SBuffers.push_back(sbuffer);
 }

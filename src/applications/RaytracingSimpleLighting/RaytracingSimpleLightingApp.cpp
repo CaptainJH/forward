@@ -45,13 +45,6 @@ public:
 		if (!Application::Init())
 			return false;
 
-		//m_rayGenCB.viewport = { -1, -1, 1, 1 };
-		//const f32 border = 0.1f;
-		//m_rayGenCB.stencil = {
-		//	-1 + border / AspectRatio(), -1 + border,
-		//	 1 - border / AspectRatio(), 1.0f - border
-		//};
-
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		auto commandList = m_pDeviceDX12->DeviceCommandList();
 		m_rtPSO = std::make_unique<RTPipelineStateObject>();
@@ -125,15 +118,18 @@ public:
 
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
-		//m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U,
-		//	static_cast<u32>(sizeof(RayGenConstantBuffer)));
-		//Vector<u8> rayGenCBBuffer(sizeof(RayGenConstantBuffer), 0);
-		//memcpy(rayGenCBBuffer.data(), &m_rayGenCB, rayGenCBBuffer.size());
-		//m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader", rayGenCBBuffer });
-		//m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
-		//m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader" });
-		//m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
-		//m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyMissShader" });
+		m_rtPSO->m_rtState.m_constantBuffers[0] = make_shared<ConstantBuffer<SceneConstantBuffer>>("g_sceneCB");
+		//m_rtPSO->m_rtState.m_constantBuffers[1] = make_shared<ConstantBuffer<CubeConstantBuffer>>("g_cubeCB");
+		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
+		m_rtPSO->m_rtState.m_shaderResources[0] = m_ib;
+		m_rtPSO->m_rtState.m_shaderResources[1] = m_vb;
+		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader" });
+		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, (u32)sizeof(CubeConstantBuffer));
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader", 
+			Vector<u8>(sizeof(CubeConstantBuffer), 0) });
+		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyMissShader" });
 
 		// Execute the initialization commands
 		m_pDeviceDX12->GetDefaultQueue()->ExecuteCommandList([]() {});
@@ -152,17 +148,17 @@ protected:
 
 	void DrawScene() override
 	{
-		//m_pDeviceDX12->BeginDraw();
+		m_pDeviceDX12->BeginDraw();
 
-		//auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		//cmdList->BindGPUVisibleHeaps();
-		//cmdList->PrepareGPUVisibleHeaps(*m_rtPSO);
-		//cmdList->CommitStagedDescriptors();
-		//cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
-		//cmdList->DispatchRays(*m_rtPSO);
-		//cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
+		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
+		cmdList->BindGPUVisibleHeaps();
+		cmdList->PrepareGPUVisibleHeaps(*m_rtPSO);
+		cmdList->CommitStagedDescriptors();
+		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
+		cmdList->DispatchRays(*m_rtPSO);
+		cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
 
-		//m_pDeviceDX12->EndDraw();
+		m_pDeviceDX12->EndDraw();
 	}
 
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;

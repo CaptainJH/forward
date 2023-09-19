@@ -45,6 +45,7 @@ namespace forward
 		u8*														m_mappedData = nullptr;
 
 		void CreateCBView(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc);
+		void CreateSRView(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
 
 	public:
 		static DeviceResCom12Ptr AllocateUploadBuffer(ID3D12Device* pDevice, void* pData, u64 datasize, const wchar_t* resourceName = nullptr);
