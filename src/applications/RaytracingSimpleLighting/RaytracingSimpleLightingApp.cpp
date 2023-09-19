@@ -150,7 +150,7 @@ protected:
 	{
 		const auto radiansToRotateBy = dt * 0.001f;
 		const Matrix4f rotMat = Matrix4f::RotationMatrixY(radiansToRotateBy);
-		Vector4f eyePos = { m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f };
+		Vector4f eyePos(m_eyePos, 1.0f);
 		eyePos = rotMat * eyePos;
 		m_eyePos = eyePos.xyz();
 
