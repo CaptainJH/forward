@@ -146,27 +146,25 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32 /*dt*/) override
+	void UpdateScene(f32 dt) override
 	{
-		static f32 rotation = 0.01f;
-		//rotation += dt;
-		Matrix4f rotMat; rotMat.MakeIdentity();
-		rotMat = rotMat.RotationMatrixY(rotation);
-		Vector4f eyePos = Vector4f(m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f);
+		const auto radiansToRotateBy = dt * 0.001f;
+		const Matrix4f rotMat = Matrix4f::RotationMatrixY(radiansToRotateBy);
+		Vector4f eyePos = { m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f };
 		eyePos = rotMat * eyePos;
-		//m_eyePos = Vector3f(eyePos.x, eyePos.y, eyePos.z);
-		Vector3f target; target.MakeZero();
-		Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-		auto view = Matrix4f::LookAtLHMatrix(m_eyePos, target, up);
-		Matrix4f proj = Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f);
-		Matrix4f viewProj = view * proj;
-		m_sceneCB.projectionToWorld = viewProj.Inverse();
-		m_sceneCB.cameraPosition = Vector4f(0.0, 2.0f, -5.0f, 1.0f);
-		m_sceneCB.lightPosition = Vector4f(0.0f, 1.8f, -3.0f, 0.0f);
-		m_sceneCB.lightAmbientColor = Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
-		m_sceneCB.lightDiffuseColor = Vector4f(0.5f, 0.0f, 0.0f, 1.0f);
+		m_eyePos = eyePos.xyz();
+
+		const auto view = Matrix4f::LookAtLHMatrix(m_eyePos, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+		const Matrix4f proj = Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f);
+		const Matrix4f viewProj = view * proj;
 		
-		*m_cb = m_sceneCB;
+		*m_cb = SceneConstantBuffer{
+			.projectionToWorld = viewProj.Inverse(),
+			.cameraPosition = eyePos,
+			.lightPosition = {0.0f, 1.8f, -3.0f, 0.0f},
+			.lightAmbientColor = {0.5f, 0.5f, 0.5f, 1.0f},
+			.lightDiffuseColor = {0.5f, 0.0f, 0.0f, 1.0f}
+		};
 	}
 
 	void DrawScene() override
@@ -191,8 +189,6 @@ protected:
 	forward::shared_ptr<Texture2D> m_uavTex;
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 
-	// Raytracing scene
-	SceneConstantBuffer m_sceneCB;
 	Vector3f m_eyePos = Vector3f(0.0f, 2.0f, -5.0f);
 };
 
