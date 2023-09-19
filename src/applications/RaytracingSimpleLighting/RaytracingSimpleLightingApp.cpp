@@ -118,16 +118,21 @@ public:
 
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
-		m_rtPSO->m_rtState.m_constantBuffers[0] = make_shared<ConstantBuffer<SceneConstantBuffer>>("g_sceneCB");
-		//m_rtPSO->m_rtState.m_constantBuffers[1] = make_shared<ConstantBuffer<CubeConstantBuffer>>("g_cubeCB");
+		m_cb = make_shared<ConstantBuffer<SceneConstantBuffer>>("g_sceneCB");
+		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
+
 		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
 		m_rtPSO->m_rtState.m_shaderResources[0] = m_ib;
 		m_rtPSO->m_rtState.m_shaderResources[1] = m_vb;
 		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader" });
 		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, (u32)sizeof(CubeConstantBuffer));
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader", 
-			Vector<u8>(sizeof(CubeConstantBuffer), 0) });
+		CubeConstantBuffer cube_cb = {
+			.albedo = {1.0f, 1.0f, 1.0f, 1.0f}
+		};
+		Vector<u8> cube_cb_buffer(sizeof(CubeConstantBuffer));
+		memcpy(cube_cb_buffer.data(), &cube_cb, sizeof(CubeConstantBuffer));
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader", cube_cb_buffer });
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyMissShader" });
 
@@ -141,9 +146,27 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32) override
+	void UpdateScene(f32 /*dt*/) override
 	{
-
+		static f32 rotation = 0.01f;
+		//rotation += dt;
+		Matrix4f rotMat; rotMat.MakeIdentity();
+		rotMat = rotMat.RotationMatrixY(rotation);
+		Vector4f eyePos = Vector4f(m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f);
+		eyePos = rotMat * eyePos;
+		//m_eyePos = Vector3f(eyePos.x, eyePos.y, eyePos.z);
+		Vector3f target; target.MakeZero();
+		Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+		auto view = Matrix4f::LookAtLHMatrix(m_eyePos, target, up);
+		Matrix4f proj = Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f);
+		Matrix4f viewProj = view * proj;
+		m_sceneCB.projectionToWorld = viewProj.Inverse();
+		m_sceneCB.cameraPosition = Vector4f(0.0, 2.0f, -5.0f, 1.0f);
+		m_sceneCB.lightPosition = Vector4f(0.0f, 1.8f, -3.0f, 0.0f);
+		m_sceneCB.lightAmbientColor = Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
+		m_sceneCB.lightDiffuseColor = Vector4f(0.5f, 0.0f, 0.0f, 1.0f);
+		
+		*m_cb = m_sceneCB;
 	}
 
 	void DrawScene() override
@@ -164,11 +187,13 @@ protected:
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
 	shared_ptr<IndexBuffer> m_ib;
 	shared_ptr<VertexBuffer> m_vb;
+	shared_ptr<ConstantBuffer<SceneConstantBuffer>> m_cb;
 	forward::shared_ptr<Texture2D> m_uavTex;
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 
 	// Raytracing scene
-	//RayGenConstantBuffer m_rayGenCB;
+	SceneConstantBuffer m_sceneCB;
+	Vector3f m_eyePos = Vector3f(0.0f, 2.0f, -5.0f);
 };
 
 FORWARD_APPLICATION_MAIN(RaytracingSimpleLighting, 1920, 1080);
