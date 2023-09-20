@@ -33,7 +33,7 @@ void Device::AddExternalResource(const char* name, void* res)
 
 shared_ptr<Resource> LoadedResourceManager::FindBufferByName(const String& n)
 {
-	auto it = std::find_if(mAllLoadedBuffers.begin(), mAllLoadedBuffers.end(), [&](auto rp) {
+	auto it = std::find_if(mAllLoadedBuffers.begin(), mAllLoadedBuffers.end(), [&](const auto& rp) {
 		return rp->Name() == n; });
 	return it == mAllLoadedBuffers.end() ? nullptr : *it;
 }

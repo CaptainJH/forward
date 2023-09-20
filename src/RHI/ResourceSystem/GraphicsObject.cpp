@@ -37,7 +37,7 @@ void GraphicsObject::RegisterObject(GraphicsObject* ptr)
 	});
 	if (it == m_sFGObjs.end())
 	{
-		m_sFGObjs.push_back(ptr);
+		m_sFGObjs.emplace_back(ptr);
 	}
 	else
 	{

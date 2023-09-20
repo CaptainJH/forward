@@ -1,7 +1,7 @@
 #pragma once
 #include <assert.h>
 #include <type_traits>
-#include <map>
+#include <unordered_map>
 #include "Types.h"
 
 namespace forward
@@ -74,15 +74,20 @@ namespace forward
 			auto it = m_sWeakPtrTable.find(this);
 			if (it != m_sWeakPtrTable.end())
 			{
-				for (auto& weakp : it->second)
-				{
-					weakp->px = nullptr;
-				}
+				std::for_each(it->second.begin(), it->second.end(), [](auto& weakp) {
+					if (weakp) weakp->px = nullptr;
+					});
+				/// JHQ: 
+				/// this is a very tricky bug. the instrusive_ref_counter object should always
+				/// remove its entry in m_sWeakPtrTable when it is destroyed. Because later on, 
+				/// a new object might be created with the same address, and this will cause serious
+				/// problem when that new object get destroyed.
+				m_sWeakPtrTable.erase(this);
 			}
 		}
 
 
-		static std::map<intrusive_ref_counter*, std::vector<weak_ptr_base*>> m_sWeakPtrTable;
+		static std::unordered_map<intrusive_ref_counter*, std::vector<weak_ptr_base*>> m_sWeakPtrTable;
 
 	public:
 		static void intrusive_ptr_add_ref(const intrusive_ref_counter* p)
