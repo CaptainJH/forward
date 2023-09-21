@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
@@ -41,9 +42,6 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		const aiMesh* mesh = scene->mMeshes[idx];
 		auto vf = Vertex_POS_UV::GetVertexFormat();
 		auto meshFullName = TextHelper::ToAscii(fileName) + ":" + mesh->mName.C_Str();
-		std::stringstream ss;
-		ss << idx << " : " << meshFullName << std::endl;
-		OutputDebugStringA(ss.str().c_str());
 		auto loadedVB = shared_ptr<VertexBuffer>(dynamic_cast<VertexBuffer*>(resMgr.FindVertexBufferByName(meshFullName).get()));
 		auto loadedIB = shared_ptr<IndexBuffer>(dynamic_cast<IndexBuffer*>(resMgr.FindIndexBufferByName(meshFullName).get()));
 		if (loadedVB && loadedIB)
@@ -124,12 +122,28 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 			});
 	}
 
+	auto FindTextureId = [&](const String& n)->u32 {
+		std::filesystem::path sceneFile = sceneFilePathW;
+		auto texFullPath = sceneFile.parent_path().append(n);
+		assert(FileSystem::getSingleton().FileExists(texFullPath));
+		const auto it = std::find_if(ret.mTextures.begin(), ret.mTextures.end(), [&](auto& p)->bool {
+			return p->Name() == n;
+			});
+		if (it == ret.mTextures.end())
+		{
+			ret.mTextures.emplace_back(forward::make_shared<Texture2D>(n, texFullPath.c_str()));
+			return static_cast<u32>(ret.mTextures.size() - 1);
+		}
+		else
+			return static_cast<u32>(it - ret.mTextures.begin());
+		};
+
 	for (auto idx = 0U; idx < scene->mNumMaterials; ++idx)
 	{
 		const aiMaterial* mat = scene->mMaterials[idx];
 
-		MaterialData materialData;
-		materialData.name = mat->GetName().C_Str();
+		MaterialDesc materialDesc;
+		materialDesc.name = mat->GetName().C_Str();
 
 		aiColor4D Color;
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &Color) == AI_SUCCESS)
@@ -138,24 +152,24 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		}
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &Color) == AI_SUCCESS)
 		{
-			materialData.baseColor = { Color.r, Color.g, Color.b };
-			materialData.opacity = Color.a;
+			materialDesc.materialData.baseColor = { Color.r, Color.g, Color.b };
+			materialDesc.materialData.opacity = Color.a;
 		}
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_EMISSIVE, &Color) == AI_SUCCESS)
 		{
-			materialData.emissive = { Color.r, Color.g, Color.b };
+			materialDesc.materialData.emissive = { Color.r, Color.g, Color.b };
 		}
 
 		int twoSided = 0;
 		if (aiGetMaterialInteger(mat, AI_MATKEY_TWOSIDED, &twoSided) == AI_SUCCESS)
 		{
-			materialData.doubleSided = twoSided;
+			materialDesc.materialData.doubleSided = twoSided;
 		}
 
 		f32 Opacity = 1.0f;
 		if (aiGetMaterialFloat(mat, AI_MATKEY_OPACITY, &Opacity) == AI_SUCCESS)
 		{
-			materialData.opacity = Opacity;
+			materialDesc.materialData.opacity = Opacity;
 		}
 
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_TRANSPARENT, &Color) == AI_SUCCESS)
@@ -166,27 +180,27 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		f32 metallicFactor = -1.0f;
 		if (aiGetMaterialFloat(mat, AI_MATKEY_METALLIC_FACTOR, &metallicFactor) == AI_SUCCESS)
 		{
-			materialData.metalness = metallicFactor;
+			materialDesc.materialData.metalness = metallicFactor;
 		}
 
 		f32 roughnessFactor = -1.0f;
 		if (aiGetMaterialFloat(mat, AI_MATKEY_ROUGHNESS_FACTOR, &roughnessFactor) == AI_SUCCESS)
 		{
-			materialData.roughness = roughnessFactor;
+			materialDesc.materialData.roughness = roughnessFactor;
 		}
 
 		aiString alphaMode;
 		if (aiGetMaterialString(mat, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode) == AI_SUCCESS)
 		{
-			if (strcmp(alphaMode.C_Str(), "OPAQUE") == 0) materialData.alphaMode = ALPHA_MODE_OPAQUE;
-			else if (strcmp(alphaMode.C_Str(), "BLEND") == 0) materialData.alphaMode = ALPHA_MODE_BLEND;
-			else if (strcmp(alphaMode.C_Str(), "MASK") == 0) materialData.alphaMode = ALPHA_MODE_MASK;
+			if (strcmp(alphaMode.C_Str(), "OPAQUE") == 0) materialDesc.materialData.alphaMode = ALPHA_MODE_OPAQUE;
+			else if (strcmp(alphaMode.C_Str(), "BLEND") == 0) materialDesc.materialData.alphaMode = ALPHA_MODE_BLEND;
+			else if (strcmp(alphaMode.C_Str(), "MASK") == 0) materialDesc.materialData.alphaMode = ALPHA_MODE_MASK;
 		}
 
 		f32 alphaCutoff;
 		if (aiGetMaterialFloat(mat, AI_MATKEY_GLTF_ALPHACUTOFF, &alphaCutoff) == AI_SUCCESS)
 		{
-			materialData.alphaCutoff = alphaCutoff;
+			materialDesc.materialData.alphaCutoff = alphaCutoff;
 		}
 
 		aiString Path;
@@ -199,28 +213,32 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 
 		if (aiGetMaterialTexture(mat, aiTextureType_EMISSIVE, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-			materialData.emissiveTexName = Path.C_Str();
+			materialDesc.emissiveTexName = Path.C_Str();
+			materialDesc.materialData.emissiveTexIdx = FindTextureId(materialDesc.emissiveTexName);
 		}
 
 		if (aiGetMaterialTexture(mat, aiTextureType_DIFFUSE, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-			materialData.baseColorTexName = Path.C_Str();
+			materialDesc.baseColorTexName = Path.C_Str();
+			materialDesc.materialData.baseColorTexIdx = FindTextureId(materialDesc.baseColorTexName);
 		}
 
 		// first try tangent space normal map
 		if (aiGetMaterialTexture(mat, aiTextureType_NORMALS, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-			materialData.normalTexName = Path.C_Str();
+			materialDesc.normalTexName = Path.C_Str();
+			materialDesc.materialData.normalTexIdx = FindTextureId(materialDesc.normalTexName);
 		}
 
 		if (aiGetMaterialTexture(mat, aiTextureType_LIGHTMAP, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-			materialData.ambientTexName = Path.C_Str();
+			materialDesc.ambientTexName = Path.C_Str();
 		}
 
 		if (aiGetMaterialTexture(mat, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-			materialData.roughnessMetalnessTexName = Path.C_Str();
+			materialDesc.roughnessMetalnessTexName = Path.C_Str();
+			materialDesc.materialData.roughnessMetalnessTexIdx = FindTextureId(materialDesc.roughnessMetalnessTexName);
 		}
 		//// then height map
 		//	if (aiGetMaterialTexture(M, aiTextureType_HEIGHT, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
@@ -238,10 +256,10 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		if (aiGetMaterialString(mat, AI_MATKEY_NAME, &Name) == AI_SUCCESS)
 		{
 			materialName = Name.C_Str();
-			assert(materialName == materialData.name);
+			assert(materialName == materialDesc.name);
 		}
 
-		ret.mMaterials.push_back(materialData);
+		ret.mMaterials.push_back(materialDesc);
 	}
 
 	aiReleaseImport(scene);
