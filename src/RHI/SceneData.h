@@ -16,7 +16,8 @@ namespace forward
 		struct Instance
 		{
 			String name;
-			i32 meshId;
+			u32 meshId;
+			u32 materialId;
 
 			float3 translation;
 			float3 scale;

@@ -74,12 +74,10 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		}
 	}
 
-	auto& rootNode = *scene->mRootNode;
-	if (rootNode.mNumMeshes > 0)
-	{
+	auto AddInstance = [&](aiNode& node) {
 		aiVector3D scale, pos;
 		aiQuaternion rot;
-		rootNode.mTransformation.Decompose(scale, rot, pos);
+		node.mTransformation.Decompose(scale, rot, pos);
 		float4x4 mT;
 		mT.setTranslation(float3(pos.x, pos.y, pos.z));
 		float4x4 mS;
@@ -88,13 +86,20 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		auto mRot = q.toMatrix44();
 
 		ret.mInstances.push_back({
-			.name = rootNode.mName.C_Str(),
-			.meshId = static_cast<i32>(rootNode.mMeshes[0]),
+			.name = node.mName.C_Str(),
+			.meshId = node.mMeshes[0],
+			.materialId = scene->mMeshes[node.mMeshes[0]]->mMaterialIndex,
 			.translation = {pos.x, pos.y, pos.z},
 			.scale = {scale.x, scale.y, scale.z},
 			.rotation = {rot.w, rot.x, rot.y, rot.z},
 			.mat = mRot * mS * mT
 			});
+		};
+
+	auto& rootNode = *scene->mRootNode;
+	if (rootNode.mNumMeshes > 0)
+	{
+		AddInstance(rootNode);
 	}
 
 	for (auto idx = 0U; idx < scene->mRootNode->mNumChildren; ++idx)
@@ -102,24 +107,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		auto node = scene->mRootNode->mChildren[idx];
 		if (node->mNumMeshes == 0)
 			continue;
-		aiVector3D scale, pos;
-		aiQuaternion rot;
-		node->mTransformation.Decompose(scale, rot, pos);
-		float4x4 mT;
-		mT.setTranslation(float3(pos.x, pos.y, pos.z));
-		float4x4 mS;
-		mS.setScale(float3(scale.x, scale.y, scale.z));
-		Imath::Quatf q(rot.w, rot.x, rot.y, rot.z);
-		auto mRot = q.toMatrix44();
-
-		ret.mInstances.push_back({
-			.name = node->mName.C_Str(),
-			.meshId = static_cast<i32>(node->mMeshes[0]),
-			.translation = {pos.x, pos.y, pos.z},
-			.scale = {scale.x, scale.y, scale.z},
-			.rotation = {rot.w, rot.x, rot.y, rot.z},
-			.mat = mRot * mS * mT
-			});
+		AddInstance(*node);
 	}
 
 	auto FindTextureId = [&](const String& n)->u32 {
@@ -132,6 +120,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		if (it == ret.mTextures.end())
 		{
 			ret.mTextures.emplace_back(forward::make_shared<Texture2D>(n, texFullPath.c_str()));
+			resMgr.mAllLoadedTextures.push_back(ret.mTextures.back());
 			return static_cast<u32>(ret.mTextures.size() - 1);
 		}
 		else

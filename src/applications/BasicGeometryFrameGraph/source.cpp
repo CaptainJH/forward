@@ -44,13 +44,20 @@ bool BasicGeometryFrameGraph::Init()
 
 	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
 	//auto sceneData = SceneData::LoadFromFile(L"bathroom/LAZIENKA.gltf", m_pDevice->mLoadedResourceMgr);
-	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData);
-	m_albedoEffect->mAlbedoTex = make_shared<Texture2D>("helmet_albedo", L"DamagedHelmet/Default_albedo.jpg");
+	std::vector<SceneData::Instance*> instancesWithBaseTex;
+	std::for_each(sceneData.mInstances.begin(), sceneData.mInstances.end(), [&](auto& ins) {
+		if (!sceneData.mMaterials[ins.materialId].baseColorTexName.empty())
+			instancesWithBaseTex.push_back(&ins);
+		});
+	auto instance = instancesWithBaseTex.back();
+	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData, instance->meshId);
+	m_albedoEffect->mAlbedoTex = sceneData.mTextures[sceneData.mMaterials[instance->materialId].materialData.baseColorTexIdx];
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
 
 	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
-	Vector3f target; target.MakeZero();
+	Vector3f target = { instance->translation.x, instance->translation.y, instance->translation.z };
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+	const auto mat = instance->mat;
 	const auto viewMat = ToFloat4x4(Matrix4f::LookAtLHMatrix(pos, target, up));
 	const auto projMat = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f));
 	m_albedoEffect->mUpdateFunc = [=](f32 dt) {
@@ -58,8 +65,7 @@ bool BasicGeometryFrameGraph::Init()
 		frames += dt * 0.001f;
 		float4x4 rotM;
 		rotM.rotate(float3(0, frames, 0));
-		*m_albedoEffect->mCB = sceneData.mInstances.front().mat * rotM
-			* viewMat * projMat;
+		*m_albedoEffect->mCB = mat * rotM * viewMat * projMat;
 	};
 
 	return true;

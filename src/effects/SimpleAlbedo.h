@@ -7,14 +7,14 @@ namespace forward
 	class SimpleAlbedo final : public Effect
 	{
 	public:
-		SimpleAlbedo(SceneData& sd)
+		SimpleAlbedo(SceneData& sd, u32 geoId)
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
 			mCB = forward::make_shared<ConstantBuffer<float4x4>>("SimpleAlbedo_CB");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
-			FeedWithSceneData(sd);
+			FeedWithSceneData(sd, geoId);
 		}
 
 		shared_ptr<VertexShader> mVS;
@@ -25,10 +25,12 @@ namespace forward
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
 		shared_ptr<Texture2D> mAlbedoTex;
 
-		void FeedWithSceneData(SceneData& sd)
+		void FeedWithSceneData(SceneData& sd, u32 geoId)
 		{
-			for (auto& geo : sd.mMeshData)
-				mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
+			//for (auto& geo : sd.mMeshData)
+			//	mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
+			auto& geo = sd.mMeshData[geoId];
+			mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
 		}
 
 		void SetupRenderPass(Device& r)
