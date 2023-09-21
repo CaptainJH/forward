@@ -43,6 +43,7 @@ bool BasicGeometryFrameGraph::Init()
 		return false;
 
 	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
+	//auto sceneData = SceneData::LoadFromFile(L"bathroom/LAZIENKA.gltf", m_pDevice->mLoadedResourceMgr);
 	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData);
 	m_albedoEffect->mAlbedoTex = make_shared<Texture2D>("helmet_albedo", L"DamagedHelmet/Default_albedo.jpg");
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
@@ -50,12 +51,15 @@ bool BasicGeometryFrameGraph::Init()
 	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
 	Vector3f target; target.MakeZero();
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-	auto viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
-	auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+	const auto viewMat = ToFloat4x4(Matrix4f::LookAtLHMatrix(pos, target, up));
+	const auto projMat = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f));
 	m_albedoEffect->mUpdateFunc = [=](f32 dt) {
 		static f32 frames = 0.0f;
 		frames += dt * 0.001f;
-		*m_albedoEffect->mCB = Matrix4f::RotationMatrixY(frames) * viewMat * projMat;
+		float4x4 rotM;
+		rotM.rotate(float3(0, frames, 0));
+		*m_albedoEffect->mCB = sceneData.mInstances.front().mat * rotM
+			* viewMat * projMat;
 	};
 
 	return true;

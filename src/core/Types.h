@@ -6,6 +6,9 @@
 #include <concurrent_queue.h>
 #endif
 
+#include <ImathVec.h>
+#include <ImathMatrix.h>
+
 
 namespace forward
 {
@@ -26,6 +29,12 @@ namespace forward
 	typedef std::wstring WString;
 	typedef std::string String;
 	template<class T> using Vector = std::vector<T>;
+
+	typedef Imath::Vec3<forward::f32> float2;
+	typedef Imath::Vec3<forward::f32> float3;
+	typedef Imath::Vec4<forward::f32> float4;
+	typedef Imath::Matrix33<forward::f32> float3x3;
+	typedef Imath::Matrix44<forward::f32> float4x4;
 
 
 #ifdef _WINDOWS

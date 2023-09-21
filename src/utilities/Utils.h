@@ -11,6 +11,8 @@
 #include <codecvt>
 
 #include "Vector4f.h"
+#include "Matrix4f.h"
+#include <ImathMatrix.h>
 
 namespace forward
 {
@@ -137,4 +139,6 @@ namespace forward
 	{
 		return (size + (alignment - 1)) & ~(alignment - 1);
 	}
+
+	float4x4 ToFloat4x4(const Matrix4f& mat);
 }

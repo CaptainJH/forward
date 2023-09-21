@@ -132,6 +132,7 @@ bool MSAA_Demo::Init()
 		forward::RECT scissorRect = { 0, 0, mClientWidth / 2, mClientHeight };
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
+		pso.m_RSState.m_rsState.frontCCW = false;
 	},
 	[&](Device& device) {
 		device.DrawIndexed(m_geometry->GetIndexCount());
@@ -160,6 +161,8 @@ bool MSAA_Demo::Init()
 		pso.m_OMState.m_renderTargetResources[0] = m_msaa_rt;
 		pso.m_OMState.m_depthStencilResource = m_msaa_ds;
 		m_msaa_resolved = make_shared<Texture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
+
+		pso.m_RSState.m_rsState.frontCCW = false;
 	},
 		[&](Device& device) {
 		device.DrawIndexed(m_geometry->GetIndexCount());
@@ -188,7 +191,7 @@ bool MSAA_Demo::Init()
 		forward::RECT scissorRect = { mClientWidth / 2, 0, mClientWidth, mClientHeight };
 		pso.m_RSState.AddScissorRect(scissorRect);
 		pso.m_RSState.m_rsState.enableScissor = true;
-
+		pso.m_RSState.m_rsState.frontCCW = false;
 		},
 		[&](Device& device) {
 			device.GetCmdList().Draw(m_quad->GetVertexCount());

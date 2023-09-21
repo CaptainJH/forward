@@ -11,7 +11,7 @@ namespace forward
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
-			mCB = forward::make_shared<ConstantBuffer<Matrix4f>>("SimpleAlbedo_CB");
+			mCB = forward::make_shared<ConstantBuffer<float4x4>>("SimpleAlbedo_CB");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
 			FeedWithSceneData(sd);
@@ -19,7 +19,7 @@ namespace forward
 
 		shared_ptr<VertexShader> mVS;
 		shared_ptr<PixelShader> mPS;
-		shared_ptr<ConstantBuffer<Matrix4f>> mCB;
+		shared_ptr<ConstantBuffer<float4x4>> mCB;
 		shared_ptr<SamplerState> mSamp;
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
