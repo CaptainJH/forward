@@ -9,9 +9,11 @@
 #include "Log.h"
 #include "RHI/Device.h"
 
-#include <ImathMatrixAlgo.h>
-
 using namespace forward;
+
+const i32 ALPHA_MODE_OPAQUE = 0;
+const i32 ALPHA_MODE_BLEND = 1;
+const i32 ALPHA_MODE_MASK = 2;
 
 SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceManager& resMgr)
 {
@@ -87,31 +89,24 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		Imath::Quatf q(rot.w, rot.x, rot.y, rot.z);
 		auto mRot = q.toMatrix44();
 
-		auto finalM = mRot * mS * mT;
 		ret.mInstances.push_back({
 			.name = rootNode.mName.C_Str(),
-			.meshId = rootNode.mMeshes ? static_cast<i32>(rootNode.mMeshes[0]) : -1,
+			.meshId = static_cast<i32>(rootNode.mMeshes[0]),
 			.translation = {pos.x, pos.y, pos.z},
 			.scale = {scale.x, scale.y, scale.z},
 			.rotation = {rot.w, rot.x, rot.y, rot.z},
-			.mat = finalM
+			.mat = mRot * mS * mT
 			});
 	}
 
 	for (auto idx = 0U; idx < scene->mRootNode->mNumChildren; ++idx)
 	{
 		auto node = scene->mRootNode->mChildren[idx];
+		if (node->mNumMeshes == 0)
+			continue;
 		aiVector3D scale, pos;
 		aiQuaternion rot;
 		node->mTransformation.Decompose(scale, rot, pos);
-		//Matrix4f m0(true);
-		//m0.SetTranslation({ pos.x, pos.y, pos.z });
-		//m0.Scale(scale.x);
-		//const auto& aiM = node->mTransformation.Transpose();
-		//float4x4 m1(aiM.a1, aiM.a2, aiM.a3, aiM.a4,
-		//	aiM.b1, aiM.b2, aiM.b3, aiM.b4,
-		//	aiM.c1, aiM.c2, aiM.c3, aiM.c4,
-		//	aiM.d1, aiM.d2, aiM.d3, aiM.d4);
 		float4x4 mT;
 		mT.setTranslation(float3(pos.x, pos.y, pos.z));
 		float4x4 mS;
@@ -119,98 +114,113 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		Imath::Quatf q(rot.w, rot.x, rot.y, rot.z);
 		auto mRot = q.toMatrix44();
 
-		auto finalM = mRot * mS * mT;
-		//auto translation2 = finalM.translation();
-		//float3 finalS;
-		//Imath::extractScaling(finalM, finalS);
-		//Imath::Quatf finalQ = Imath::extractQuat(finalM);
-
-
-		
-
 		ret.mInstances.push_back({
 			.name = node->mName.C_Str(),
-			.meshId = node->mMeshes ? static_cast<i32>(node->mMeshes[0]) : -1,
+			.meshId = static_cast<i32>(node->mMeshes[0]),
 			.translation = {pos.x, pos.y, pos.z},
 			.scale = {scale.x, scale.y, scale.z},
-			.rotation = {rot.w, rot.x, rot.y, rot.z}
+			.rotation = {rot.w, rot.x, rot.y, rot.z},
+			.mat = mRot * mS * mT
 			});
-
-		std::stringstream ss;
-		ss << node->mName.C_Str() << " : \n"
-			<< ret.mInstances.back().translation << " \n"
-			<< ret.mInstances.back().scale << " \n"
-			<< ret.mInstances.back().rotation << "\n"
-			<< finalM << std::endl;
-		OutputDebugStringA(ss.str().c_str());
 	}
 
 	for (auto idx = 0U; idx < scene->mNumMaterials; ++idx)
 	{
 		const aiMaterial* mat = scene->mMaterials[idx];
-		String n = mat->GetName().C_Str();
-		std::stringstream ss;
-		ss << "material_" << idx << " : " << n << std::endl;
-		OutputDebugStringA(ss.str().c_str());
-		aiColor4D Color;
 
+		MaterialData materialData;
+		materialData.name = mat->GetName().C_Str();
+
+		aiColor4D Color;
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &Color) == AI_SUCCESS)
 		{
-
+			assert(false);
 		}
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &Color) == AI_SUCCESS)
 		{
-
+			materialData.baseColor = { Color.r, Color.g, Color.b };
+			materialData.opacity = Color.a;
 		}
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_EMISSIVE, &Color) == AI_SUCCESS)
 		{
+			materialData.emissive = { Color.r, Color.g, Color.b };
 		}
 
-		//const float opaquenessThreshold = 0.05f;
-		float Opacity = 1.0f;
+		int twoSided = 0;
+		if (aiGetMaterialInteger(mat, AI_MATKEY_TWOSIDED, &twoSided) == AI_SUCCESS)
+		{
+			materialData.doubleSided = twoSided;
+		}
 
+		f32 Opacity = 1.0f;
 		if (aiGetMaterialFloat(mat, AI_MATKEY_OPACITY, &Opacity) == AI_SUCCESS)
 		{
-
+			materialData.opacity = Opacity;
 		}
 
 		if (aiGetMaterialColor(mat, AI_MATKEY_COLOR_TRANSPARENT, &Color) == AI_SUCCESS)
 		{
+			assert(false);
+		}
 
+		f32 metallicFactor = -1.0f;
+		if (aiGetMaterialFloat(mat, AI_MATKEY_METALLIC_FACTOR, &metallicFactor) == AI_SUCCESS)
+		{
+			materialData.metalness = metallicFactor;
+		}
+
+		f32 roughnessFactor = -1.0f;
+		if (aiGetMaterialFloat(mat, AI_MATKEY_ROUGHNESS_FACTOR, &roughnessFactor) == AI_SUCCESS)
+		{
+			materialData.roughness = roughnessFactor;
+		}
+
+		aiString alphaMode;
+		if (aiGetMaterialString(mat, AI_MATKEY_GLTF_ALPHAMODE, &alphaMode) == AI_SUCCESS)
+		{
+			if (strcmp(alphaMode.C_Str(), "OPAQUE") == 0) materialData.alphaMode = ALPHA_MODE_OPAQUE;
+			else if (strcmp(alphaMode.C_Str(), "BLEND") == 0) materialData.alphaMode = ALPHA_MODE_BLEND;
+			else if (strcmp(alphaMode.C_Str(), "MASK") == 0) materialData.alphaMode = ALPHA_MODE_MASK;
+		}
+
+		f32 alphaCutoff;
+		if (aiGetMaterialFloat(mat, AI_MATKEY_GLTF_ALPHACUTOFF, &alphaCutoff) == AI_SUCCESS)
+		{
+			materialData.alphaCutoff = alphaCutoff;
 		}
 
 		aiString Path;
 		aiTextureMapping Mapping;
 		unsigned int UVIndex = 0;
-		float Blend = 1.0f;
+		f32 Blend = 1.0f;
 		aiTextureOp TextureOp = aiTextureOp_Add;
 		aiTextureMapMode TextureMapMode[2] = { aiTextureMapMode_Wrap, aiTextureMapMode_Wrap };
 		unsigned int TextureFlags = 0;
 
 		if (aiGetMaterialTexture(mat, aiTextureType_EMISSIVE, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-
+			materialData.emissiveTexName = Path.C_Str();
 		}
 
 		if (aiGetMaterialTexture(mat, aiTextureType_DIFFUSE, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-
+			materialData.baseColorTexName = Path.C_Str();
 		}
 
 		// first try tangent space normal map
 		if (aiGetMaterialTexture(mat, aiTextureType_NORMALS, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-
+			materialData.normalTexName = Path.C_Str();
 		}
 
 		if (aiGetMaterialTexture(mat, aiTextureType_LIGHTMAP, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-
+			materialData.ambientTexName = Path.C_Str();
 		}
 
 		if (aiGetMaterialTexture(mat, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
 		{
-
+			materialData.roughnessMetalnessTexName = Path.C_Str();
 		}
 		//// then height map
 		//	if (aiGetMaterialTexture(M, aiTextureType_HEIGHT, 0, &Path, &Mapping, &UVIndex, &Blend, &TextureOp, TextureMapMode, &TextureFlags) == AI_SUCCESS)
@@ -228,8 +238,10 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		if (aiGetMaterialString(mat, AI_MATKEY_NAME, &Name) == AI_SUCCESS)
 		{
 			materialName = Name.C_Str();
+			assert(materialName == materialData.name);
 		}
 
+		ret.mMaterials.push_back(materialData);
 	}
 
 	aiReleaseImport(scene);

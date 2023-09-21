@@ -6,6 +6,7 @@
 #include <concurrent_queue.h>
 #endif
 
+#include <ImathColor.h>
 #include <ImathVec.h>
 #include <ImathMatrix.h>
 
@@ -36,6 +37,8 @@ namespace forward
 	typedef Imath::Matrix33<forward::f32> float3x3;
 	typedef Imath::Matrix44<forward::f32> float4x4;
 
+	typedef Imath::Color3f Color3;
+	typedef Imath::Color4f Color4;
 
 #ifdef _WINDOWS
 	template<class T> using Concurrent_Vector = Concurrency::concurrent_vector<T>;
