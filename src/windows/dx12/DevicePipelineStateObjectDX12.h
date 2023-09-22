@@ -14,117 +14,50 @@ namespace forward
 {
 	struct PipelineStateObject;
 	struct RTPipelineStateObject;
+	struct BindingRanges;
 	class DeviceDX12;
 
 	struct DevicePipelineStateObjectHelper
 	{
-		template<class T, i32 N, i32 K>
-		static void CollectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV)
-		{
-			if (shaderStageState.m_shader)
-			{
-				auto deviceShader = device_cast<ShaderDX12*>(shaderStageState.m_shader);
-				for (auto& cb : deviceShader->GetCBuffers())
-				{
-					auto register_index = cb.GetBindPoint();
-					assert(usedRegisterCBV[register_index] == 0
-						&& cb.GetBindCount() == 1);
-					++usedRegisterCBV[register_index];
-				}
-				for (auto i = 0U; i < shaderStageState.m_constantBuffers.size(); ++i)
-				{
-					if (shaderStageState.m_constantBuffers[i])
-					{
-						assert(usedRegisterCBV[i] == 1);
-						++usedRegisterCBV[i];
-					}
-				}
+		static void CollectBindingInfo(const ShaderDX12* deviceShader, BindingRanges& rangesCBV, BindingRanges& rangesSRV, BindingRanges& rangesUAV, u32 space = 0);
 
-				for (auto& tex : deviceShader->GetTextures())
+		template<class R, class T>
+		static bool CheckBindingResources(const R& bindingResources, const T& ranges, const i8* logPrefix, u32 space = 0)
+		{
+			bool ret = true;
+			for (auto& r : ranges.m_ranges)
+			{
+				for (auto bind = r.bindStart; bind <= r.bindEnd; ++bind)
 				{
-					if (tex.IsGpuWritable()) continue;
-					auto register_index = tex.GetBindPoint();
-					assert(usedRegisterSRV[register_index] == 0
-						&& tex.GetBindCount() == 1);
-					++usedRegisterSRV[register_index];
-				}
-				for (auto& tex : deviceShader->GetTextureArrays())
-				{
-					if (tex.IsGpuWritable()) continue;
-					auto register_index = tex.GetBindPoint();
-					assert(usedRegisterSRV[register_index] == 0
-						&& tex.GetBindCount() == 1);
-					++usedRegisterSRV[register_index];
-				}
-				for (auto& buf : deviceShader->GetByteAddressBuffers())
-				{
-					if (buf.IsGpuWritable()) continue;
-					auto register_index = buf.GetBindPoint();
-					assert(usedRegisterSRV[register_index] == 0
-						&& buf.GetBindCount() == 1);
-					++usedRegisterSRV[register_index];
-				}
-				for (auto& buf : deviceShader->GetStructuredBuffers())
-				{
-					if (buf.IsGpuWritable()) continue;
-					auto register_index = buf.GetBindPoint();
-					assert(usedRegisterSRV[register_index] == 0
-						&& buf.GetBindCount() == 1);
-					++usedRegisterSRV[register_index];
-				}
-				for (auto i = 0U; i < shaderStageState.m_shaderResources.size(); ++i)
-				{
-					if (shaderStageState.m_shaderResources[i])
+					if (!bindingResources[bind])
 					{
-						assert(usedRegisterSRV[i] == 1);
-						++usedRegisterSRV[i];
+						std::stringstream ss;
+						ss << logPrefix << bind << ", space" << space << " missing resource!" << std::endl;
+						OutputDebugStringA(ss.str().c_str());
+						ret = false;
 					}
 				}
 			}
+			return ret;
 		}
-
-		template<class T, i32 N, i32 K>
-		static void CollectBindingInfo(T shaderStageState, std::array<u32, N>& usedRegisterCBV, std::array<u32, K>& usedRegisterSRV, std::array<u32, 8>& usedRegisterUAV)
+		template<class R, class T>
+		static bool CheckBindingResources(const R& bindingResources0, const R& bindingResources1, const T& ranges, const i8* logPrefix, u32 space=0)
 		{
-			CollectBindingInfo(shaderStageState, usedRegisterCBV, usedRegisterSRV);
-			if (shaderStageState.m_shader)
+			bool ret = true;
+			for (auto& r : ranges.m_ranges)
 			{
-				auto deviceShader = device_cast<ShaderDX12*>(shaderStageState.m_shader);
-				for (auto& tex : deviceShader->GetTextures())
+				for (auto bind = r.bindStart; bind <= r.bindEnd; ++bind)
 				{
-					if (tex.IsGpuWritable())
+					if (!bindingResources0[bind] && !bindingResources1[bind])
 					{
-						auto register_index = tex.GetBindPoint();
-						assert(usedRegisterUAV[register_index] == 0
-							&& tex.GetBindCount() == 1);
-						++usedRegisterUAV[register_index];
-					}
-				}
-				for (auto i = 0U; i < shaderStageState.m_uavShaderRes.size(); ++i)
-				{
-					if (shaderStageState.m_uavShaderRes[i])
-					{
-						assert(usedRegisterUAV[i] == 1);
-						++usedRegisterUAV[i];
+						std::stringstream ss;
+						ss << logPrefix << bind << ", space" << space << " missing resource!" << std::endl;
+						OutputDebugStringA(ss.str().c_str());
+						ret = false;
 					}
 				}
 			}
-		}
-
-		template<i32 N>
-		static bool CheckBindingInfo(std::array<u32, N>& usedRegisterArray)
-		{
-			const u64 ZeroCount = std::count(usedRegisterArray.begin(), usedRegisterArray.end(), 0U);
-			if (ZeroCount == usedRegisterArray.size())
-				return true;
-
-			auto lastTwo = std::find(usedRegisterArray.rbegin(), usedRegisterArray.rend(), 2U);
-			const u64 gapCount = std::abs(std::distance(usedRegisterArray.rbegin(), lastTwo));
-			if (usedRegisterArray[0] == 2 && gapCount == ZeroCount)
-				return true;
-
-			assert(false && "something wrong with the binding info!");
-			return false;
+			return ret;
 		}
 
 		// Conversions from FrameGraph values to DX12 values.

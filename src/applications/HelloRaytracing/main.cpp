@@ -81,6 +81,10 @@ public:
 		m_vb->SetDeviceObject(deviceVB);
 		m_rtPSO->m_meshes.emplace_back(std::make_pair(m_vb, m_ib));
 
+		m_cb = make_shared<ConstantBuffer<RayGenConstantBuffer>>("g_sceneCB");
+		*m_cb = m_rayGenCB;
+		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
+
 		m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
 		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 		auto deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uavTex.get(), *m_pDeviceDX12);
@@ -89,11 +93,8 @@ public:
 
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"HelloRaytracing");
-		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 
-			static_cast<u32>(sizeof(RayGenConstantBuffer)));
-		Vector<u8> rayGenCBBuffer(sizeof(RayGenConstantBuffer), 0);
-		memcpy(rayGenCBBuffer.data(), &m_rayGenCB, rayGenCBBuffer.size());
-		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader", rayGenCBBuffer });
+		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader" });
 		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader" });
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
@@ -128,6 +129,7 @@ protected:
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
 	shared_ptr<IndexBuffer> m_ib;
 	shared_ptr<VertexBuffer> m_vb;
+	shared_ptr<ConstantBuffer<RayGenConstantBuffer>> m_cb;
 	forward::shared_ptr<Texture2D> m_uavTex;
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 

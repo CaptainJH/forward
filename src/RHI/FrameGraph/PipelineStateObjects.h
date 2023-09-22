@@ -14,6 +14,22 @@
 
 namespace forward
 {
+	struct BindingRange
+	{
+		u32 bindStart = std::numeric_limits<u32>::max();
+		u32 bindEnd = 0;
+		
+		bool IsEmpty() const { return bindEnd < bindStart; }
+		u32 Count() const { return bindEnd - bindStart + 1; }
+	};
+
+	struct BindingRanges
+	{
+		Vector<BindingRange> m_ranges;
+
+		bool AddRange(BindingRange range);
+	};
+
 	class DrawingState : public GraphicsObject
 	{
 	public:
@@ -342,6 +358,15 @@ namespace forward
 	{
 		shared_ptr<RaytracingShaders> m_shader;
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
+
+		struct ExtraShaderStage
+		{
+			u32 m_space;
+			Vector<shared_ptr<ConstantBufferBase>> m_constantBuffers;
+			Vector<shared_ptr<Resource>> m_shaderResources;
+			Vector<shared_ptr<Texture>> m_uavShaderRes;
+		};
+		Vector<ExtraShaderStage> m_extraShaderStageStates;
 
 		shared_ptr<ShaderTable> m_rayGenShaderTable;
 		shared_ptr<ShaderTable> m_hitShaderTable;

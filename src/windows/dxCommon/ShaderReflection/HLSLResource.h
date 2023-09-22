@@ -61,6 +61,7 @@ namespace forward
 		D3D_SHADER_INPUT_TYPE GetType() const;
 		u32 GetBindPoint() const;
 		u32 GetBindCount() const;
+		u32 GetSpace() const;
 		u32 GetFlags() const;
 		D3D_RESOURCE_RETURN_TYPE GetReturnType() const;
 		D3D_SRV_DIMENSION GetDimension() const;

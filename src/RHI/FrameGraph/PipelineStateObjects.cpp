@@ -158,3 +158,35 @@ void ShaderStageState::SetConstantBufferData(Shader& shader, u32 index, std::uno
 		}
 	}
 }
+
+bool BindingRanges::AddRange(BindingRange range)
+{
+	auto newStartIt = m_ranges.end();
+	auto newEndIt = m_ranges.end();
+	for (auto it = m_ranges.begin(); it != m_ranges.end(); ++it)
+	{
+		if (
+			(range.bindStart >= it->bindStart && range.bindStart <= it->bindEnd)
+			||
+			(range.bindEnd >= it->bindStart && range.bindEnd <= it->bindEnd)
+			)
+			return false;
+		else if ((range.bindStart - 1 == it->bindEnd) && (newStartIt == m_ranges.end()))
+			newStartIt = it;
+		else if ((range.bindEnd + 1 == it->bindStart) && (newEndIt == m_ranges.end()))
+			newEndIt = it;
+	}
+	if ((newStartIt != m_ranges.end()) && (newEndIt != m_ranges.end()))
+	{
+		newStartIt->bindEnd = newEndIt->bindEnd;
+		m_ranges.erase(newEndIt);
+	}
+	else if (newStartIt != m_ranges.end())
+		newStartIt->bindEnd = range.bindEnd;
+	else if (newEndIt != m_ranges.end())
+		newEndIt->bindStart = range.bindStart;
+	else
+		m_ranges.emplace_back(range);
+
+	return true;
+}

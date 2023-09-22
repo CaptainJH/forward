@@ -26,6 +26,11 @@ u32 HLSLResource::GetBindCount() const
 	return m_desc.bindCount;
 }
 
+u32 HLSLResource::GetSpace() const
+{
+	return m_desc.space;
+}
+
 u32 HLSLResource::GetFlags() const
 {
 	return m_desc.flags;
