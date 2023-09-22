@@ -136,10 +136,6 @@ public:
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyMissShader" });
 
-		// Execute the initialization commands
-		m_pDeviceDX12->GetDefaultQueue()->ExecuteCommandList([]() {});
-		m_pDeviceDX12->GetDefaultQueue()->Flush();
-
 		m_rtPSO->m_deviceRTPSO = forward::make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
 		return true;
