@@ -8,20 +8,43 @@
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
 
-using namespace forward;
+#include "SceneData.h"
 
-struct SceneConstantBuffer
-{
-	Matrix4f projectionToWorld;
-	Vector4f cameraPosition;
-	Vector4f lightPosition;
-	Vector4f lightAmbientColor;
-	Vector4f lightDiffuseColor;
-};
+using namespace forward;
 
 struct CubeConstantBuffer
 {
 	Vector4f albedo;
+};
+
+struct Light {
+	float3 position;
+	u32 type;
+	float3 intensity;
+	u32 pad;
+};
+
+struct RaytracingData
+{
+	float4x4 view;
+	float4x4 proj;
+
+	f32 skyIntensity;
+	u32 lightCount;
+	u32 frameNumber;
+	u32 maxBounces;
+
+	f32 exposureAdjustment;
+	u32 accumulatedFrames;
+	bool enableAntiAliasing;
+	f32 focusDistance;
+
+	f32 apertureSize;
+	bool enableAccumulation;
+	f32 pad;
+	f32 pad2;
+
+	Light lights[4];
 };
 
 
@@ -46,99 +69,35 @@ public:
 			return false;
 
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
-		auto commandList = m_pDeviceDX12->DeviceCommandList();
 		m_rtPSO = std::make_unique<RTPipelineStateObject>();
 
-		// setup geometry
-		m_ib = make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, 3 * 12);
-		m_ib->AddFace({ 3, 1, 0 });
-		m_ib->AddFace({ 2, 1, 3 });
+		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
+		for (auto& sg : m_scene.mMeshData)
+			m_rtPSO->m_meshes.emplace_back(std::make_pair(sg.m_VB, sg.m_IB));
 
-		m_ib->AddFace({ 6, 4, 5 });
-		m_ib->AddFace({ 7, 4, 6 });
+		m_uav0Tex = make_shared<Texture2D>("UAV0_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
+		m_uav0Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+		m_uav1Tex = make_shared<Texture2D>("UAV1_Tex", forward::DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
+		m_uav1Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 
-		m_ib->AddFace({ 11, 9, 8 });
-		m_ib->AddFace({ 10, 9, 11 });
-
-		m_ib->AddFace({ 14, 12, 13 });
-		m_ib->AddFace({ 15, 12, 14 });
-
-		m_ib->AddFace({ 19, 17, 16 });
-		m_ib->AddFace({ 18, 17, 19 });
-
-		m_ib->AddFace({ 22, 20, 21 });
-		m_ib->AddFace({ 23, 20, 22 });
-		auto deviceIB = forward::make_shared<DeviceBufferDX12>(commandList, m_ib.get(), *m_pDeviceDX12);
-		m_ib->SetDeviceObject(deviceIB);
-
-		Vertex_POS_N vertices[] =
-		{
-			{ Vector3f(-1.0f, 1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f) },
-			{ Vector3f(1.0f, 1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f) },
-			{ Vector3f(1.0f, 1.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f) },
-			{ Vector3f(-1.0f, 1.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f) },
-
-			{ Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f) },
-			{ Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f) },
-			{ Vector3f(1.0f, -1.0f, 1.0f), Vector3f(0.0f, -1.0f, 0.0f) },
-			{ Vector3f(-1.0f, -1.0f, 1.0f), Vector3f(0.0f, -1.0f, 0.0f) },
-
-			{ Vector3f(-1.0f, -1.0f, 1.0f), Vector3f(-1.0f, 0.0f, 0.0f) },
-			{ Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(-1.0f, 0.0f, 0.0f) },
-			{ Vector3f(-1.0f, 1.0f, -1.0f), Vector3f(-1.0f, 0.0f, 0.0f) },
-			{ Vector3f(-1.0f, 1.0f, 1.0f), Vector3f(-1.0f, 0.0f, 0.0f) },
-
-			{ Vector3f(1.0f, -1.0f, 1.0f), Vector3f(1.0f, 0.0f, 0.0f) },
-			{ Vector3f(1.0f, -1.0f, -1.0f), Vector3f(1.0f, 0.0f, 0.0f) },
-			{ Vector3f(1.0f, 1.0f, -1.0f), Vector3f(1.0f, 0.0f, 0.0f) },
-			{ Vector3f(1.0f, 1.0f, 1.0f), Vector3f(1.0f, 0.0f, 0.0f) },
-
-			{ Vector3f(-1.0f, -1.0f, -1.0f), Vector3f(0.0f, 0.0f, -1.0f) },
-			{ Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, 0.0f, -1.0f) },
-			{ Vector3f(1.0f, 1.0f, -1.0f), Vector3f(0.0f, 0.0f, -1.0f) },
-			{ Vector3f(-1.0f, 1.0f, -1.0f), Vector3f(0.0f, 0.0f, -1.0f) },
-
-			{ Vector3f(-1.0f, -1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f) },
-			{ Vector3f(1.0f, -1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f) },
-			{ Vector3f(1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f) },
-			{ Vector3f(-1.0f, 1.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f) },
-		};
-		m_vb = make_shared<VertexBuffer>("VertexBuffer", Vertex_POS_N::GetVertexFormat(), 4 * 6);
-		for (const auto& v : vertices)
-			m_vb->AddVertex(v);
-		auto deviceVB = forward::make_shared<DeviceBufferDX12>(commandList, m_vb.get(), *m_pDeviceDX12);
-		m_vb->SetDeviceObject(deviceVB);
-		m_rtPSO->m_geometry.emplace_back(std::make_pair(m_vb, m_ib));
-
-		m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
-		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		auto deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uavTex.get(), *m_pDeviceDX12);
-		m_uavTex->SetDeviceObject(deviceUAVTex);
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
+		prepareDeviceResources();
 
 		// setup shaders
-		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
-		m_cb = make_shared<ConstantBuffer<SceneConstantBuffer>>("g_sceneCB");
+		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"PathTracer");
+		m_cb = make_shared<ConstantBuffer<RaytracingData>>("g_sceneCB");
+
 		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
-
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
-		m_rtPSO->m_rtState.m_shaderResources[0] = m_ib;
-		m_rtPSO->m_rtState.m_shaderResources[1] = m_vb;
+		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uav0Tex;
+		m_rtPSO->m_rtState.m_uavShaderRes[1] = m_uav1Tex;
 		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyRaygenShader" });
-		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, (u32)sizeof(CubeConstantBuffer));
-		CubeConstantBuffer cube_cb = {
-			.albedo = {1.0f, 1.0f, 1.0f, 1.0f}
-		};
-		Vector<u8> cube_cb_buffer(sizeof(CubeConstantBuffer));
-		memcpy(cube_cb_buffer.data(), &cube_cb, sizeof(CubeConstantBuffer));
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyClosestHitShader", cube_cb_buffer });
+		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"RayGen" });
+		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"ClosestHit" });
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"AnyHit" });
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"AnyHitShadow" });
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MyMissShader" });
-
-		// Execute the initialization commands
-		m_pDeviceDX12->GetDefaultQueue()->ExecuteCommandList([]() {});
-		m_pDeviceDX12->GetDefaultQueue()->Flush();
+		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"Miss" });
+		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MissShadow" });
 
 		m_rtPSO->m_deviceRTPSO = forward::make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
@@ -158,13 +117,13 @@ protected:
 		const Matrix4f proj = Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f);
 		const Matrix4f viewProj = view * proj;
 		
-		*m_cb = SceneConstantBuffer{
-			.projectionToWorld = viewProj.Inverse(),
-			.cameraPosition = eyePos,
-			.lightPosition = {0.0f, 1.8f, -3.0f, 0.0f},
-			.lightAmbientColor = {0.5f, 0.5f, 0.5f, 1.0f},
-			.lightDiffuseColor = {0.5f, 0.0f, 0.0f, 1.0f}
-		};
+		//*m_cb = SceneConstantBuffer{
+		//	.projectionToWorld = viewProj.Inverse(),
+		//	.cameraPosition = eyePos,
+		//	.lightPosition = {0.0f, 1.8f, -3.0f, 0.0f},
+		//	.lightAmbientColor = {0.5f, 0.5f, 0.5f, 1.0f},
+		//	.lightDiffuseColor = {0.5f, 0.0f, 0.0f, 1.0f}
+		//};
 	}
 
 	void DrawScene() override
@@ -177,19 +136,39 @@ protected:
 		cmdList->CommitStagedDescriptors();
 		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
 		cmdList->DispatchRays(*m_rtPSO);
-		cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
+		//cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
 
 		m_pDeviceDX12->EndDraw();
 	}
 
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
-	shared_ptr<IndexBuffer> m_ib;
-	shared_ptr<VertexBuffer> m_vb;
-	shared_ptr<ConstantBuffer<SceneConstantBuffer>> m_cb;
-	forward::shared_ptr<Texture2D> m_uavTex;
+	shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
+	forward::shared_ptr<Texture2D> m_uav0Tex;
+	forward::shared_ptr<Texture2D> m_uav1Tex;
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 
 	Vector3f m_eyePos = Vector3f(0.0f, 2.0f, -5.0f);
+
+	SceneData m_scene;
+
+private:
+	void prepareDeviceResources()
+	{
+		auto commandList = m_pDeviceDX12->DeviceCommandList();
+		for (auto& gp : m_rtPSO->m_meshes)
+		{
+			gp.first->SetDeviceObject(forward::make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
+			gp.second->SetDeviceObject(forward::make_shared<DeviceBufferDX12>(commandList, gp.second.get(), *m_pDeviceDX12));
+		}
+
+		auto deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12);
+		m_uav0Tex->SetDeviceObject(deviceUAVTex);
+
+		deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12);
+		m_uav1Tex->SetDeviceObject(deviceUAVTex);
+	}
+
+
 };
 
 FORWARD_APPLICATION_MAIN(ReferencePT, 1920, 1080);

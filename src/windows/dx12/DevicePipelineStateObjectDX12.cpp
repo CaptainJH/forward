@@ -748,7 +748,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 		}
 
 		CD3DX12_ROOT_PARAMETER scene_root_parameter;
-		scene_root_parameter.InitAsShaderResourceView(0, AccelerationStructuresSpace);
+		scene_root_parameter.InitAsShaderResourceView(0, ShaderDX12::AccelerationStructuresSpace);
 		slotRootParameters.push_back(scene_root_parameter);
 
 		// A root signature is an array of root parameters.

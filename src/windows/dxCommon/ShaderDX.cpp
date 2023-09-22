@@ -138,7 +138,10 @@ void ShaderDX::Insert(HLSLTextureBuffer const& tbuffer)
 
 void ShaderDX::Insert(HLSLTexture const& texture)
 {
-	m_Textures.push_back(texture);
+	if (std::find_if(m_Textures.begin(), m_Textures.end(), [&](auto& t)->bool {
+		return texture.GetName() == t.GetName();
+		}) == m_Textures.end())
+		m_Textures.push_back(texture);
 }
 
 void ShaderDX::Insert(HLSLTextureArray const& tarray)
@@ -148,7 +151,10 @@ void ShaderDX::Insert(HLSLTextureArray const& tarray)
 
 void ShaderDX::Insert(HLSLSamplerState const& samp)
 {
-	m_Samplers.push_back(samp);
+	if (std::find_if(m_Samplers.begin(), m_Samplers.end(), [&](auto& s)->bool {
+		return samp.GetName() == s.GetName();
+		}) == m_Samplers.end())
+		m_Samplers.push_back(samp);
 }
 
 void ShaderDX::Insert(HLSLByteAddressBuffer const& rbuffer)

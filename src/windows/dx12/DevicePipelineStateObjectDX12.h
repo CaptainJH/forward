@@ -192,7 +192,5 @@ namespace forward
 		void BuildShaderTables(DeviceDX12* device);
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);
-
-		static const u32 AccelerationStructuresSpace = 99U;
 	};
 }

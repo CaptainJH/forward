@@ -24,6 +24,7 @@ namespace forward
 			m_desc.returnType = desc.ReturnType;
 			m_desc.dimension = desc.Dimension;
 			m_desc.numSamples = desc.NumSamples;
+			m_desc.space = desc.Space;
 		}
 		template<class D3D_SHADER_INPUT_BIND_DESC>
 		HLSLResource(D3D_SHADER_INPUT_BIND_DESC const& desc, u32 index,
@@ -38,6 +39,7 @@ namespace forward
 			m_desc.returnType = desc.ReturnType;
 			m_desc.dimension = desc.Dimension;
 			m_desc.numSamples = desc.NumSamples;
+			m_desc.space = desc.Space;
 		}
 
 	public:
@@ -47,6 +49,7 @@ namespace forward
 			D3D_SHADER_INPUT_TYPE type;
 			u32 bindPoint;
 			u32 bindCount;
+			u32 space;
 			u32 flags;
 			D3D_RESOURCE_RETURN_TYPE returnType;
 			D3D_SRV_DIMENSION dimension;

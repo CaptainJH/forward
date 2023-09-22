@@ -244,6 +244,10 @@ void ShaderDX12::ReflectLibrary(Microsoft::WRL::ComPtr<ID3D12LibraryReflection> 
 						{
 							Insert(HLSLTexture(resDesc));
 						}
+						else if (resDesc.BindCount >= BindlessDescriptorCount)
+						{
+							Insert(HLSLTexture(resDesc));
+						}
 						else
 						{
 							for (auto j = 0U; j < resDesc.BindCount; ++j)
@@ -275,6 +279,10 @@ void ShaderDX12::ReflectLibrary(Microsoft::WRL::ComPtr<ID3D12LibraryReflection> 
 					{
 						Insert(HLSLByteAddressBuffer(resDesc));
 					}
+					else if (resDesc.BindCount >= ShaderDX12::BindlessDescriptorCount)
+					{
+						Insert(HLSLByteAddressBuffer(resDesc));
+					}
 					else
 					{
 						for (UINT j = 0; j < resDesc.BindCount; ++j)
@@ -296,6 +304,10 @@ void ShaderDX12::ReflectLibrary(Microsoft::WRL::ComPtr<ID3D12LibraryReflection> 
 					// D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:  RWStructuredBuffer
 
 					if (resDesc.BindCount == 1)
+					{
+						Insert(HLSLStructuredBuffer(resDesc));
+					}
+					else if (resDesc.BindCount >= ShaderDX12::BindlessDescriptorCount)
 					{
 						Insert(HLSLStructuredBuffer(resDesc));
 					}

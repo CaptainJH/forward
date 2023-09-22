@@ -63,7 +63,7 @@ RWTexture2D<float4> RTOutput						: register(u0);
 RWTexture2D<float4> accumulationBuffer				: register(u1);
 
 // TLAS of our scene
-RaytracingAccelerationStructure sceneBVH			: register(t0);
+RaytracingAccelerationStructure sceneBVH			: register(t0, space99);
 
 // Bindless materials, geometry, and texture buffers (for all the scene geometry)
 StructuredBuffer<MaterialData> materials			: register(t1);
