@@ -433,6 +433,12 @@ bool ApplicationWin::InitMainWindow()
 		return false;
 	}
 
+	// Set the window icon
+	const auto iconPathW = FileSystem::getSingleton().GetDataFolder() + L"DirectX12Ultimate.ico";
+	const auto iconPath = TextHelper::ToAscii(iconPathW);
+	HANDLE hIcon = LoadImageA(GetModuleHandle(NULL), iconPath.c_str(), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+	SendMessage(mhMainWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+
 	ShowWindow(mhMainWnd, SW_SHOW);
 	UpdateWindow(mhMainWnd);
 
