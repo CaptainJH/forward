@@ -40,7 +40,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 	for (auto idx = 0U; idx < scene->mNumMeshes; ++idx)
 	{
 		const aiMesh* mesh = scene->mMeshes[idx];
-		auto vf = Vertex_POS_UV::GetVertexFormat();
+		auto vf = Vertex_P_N_T_UV::GetVertexFormat();
 		auto meshFullName = TextHelper::ToAscii(fileName) + ":" + mesh->mName.C_Str();
 		auto loadedVB = shared_ptr<VertexBuffer>(dynamic_cast<VertexBuffer*>(resMgr.FindVertexBufferByName(meshFullName).get()));
 		auto loadedIB = shared_ptr<IndexBuffer>(dynamic_cast<IndexBuffer*>(resMgr.FindIndexBufferByName(meshFullName).get()));
@@ -53,12 +53,17 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 
 			for (auto i = 0U; i != mesh->mNumVertices; i++)
 			{
+				const aiVector3D zero = { 0.0f, 0.0f, 0.0f };
 				const aiVector3D v = mesh->mVertices[i];
-				const aiVector3D t = mesh->mTextureCoords[0] ?
-					mesh->mTextureCoords[0][i] : aiVector3D{ 0.0f, 0.0f, 0.0f };
-				sgeo.AddVertex<Vertex_POS_UV>({ .Pos = Vector3f(v.x, v.y, v.z), 
-					.UV = Vector2f(t.x > 0.0f ? t.x : -t.x, 
-						t.y > 0.0f ? t.y : -t.y) });
+				const aiVector3D n = mesh->mNormals ? mesh->mNormals[i] : zero;
+				const aiVector3D t = mesh->mTangents ? mesh->mTangents[i] : zero;
+				const aiVector3D uv = mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][i] : zero;
+				sgeo.AddVertex<Vertex_P_N_T_UV>({
+					.Pos = Vector3f(v.x, v.y, v.z), 
+					.Normal = Vector3f(n.x, n.y, n.z),
+					.Tangent = Vector3f(t.x, t.y, t.z),
+					.UV = Vector2f(std::abs(uv.x), std::abs(uv.y)) 
+					});
 			}
 
 			for (auto i = 0U; i != mesh->mNumFaces; i++)

@@ -98,6 +98,7 @@ Vector<u8> ShaderFactoryDX::GenerateShader6(const WString& shaderFileName, const
     {
         shaderFileName.c_str(),            // Optional shader source file name for error reporting and for PIX shader source view.  
         L"-E", entryW.c_str(),                // Entry point.
+        L"-I", FileSystem::getSingleton().GetShaderFolder().c_str(),    // Include search path.
         L"-T", modelW.c_str(),              // Target.
         L"-Zi",                                      // Enable debug information (slim format)
         L"-Fd", pdbFolder.c_str(),
