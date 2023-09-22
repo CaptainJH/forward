@@ -367,7 +367,15 @@ namespace forward
 
 	struct RTPipelineStateObject
 	{
-		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer> > > m_geometry;
+		struct InstanceData
+		{
+			u32 meshId;
+			u32 materialId;
+			float4x4 object2WorldMat;
+		};
+
+		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer> > > m_meshes;
+		Vector<InstanceData> m_instances;
 		RaytracingShaderStageState m_rtState;
 		u32 m_usedCBV_SRV_UAV_Count = 0;
 

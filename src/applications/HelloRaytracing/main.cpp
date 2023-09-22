@@ -79,7 +79,7 @@ public:
 		m_vb->AddVertex(vertices[2]);
 		auto deviceVB = forward::make_shared<DeviceBufferDX12>(commandList, m_vb.get(), *m_pDeviceDX12);
 		m_vb->SetDeviceObject(deviceVB);
-		m_rtPSO->m_geometry.emplace_back(std::make_pair(m_vb, m_ib));
+		m_rtPSO->m_meshes.emplace_back(std::make_pair(m_vb, m_ib));
 
 		m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
 		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);

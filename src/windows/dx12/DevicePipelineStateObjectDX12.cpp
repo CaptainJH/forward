@@ -602,7 +602,7 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	auto cmdListDevice = d->DeviceCommandList();
 
 	Vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometryDescs;
-	for (auto& geo : m_rtPSO.m_geometry)
+	for (auto& geo : m_rtPSO.m_meshes)
 	{
 		auto vertexBuffer = device_cast<DeviceResourceDX12*>(geo.first);
 		auto indexBuffer = device_cast<DeviceResourceDX12*>(geo.second);
