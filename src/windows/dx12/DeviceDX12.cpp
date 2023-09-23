@@ -395,10 +395,9 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
 	}
 
-	const auto cbCounts = std::count_if(pso.m_VSState.m_constantBuffers.begin(), pso.m_VSState.m_constantBuffers.end(),
-		[](auto& ptr)->bool { return static_cast<bool>(ptr); }) +
-		std::count_if(pso.m_PSState.m_constantBuffers.begin(), pso.m_PSState.m_constantBuffers.end(),
-			[](auto& ptr)->bool { return static_cast<bool>(ptr); });
+	auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
+	const auto cbCounts = std::ranges::count_if(pso.m_VSState.m_constantBuffers, pred) 
+		+ std::ranges::count_if(pso.m_PSState.m_constantBuffers, pred);
 
 	if (cbCounts == 0 && pso.m_VSState.m_shader && pso.m_PSState.m_shader)
 	{

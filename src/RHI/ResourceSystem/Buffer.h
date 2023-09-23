@@ -63,12 +63,10 @@ namespace forward
 		++m_numActiveElements;
 	}
 
-
-	class ConstantBufferBase : public Buffer
+	class RWBuffer : public Buffer
 	{
 	public:
-		ConstantBufferBase(const std::string& name);
-		ConstantBufferBase(const std::string& name, u32 size);
+		RWBuffer(const std::string& name);
 		template<class F>
 		ResourcePtr FetchDeviceBuffer(u64 u, F&& failFunc);
 		void ResetDeviceBuffer(u64 u);
@@ -78,8 +76,10 @@ namespace forward
 		std::vector<DeviceResourceEntryType> m_DeviceResPool;
 	};
 
+
+
 	template<class F>
-	ResourcePtr ConstantBufferBase::FetchDeviceBuffer(u64 u, F&& failFunc)
+	ResourcePtr RWBuffer::FetchDeviceBuffer(u64 u, F&& failFunc)
 	{
 		assert(!this->DeviceObject());
 		ResourcePtr ret = nullptr;
@@ -98,6 +98,13 @@ namespace forward
 		assert(this->DeviceObject());
 		return ret;
 	}
+
+	class ConstantBufferBase : public RWBuffer
+	{
+	public:
+		ConstantBufferBase(const std::string& name);
+		ConstantBufferBase(const std::string& name, u32 size);
+	};
 
 	template<class T>
 	class ConstantBuffer : public ConstantBufferBase
@@ -122,6 +129,7 @@ namespace forward
 		: ConstantBufferBase(name)
 	{
 		m_type = FGOT_CONSTANT_BUFFER;
+		m_usage = RU_DYNAMIC_UPDATE;
 		Initialize(1, sizeof(T));
 	}
 
@@ -142,4 +150,29 @@ namespace forward
 			++m_numActiveElements;
 		}
 	}
+
+	template<class T>
+	class StructuredBuffer : public RWBuffer
+	{
+	public:
+		StructuredBuffer(const std::string& name, u32 size)
+			: RWBuffer(name)
+		{
+			m_type = FGOT_STRUCTURED_BUFFER;
+			m_usage = RU_IMMUTABLE;
+			Initialize(size, sizeof(T));
+		}
+
+		T& operator[](u32 index)
+		{
+			index;
+			return *this;
+		}
+
+		const T& operator[](u32 index) const
+		{
+			index;
+			return *this;
+		}
+	};
 }

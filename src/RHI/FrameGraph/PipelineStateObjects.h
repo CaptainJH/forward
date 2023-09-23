@@ -359,14 +359,14 @@ namespace forward
 		shared_ptr<RaytracingShaders> m_shader;
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 
-		struct ExtraShaderStage
+		struct BindlessShaderStage
 		{
 			u32 m_space;
 			Vector<shared_ptr<ConstantBufferBase>> m_constantBuffers;
 			Vector<shared_ptr<Resource>> m_shaderResources;
 			Vector<shared_ptr<Texture>> m_uavShaderRes;
 		};
-		Vector<ExtraShaderStage> m_extraShaderStageStates;
+		Vector<BindlessShaderStage> m_bindlessShaderStageStates;
 
 		shared_ptr<ShaderTable> m_rayGenShaderTable;
 		shared_ptr<ShaderTable> m_hitShaderTable;
