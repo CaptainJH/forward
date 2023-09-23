@@ -66,10 +66,10 @@ RWTexture2D<float4> accumulationBuffer				: register(u1);
 RaytracingAccelerationStructure sceneBVH			: register(t0, space99);
 
 // Bindless materials, geometry, and texture buffers (for all the scene geometry)
-StructuredBuffer<MaterialData> materials			: register(t1);
-ByteAddressBuffer indices[MAX_INSTANCES_COUNT]		: register(t0, space1);
-ByteAddressBuffer vertices[MAX_INSTANCES_COUNT]		: register(t0, space2);
-Texture2D<float4> textures[MAX_TEXTURES_COUNT]		: register(t0, space3);
+StructuredBuffer<MaterialData> materials			: register(t0, space1);
+ByteAddressBuffer indices[MAX_INSTANCES_COUNT]		: register(t0, space2);
+ByteAddressBuffer vertices[MAX_INSTANCES_COUNT]		: register(t0, space3);
+Texture2D<float4> textures[MAX_TEXTURES_COUNT]		: register(t0, space4);
 
 // Texture Sampler
 SamplerState linearSampler							: register(s0);

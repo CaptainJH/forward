@@ -5,6 +5,7 @@
 #include "pystring.h"
 #include "Vector2f.h"
 #include "Vector3f.h"
+#include "SceneData.h"
 
 using namespace forward;
 
@@ -189,4 +190,19 @@ bool BindingRanges::AddRange(BindingRange range)
 		m_ranges.emplace_back(range);
 
 	return true;
+}
+
+RTPipelineStateObject::RTPipelineStateObject(const SceneData& scene)
+{
+	m_meshes.reserve(scene.mMeshData.size());
+	for (auto& mesh : scene.mMeshData)
+		m_meshes.emplace_back(mesh.m_VB, mesh.m_IB);
+
+	m_instances.reserve(scene.mInstances.size());
+	for (auto& ins : scene.mInstances)
+		m_instances.emplace_back(InstanceData{
+			.meshId = ins.meshId,
+			.materialId = ins.materialId,
+			.object2WorldMat = ins.mat
+			});
 }

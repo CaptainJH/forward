@@ -739,34 +739,42 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 		const auto MaxDescriptor = 256;
 		std::vector<CD3DX12_DESCRIPTOR_RANGE> descriptorRanges;
 		descriptorRanges.reserve(MaxDescriptor);
-		BindingRanges rangesCBV;
-		BindingRanges rangesSRV;
-		BindingRanges rangesUAV;
-
 		auto deviceShader = device_cast<ShaderDX12*>(m_rtPSO.m_rtState.m_shader);
-		DevicePipelineStateObjectHelper::CollectBindingInfo(deviceShader, rangesCBV, rangesSRV, rangesUAV);
-
 		m_rtPSO.m_usedCBV_SRV_UAV_Count = 0;
-		for (auto& r : rangesCBV.m_ranges)
-		{
-			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, r.Count(), r.bindStart));
-			m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
-		}
 
-		for (auto& r : rangesSRV.m_ranges)
-		{
-			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart));
-			m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
-		}
+		auto GenerateDescriptorRanges = [&](u32 space, auto& constantBuffers, auto& shaderResources, auto& uavShaderRes) {
 
-		for (auto& r : rangesUAV.m_ranges)
-		{
-			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, r.Count(), r.bindStart));
-			m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
-		}
-		DevicePipelineStateObjectHelper::CheckBindingResources(m_rtPSO.m_rtState.m_constantBuffers, rangesCBV, "CBV");
-		DevicePipelineStateObjectHelper::CheckBindingResources(m_rtPSO.m_rtState.m_shaderResources, rangesSRV, "SRV");
-		DevicePipelineStateObjectHelper::CheckBindingResources(m_rtPSO.m_rtState.m_uavShaderRes, rangesUAV, "UAV");
+			BindingRanges rangesCBV;
+			BindingRanges rangesSRV;
+			BindingRanges rangesUAV;
+
+			DevicePipelineStateObjectHelper::CollectBindingInfo(deviceShader, rangesCBV, rangesSRV, rangesUAV, space);
+
+			for (auto& r : rangesCBV.m_ranges)
+			{
+				descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, r.Count(), r.bindStart, space));
+				m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
+			}
+
+			for (auto& r : rangesSRV.m_ranges)
+			{
+				descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart, space));
+				m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
+			}
+
+			for (auto& r : rangesUAV.m_ranges)
+			{
+				descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, r.Count(), r.bindStart, space));
+				m_rtPSO.m_usedCBV_SRV_UAV_Count += r.Count();
+			}
+			DevicePipelineStateObjectHelper::CheckBindingResources(constantBuffers, rangesCBV, "CBV", space);
+			DevicePipelineStateObjectHelper::CheckBindingResources(shaderResources, rangesSRV, "SRV", space);
+			DevicePipelineStateObjectHelper::CheckBindingResources(uavShaderRes, rangesUAV, "UAV", space);
+			};
+
+		GenerateDescriptorRanges(0, m_rtPSO.m_rtState.m_constantBuffers, m_rtPSO.m_rtState.m_shaderResources, m_rtPSO.m_rtState.m_uavShaderRes);
+		for (auto& stage : m_rtPSO.m_rtState.m_extraShaderStageStates)
+			GenerateDescriptorRanges(stage.m_space, stage.m_constantBuffers, stage.m_shaderResources, stage.m_uavShaderRes);
 
 		if (!descriptorRanges.empty())
 		{

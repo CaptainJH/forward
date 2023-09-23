@@ -69,11 +69,8 @@ public:
 			return false;
 
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
-		m_rtPSO = std::make_unique<RTPipelineStateObject>();
-
 		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
-		for (auto& sg : m_scene.mMeshData)
-			m_rtPSO->m_meshes.emplace_back(std::make_pair(sg.m_VB, sg.m_IB));
+		m_rtPSO = std::make_unique<RTPipelineStateObject>(m_scene);
 
 		m_uav0Tex = make_shared<Texture2D>("UAV0_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
 		m_uav0Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
