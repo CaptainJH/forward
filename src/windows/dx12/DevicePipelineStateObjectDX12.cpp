@@ -773,6 +773,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 			};
 
 		GenerateDescriptorRanges(0, m_rtPSO.m_rtState);
+		std::ranges::sort(m_rtPSO.m_rtState.m_bindlessShaderStageStates, {}, [](auto& s) { return s.m_space;; });
 		for (auto& stage : m_rtPSO.m_rtState.m_bindlessShaderStageStates)
 			GenerateDescriptorRanges(stage.m_space, stage);
 

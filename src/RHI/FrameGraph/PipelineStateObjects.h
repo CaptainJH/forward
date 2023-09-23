@@ -354,18 +354,19 @@ namespace forward
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 	};
 
+	struct BindlessShaderStage
+	{
+		u32 m_space;
+		Vector<shared_ptr<ConstantBufferBase>> m_constantBuffers;
+		Vector<shared_ptr<Resource>> m_shaderResources;
+		Vector<shared_ptr<Texture>> m_uavShaderRes;
+	};
+
 	struct RaytracingShaderStageState : public ShaderStageState
 	{
 		shared_ptr<RaytracingShaders> m_shader;
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 
-		struct BindlessShaderStage
-		{
-			u32 m_space;
-			Vector<shared_ptr<ConstantBufferBase>> m_constantBuffers;
-			Vector<shared_ptr<Resource>> m_shaderResources;
-			Vector<shared_ptr<Texture>> m_uavShaderRes;
-		};
 		Vector<BindlessShaderStage> m_bindlessShaderStageStates;
 
 		shared_ptr<ShaderTable> m_rayGenShaderTable;

@@ -96,6 +96,19 @@ public:
 		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"Miss" });
 		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MissShadow" });
 
+		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{ 
+			.m_space = ShaderDX12::VertexDataSpace });
+		for (auto& m : m_scene.mMeshData)
+			newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
+		auto& newlyAddedStageIB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+			.m_space = ShaderDX12::IndexDataSpace });
+		for (auto& m : m_scene.mMeshData)
+			newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
+		auto& newlyAddedStageTex = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+			.m_space = ShaderDX12::TextureSpace });
+		for (auto& t : m_scene.mTextures)
+			newlyAddedStageTex.m_shaderResources.emplace_back(t);
+
 		m_rtPSO->m_deviceRTPSO = forward::make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
 		return true;
