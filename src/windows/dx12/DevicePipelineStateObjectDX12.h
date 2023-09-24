@@ -117,7 +117,7 @@ namespace forward
 		RTPipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr				m_raytracingGlobalRootSignature;
 		RootSignatureComPtr				m_raytracingLocalRootSignature;
-		DeviceResCom12Ptr					m_bottomLevelAccelerationStructure;
+		Vector<DeviceResCom12Ptr>	m_bottomLevelAccelerationStructures;
 		DeviceResCom12Ptr					m_topLevelAccelerationStructure;
 		RTPipelineStateObject&			m_rtPSO;
 

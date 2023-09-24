@@ -135,7 +135,8 @@ namespace forward
 		Func2 m_func2;
 	};
 
-	inline u32 Align(u32 size, u32 alignment)
+	template<class T>
+	inline T Align(T size, T alignment)
 	{
 		return (size + (alignment - 1)) & ~(alignment - 1);
 	}
