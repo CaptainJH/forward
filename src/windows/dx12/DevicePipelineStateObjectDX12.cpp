@@ -11,6 +11,7 @@
 #include "dx12/CommandQueueDX12.h"
 
 #include <ranges>
+#include <regex>
 
 using namespace forward;
 
@@ -867,20 +868,34 @@ void DeviceRTPipelineStateObjectDX12::BuildRaytracingPipelineStateObject(DeviceD
 	// Define which shader exports to surface from the library.
 	// If no shader exports are defined for a DXIL library subobject, all shaders will be surfaced.
 	// In this sample, this could be omitted for convenience since the sample uses all shaders in the library. 
-	{
-		lib->DefineExport(m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords.front().shaderName.c_str());
-		lib->DefineExport(m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords.front().shaderName.c_str());
-		lib->DefineExport(m_rtPSO.m_rtState.m_missShaderTable->m_shaderRecords.front().shaderName.c_str());
-	}
+	for (auto& s : m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords)
+		lib->DefineExport(s.shaderName.c_str());
+	for (auto& s : m_rtPSO.m_rtState.m_rayGenShaderTable->m_shaderRecords)
+		lib->DefineExport(s.shaderName.c_str());
+	for (auto& s : m_rtPSO.m_rtState.m_missShaderTable->m_shaderRecords)
+		lib->DefineExport(s.shaderName.c_str());
 
 	// Triangle hit group
 	// A hit group specifies closest hit, any hit and intersection shaders to be executed when a ray intersects the geometry's triangle/AABB.
 	// In this sample, we only use triangle geometry with a closest hit shader, so others are not set.
-	auto hitGroup = raytracingPipeline.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
-	hitGroup->SetClosestHitShaderImport(m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords.front().shaderName.c_str());
-	const WString hitGroupName = TextHelper::ToUnicode(m_rtPSO.m_rtState.m_hitShaderTable->Name());
-	hitGroup->SetHitGroupExport(hitGroupName.c_str());
-	hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+	auto hitGroups = GetHitGroupsInfo();
+	for (auto& p : hitGroups)
+	{
+		auto hitGroup = raytracingPipeline.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+		auto closestHitRegex = std::wregex{ L"^.*closesthit.*$", std::regex_constants::icase };
+		auto anyHitRegex = std::wregex{ L"^.*anyhit.*$", std::regex_constants::icase };
+		for (auto& s : p.second)
+		{
+			if (std::regex_match(s, closestHitRegex))
+				hitGroup->SetClosestHitShaderImport(s.c_str());
+			else if (std::regex_match(s, anyHitRegex))
+				hitGroup->SetAnyHitShaderImport(s.c_str());
+			else
+				assert(false);
+		}
+		hitGroup->SetHitGroupExport(p.first.c_str());
+		hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+	}
 
 	// Shader config
 	// Defines the maximum sizes in bytes for the ray payload and attribute structure.
@@ -942,6 +957,7 @@ void DeviceRTPipelineStateObjectDX12::CreateLocalRootSignatureSubobjects(CD3DX12
 void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 {
 	std::unordered_map<WString, void*> shaderName2ShaderIdentifierTable;
+	auto hitGroups = GetHitGroupsInfo();
 
 	auto GetShaderIdentifiers = [&](auto* stateObjectProperties)
 	{
@@ -955,8 +971,8 @@ void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 				shaderName2ShaderIdentifierTable[record.shaderName] =
 					stateObjectProperties->GetShaderIdentifier(record.shaderName.c_str());
 			}
-			const WString hitGroupName = TextHelper::ToUnicode(m_rtPSO.m_rtState.m_hitShaderTable->Name());
-			shaderName2ShaderIdentifierTable[hitGroupName] = stateObjectProperties->GetShaderIdentifier(hitGroupName.c_str());
+			for (auto& p : hitGroups)
+				shaderName2ShaderIdentifierTable[p.first] = stateObjectProperties->GetShaderIdentifier(p.first.c_str());
 	};
 
 	// Get shader identifiers.
@@ -982,6 +998,19 @@ void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_rayGenShaderTable);
 	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_missShaderTable);
 	CreateDeviceShaderTable(m_rtPSO.m_rtState.m_hitShaderTable);
+}
+
+std::unordered_map<WString, Vector<WString>> DeviceRTPipelineStateObjectDX12::GetHitGroupsInfo() const
+{
+	std::unordered_map<WString, Vector<WString>> ret;
+	for (auto& s : m_rtPSO.m_rtState.m_hitShaderTable->m_shaderRecords)
+	{
+		const auto sepIt = s.shaderName.find(L"_");
+		if (sepIt != WString::npos)
+			ret[s.shaderName.substr(0, sepIt)].push_back(s.shaderName);
+	}
+
+	return ret;
 }
 
 // Pretty-print a state object tree.

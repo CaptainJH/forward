@@ -127,6 +127,8 @@ namespace forward
 		void BuildRaytracingPipelineStateObject(DeviceDX12* device);
 		void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
 		void BuildShaderTables(DeviceDX12* device);
+		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
+
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);
 	};

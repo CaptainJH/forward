@@ -62,10 +62,11 @@ void ShaderTable::SetupShaderRecords(const std::unordered_map<WString, void*>& n
             ident = name2identifier.at(record.shaderName);
         else
         {
-            auto nameW = TextHelper::ToUnicode(Name());
-            if (!name2identifier.contains(nameW))
-                continue;
-            ident = name2identifier.at(nameW);
+            const auto sepIt = record.shaderName.find(L"_");
+            assert(sepIt != WString::npos);
+            auto groupName = record.shaderName.substr(0, sepIt);
+            assert(name2identifier.contains(groupName));
+            ident = name2identifier.at(groupName);
         }
 
         if (record.shaderArguments.empty())

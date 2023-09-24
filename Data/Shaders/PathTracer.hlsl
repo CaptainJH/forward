@@ -597,7 +597,7 @@ float3 loadSkyValue(float3 rayDirection) {
 // -------------------------------------------------------------------------
 
 [shader("closesthit")]
-void ClosestHit(inout HitInfo payload, Attributes attrib)
+void HitGroup_ClosestHit(inout HitInfo payload, Attributes attrib)
 {
 	// At closest hit, we first load material and geometry ID packed into InstanceID 
 	uint materialID;
@@ -616,14 +616,14 @@ void ClosestHit(inout HitInfo payload, Attributes attrib)
 }
 
 [shader("anyhit")]
-void AnyHit(inout HitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
+void HitGroup_AnyHit(inout HitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
 {
 	// At any hit, we test opacity and discard the hit if it's transparent
 	if (testOpacityAnyHit(attrib)) IgnoreHit();
 }
 
 [shader("anyhit")]
-void AnyHitShadow(inout ShadowHitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
+void HitGroupShadow_AnyHitShadow(inout ShadowHitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
 {
 	// At any hit for shadow rays, we test opacity and discard the hit if it's transparent
 	// But also end the search if we encounter any opaque surface
