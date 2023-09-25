@@ -77,6 +77,10 @@ public:
 		m_uav1Tex = make_shared<Texture2D>("UAV1_Tex", forward::DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
 		m_uav1Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 
+		m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("MaterialDataBuffer", (u32)m_scene.mMaterials.size());
+		for (auto i = 0U; i < m_scene.mMaterials.size(); ++i)
+			(*m_materials)[i] = m_scene.mMaterials[i].materialData;
+
 		prepareDeviceResources();
 
 		// setup shaders
@@ -86,15 +90,6 @@ public:
 		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
 		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uav0Tex;
 		m_rtPSO->m_rtState.m_uavShaderRes[1] = m_uav1Tex;
-		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"RayGen" });
-		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_ClosestHit" });
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_AnyHit" });
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroupShadow_AnyHitShadow" });
-		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"Miss" });
-		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MissShadow" });
 
 		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{ 
 			.m_space = ShaderDX12::VertexDataSpace });
@@ -108,6 +103,20 @@ public:
 			.m_space = ShaderDX12::TextureSpace });
 		for (auto& t : m_scene.mTextures)
 			newlyAddedStageTex.m_shaderResources.emplace_back(t);
+		m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+			.m_space = ShaderDX12::MaterialDataSpace,
+			.m_shaderResources = { m_materials },
+			});
+
+		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"RayGen" });
+		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_ClosestHit" });
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_AnyHit" });
+		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroupShadow_AnyHitShadow" });
+		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 1U, 0U);
+		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"Miss" });
+		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MissShadow" });
 
 		m_rtPSO->m_deviceRTPSO = forward::make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
@@ -153,8 +162,10 @@ protected:
 
 	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
 	shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
-	forward::shared_ptr<Texture2D> m_uav0Tex;
-	forward::shared_ptr<Texture2D> m_uav1Tex;
+	shared_ptr<Texture2D> m_uav0Tex;
+	shared_ptr<Texture2D> m_uav1Tex;
+	shared_ptr<StructuredBuffer<SceneData::MaterialData>> m_materials;
+
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 
 	Vector3f m_eyePos = Vector3f(0.0f, 2.0f, -5.0f);
@@ -167,18 +178,18 @@ private:
 		auto commandList = m_pDeviceDX12->DeviceCommandList();
 		for (auto& gp : m_rtPSO->m_meshes)
 		{
-			gp.first->SetDeviceObject(forward::make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
-			gp.second->SetDeviceObject(forward::make_shared<DeviceBufferDX12>(commandList, gp.second.get(), *m_pDeviceDX12));
+			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
+			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.second.get(), *m_pDeviceDX12));
 		}
 
-		auto deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12);
+		auto deviceUAVTex = make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12);
 		m_uav0Tex->SetDeviceObject(deviceUAVTex);
 
-		deviceUAVTex = forward::make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12);
+		deviceUAVTex = make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12);
 		m_uav1Tex->SetDeviceObject(deviceUAVTex);
+
+		m_materials->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, m_materials.get(), *m_pDeviceDX12));
 	}
-
-
 };
 
 FORWARD_APPLICATION_MAIN(ReferencePT, 1920, 1080);

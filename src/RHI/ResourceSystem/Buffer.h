@@ -165,14 +165,14 @@ namespace forward
 
 		T& operator[](u32 index)
 		{
-			index;
-			return *this;
+			auto ret = GetData() + index * sizeof(T);
+			return *(T*)ret;
 		}
 
 		const T& operator[](u32 index) const
 		{
-			index;
-			return *this;
+			auto ret = GetData() + index * sizeof(T);
+			return *(T*)ret;
 		}
 	};
 }

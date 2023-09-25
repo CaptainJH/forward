@@ -19,7 +19,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 	Resource* res = dynamic_cast<Resource*>(obj);
 	auto byteSize = res->GetNumBytes();
 	auto device = m_device.GetDevice();
-	if (type >= FGOT_CONSTANT_BUFFER && type <= FGOT_INDEX_BUFFER)
+	if (type >= FGOT_CONSTANT_BUFFER && type <= FGOT_STRUCTURED_BUFFER)
 	{
 		bool isConstantBuffer = type == FGOT_CONSTANT_BUFFER;
 		ResourceUsage usage = res->GetUsage();
@@ -52,24 +52,30 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 			m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 			if (type == FGOT_INDEX_BUFFER)
 			{
-				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-				srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				srvDesc.Buffer.NumElements = res->GetNumElements();
-				srvDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-				srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-				srvDesc.Buffer.StructureByteStride = 0;
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {
+					.Format = DXGI_FORMAT_R32_TYPELESS,
+					.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+					.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+					.Buffer = {
+						.NumElements = res->GetNumElements(),
+						.StructureByteStride = 0,
+						.Flags = D3D12_BUFFER_SRV_FLAG_RAW,
+					},
+				};
 				CreateSRView(srvDesc);
 			}
-			else if (type == FGOT_VERTEX_BUFFER)
+			else if (type >= FGOT_VERTEX_BUFFER && type <= FGOT_STRUCTURED_BUFFER)
 			{
-				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-				srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				srvDesc.Buffer.NumElements = res->GetNumElements();
-				srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-				srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-				srvDesc.Buffer.StructureByteStride = res->GetElementSize();
+				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {
+					.Format = DXGI_FORMAT_UNKNOWN,
+					.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+					.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+					.Buffer = {
+						.NumElements = res->GetNumElements(),
+						.StructureByteStride = res->GetElementSize(),
+						.Flags = D3D12_BUFFER_SRV_FLAG_NONE,
+					},
+				};
 				CreateSRView(srvDesc);
 			}
 		}
