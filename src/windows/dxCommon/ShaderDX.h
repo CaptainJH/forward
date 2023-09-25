@@ -64,6 +64,7 @@ namespace forward
 		std::vector<HLSLTextureArray> const& GetTextureArrays() const;
 		std::vector<HLSLByteAddressBuffer> const& GetByteAddressBuffers() const;
 		std::vector<HLSLStructuredBuffer> const& GetStructuredBuffers() const;
+		std::vector<HLSLSamplerState> const& GetSamplers() const;
 
 	public:
 		std::wstring							FileName;

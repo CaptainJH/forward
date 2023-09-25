@@ -20,6 +20,7 @@ namespace forward
 	struct DevicePipelineStateObjectHelper
 	{
 		static void CollectBindingInfo(const ShaderDX12* deviceShader, BindingRanges& rangesCBV, BindingRanges& rangesSRV, BindingRanges& rangesUAV, u32 space = 0);
+		static void CollectSamplerInfo(const ShaderDX12* deviceShader, BindingRanges& ranges);
 
 		template<class R, class T>
 		static bool CheckBindingResources(const R& bindingResources, const T& ranges, const i8* logPrefix, u32 space = 0)
@@ -62,6 +63,34 @@ namespace forward
 				}
 			}
 			return ret;
+		}
+
+		template<class Samplers>
+		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates(Samplers& samplers)
+		{
+			std::vector<CD3DX12_STATIC_SAMPLER_DESC> samplerDescs;
+
+			for (auto i = 0U; i < samplers.size(); ++i)
+			{
+				auto samp = samplers[i];
+				if (samp)
+				{
+					CD3DX12_STATIC_SAMPLER_DESC desc(
+						i, DevicePipelineStateObjectHelper::msFilter[samp->filter],
+						DevicePipelineStateObjectHelper::msAddressMode[samp->mode[0]],
+						DevicePipelineStateObjectHelper::msAddressMode[samp->mode[1]],
+						DevicePipelineStateObjectHelper::msAddressMode[samp->mode[2]],
+						samp->mipLODBias,
+						samp->maxAnisotropy,
+						DevicePipelineStateObjectHelper::msComparison[samp->comparison],
+						D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
+						samp->minLOD,
+						samp->maxLOD
+					);
+					samplerDescs.push_back(desc);
+				}
+			}
+			return samplerDescs;
 		}
 
 		// Conversions from FrameGraph values to DX12 values.
@@ -128,6 +157,7 @@ namespace forward
 		void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
 		void BuildShaderTables(DeviceDX12* device);
 		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
+		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);

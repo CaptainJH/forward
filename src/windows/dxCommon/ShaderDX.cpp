@@ -105,6 +105,11 @@ std::vector<HLSLStructuredBuffer> const& ShaderDX::GetStructuredBuffers() const
 	return m_SBuffers;
 }
 
+std::vector<HLSLSamplerState> const& ShaderDX::GetSamplers() const
+{
+	return m_Samplers;
+}
+
 void ShaderDX::InsertInput(HLSLParameter const& parameter)
 {
 	m_inputs.push_back(parameter);

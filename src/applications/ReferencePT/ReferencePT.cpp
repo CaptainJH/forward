@@ -108,6 +108,7 @@ public:
 			.m_space = ShaderDX12::MaterialDataSpace,
 			.m_shaderResources = { m_materials },
 			});
+		m_rtPSO->m_rtState.m_samplers[0] = make_shared<SamplerState>("Sampler0");
 
 		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
 		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"RayGen" });

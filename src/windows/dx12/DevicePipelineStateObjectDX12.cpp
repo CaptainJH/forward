@@ -463,31 +463,7 @@ void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_
 
 std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigStaticSamplerStates() const
 {
-	std::vector<CD3DX12_STATIC_SAMPLER_DESC> samplers;
-
-	for (auto i = 0U; i < m_pso.m_PSState.m_samplers.size(); ++i)
-	{
-		auto samp = m_pso.m_PSState.m_samplers[i];
-		if (samp)
-		{
-			CD3DX12_STATIC_SAMPLER_DESC desc(
-				i, DevicePipelineStateObjectHelper::msFilter[samp->filter],
-				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[0]],
-				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[1]],
-				DevicePipelineStateObjectHelper::msAddressMode[samp->mode[2]],
-				samp->mipLODBias,
-				samp->maxAnisotropy,
-				DevicePipelineStateObjectHelper::msComparison[samp->comparison],
-				D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
-				samp->minLOD,
-				samp->maxLOD
-			);
-
-			samplers.push_back(desc);
-		}
-	}
-
-	return samplers;
+	return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(m_pso.m_PSState.m_samplers);
 }
 
 bool DevicePipelineStateObjectDX12::IsEmptyRootParams() const
@@ -825,8 +801,15 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 		scene_root_parameter.InitAsShaderResourceView(0, ShaderDX12::AccelerationStructuresSpace);
 		slotRootParameters.push_back(scene_root_parameter);
 
+		BindingRanges samplerRange;
+		DevicePipelineStateObjectHelper::CollectSamplerInfo(deviceShader, samplerRange);
+		DevicePipelineStateObjectHelper::CheckBindingResources(m_rtPSO.m_rtState.m_samplers, samplerRange, "Sampler");
+		auto samplers = ConfigStaticSamplerStates();
+
 		// A root signature is an array of root parameters.
-		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc((u32)slotRootParameters.size(), slotRootParameters.data());
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
+			(u32)slotRootParameters.size(), slotRootParameters.data(),
+			static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data());
 
 		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 		Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -1159,6 +1142,11 @@ void DeviceRTPipelineStateObjectDX12::PrintStateObjectDesc(const D3D12_STATE_OBJ
 	OutputDebugStringW(wstr.str().c_str());
 }
 
+std::vector<CD3DX12_STATIC_SAMPLER_DESC> DeviceRTPipelineStateObjectDX12::ConfigStaticSamplerStates() const
+{
+	return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(m_rtPSO.m_rtState.m_samplers);
+}
+
 void DevicePipelineStateObjectHelper::CollectBindingInfo(const ShaderDX12* deviceShader, BindingRanges& rangesCBV, BindingRanges& rangesSRV, BindingRanges& rangesUAV, u32 space)
 {
 	if (!deviceShader)
@@ -1214,4 +1202,18 @@ void DevicePipelineStateObjectHelper::CollectBindingInfo(const ShaderDX12* devic
 	std::ranges::sort(rangesCBV.m_ranges, {}, [](auto& r) { return r.bindStart; });
 	std::ranges::sort(rangesSRV.m_ranges, {}, [](auto& r) { return r.bindStart; });
 	std::ranges::sort(rangesUAV.m_ranges, {}, [](auto& r) { return r.bindStart; });
+}
+
+void DevicePipelineStateObjectHelper::CollectSamplerInfo(const ShaderDX12* deviceShader, BindingRanges& ranges)
+{
+	if (!deviceShader)
+		return;
+
+	for (auto& s : deviceShader->GetSamplers())
+	{
+		auto register_index = s.GetBindPoint();
+		BindingRange range = { register_index, register_index + s.GetBindCount() - 1 };
+		ranges.AddRange(range);
+	}
+	std::ranges::sort(ranges.m_ranges, {}, [](auto& r) { return r.bindStart; });
 }
