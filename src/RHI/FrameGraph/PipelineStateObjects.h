@@ -405,6 +405,7 @@ namespace forward
 		Vector<InstanceData> m_instances;
 		RaytracingShaderStageState m_rtState;
 		u32 m_usedCBV_SRV_UAV_Count = 0;
+		u32 m_maxPayloadSizeInByte = 32;
 
 		shared_ptr<DeviceObject> m_deviceRTPSO;
 

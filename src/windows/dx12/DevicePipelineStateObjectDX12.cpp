@@ -936,9 +936,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRaytracingPipelineStateObject(DeviceD
 	// Shader config
 	// Defines the maximum sizes in bytes for the ray payload and attribute structure.
 	auto shaderConfig = raytracingPipeline.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-	UINT payloadSize = 4 * sizeof(float);   // float4 color
-	UINT attributeSize = 2 * sizeof(float); // float2 barycentrics
-	shaderConfig->Config(payloadSize, attributeSize);
+	shaderConfig->Config(m_rtPSO.m_maxPayloadSizeInByte, D3D12_RAYTRACING_MAX_ATTRIBUTE_SIZE_IN_BYTES);
 
 	// Local root signature and shader association
 	//CreateLocalRootSignatureSubobjects(&raytracingPipeline);
