@@ -12,11 +12,6 @@
 
 using namespace forward;
 
-struct CubeConstantBuffer
-{
-	Vector4f albedo;
-};
-
 struct Light {
 	float3 position;
 	u32 type;
@@ -129,22 +124,44 @@ protected:
 	void UpdateScene(f32 dt) override
 	{
 		const auto radiansToRotateBy = dt * 0.001f;
-		const Matrix4f rotMat = Matrix4f::RotationMatrixY(radiansToRotateBy);
-		Vector4f eyePos(m_eyePos, 1.0f);
-		eyePos = rotMat * eyePos;
-		m_eyePos = eyePos.xyz();
+		float4x4 rotMat;
+		rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
+		float4 eyePos(m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f);
+		eyePos = eyePos * rotMat;
+		m_eyePos = { eyePos.x, eyePos.y, eyePos.z };
 
-		const auto view = Matrix4f::LookAtLHMatrix(m_eyePos, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
-		const Matrix4f proj = Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f);
-		const Matrix4f viewProj = view * proj;
+		static u32 frames = 0;
+		++frames;
+
+		auto viewMat = ToFloat4x4(Matrix4f::LookAtLHMatrix(m_eyePos, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+		static float4x4 lastViewMat = viewMat;
+		static u32 accumulatedFrames = 0;
+		if (lastViewMat != viewMat)
+			accumulatedFrames = 0;
+		else
+			++accumulatedFrames;
 		
-		//*m_cb = SceneConstantBuffer{
-		//	.projectionToWorld = viewProj.Inverse(),
-		//	.cameraPosition = eyePos,
-		//	.lightPosition = {0.0f, 1.8f, -3.0f, 0.0f},
-		//	.lightAmbientColor = {0.5f, 0.5f, 0.5f, 1.0f},
-		//	.lightDiffuseColor = {0.5f, 0.0f, 0.0f, 1.0f}
-		//};
+		*m_cb = RaytracingData {
+			.view = viewMat,
+			.proj = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f)),
+
+			.skyIntensity = 3.0f,
+			.lightCount = 0,
+			.frameNumber = frames,
+			.maxBounces = 8,
+
+			.exposureAdjustment = 0.8f,
+			.accumulatedFrames = accumulatedFrames,
+			.enableAntiAliasing = true,
+			.focusDistance = 10.0f,
+
+			.apertureSize = 0.0f,
+			.enableAccumulation = lastViewMat == viewMat,
+
+			.lights = {}
+		};
+
+		lastViewMat = viewMat;
 	}
 
 	void DrawScene() override
