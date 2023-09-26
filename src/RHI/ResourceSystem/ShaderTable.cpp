@@ -43,7 +43,7 @@ ShaderTable::ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSi
 {
     m_type = FGOT_SHADER_TABLE;
     SetUsage(RU_DYNAMIC_UPDATE);
-    auto shaderRecordSizeAligned = Align(payloadSize + SHADER_IDENTIFIER_SIZE_IN_BYTES, RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+    auto shaderRecordSizeAligned = Align<RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT>(payloadSize + SHADER_IDENTIFIER_SIZE_IN_BYTES);
     Initialize(numShaderRecords, shaderRecordSizeAligned);
 }
 

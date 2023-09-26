@@ -643,10 +643,10 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO bottomLevelPrebuildInfo = {};
 		device->GetRaytracingAccelerationStructurePrebuildInfo(&bottomLevelInputs, &bottomLevelPrebuildInfo);
 		assert(bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes > 0);
-		bottomLevelPrebuildInfo.ScratchDataSizeInBytes = Align<u64>(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT,
-			bottomLevelPrebuildInfo.ScratchDataSizeInBytes);
-		bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes = Align<u64>(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT,
-			bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes);
+		bottomLevelPrebuildInfo.ScratchDataSizeInBytes = 
+			Align<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT>(bottomLevelPrebuildInfo.ScratchDataSizeInBytes);
+		bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes = 
+			Align<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT>(bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes);
 
 		auto scratchResource = blasScrachResources.emplace_back(
 			DeviceBufferDX12::AllocateUAVBuffer(device, bottomLevelPrebuildInfo.ScratchDataSizeInBytes,
@@ -711,10 +711,10 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO topLevelPrebuildInfo = {};
 	device->GetRaytracingAccelerationStructurePrebuildInfo(&topLevelInputs, &topLevelPrebuildInfo);
 	assert(topLevelPrebuildInfo.ResultDataMaxSizeInBytes > 0);
-	topLevelPrebuildInfo.ScratchDataSizeInBytes = Align<u64>(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT,
-		topLevelPrebuildInfo.ScratchDataSizeInBytes);
-	topLevelPrebuildInfo.ResultDataMaxSizeInBytes = Align<u64>(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT,
-		topLevelPrebuildInfo.ResultDataMaxSizeInBytes);
+	topLevelPrebuildInfo.ScratchDataSizeInBytes = 
+		Align<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT>(topLevelPrebuildInfo.ScratchDataSizeInBytes);
+	topLevelPrebuildInfo.ResultDataMaxSizeInBytes = 
+		Align<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT>(topLevelPrebuildInfo.ResultDataMaxSizeInBytes);
 
 	// Allocate resources for acceleration structures.
 	// Acceleration structures can only be placed in resources that are created in the default heap (or custom heap equivalent). 

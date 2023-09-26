@@ -135,10 +135,10 @@ namespace forward
 		Func2 m_func2;
 	};
 
-	template<class T>
-	inline T Align(T size, T alignment)
+	template<u32 Alignment, class T>
+	inline T Align(T size)
 	{
-		return (size + (alignment - 1)) & ~(alignment - 1);
+		return (size + (Alignment - 1)) & ~(Alignment - 1);
 	}
 
 	float4x4 ToFloat4x4(const Matrix4f& mat);
