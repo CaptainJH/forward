@@ -48,7 +48,7 @@ DeviceBufferDX12::DeviceBufferDX12(ID3D12GraphicsCommandList* cmdList, forward::
 				nullptr,
 				IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
 
-			SyncCPUToGPU(cmdList);
+			SyncCPUToGPU(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 			m_gpuVirtualAddress = m_deviceResPtr->GetGPUVirtualAddress();
 			if (type == FGOT_INDEX_BUFFER)
 			{
@@ -155,7 +155,7 @@ void DeviceBufferDX12::SyncCPUToGPU()
 	}
 }
 
-void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList)
+void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES endState)
 {
 	auto res = m_frameGraphObjPtr.lock_down<Resource>();
 
@@ -174,9 +174,9 @@ void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList)
 	cmdList->ResourceBarrier(1, &transitionToCopyDest);
 	UpdateSubresources<1>(cmdList, m_deviceResPtr.Get(), m_stagingResPtr.Get(), 0, 0, 1, &subResourceData);
 	auto transitionBack = CD3DX12_RESOURCE_BARRIER::Transition(m_deviceResPtr.Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+		D3D12_RESOURCE_STATE_COPY_DEST, endState);
 	cmdList->ResourceBarrier(1, &transitionBack);
-	SetResourceState(D3D12_RESOURCE_STATE_GENERIC_READ);
+	SetResourceState(endState);
 }
 
 D3D12_VERTEX_BUFFER_VIEW DeviceBufferDX12::VertexBufferView()

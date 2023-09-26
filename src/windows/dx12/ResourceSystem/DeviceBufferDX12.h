@@ -34,7 +34,7 @@ namespace forward
 		void SetCBViewGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE inHandle);
 
 		void					SyncCPUToGPU() override;
-		void					SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList);
+		void					SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES endState);
 		//void					SyncGPUToCPU(ID3D11DeviceContext* context);
 
 	protected:
