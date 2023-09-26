@@ -81,7 +81,7 @@ void IndexBuffer::AddIndex(u32 index)
 u32 IndexBuffer::operator[](u32 index)
 {
 	assert(index < m_numActiveElements);
-	return *(u32*)GetData()[index * sizeof(u32)];
+	return *(u32*)(GetData() + index * sizeof(u32));
 }
 
 VertexBuffer::VertexBuffer(const std::string& name, const VertexFormat& vformat, u32 numVertices)
