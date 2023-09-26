@@ -650,7 +650,7 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 
 		auto scratchResource = blasScrachResources.emplace_back(
 			DeviceBufferDX12::AllocateUAVBuffer(device, bottomLevelPrebuildInfo.ScratchDataSizeInBytes,
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource"));
+				D3D12_RESOURCE_STATE_COMMON, L"ScratchResource"));
 
 		auto& blas = m_bottomLevelAccelerationStructures.emplace_back(DeviceBufferDX12::AllocateUAVBuffer(device, 
 			bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes, 
@@ -725,7 +725,7 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	//  - from the app point of view, synchronization of writes/reads to acceleration structures is accomplished using UAV barriers.
 	DeviceResCom12Ptr scratchResource = 
 		DeviceBufferDX12::AllocateUAVBuffer(device, topLevelPrebuildInfo.ScratchDataSizeInBytes,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS, L"ScratchResource");
+			D3D12_RESOURCE_STATE_COMMON, L"ScratchResource");
 
 	m_topLevelAccelerationStructure = DeviceBufferDX12::AllocateUAVBuffer(device, topLevelPrebuildInfo.ResultDataMaxSizeInBytes, 
 		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, L"TopLevelAccelerationStructure");
