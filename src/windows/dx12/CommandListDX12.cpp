@@ -88,12 +88,12 @@ void CommandListDX12::DispatchRays(RTPipelineStateObject& pso)
 		.MissShaderTable = {
 			.StartAddress = GetGPUAddress(*pso.m_rtState.m_missShaderTable),
 			.SizeInBytes = pso.m_rtState.m_missShaderTable->GetNumBytes(),
-			.StrideInBytes = pso.m_rtState.m_missShaderTable->GetNumBytes()
+			.StrideInBytes = pso.m_rtState.m_missShaderTable->GetElementSize()
 		},
 		.HitGroupTable = {
 			.StartAddress = GetGPUAddress(*pso.m_rtState.m_hitShaderTable),
 			.SizeInBytes = pso.m_rtState.m_hitShaderTable->GetNumBytes(),
-			.StrideInBytes = pso.m_rtState.m_hitShaderTable->GetNumBytes()
+			.StrideInBytes = pso.m_rtState.m_hitShaderTable->GetElementSize()
 		},
 		.Width = GetDevice().GetDefaultRT()->GetWidth(),
 		.Height = GetDevice().GetDefaultRT()->GetHeight(),
