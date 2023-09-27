@@ -240,9 +240,9 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RTPipelineStateObject& pso)
 			assert(deviceCB);
 			*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
 			};
-		auto stageSRVFunc = [&](DeviceResourceDX12* deviceTex) {
-			assert(deviceTex);
-			*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+		auto stageSRVFunc = [&](DeviceResourceDX12* deviceRes) {
+			assert(deviceRes);
+			*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceRes->GetShaderResourceViewHandle();
 			};
 		auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
 			assert(deviceTex);
