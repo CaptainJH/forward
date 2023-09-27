@@ -77,11 +77,12 @@ public:
 		for (auto i = 0U; i < m_scene.mMaterials.size(); ++i)
 			(*m_materials)[i] = m_scene.mMaterials[i].materialData;
 
+		m_cb = make_shared<ConstantBuffer<RaytracingData>>("g_sceneCB");
+
 		prepareDeviceResources();
 
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"PathTracer");
-		m_cb = make_shared<ConstantBuffer<RaytracingData>>("g_sceneCB");
 
 		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
 		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uav0Tex;
@@ -168,11 +169,10 @@ protected:
 	{
 		m_pDeviceDX12->BeginDraw();
 
+		auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
 		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		cmdList->BindGPUVisibleHeaps();
-		cmdList->PrepareGPUVisibleHeaps(*m_rtPSO);
-		cmdList->CommitStagedDescriptors();
-		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get()));
+		cmdList->BindGPUVisibleHeaps(*devicePSO);
+		cmdList->BindRTPSO(*devicePSO);
 		cmdList->DispatchRays(*m_rtPSO);
 		//cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
 
@@ -195,6 +195,7 @@ private:
 	void prepareDeviceResources()
 	{
 		auto commandList = m_pDeviceDX12->DeviceCommandList();
+		m_cb->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, m_cb.get(), *m_pDeviceDX12));
 		for (auto& gp : m_rtPSO->m_meshes)
 		{
 			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
@@ -208,6 +209,9 @@ private:
 		m_uav1Tex->SetDeviceObject(deviceUAVTex);
 
 		m_materials->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, m_materials.get(), *m_pDeviceDX12));
+
+		for (auto& tex : m_scene.mTextures)
+			tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(tex.get(), *m_pDeviceDX12));
 	}
 };
 

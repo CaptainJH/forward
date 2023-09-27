@@ -28,6 +28,7 @@ namespace forward
 		void CopyResource(Resource& dst, Resource& src) override;
 
 		void BindGPUVisibleHeaps();
+		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&);
 		void BindGraphicsPSO(DevicePipelineStateObjectDX12&);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);

@@ -134,6 +134,14 @@ void CommandListDX12::BindGPUVisibleHeaps()
 	cbvHeap.BindGPUVisibleDescriptorHeap(*this);
 }
 
+void CommandListDX12::BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12& rtPSO)
+{
+	if (rtPSO.m_bindlessDescriptorHeap)
+		rtPSO.m_bindlessDescriptorHeap->BindGPUVisibleDescriptorHeap(*this);
+	else
+		BindGPUVisibleHeaps();
+}
+
 void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO();
@@ -342,8 +350,16 @@ void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
 	m_CmdList->SetComputeRootSignature(deviceRTPSO.m_raytracingGlobalRootSignature.Get());
 	m_CmdList->SetPipelineState1(deviceRTPSO.m_devicePSO.Get());
 
-	for (auto& heap : m_DynamicDescriptorHeaps)
-		heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+	if (deviceRTPSO.m_bindlessDescriptorHeap)
+	{
+		deviceRTPSO.m_bindlessDescriptorHeap->BindDescriptorTableToRootParam(m_CmdList.Get(), 
+			&ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+	}
+	else
+	{
+		for (auto& heap : m_DynamicDescriptorHeaps)
+			heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+	}
 
 	m_CmdList->SetComputeRootShaderResourceView(1, deviceRTPSO.m_topLevelAccelerationStructure->GetGPUVirtualAddress());
 }

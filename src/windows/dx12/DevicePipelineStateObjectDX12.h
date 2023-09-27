@@ -16,6 +16,7 @@ namespace forward
 	struct RTPipelineStateObject;
 	struct BindingRanges;
 	class DeviceDX12;
+	class DynamicDescriptorHeapDX12;
 
 	struct DevicePipelineStateObjectHelper
 	{
@@ -159,6 +160,8 @@ namespace forward
 		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
 		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 
+		void PrepareBindlessDescriptorHeap(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges);
+		std::unique_ptr<DynamicDescriptorHeapDX12> m_bindlessDescriptorHeap;
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);
 	};

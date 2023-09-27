@@ -9,6 +9,8 @@
 #include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandQueueDX12.h"
+#include "dx12/CommandListDX12.h"
+#include "dx12/DynamicDescriptorHeapDX12.h"
 
 #include <ranges>
 #include <regex>
@@ -826,6 +828,17 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 			serializedRootSig->GetBufferPointer(),
 			serializedRootSig->GetBufferSize(),
 			IID_PPV_ARGS(&m_raytracingGlobalRootSignature)));
+
+		if (m_rtPSO.m_usedCBV_SRV_UAV_Count >= ShaderDX12::BindlessDescriptorCount)
+		{
+			if (!m_bindlessDescriptorHeap)
+				m_bindlessDescriptorHeap = std::make_unique<DynamicDescriptorHeapDX12>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+					m_rtPSO.m_usedCBV_SRV_UAV_Count);
+			PrepareBindlessDescriptorHeap(descriptorRanges);
+			auto cmdList = d->GetDefaultQueue()->GetCommandListDX12();
+			m_bindlessDescriptorHeap->BindGPUVisibleDescriptorHeap(*cmdList);
+			m_bindlessDescriptorHeap->CommitStagedDescriptors2(*d);
+		}
 	}
 
 	// Local Root Signature
@@ -1216,4 +1229,79 @@ void DevicePipelineStateObjectHelper::CollectSamplerInfo(const ShaderDX12* devic
 		ranges.AddRange(range);
 	}
 	std::ranges::sort(ranges.m_ranges, {}, [](auto& r) { return r.bindStart; });
+}
+
+void DeviceRTPipelineStateObjectDX12::PrepareBindlessDescriptorHeap(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges)
+{
+	if (!m_bindlessDescriptorHeap)
+		return;
+	m_bindlessDescriptorHeap->Reset();
+
+	auto baseDescriptorHandleAddr = m_bindlessDescriptorHeap->PrepareDescriptorHandleCache(m_rtPSO.m_usedCBV_SRV_UAV_Count);
+	auto baseDescriptorHandleAddrInSpace = baseDescriptorHandleAddr;
+	u32 offsetInSpace = 0U;
+	u32 previousSpace = 0U;
+
+	auto GetDescriptorCountInSpace = [&](u32 space)->u32 {
+		u32 ret = 0;
+		for (auto& range : descriptorRanges)
+			if (range.RegisterSpace == space)
+				ret += range.NumDescriptors;
+		return ret;
+		};
+
+	auto StageDescriptorsInRange = [&](u32& offset, const CD3DX12_DESCRIPTOR_RANGE& range, auto& stageState) {
+
+		if (range.RegisterSpace != previousSpace)
+		{
+			offset = 0;
+			baseDescriptorHandleAddrInSpace += GetDescriptorCountInSpace(previousSpace);
+		}
+		
+		if (range.RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_CBV)
+		{
+			for (auto& cb : stageState.m_constantBuffers)
+			{
+				if (!cb) break;
+				auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
+				assert(deviceCB);
+				*(baseDescriptorHandleAddrInSpace + offset++) = deviceCB->GetCBViewCPUHandle();
+			}
+		}
+		else if (range.RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
+		{
+			for (auto& res : stageState.m_shaderResources)
+			{
+				if (!res) break;
+				auto deviceRes = device_cast<DeviceResourceDX12*>(res);
+				assert(deviceRes);
+				*(baseDescriptorHandleAddrInSpace + offset++) = deviceRes->GetShaderResourceViewHandle();
+			}
+		}
+		else if (range.RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_UAV)
+		{
+			for (auto& res : stageState.m_uavShaderRes)
+			{
+				if (!res) break;
+				auto deviceTex = device_cast<DeviceTexture2DDX12*>(res);
+				assert(deviceTex);
+				*(baseDescriptorHandleAddrInSpace + offset++) = deviceTex->GetUnorderedAccessViewHandle();
+			}
+		}
+
+		};
+
+	for (const auto& range : descriptorRanges)
+	{
+		if (range.RegisterSpace == 0)
+			StageDescriptorsInRange(offsetInSpace, range, m_rtPSO.m_rtState);
+		else
+		{
+			auto stageStateIt = std::ranges::find_if(m_rtPSO.m_rtState.m_bindlessShaderStageStates, [&](auto& s) {
+				return s.m_space == range.RegisterSpace; });
+			assert(stageStateIt != m_rtPSO.m_rtState.m_bindlessShaderStageStates.end());
+			StageDescriptorsInRange(offsetInSpace, range, *stageStateIt);
+		}
+		previousSpace = range.RegisterSpace;
+	}
 }
