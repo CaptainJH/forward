@@ -12,6 +12,8 @@
 #ifndef RAYTRACING_HLSL
 #define RAYTRACING_HLSL
 
+#include "shared.h"
+
 struct SceneConstantBuffer
 {
     float4x4 projectionToWorld;
@@ -34,13 +36,13 @@ struct Vertex
 
 RaytracingAccelerationStructure Scene : register(t0, space99);
 RWTexture2D<float4> RenderTarget : register(u0);
-ByteAddressBuffer Indices : register(t0, space0);
-StructuredBuffer<Vertex> Vertices : register(t1, space0);
 
 ConstantBuffer<SceneConstantBuffer> g_sceneCB : register(b0);
 ConstantBuffer<CubeConstantBuffer> g_cubeCB : register(b1);
 
-typedef BuiltInTriangleIntersectionAttributes MyAttributes;
+ByteAddressBuffer Indices[MAX_INSTANCES_COUNT] : register(t0, space2);
+StructuredBuffer<Vertex> Vertices[MAX_INSTANCES_COUNT] : register(t0, space3);
+
 struct RayPayload
 {
     float4 color;
@@ -114,7 +116,7 @@ void MyRaygenShader()
 }
 
 [shader("closesthit")]
-void HitGroup_MyClosestHitShader(inout RayPayload payload, in MyAttributes attr)
+void HitGroup_MyClosestHitShader(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attr)
 {
     float3 hitPosition = HitWorldPosition();
 
@@ -122,13 +124,13 @@ void HitGroup_MyClosestHitShader(inout RayPayload payload, in MyAttributes attr)
     uint indicesPerTriangle = 3;
     uint triangleIndexStride = indicesPerTriangle * indexSizeInBytes;
     uint baseIndex = PrimitiveIndex() * triangleIndexStride;
-    const uint3 indices = Indices.Load3(baseIndex);
+    const uint3 indices = Indices[0].Load3(baseIndex);
 
     // Retrieve corresponding vertex normals for the triangle vertices.
     float3 vertexNormals[3] = { 
-        Vertices[indices[0]].normal, 
-        Vertices[indices[1]].normal, 
-        Vertices[indices[2]].normal 
+        Vertices[0][indices[0]].normal, 
+        Vertices[0][indices[1]].normal, 
+        Vertices[0][indices[2]].normal 
     };
 
     // Compute the triangle's normal.
