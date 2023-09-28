@@ -4,6 +4,7 @@
 #include "DynamicDescriptorHeapDX12.h"
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandListDX12.h"
+#include "dx12/ShaderSystem/ShaderDX12.h"
 
 using namespace forward;
 
@@ -140,8 +141,11 @@ void DynamicDescriptorHeapDX12::BindDescriptorTableToRootParam(ID3D12GraphicsCom
 	{
 		// Set the descriptors on the command list using the passed-in setter function.
 		setFunc(commandList, 0, m_CurrentGPUDescriptorHandle);
-		m_CurrentGPUDescriptorHandle =
-			m_CurrentGPUDescriptorHandle.Offset(descriptorTableCache.NumDescriptors, m_DescriptorHandleIncrementSize);
+		if (m_DescriptorHandleCache.size() < ShaderDX12::BindlessDescriptorCount)
+		{
+			m_CurrentGPUDescriptorHandle =
+				m_CurrentGPUDescriptorHandle.Offset(descriptorTableCache.NumDescriptors, m_DescriptorHandleIncrementSize);
+		}
 	}
 }
 
