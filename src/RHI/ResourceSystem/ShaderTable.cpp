@@ -55,6 +55,7 @@ bool ShaderTable::ContainPayload() const
 void ShaderTable::SetupShaderRecords(const std::unordered_map<WString, void*>& name2identifier)
 {
     auto dst = GetData();
+    Vector<WString> copiedGroup;
     for (auto& record : m_shaderRecords)
     {
         void* ident = nullptr;
@@ -65,8 +66,11 @@ void ShaderTable::SetupShaderRecords(const std::unordered_map<WString, void*>& n
             const auto sepIt = record.shaderName.find(L"_");
             assert(sepIt != WString::npos);
             auto groupName = record.shaderName.substr(0, sepIt);
+            if (std::ranges::find(copiedGroup, groupName) != copiedGroup.end())
+                continue;
             assert(name2identifier.contains(groupName));
             ident = name2identifier.at(groupName);
+            copiedGroup.push_back(groupName);
         }
 
         if (record.shaderArguments.empty())
