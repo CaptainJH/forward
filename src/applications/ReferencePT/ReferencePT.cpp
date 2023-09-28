@@ -128,7 +128,7 @@ protected:
 		float4x4 rotMat;
 		rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
 		float4 eyePos(m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f);
-		eyePos = eyePos * rotMat;
+		//eyePos = eyePos * rotMat;
 		m_eyePos = { eyePos.x, eyePos.y, eyePos.z };
 
 		static u32 frames = 0;
@@ -142,8 +142,8 @@ protected:
 		else
 			++accumulatedFrames;
 		
-		*m_cb = RaytracingData {
-			.view = viewMat,
+		*m_cb = RaytracingData{
+			.view = viewMat.inverse(),
 			.proj = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f)),
 
 			.skyIntensity = 3.0f,
@@ -151,7 +151,7 @@ protected:
 			.frameNumber = frames,
 			.maxBounces = 8,
 
-			.exposureAdjustment = 0.8f,
+			.exposureAdjustment = 0.2f,
 			.accumulatedFrames = accumulatedFrames,
 			.enableAntiAliasing = true,
 			.focusDistance = 10.0f,
@@ -169,12 +169,15 @@ protected:
 	{
 		m_pDeviceDX12->BeginDraw();
 
-		auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
-		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		cmdList->BindGPUVisibleHeaps(*devicePSO);
-		cmdList->BindRTPSO(*devicePSO);
-		cmdList->DispatchRays(*m_rtPSO);
-		//cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
+		if (auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12())
+		{
+			auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
+			cmdList->SetDynamicConstantBuffer(m_cb.get());
+			cmdList->BindGPUVisibleHeaps(*devicePSO);
+			cmdList->BindRTPSO(*devicePSO);
+			cmdList->DispatchRays(*m_rtPSO);
+			cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uav0Tex);
+		}
 
 		m_pDeviceDX12->EndDraw();
 	}
@@ -194,21 +197,18 @@ protected:
 private:
 	void prepareDeviceResources()
 	{
-		auto commandList = m_pDeviceDX12->DeviceCommandList();
-		m_cb->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, m_cb.get(), *m_pDeviceDX12));
+		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
+		auto cmdListDevice = cmdList->GetDeviceCmdListPtr();
+		cmdList->SetDynamicConstantBuffer(m_cb.get());
 		for (auto& gp : m_rtPSO->m_meshes)
 		{
-			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
-			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.second.get(), *m_pDeviceDX12));
+			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), gp.first.get(), *m_pDeviceDX12));
+			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), gp.second.get(), *m_pDeviceDX12));
 		}
 
-		auto deviceUAVTex = make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12);
-		m_uav0Tex->SetDeviceObject(deviceUAVTex);
-
-		deviceUAVTex = make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12);
-		m_uav1Tex->SetDeviceObject(deviceUAVTex);
-
-		m_materials->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, m_materials.get(), *m_pDeviceDX12));
+		m_uav0Tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12));
+		m_uav1Tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12));
+		m_materials->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), m_materials.get(), *m_pDeviceDX12));
 
 		for (auto& tex : m_scene.mTextures)
 			tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(tex.get(), *m_pDeviceDX12));

@@ -68,7 +68,7 @@ RaytracingAccelerationStructure sceneBVH			: register(t0, space99);
 // Bindless materials, geometry, and texture buffers (for all the scene geometry)
 StructuredBuffer<MaterialData> materials			: register(t0, space1);
 ByteAddressBuffer indices[MAX_INSTANCES_COUNT]		: register(t0, space2);
-ByteAddressBuffer vertices[MAX_INSTANCES_COUNT]		: register(t0, space3);
+StructuredBuffer<VertexAttributes> vertices[MAX_INSTANCES_COUNT]		: register(t0, space3);
 Texture2D<float4> textures[MAX_TEXTURES_COUNT]		: register(t0, space4);
 
 // Texture Sampler
@@ -425,25 +425,15 @@ VertexAttributes GetVertexAttributes(uint geometryID, uint triangleIndex, float3
 	// Interpolate the vertex attributes
 	for (uint i = 0; i < 3; i++)
 	{
-		int address = (indices[i] * 12) * 4;
-
 		// Load and interpolate position and transform it to world space
-		triangleVertices[i] = mul(ObjectToWorld3x4(), float4(asfloat(vertices[geometryID].Load3(address)), 1.0f)).xyz;
+		triangleVertices[i] = mul(ObjectToWorld3x4(), float4(vertices[geometryID][indices[i]].position, 1.0f)).xyz;
 		v.position += triangleVertices[i] * barycentrics[i];
-		address += 12;
 
 		// Load and interpolate normal
-		v.shadingNormal += asfloat(vertices[geometryID].Load3(address)) * barycentrics[i];
-		address += 12;
-
-		// Load and interpolate tangent
-		address += 12;
-
-		// Load bitangent direction
-		address += 4;
+		v.shadingNormal += vertices[geometryID][indices[i]].shadingNormal * barycentrics[i];
 
 		// Load and interpolate texture coordinates
-		v.uv += asfloat(vertices[geometryID].Load2(address)) * barycentrics[i];
+		v.uv += vertices[geometryID][indices[i]].uv * barycentrics[i];
 	}
 
 	// Transform normal from local to world space
