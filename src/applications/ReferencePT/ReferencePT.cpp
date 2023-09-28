@@ -68,9 +68,9 @@ public:
 		m_rtPSO = std::make_unique<RTPipelineStateObject>(m_scene);
 		m_rtPSO->m_maxPayloadSizeInByte = 64;
 
-		m_uav0Tex = make_shared<Texture2D>("UAV0_Tex", forward::DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
+		m_uav0Tex = make_shared<Texture2D>("UAV0_Tex", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
 		m_uav0Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		m_uav1Tex = make_shared<Texture2D>("UAV1_Tex", forward::DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, forward::TextureBindPosition::TBP_Shader);
+		m_uav1Tex = make_shared<Texture2D>("UAV1_Tex", DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
 		m_uav1Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 
 		m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("MaterialDataBuffer", (u32)m_scene.mMaterials.size());
@@ -106,17 +106,13 @@ public:
 			});
 		m_rtPSO->m_rtState.m_samplers[0] = make_shared<SamplerState>("Sampler0");
 
-		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", 1U, 0U);
-		m_rtPSO->m_rtState.m_rayGenShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"RayGen" });
-		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", 2U, 0U);
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_ClosestHit" });
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroup_AnyHit" });
-		m_rtPSO->m_rtState.m_hitShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"HitGroupShadow_AnyHitShadow" });
-		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", 2U, 0U);
-		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"Miss" });
-		m_rtPSO->m_rtState.m_missShaderTable->m_shaderRecords.emplace_back(ShaderRecordDesc{ L"MissShadow" });
+		m_rtPSO->m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RayGenShaderTable", Vector<WString>{ L"RayGen" });
+		m_rtPSO->m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("HitGroupShaderTable",
+			Vector<WString>{ L"HitGroup_ClosestHit", L"HitGroup_AnyHit", L"HitGroupShadow_AnyHitShadow" });
+		m_rtPSO->m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("MissShaderTable", 
+			Vector<WString>{ L"Miss", L"MissShadow" });
 
-		m_rtPSO->m_deviceRTPSO = forward::make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
+		m_rtPSO->m_deviceRTPSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
 		return true;
 	}

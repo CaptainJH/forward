@@ -38,13 +38,24 @@ ShaderRecord& ShaderTable::operator[](u32 index)
     return *ret;
 }
 
-ShaderTable::ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSize)
+ShaderTable::ShaderTable(const String& name, WString shaderRecordName)
     : Resource(name)
 {
     m_type = FGOT_SHADER_TABLE;
     SetUsage(RU_DYNAMIC_UPDATE);
-    auto shaderRecordSizeAligned = Align<RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT>(payloadSize + SHADER_IDENTIFIER_SIZE_IN_BYTES);
-    Initialize(numShaderRecords, shaderRecordSizeAligned);
+    Initialize(1, Align<RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT>(SHADER_IDENTIFIER_SIZE_IN_BYTES));
+    m_shaderRecords.emplace_back(ShaderRecordDesc{ shaderRecordName });
+}
+
+ShaderTable::ShaderTable(const String& name, Vector<WString> shaderRecordNames)
+    : Resource(name)
+{
+    m_type = FGOT_SHADER_TABLE;
+    SetUsage(RU_DYNAMIC_UPDATE);
+    Initialize(static_cast<u32>(shaderRecordNames.size()),
+        Align<RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT>(SHADER_IDENTIFIER_SIZE_IN_BYTES));
+    for (auto n : shaderRecordNames)
+        m_shaderRecords.emplace_back(ShaderRecordDesc{ n });
 }
 
 bool ShaderTable::ContainPayload() const

@@ -50,11 +50,12 @@ namespace forward
     };
 
 
-	class ShaderTable : public Resource
+	class ShaderTable final : public Resource
 	{
 	public:
         ShaderTable() = delete;
-		ShaderTable(const String& name, u32 numShaderRecords, u32 payloadSize);
+        ShaderTable(const String& name, WString shaderRecordName);
+        ShaderTable(const String& name, Vector<WString> shaderRecordNames);
 
         ShaderRecord& operator[](u32 index);
         u32 GetShaderRecordSize() const { return GetElementSize(); }
@@ -63,6 +64,7 @@ namespace forward
 
         Vector<ShaderRecordDesc> m_shaderRecords;
 
+    private:
         // Pretty-print the shader records.
         void DebugPrint(std::unordered_map<void*, WString> shaderIdToStringMap);
 	};
