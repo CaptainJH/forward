@@ -101,7 +101,8 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptors2(DeviceDX12& d)
 			auto startIdx = idx;
 			while (handle.ptr)
 			{
-				++idx;
+				if (++idx >= m_DescriptorHandleCache.size())
+					break;
 				handle = m_DescriptorHandleCache[idx];
 			}
 			const auto rangeCount = idx - startIdx;
