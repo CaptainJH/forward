@@ -63,6 +63,8 @@ public:
 		if (!Application::Init())
 			return false;
 
+		mFPCamera.SetLens(f_PIDIV4, AspectRatio(), 1.0f, 125.0f);
+		mFPCamera.SetPosition(float3(0.0f, 0.0f, -3.0f));
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
 		m_rtPSO = std::make_unique<RTPipelineStateObject>(m_scene);
@@ -118,29 +120,24 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32 dt) override
+	void UpdateScene(f32) override
 	{
-		const auto radiansToRotateBy = dt * 0.001f;
-		float4x4 rotMat;
-		rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
-		float4 eyePos(m_eyePos.x, m_eyePos.y, m_eyePos.z, 1.0f);
-		//eyePos = eyePos * rotMat;
-		m_eyePos = { eyePos.x, eyePos.y, eyePos.z };
-
+		mFPCamera.UpdateViewMatrix();
 		static u32 frames = 0;
 		++frames;
 
-		auto viewMat = ToFloat4x4(Matrix4f::LookAtLHMatrix(m_eyePos, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+		auto viewMat = mFPCamera.GetViewMatrix();
 		static float4x4 lastViewMat = viewMat;
 		static u32 accumulatedFrames = 0;
-		if (lastViewMat != viewMat)
+		bool resetAccumulation = lastViewMat != viewMat;
+		if (resetAccumulation)
 			accumulatedFrames = 0;
 		else
 			++accumulatedFrames;
 		
 		*m_cb = RaytracingData{
 			.view = viewMat.inverse(),
-			.proj = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f)),
+			.proj = mFPCamera.GetProjectionMatrix(),
 
 			.skyIntensity = 3.0f,
 			.lightCount = 0,
@@ -153,7 +150,7 @@ protected:
 			.focusDistance = 10.0f,
 
 			.apertureSize = 0.0f,
-			.enableAccumulation = lastViewMat == viewMat,
+			.enableAccumulation = !resetAccumulation,
 
 			.lights = {}
 		};
@@ -185,9 +182,6 @@ protected:
 	shared_ptr<StructuredBuffer<SceneData::MaterialData>> m_materials;
 
 	DeviceDX12* m_pDeviceDX12 = nullptr;
-
-	Vector3f m_eyePos = Vector3f(0.0f, 2.0f, -5.0f);
-
 	SceneData m_scene;
 
 private:

@@ -643,6 +643,12 @@ void RayGen()
 	uint2 LaunchIndex = DispatchRaysIndex().xy;
 	uint2 LaunchDimensions = DispatchRaysDimensions().xy;
 
+	if(gData.accumulatedFrames == 0)
+	{
+		accumulationBuffer[LaunchIndex] = float4(0, 0, 0, 1.0f);
+		return;
+	}
+
 	// Initialize random numbers generator
 	RngStateType rngState = initRNG(LaunchIndex, LaunchDimensions, gData.frameNumber);
 
