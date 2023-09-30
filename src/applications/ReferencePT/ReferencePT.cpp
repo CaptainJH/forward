@@ -7,7 +7,6 @@
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
-
 #include "SceneData.h"
 
 using namespace forward;
@@ -63,7 +62,7 @@ public:
 		if (!Application::Init())
 			return false;
 
-		mFPCamera.SetLens(f_PIDIV4, AspectRatio(), 1.0f, 125.0f);
+		mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
 		mFPCamera.SetPosition(float3(0.0f, 0.0f, -3.0f));
 		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);

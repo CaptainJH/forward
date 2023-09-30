@@ -24,6 +24,7 @@ private:
 
 void BasicGeometryFrameGraph::UpdateScene(f32 dt)
 {
+	mFPCamera.UpdateViewMatrix();
 	m_albedoEffect->Update(dt);
 }
 
@@ -42,6 +43,8 @@ bool BasicGeometryFrameGraph::Init()
 	if (!Application::Init())
 		return false;
 
+	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
+	mFPCamera.SetPosition(0.0f, 0.0f, -3.0f);
 	auto sceneData = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
 	//auto sceneData = SceneData::LoadFromFile(L"bathroom/LAZIENKA.gltf", m_pDevice->mLoadedResourceMgr);
 	std::vector<SceneData::Instance*> instancesWithBaseTex;
@@ -54,18 +57,13 @@ bool BasicGeometryFrameGraph::Init()
 	m_albedoEffect->mAlbedoTex = sceneData.mTextures[sceneData.mMaterials[instance->materialId].materialData.baseColorTexIdx];
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
 
-	Vector3f pos = Vector3f(0.0f, 1.0f, -5.0f);
-	Vector3f target = { instance->translation.x, instance->translation.y, instance->translation.z };
-	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-	const auto mat = instance->mat;
-	const auto viewMat = ToFloat4x4(Matrix4f::LookAtLHMatrix(pos, target, up));
-	const auto projMat = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f));
+	auto object2WorldMatrix = instance->mat;
 	m_albedoEffect->mUpdateFunc = [=](f32 dt) {
 		static f32 frames = 0.0f;
 		frames += dt * 0.001f;
 		float4x4 rotM;
 		rotM.rotate(float3(0, frames, 0));
-		*m_albedoEffect->mCB = mat * rotM * viewMat * projMat;
+		*m_albedoEffect->mCB = object2WorldMatrix * rotM * mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix();
 	};
 
 	return true;
