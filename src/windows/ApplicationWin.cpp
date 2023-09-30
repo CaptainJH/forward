@@ -598,3 +598,51 @@ void ApplicationWin::AddExternalResource(const char* name, void* res)
 {
 	m_pDevice->AddExternalResource(name, res);
 }
+
+void ApplicationWin::OnChar(i8 key)
+{
+	auto dt = mTimer.Elapsed();
+	auto speed = 0.05f;
+	if (key == 'w')
+	{
+		mFPCamera.Walk(speed * dt);
+	}
+	else if (key == 'a')
+	{
+		mFPCamera.Strafe(-speed * dt);
+	}
+	else if (key == 's')
+	{
+		mFPCamera.Walk(-speed * dt);
+	}
+	else if (key == 'd')
+	{
+		mFPCamera.Strafe(speed * dt);
+	}
+}
+
+void ApplicationWin::OnMouseDown(WPARAM /*btnState*/, i32 x, i32 y)
+{
+	mLastMousePos_x = x;
+	mLastMousePos_y = y;
+	SetCapture(mhMainWnd);
+}
+void ApplicationWin::OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/)
+{
+	ReleaseCapture();
+}
+void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
+{
+	if ((btnState & MK_LBUTTON) != 0)
+	{
+		// Make each pixel correspond to a quarter of a degree.
+		float dx = (0.25f * static_cast<f32>(x - mLastMousePos_x));
+		float dy = (0.25f * static_cast<f32>(y - mLastMousePos_y));
+
+		mFPCamera.Pitch(dy);
+		mFPCamera.RotateY(dx);
+	}
+
+	mLastMousePos_x = x;
+	mLastMousePos_y = y;
+}

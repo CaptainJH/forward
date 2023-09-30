@@ -30,6 +30,7 @@
 
 #include "Device.h"
 #include "Utils.h"
+#include "FPCamera.h"
 
 #ifdef  USE_LEGACY_RENDERER
 #include "dx11_Hieroglyph/RendererDX11.h"
@@ -84,13 +85,13 @@ namespace forward
 		virtual void PostDrawScene() {}
 
 		// Convenience overrides for handling mouse input.
-		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
-		virtual void OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
-		virtual void OnMouseMove(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/) { }
+		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
+		virtual void OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
+		virtual void OnMouseMove(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
-		virtual void OnChar(i8 /*key*/) {}
+		virtual void OnChar(i8 /*key*/);
 
 	protected:
 		bool InitMainWindow();
@@ -114,9 +115,12 @@ namespace forward
 		bool      mMaximized;
 		bool      mResizing;
 		u32      m4xMsaaQuality;
+		i32		mLastMousePos_x;
+		i32		mLastMousePos_y;
 
 		Timer mTimer;
 		FileSystem mFileSystem;
+		FPCamera mFPCamera;
 
 #ifdef USE_LEGACY_RENDERER
 		RendererDX11*	m_pRender;
