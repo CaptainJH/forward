@@ -141,5 +141,10 @@ namespace forward
 		return (size + (Alignment - 1)) & ~(Alignment - 1);
 	}
 
+	inline f32 AngleToRadians(f32 angle)
+	{
+		return angle * f_PI / 180.0f;
+	}
+
 	float4x4 ToFloat4x4(const Matrix4f& mat);
 }

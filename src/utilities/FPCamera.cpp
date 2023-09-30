@@ -4,7 +4,7 @@ using namespace forward;
 
 FPCamera::FPCamera()
 {
-	SetLens(f_PIDIV4, 16.0f / 9.0f, 1.0f, 1000.0f);
+	SetLens(f_PIDIV2, 16.0f / 9.0f, 1.0f, 1000.0f);
 }
 
 float3 FPCamera::GetPosition() const
@@ -136,7 +136,7 @@ void FPCamera::Pitch(f32 angle)
 {
 	// Rotate up and look vector about the right vector.
 	float4x4 rotMat;
-	rotMat.setAxisAngle(mRight, angle * f_PI / 180.0f);
+	rotMat.setAxisAngle(mRight, AngleToRadians(angle));
 	mUp = mUp * rotMat;
 	mLook = mLook * rotMat;
 
@@ -147,7 +147,7 @@ void FPCamera::RotateY(f32 angle)
 {
 	// Rotate the basis vectors about the world y-axis.
 	float4x4 rotMat;
-	rotMat.setAxisAngle(float3(0, 1, 0), angle * f_PI / 180.0f);
+	rotMat.setAxisAngle(float3(0, 1, 0), AngleToRadians(angle));
 
 	mRight = mRight * rotMat;
 	mUp = mUp * rotMat;
