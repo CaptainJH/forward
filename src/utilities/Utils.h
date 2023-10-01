@@ -136,12 +136,12 @@ namespace forward
 	};
 
 	template<u32 Alignment, class T>
-	inline T Align(T size)
+	constexpr T Align(T size)
 	{
 		return (size + (Alignment - 1)) & ~(Alignment - 1);
 	}
 
-	inline f32 AngleToRadians(f32 angle)
+	constexpr f32 AngleToRadians(f32 angle)
 	{
 		return angle * f_PI / 180.0f;
 	}
