@@ -33,7 +33,7 @@
 //[/ignore]
 
 #define _USE_MATH_DEFINES
-#define RUN_BENCHMARK
+//#define RUN_BENCHMARK
 #include "PCH.h"
 #include "Utils.h"
 #include "FileSystem.h"
@@ -46,6 +46,7 @@
 #include <algorithm>
 #include <vector>
 #include <random>
+#include <execution>
 
 #ifdef RUN_BENCHMARK
 #include "benchmark/benchmark.h"
@@ -243,13 +244,46 @@ void DrawVolume(u32 size, std::vector<float3>& buffer)
     }
 }
 
+template<class Policy>
+void DrawVolume_WithPolicy(u32 size, std::vector<float3>& buffer, Policy p)
+{
+    buffer.resize(size * size, { 0.0f, 0.0f, 0.0f });
+
+    auto frameAspectRatio = size / float(size);
+    float fov = 45;
+    float focal = tan(f_PI / 180 * fov * 0.5f);
+
+    std::for_each(p, buffer.begin(), buffer.end(), [=, &buffer](auto& data) {
+        float3 rayOrig(0.0f);
+        float3 rayDir(0.0f);
+
+        auto offset = &data - buffer.data();
+        auto i = offset / size;
+        auto j = offset % size;
+        rayDir.x = (2.f * (i + 0.5f) / size - 1) * focal;
+        rayDir.y = (1 - 2.f * (j + 0.5f) / size) * focal * 1 / frameAspectRatio; // Maya style
+        rayDir.z = -1.f;
+
+        rayDir.normalize();
+
+        auto c = integrate(rayOrig, rayDir, g_geo);
+
+        data = {
+            std::clamp(c.x, 0.f, 1.f),
+            std::clamp(c.y, 0.f, 1.f),
+            std::clamp(c.z, 0.f, 1.f)
+        };
+        });
+}
+
 #ifndef RUN_BENCHMARK
 int main()
 {
     unsigned int size = 512;
     std::vector<float3> buffer;
     Setup();
-    DrawVolume(size, buffer);
+    //DrawVolume(size, buffer);
+    DrawVolume_WithPolicy(size, buffer, std::execution::par);
 
     // writing file
     FileSystem fileSystem;
@@ -276,6 +310,18 @@ static void BM_DrawVolume_Default(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_DrawVolume_Default)->Arg(256)->Arg(512)->Arg(1024);
+
+static void BM_DrawVolume_Parallel(benchmark::State& state) {
+
+    auto size = static_cast<u32>(state.range_x());
+    Setup();
+    std::vector<float3> buffer;
+    for (auto _ : state)
+    {
+        DrawVolume_WithPolicy(size, buffer, std::execution::par);
+    }
+}
+BENCHMARK(BM_DrawVolume_Parallel)->Arg(256)->Arg(512)->Arg(1024);
 
 BENCHMARK_MAIN();
 #endif
