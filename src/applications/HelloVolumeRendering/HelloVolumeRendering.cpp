@@ -48,74 +48,23 @@
 
 using namespace forward;
 
-struct vec3
-{
-    float x{ 0 }, y{ 0 }, z{ 0 };
-    vec3& nor()
-    {
-        float len = x * x + y * y + z * z;
-        if (len != 0) len = sqrtf(len);
-        x /= len, y /= len, z /= len;
-        return *this;
-    }
-    float length() const
-    {
-        return sqrtf(x * x + y * y + z * z);
-    }
-    float operator * (const vec3& v) const
-    {
-        return x * v.x + y * v.y + z * v.z;
-    }
-    vec3 operator - (const vec3& v) const
-    {
-        return vec3{x - v.x, y - v.y, z - v.z};
-    }
-    vec3 operator + (const vec3& v) const
-    {
-        return vec3{x + v.x, y + v.y, z + v.z};
-    }
-    vec3& operator += (const vec3& v)
-    {
-        x += v.x, y += v.y, z += v.z;
-        return *this;
-    }
-    vec3& operator *= (const float& r)
-    {
-        x *= r, y *= r, z *= r;
-        return *this;
-    }
-    friend vec3 operator * (const float& r, const vec3& v)
-    {
-        return vec3{v.x * r, v.y * r, v.z * r};
-    }
-    friend std::ostream& operator << (std::ostream& os, const vec3& v)
-    {
-        os << v.x << " " << v.y << " " << v.z;
-        return os;
-    }
-    vec3 operator * (const float &r) const
-    {
-        return vec3{ x * r, y * r, z * r };
-    }
-};
-
-constexpr vec3 background_color{ 0.572f, 0.772f, 0.921f };
+constexpr float3 background_color{ 0.572f, 0.772f, 0.921f };
 constexpr float floatMax = std::numeric_limits<float>::max();
 
 struct IsectData
 {
     float t0{ floatMax }, t1{ floatMax };
-    vec3 pHit;
-    vec3 nHit;
+    float3 pHit;
+    float3 nHit;
     bool inside{ false };
 };
 
 struct Object
 {
 public:
-    vec3 color;
+    float3 color;
     int type{ 0 };
-    virtual bool intersect(const vec3&, const vec3&, IsectData&) const = 0;
+    virtual bool intersect(const float3&, const float3&, IsectData&) const = 0;
     virtual ~Object() {}
     Object() {}
 };
@@ -139,13 +88,13 @@ bool solveQuadratic(float a, float b, float c, float& r0, float& r1)
 struct Sphere : Object
 {
 public:
-    Sphere() { color = vec3{ 1, 0, 0 }; type = 1; }
-    bool intersect(const vec3& rayOrig, const vec3& rayDir, IsectData& isect) const override
+    Sphere() { color = float3{ 1, 0, 0 }; type = 1; }
+    bool intersect(const float3& rayOrig, const float3& rayDir, IsectData& isect) const override
     {
-        vec3 rayOrigc = rayOrig - center;
-        float a = rayDir * rayDir;
-        float b = 2 * (rayDir * rayOrigc);
-        float c = rayOrigc * rayOrigc - radius * radius;
+        auto rayOrigc = rayOrig - center;
+        float a = rayDir ^ rayDir;
+        float b = 2 * (rayDir ^ rayOrigc);
+        float c = (rayOrigc ^ rayOrigc) - radius * radius;
 
         if (!solveQuadratic(a, b, c, isect.t0, isect.t1)) return false;
 
@@ -161,13 +110,13 @@ public:
     }
 
     float radius{ 1 };
-    vec3 center{ 0, 0, -4 };
+    float3 center{ 0, 0, -4 };
 };
 
 std::default_random_engine generator;
 std::uniform_real_distribution<float> distribution(0.0, 1.0);
 
-vec3 integrate(const vec3& ray_orig, const vec3& ray_dir, const std::vector<std::unique_ptr<Object>> &objects)
+float3 integrate(const float3& ray_orig, const float3& ray_dir, const std::vector<std::unique_ptr<Object>> &objects)
 {
     const Object* hit_object = nullptr;
     IsectData isect;
@@ -189,12 +138,12 @@ vec3 integrate(const vec3& ray_orig, const vec3& ray_dir, const std::vector<std:
     int ns = static_cast<int>(std::ceil((isect.t1 - isect.t0) / step_size));
     step_size = (isect.t1 - isect.t0) / ns;
 
-    vec3 light_dir{ 0, 1, 0 };
-    vec3 light_color{ 1.3f, 0.3f, 0.9f };
+    float3 light_dir{ 0, 1, 0 };
+    float3 light_color{ 1.3f, 0.3f, 0.9f };
     IsectData isect_vol;
 
     float transparency = 1; // initialize transmission to 1 (fully transparent)
-    vec3 result{ 0 }; // initialize volumetric sphere color to 0
+    float3 result(0.0f); // initialize volumetric sphere color to 0
 
 #ifdef BACKWARD_RAYMARCHING
     // [comment]
@@ -224,7 +173,7 @@ vec3 integrate(const vec3& ray_orig, const vec3& ray_dir, const std::vector<std:
 	// [/comment]
     for (int n = 0; n < ns; ++n) {
         float t = isect.t0 + step_size * (n + 0.5f);
-        vec3 sample_pos = ray_orig + t * ray_dir;
+        auto sample_pos = ray_orig + t * ray_dir;
 
         // compute sample transmission
         float sample_attenuation = exp(-step_size * (scattering + absorption));
@@ -248,7 +197,7 @@ vec3 integrate(const vec3& ray_orig, const vec3& ray_dir, const std::vector<std:
 int main()
 {
     unsigned int width = 640, height = 480;
-    std::vector<float> buffer(width * height * 3, 0.0f);
+    std::vector<float3> buffer(width * height, { 0.0f, 0.0f, 0.0f });
 
     auto frameAspectRatio = width / float(height);
     float fov = 45;
@@ -262,7 +211,8 @@ int main()
     sph->center.z = -20;
     geo.push_back(std::move(sph));
 
-    vec3 rayOrig, rayDir; // ray origin & direction
+    float3 rayOrig(0.0f);
+    float3 rayDir(0.0f);
 
     unsigned int offset = 0;
     for (unsigned int j = 0; j < height; ++j) {
@@ -271,13 +221,15 @@ int main()
             rayDir.y = (1 - 2.f * (j + 0.5f) / height) * focal * 1 / frameAspectRatio; // Maya style
             rayDir.z = -1.f;
 
-            rayDir.nor();
+            rayDir.normalize();
 
-            vec3 c = integrate(rayOrig, rayDir, geo);
+            auto c = integrate(rayOrig, rayDir, geo);
 
-            buffer[offset++] = std::clamp(c.x, 0.f, 1.f);
-            buffer[offset++] = std::clamp(c.y, 0.f, 1.f);
-            buffer[offset++] = std::clamp(c.z, 0.f, 1.f);
+            buffer[offset++] = {
+                std::clamp(c.x, 0.f, 1.f),
+                std::clamp(c.y, 0.f, 1.f),
+                std::clamp(c.z, 0.f, 1.f)
+            };
         }
     }
 
@@ -288,8 +240,8 @@ int main()
         .width = width,
         .height = height,
         .format = DXGI_FORMAT_R32G32B32_FLOAT,
-        .rowPitch = width * 3 * sizeof(float),
-        .slicePitch = width * height * 3 * sizeof(float),
+        .rowPitch = width * sizeof(float3),
+        .slicePitch = width * height * sizeof(float3),
         .pixels = reinterpret_cast<uint8_t*>(buffer.data())
     };
     DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
