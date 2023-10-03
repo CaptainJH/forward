@@ -35,6 +35,8 @@
 #define _USE_MATH_DEFINES
 #include "PCH.h"
 #include "Utils.h"
+#include "FileSystem.h"
+#include "dxCommon/DirectXTexEXR.h"
 #include <cmath>
 
 #include <iostream>
@@ -246,8 +248,7 @@ vec3 integrate(const vec3& ray_orig, const vec3& ray_dir, const std::vector<std:
 int main()
 {
     unsigned int width = 640, height = 480;
-
-    auto buffer = std::make_unique<unsigned char[]>(width * height * 3);
+    std::vector<float> buffer(width * height * 3, 0.0f);
 
     auto frameAspectRatio = width / float(height);
     float fov = 45;
@@ -274,18 +275,24 @@ int main()
 
             vec3 c = integrate(rayOrig, rayDir, geo);
 
-            buffer[offset++] = static_cast<unsigned char>(std::clamp(c.x, 0.f, 1.f) * 255);
-            buffer[offset++] = static_cast<unsigned char>(std::clamp(c.y, 0.f, 1.f) * 255);
-            buffer[offset++] = static_cast<unsigned char>(std::clamp(c.z, 0.f, 1.f) * 255);
+            buffer[offset++] = std::clamp(c.x, 0.f, 1.f);
+            buffer[offset++] = std::clamp(c.y, 0.f, 1.f);
+            buffer[offset++] = std::clamp(c.z, 0.f, 1.f);
         }
     }
 
     // writing file
-    std::ofstream ofs;
-    ofs.open("./image.ppm", std::ios::binary);
-    ofs << "P6\n" << width << " " <<  height << "\n255\n";
-    ofs.write(reinterpret_cast<const char*>(buffer.get()), width * height * 3);
-    ofs.close();
+    FileSystem fileSystem;
+    std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
+    DirectX::Image resultImage = {
+        .width = width,
+        .height = height,
+        .format = DXGI_FORMAT_R32G32B32_FLOAT,
+        .rowPitch = width * 3 * sizeof(float),
+        .slicePitch = width * height * 3 * sizeof(float),
+        .pixels = reinterpret_cast<uint8_t*>(buffer.data())
+    };
+    DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
 
     return 0;
 }
