@@ -39,3 +39,7 @@ set_property(TARGET OpenEXRCore PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET OpenEXRUtil PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET IlmThread PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET Iex PROPERTY FOLDER "ThirdPartyLibraries")
+
+add_subdirectory("src/google_benchmark")
+set_property(TARGET benchmark PROPERTY FOLDER "ThirdPartyLibraries")
+set_property(TARGET benchmark_main PROPERTY FOLDER "ThirdPartyLibraries")

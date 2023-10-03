@@ -54,6 +54,14 @@
     }
 },
 
+{
+    "name": "google_benchmark",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/google/benchmark.git",
+        "revision" : "v1.8.3"
+    }
+},
 
 {
     "name": "mitsuba",

@@ -5,6 +5,7 @@ add_executable(HelloVolumeRendering ${SOURCE_FILES})
 set_target_properties(HelloVolumeRendering PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
 target_link_libraries(HelloVolumeRendering forwardDX12)
 target_link_libraries(HelloVolumeRendering assimp)
+target_link_libraries(HelloVolumeRendering benchmark::benchmark)
 
 set_property(TARGET HelloVolumeRendering PROPERTY CXX_STANDARD 20)
 set_target_properties(HelloVolumeRendering PROPERTIES FOLDER Application)

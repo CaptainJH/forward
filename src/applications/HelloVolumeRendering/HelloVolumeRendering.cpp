@@ -33,7 +33,7 @@
 //[/ignore]
 
 #define _USE_MATH_DEFINES
-//#define RUN_BENCHMARK
+#define RUN_BENCHMARK
 #include "PCH.h"
 #include "Utils.h"
 #include "FileSystem.h"
@@ -46,6 +46,10 @@
 #include <algorithm>
 #include <vector>
 #include <random>
+
+#ifdef RUN_BENCHMARK
+#include "benchmark/benchmark.h"
+#endif
 
 using namespace forward;
 
@@ -196,11 +200,9 @@ float3 integrate(const float3& ray_orig, const float3& ray_dir, const std::vecto
 }
 
 std::vector<std::unique_ptr<Object>> g_geo;
-std::vector<float3> g_buffer;
 
 void Setup()
 {
-    g_buffer.clear();
     g_geo.clear();
     std::unique_ptr<Sphere> sph = std::make_unique<Sphere>();
     sph->radius = 5;
@@ -210,11 +212,11 @@ void Setup()
     g_geo.push_back(std::move(sph));
 }
 
-void DrawVolume(u32 width, u32 height)
+void DrawVolume(u32 size, std::vector<float3>& buffer)
 {
-    g_buffer.resize(width * height, { 0.0f, 0.0f, 0.0f });
+    buffer.resize(size * size, { 0.0f, 0.0f, 0.0f });
 
-    auto frameAspectRatio = width / float(height);
+    auto frameAspectRatio = size / float(size);
     float fov = 45;
     float focal = tan(f_PI / 180 * fov * 0.5f);
 
@@ -222,17 +224,17 @@ void DrawVolume(u32 width, u32 height)
     float3 rayDir(0.0f);
 
     unsigned int offset = 0;
-    for (unsigned int j = 0; j < height; ++j) {
-        for (unsigned int i = 0; i < width; ++i) {
-            rayDir.x = (2.f * (i + 0.5f) / width - 1) * focal;
-            rayDir.y = (1 - 2.f * (j + 0.5f) / height) * focal * 1 / frameAspectRatio; // Maya style
+    for (unsigned int j = 0; j < size; ++j) {
+        for (unsigned int i = 0; i < size; ++i) {
+            rayDir.x = (2.f * (i + 0.5f) / size - 1) * focal;
+            rayDir.y = (1 - 2.f * (j + 0.5f) / size) * focal * 1 / frameAspectRatio; // Maya style
             rayDir.z = -1.f;
 
             rayDir.normalize();
 
             auto c = integrate(rayOrig, rayDir, g_geo);
 
-            g_buffer[offset++] = {
+            buffer[offset++] = {
                 std::clamp(c.x, 0.f, 1.f),
                 std::clamp(c.y, 0.f, 1.f),
                 std::clamp(c.z, 0.f, 1.f)
@@ -244,21 +246,36 @@ void DrawVolume(u32 width, u32 height)
 #ifndef RUN_BENCHMARK
 int main()
 {
-    unsigned int width = 640, height = 480;
+    unsigned int size = 512;
+    std::vector<float3> buffer;
     Setup();
-    DrawVolume(width, height);
+    DrawVolume(size, buffer);
 
     // writing file
     FileSystem fileSystem;
     std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
     DirectX::Image resultImage = {
-        .width = width,
-        .height = height,
+        .width = size,
+        .height = size,
         .format = DXGI_FORMAT_R32G32B32_FLOAT,
-        .rowPitch = width * sizeof(float3),
-        .slicePitch = width * height * sizeof(float3),
-        .pixels = reinterpret_cast<uint8_t*>(g_buffer.data())
+        .rowPitch = size * sizeof(float3),
+        .slicePitch = size * size * sizeof(float3),
+        .pixels = reinterpret_cast<uint8_t*>(buffer.data())
     };
     DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
 }
+#else
+static void BM_DrawVolume_Default(benchmark::State& state) {
+
+    auto size = static_cast<u32>(state.range_x());
+    Setup();
+    std::vector<float3> buffer;
+    for (auto _ : state)
+    {
+        DrawVolume(size, buffer);
+    }
+}
+BENCHMARK(BM_DrawVolume_Default)->Arg(256)->Arg(512)->Arg(1024);
+
+BENCHMARK_MAIN();
 #endif
