@@ -62,6 +62,8 @@ bool ModelViewer::Init()
 	std::string outVS, outPS;
 	auto ret = Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS);
 	assert(ret == 0);
+	if (ret == 0)
+		return false;
 
 	auto sceneData = SceneData::LoadFromFileForStandSurface(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
 	m_material = make_shared<MaterialXEffect>(sceneData, materialXFilePath.filename().replace_extension().string().c_str(), outVS.c_str(), outPS.c_str());
