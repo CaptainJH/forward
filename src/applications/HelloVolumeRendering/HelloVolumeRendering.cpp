@@ -33,6 +33,7 @@
 //[/ignore]
 
 #define _USE_MATH_DEFINES
+//#define RUN_BENCHMARK
 #include "PCH.h"
 #include "Utils.h"
 #include "FileSystem.h"
@@ -194,22 +195,28 @@ float3 integrate(const float3& ray_orig, const float3& ray_dir, const std::vecto
 #endif
 }
 
-int main()
+std::vector<std::unique_ptr<Object>> g_geo;
+std::vector<float3> g_buffer;
+
+void Setup()
 {
-    unsigned int width = 640, height = 480;
-    std::vector<float3> buffer(width * height, { 0.0f, 0.0f, 0.0f });
-
-    auto frameAspectRatio = width / float(height);
-    float fov = 45;
-    float focal = tan(f_PI / 180 * fov * 0.5f);
-
-    std::vector<std::unique_ptr<Object>> geo;
+    g_buffer.clear();
+    g_geo.clear();
     std::unique_ptr<Sphere> sph = std::make_unique<Sphere>();
     sph->radius = 5;
     sph->center.x = 0;
     sph->center.y = 0;
     sph->center.z = -20;
-    geo.push_back(std::move(sph));
+    g_geo.push_back(std::move(sph));
+}
+
+void DrawVolume(u32 width, u32 height)
+{
+    g_buffer.resize(width * height, { 0.0f, 0.0f, 0.0f });
+
+    auto frameAspectRatio = width / float(height);
+    float fov = 45;
+    float focal = tan(f_PI / 180 * fov * 0.5f);
 
     float3 rayOrig(0.0f);
     float3 rayDir(0.0f);
@@ -223,15 +230,23 @@ int main()
 
             rayDir.normalize();
 
-            auto c = integrate(rayOrig, rayDir, geo);
+            auto c = integrate(rayOrig, rayDir, g_geo);
 
-            buffer[offset++] = {
+            g_buffer[offset++] = {
                 std::clamp(c.x, 0.f, 1.f),
                 std::clamp(c.y, 0.f, 1.f),
                 std::clamp(c.z, 0.f, 1.f)
             };
         }
     }
+}
+
+#ifndef RUN_BENCHMARK
+int main()
+{
+    unsigned int width = 640, height = 480;
+    Setup();
+    DrawVolume(width, height);
 
     // writing file
     FileSystem fileSystem;
@@ -242,9 +257,8 @@ int main()
         .format = DXGI_FORMAT_R32G32B32_FLOAT,
         .rowPitch = width * sizeof(float3),
         .slicePitch = width * height * sizeof(float3),
-        .pixels = reinterpret_cast<uint8_t*>(buffer.data())
+        .pixels = reinterpret_cast<uint8_t*>(g_buffer.data())
     };
     DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
-
-    return 0;
 }
+#endif
