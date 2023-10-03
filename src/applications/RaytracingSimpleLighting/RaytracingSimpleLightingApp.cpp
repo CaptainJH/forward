@@ -96,7 +96,7 @@ protected:
 		m_eyePos = { eyePos.x, eyePos.y, eyePos.z };
 
 		const auto view = ToFloat4x4(Matrix4f::LookAtLHMatrix(m_eyePos, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
-		const auto proj = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.25f * Pi, AspectRatio(), 1.0f, 125.0f));
+		const auto proj = ToFloat4x4(Matrix4f::PerspectiveFovLHMatrix(0.25f * f_PI, AspectRatio(), 1.0f, 125.0f));
 		const float4x4 viewProj =   view * proj;
 		
 		*m_cb0 = SceneConstantBuffer{

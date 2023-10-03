@@ -102,7 +102,7 @@ bool MSAA_Demo::Init()
 	Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
 	m_viewMat = Matrix4f::LookAtLHMatrix(pos, target, up);
 	// Build the projection matrix
-	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+	m_projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * f_PI, AspectRatio(), 0.01f, 100.0f);
 
 	m_renderPass = std::make_unique<RenderPass>(
 		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {

@@ -34,5 +34,4 @@ namespace forward
 {
 	const i32 NUM_THREADS = 1;
 	const f32 Infinity = FLT_MAX;
-	const f32 Pi = 3.1415926535f;
 }

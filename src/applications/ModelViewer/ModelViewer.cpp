@@ -89,7 +89,7 @@ bool ModelViewer::Init()
 		Vector3f newUp = rotateVector(camRot, up);
 	
 		auto viewMat = Matrix4f::LookAtLHMatrix(camPos, target, newUp);
-		auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * Pi, AspectRatio(), 0.01f, 100.0f);
+		auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * f_PI, AspectRatio(), 0.01f, 100.0f);
 		auto viewProjMat = viewMat * projMat;
 		auto worldMat = Matrix4f::Identity();
 		auto worldInvT = worldMat.Inverse().Transpose();
