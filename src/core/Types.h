@@ -1,10 +1,8 @@
 #include <string>
 #include <vector>
 
-#ifdef _WINDOWS
-#include <concurrent_vector.h>
-#include <concurrent_queue.h>
-#endif
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_queue.h>
 
 #include <ImathColor.h>
 #include <ImathVec.h>
@@ -40,11 +38,7 @@ namespace forward
 	typedef Imath::Color3f Color3;
 	typedef Imath::Color4f Color4;
 
-#ifdef _WINDOWS
-	template<class T> using Concurrent_Vector = Concurrency::concurrent_vector<T>;
-	template<class T> using Concurrent_Queue = Concurrency::concurrent_queue<T>;
-
-#endif
-
+	template<class T> using Concurrent_Vector = tbb::concurrent_vector<T>;
+	template<class T> using Concurrent_Queue = tbb::concurrent_queue<T>;
 
 }
