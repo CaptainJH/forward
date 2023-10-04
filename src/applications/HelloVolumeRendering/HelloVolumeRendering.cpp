@@ -363,7 +363,7 @@ void DrawVolume_ComputeShader(DeviceContext& ctx)
     *ctx.m_cb = CB{
         .Size = ctx.m_size,
         .SphereRadius = 5.0f,
-        .SphereCenter = float3(10.f, 20.f, -20.0f),
+        .SphereCenter = float3(0.f, 0.f, -20.0f),
     };
  
     FrameGraph fg;
