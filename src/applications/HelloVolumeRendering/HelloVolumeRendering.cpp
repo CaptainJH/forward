@@ -316,7 +316,10 @@ struct CB
 {
     u32 Size;
     float SphereRadius;
+    float pad;
+    float pad1;
     float3 SphereCenter;
+    float pad2;
 };
 
 struct DeviceContext

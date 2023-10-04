@@ -42,7 +42,7 @@ bool solveQuadratic(float a, float b, float c, out float r0, out float r1)
 
 bool IntersectSphere(float3 rayOrigin, float3 rayDir, out IsectData isect)
 {
-    float3 rayOrigc = rayOrigin - float3(0, 0, -20);
+    float3 rayOrigc = rayOrigin - SphereCenter;
     float a = dot(rayDir, rayDir);
     float b = dot(rayDir, rayOrigc) * 2;
     float c = dot(rayOrigc, rayOrigc) - SphereRadius * SphereRadius;
