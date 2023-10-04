@@ -60,10 +60,11 @@ bool ModelViewer::Init()
 	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
 	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
-	auto ret = Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS);
-	assert(ret == 0);
-	if (ret == 0)
+	if (Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS) != 0)
+	{
+		assert(false);
 		return false;
+	}
 
 	auto sceneData = SceneData::LoadFromFileForStandSurface(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
 	m_material = make_shared<MaterialXEffect>(sceneData, materialXFilePath.filename().replace_extension().string().c_str(), outVS.c_str(), outPS.c_str());
