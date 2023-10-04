@@ -185,6 +185,11 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_ps);
 					stageCBVFunc(deviceCB);
 				}
+				else if (auto cb_cs = pso.m_CSState.m_constantBuffers[i])
+				{
+					auto deviceCB = device_cast<DeviceBufferDX12*>(cb_cs);
+					stageCBVFunc(deviceCB);
+				}
 				else
 					break;
 			}

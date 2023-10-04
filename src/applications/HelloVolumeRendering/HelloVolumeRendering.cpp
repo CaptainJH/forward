@@ -39,7 +39,6 @@
 #include "FileSystem.h"
 #include "dxCommon/DirectXTexEXR.h"
 #include <cmath>
-
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -52,6 +51,12 @@
 #ifdef RUN_BENCHMARK
 #include "benchmark/benchmark.h"
 #endif
+
+#include "dx12/DeviceDX12.h"
+#include "dx12/CommandQueueDX12.h"
+#include "dxCommon/SwapChainConfig.h"
+#include "FrameGraph/FrameGraph.h"
+#include "ProfilingHelper.h"
 
 using namespace forward;
 
@@ -307,28 +312,99 @@ void DrawVolume_TBB(u32 size, std::vector<float3>& buffer)
         });
 }
 
+struct CB
+{
+    u32 Size;
+    float SphereRadius;
+    float3 SphereCenter;
+};
+
+struct DeviceContext
+{
+    u32 m_size;
+    std::unique_ptr<DeviceDX12> m_devicePtr;
+    std::unique_ptr<RenderPass> m_computePassPtr;
+    shared_ptr<Texture2D> m_uavTex;
+    shared_ptr<ConstantBuffer<CB>> m_cb;
+    FileSystem m_fs;
+
+    DeviceContext(u32 s)
+        : m_size(s)
+    {
+        m_devicePtr = std::make_unique<DeviceDX12>();
+
+        SwapChainConfig Config(m_devicePtr.get());
+        Config.SetWidth(s);
+        Config.SetHeight(s);
+        Config.SetOutputWindow((HWND)0);
+
+        m_devicePtr->Initialize(Config, true);
+
+        m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R32G32B32A32_FLOAT, s, s, forward::TextureBindPosition::TBP_Shader);
+        m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+
+        m_cb = make_shared<ConstantBuffer<CB>>("ConstantBuffer");
+
+        m_computePassPtr = std::make_unique<RenderPass>(
+            [&]([[maybe_unused]] RenderPassBuilder& builder, PipelineStateObject& pso) {
+                // setup shaders
+                pso.m_CSState.m_shader = make_shared<ComputeShader>("DrawVolumeShader", L"HelloVolume", "DrawVolume");
+                pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
+                pso.m_CSState.m_constantBuffers[0] = m_cb;
+            },
+            [=](Device& device) {
+                device.GetCmdList().Dispatch(m_size / 8, m_size / 8, 1);
+            });
+    }
+};
+
+void DrawVolume_ComputeShader(DeviceContext& ctx)
+{
+    *ctx.m_cb = CB{
+        .Size = ctx.m_size,
+        .SphereRadius = 5.0f,
+        .SphereCenter = float3(10.f, 20.f, -20.0f),
+    };
+ 
+    FrameGraph fg;
+    ctx.m_devicePtr->BeginDrawFrameGraph(&fg);
+    fg.DrawRenderPass(ctx.m_computePassPtr.get());
+    ctx.m_devicePtr->EndDrawFrameGraph();
+    ctx.m_devicePtr->GetDefaultQueue()->Flush();
+
+#ifndef RUN_BENCHMARK
+    ctx.m_devicePtr->SaveTexture(L"HelloVolumeFromComputeShader.dds", ctx.m_uavTex.get());
+#endif
+}
+
 #ifndef RUN_BENCHMARK
 int main()
 {
     unsigned int size = 512;
-    std::vector<float3> buffer;
-    Setup();
+    //std::vector<float3> buffer;
+    //Setup();
+    //FileSystem fileSystem;
     //DrawVolume(size, buffer);
     //DrawVolume_WithPolicy(size, buffer, std::execution::par);
-    DrawVolume_TBB(size, buffer);
+    //DrawVolume_TBB(size, buffer);
 
     // writing file
-    FileSystem fileSystem;
-    std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
-    DirectX::Image resultImage = {
-        .width = size,
-        .height = size,
-        .format = DXGI_FORMAT_R32G32B32_FLOAT,
-        .rowPitch = size * sizeof(float3),
-        .slicePitch = size * size * sizeof(float3),
-        .pixels = reinterpret_cast<uint8_t*>(buffer.data())
-    };
-    DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
+    //std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
+    //DirectX::Image resultImage = {
+    //    .width = size,
+    //    .height = size,
+    //    .format = DXGI_FORMAT_R32G32B32_FLOAT,
+    //    .rowPitch = size * sizeof(float3),
+    //    .slicePitch = size * size * sizeof(float3),
+    //    .pixels = reinterpret_cast<uint8_t*>(buffer.data())
+    //};
+    //DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
+
+    DeviceContext ctx(size);
+    ProfilingHelper::BeginPixCapture("HelloVolume_PIX_Capture.wpix");
+    DrawVolume_ComputeShader(ctx);
+    ProfilingHelper::EndPixCapture();
+
 }
 #else
 static void BM_DrawVolume_Default(benchmark::State& state) {
@@ -366,6 +442,17 @@ static void BM_DrawVolume_TBB(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_DrawVolume_TBB)->Arg(256)->Arg(512)->Arg(1024);
+
+static void BM_DrawVolume_ComputeShader(benchmark::State& state) {
+
+    auto size = static_cast<u32>(state.range_x());
+    DeviceContext ctx(size);
+    for (auto _ : state)
+    {
+        DrawVolume_ComputeShader(ctx);
+    }
+}
+BENCHMARK(BM_DrawVolume_ComputeShader)->Arg(256)->Arg(512)->Arg(1024);
 
 BENCHMARK_MAIN();
 #endif

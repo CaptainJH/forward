@@ -432,6 +432,13 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 	}
 
+	for (auto i = 0U; i < pso.m_CSState.m_constantBuffers.size(); ++i)
+	{
+		auto cb = pso.m_CSState.m_constantBuffers[i];
+		if (cb)
+			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+	}
+
 	// create & update device vertex buffer
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
