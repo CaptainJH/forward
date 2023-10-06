@@ -30,11 +30,11 @@ struct RaytracingData
 
 	f32 exposureAdjustment;
 	u32 accumulatedFrames;
-	bool enableAntiAliasing;
+	BOOL enableAntiAliasing;
 	f32 focusDistance;
 
 	f32 apertureSize;
-	bool enableAccumulation;
+	BOOL enableAccumulation;
 	f32 pad;
 	f32 pad2;
 
@@ -128,9 +128,9 @@ protected:
 		auto viewMat = mFPCamera.GetViewMatrix();
 		static float4x4 lastViewMat = viewMat;
 		static u32 accumulatedFrames = 0;
-		bool resetAccumulation = lastViewMat != viewMat;
+		bool resetAccumulation = !lastViewMat.equalWithAbsError(viewMat, std::numeric_limits<f32>::epsilon());
 		if (resetAccumulation)
-			accumulatedFrames = 0;
+			accumulatedFrames = 1;
 		else
 			++accumulatedFrames;
 		
@@ -145,11 +145,11 @@ protected:
 
 			.exposureAdjustment = 0.2f,
 			.accumulatedFrames = accumulatedFrames,
-			.enableAntiAliasing = true,
+			.enableAntiAliasing = TRUE,
 			.focusDistance = 10.0f,
 
 			.apertureSize = 0.0f,
-			.enableAccumulation = !resetAccumulation,
+			.enableAccumulation = resetAccumulation ? FALSE : TRUE,
 
 			.lights = {}
 		};

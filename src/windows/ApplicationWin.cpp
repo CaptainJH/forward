@@ -363,7 +363,9 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
+	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
+	{
 		switch (wParam)
 		{
 		case VK_SPACE:
@@ -377,10 +379,16 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 		case VK_RETURN:
 			OnEnter();
 			break;
-		};
 
-	case WM_CHAR:
-		OnChar(static_cast<i8>(wParam));
+		default:
+			OnChar(static_cast<i8>(wParam), true);
+		};
+		break;
+	}
+
+	case WM_SYSKEYUP:
+	case WM_KEYUP:
+		OnChar(static_cast<i8>(wParam), false);
 		break;
 
 	case WM_PAINT:
@@ -585,6 +593,7 @@ void ApplicationWin::UpdateRender()
 	if (!mAppPaused)
 	{
 		mFrameStatsText = CalculateFrameStats();
+		UpdateCameraMovement(mTimer.Elapsed());
 		UpdateScene(mTimer.Elapsed());
 		DrawScene();
 	}
@@ -599,25 +608,24 @@ void ApplicationWin::AddExternalResource(const char* name, void* res)
 	m_pDevice->AddExternalResource(name, res);
 }
 
-void ApplicationWin::OnChar(i8 key)
+void ApplicationWin::OnChar(i8 key, bool pressed)
 {
-	auto dt = mTimer.Elapsed();
-	auto speed = 0.05f;
-	if (key == 'w')
+	auto speed = 0.002f;
+	if (key == /*'w'*/0x57)
 	{
-		mFPCamera.Walk(speed * dt);
+		m_cameraWalkSpeed = pressed ? speed : 0.0f;
 	}
-	else if (key == 'a')
+	else if (key == /*'a'*/0x41)
 	{
-		mFPCamera.Strafe(-speed * dt);
+		m_cameraStrafeSpeed = pressed ? -speed : 0.0f;
 	}
-	else if (key == 's')
+	else if (key == /*'s'*/0x53)
 	{
-		mFPCamera.Walk(-speed * dt);
+		m_cameraWalkSpeed = pressed ? -speed : 0.0f;
 	}
-	else if (key == 'd')
+	else if (key == /*'d'*/0x44)
 	{
-		mFPCamera.Strafe(speed * dt);
+		m_cameraStrafeSpeed = pressed ? speed : 0.0f;
 	}
 }
 
@@ -645,4 +653,10 @@ void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
 
 	mLastMousePos_x = x;
 	mLastMousePos_y = y;
+}
+
+void ApplicationWin::UpdateCameraMovement(f32 dt)
+{
+	mFPCamera.Walk(m_cameraWalkSpeed * dt);
+	mFPCamera.Strafe(m_cameraStrafeSpeed * dt);
 }

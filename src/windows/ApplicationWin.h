@@ -91,7 +91,7 @@ namespace forward
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
-		virtual void OnChar(i8 /*key*/);
+		virtual void OnChar(i8 /*key*/, bool pressed);
 
 	protected:
 		bool InitMainWindow();
@@ -105,6 +105,8 @@ namespace forward
 
 		bool IsOffScreenRendering() const;
 		bool IsDll() const;
+
+		void UpdateCameraMovement(f32 dt);
 
 	protected:
 
@@ -135,6 +137,9 @@ namespace forward
 		ApplicationType mAppType;
 
 		DeviceType DeviceType = DeviceType::Device_Hieroglyph;
+
+		f32 m_cameraWalkSpeed = 0.0f;
+		f32 m_cameraStrafeSpeed = 0.0f;
 	};
 
 	typedef ApplicationWin Application;
