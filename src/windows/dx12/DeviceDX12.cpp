@@ -393,13 +393,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PSOUnion& pso) const
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 {
-	if (std::holds_alternative<RasterPipelineStateObject>(pass.GetPSO()))
+	if (pass.IsPSO<RasterPipelineStateObject>())
 	{
 		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
 		if (!pso.m_devicePSO)
 		{
-			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pass.GetPSO());
+			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
 		}
 
 		auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
@@ -458,13 +458,13 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			deviceIB->SyncCPUToGPU();
 		}
 	}
-	else if (std::holds_alternative<ComputePipelineStateObject>(pass.GetPSO()))
+	else if (pass.IsPSO<ComputePipelineStateObject>())
 	{
 		auto& pso = pass.GetPSO<ComputePipelineStateObject>();
 
 		if (!pso.m_devicePSO)
 		{
-			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pass.GetPSO());
+			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
 		}
 
 		// create & update device constant buffers
@@ -483,7 +483,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		return dynamic_cast<DevicePipelineStateObjectDX12*>(pso.m_devicePSO.get());
 		};
 
-	if (std::holds_alternative<RasterPipelineStateObject>(pass.GetPSO()))
+	if (pass.IsPSO<RasterPipelineStateObject>())
 	{
 		auto& rpso = pass.GetPSO<RasterPipelineStateObject>();
 		// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
@@ -525,21 +525,15 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
-		m_queue->GetCommandListDX12()->BindGraphicsPSO(*std::visit(GetDevicePSO, pass.GetPSO()));
-		//m_queue->GetCommandListDX12()->BindGraphicsDescriptorTableToRootParam();
-
-		// Draw
+		m_queue->GetCommandListDX12()->BindRasterPSO(*std::visit(GetDevicePSO, pass.GetPSO()));
 		pass.Execute(*this);
 	
 		// Indicate a state transition on the resource usage.
 		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
 	}
-	else if (std::holds_alternative<ComputePipelineStateObject>(pass.GetPSO()))
+	else if (pass.IsPSO<ComputePipelineStateObject>())
 	{
 		m_queue->GetCommandListDX12()->BindComputePSO(*std::visit(GetDevicePSO, pass.GetPSO()));
-		//m_queue->GetCommandListDX12()->BindComputeDescriptorTableToRootParam();
-
-		// Draw
 		pass.Execute(*this);
 	}
 

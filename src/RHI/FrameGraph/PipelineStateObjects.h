@@ -419,4 +419,5 @@ namespace forward
 	};
 
 	typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;
+	typedef std::variant<RasterPipelineStateObject*, ComputePipelineStateObject*, RTPipelineStateObject*> PSOPtrUnion;
 }

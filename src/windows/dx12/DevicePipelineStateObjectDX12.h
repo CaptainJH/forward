@@ -66,7 +66,7 @@ namespace forward
 		}
 
 		template<class Samplers>
-		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates(Samplers& samplers)
+		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerDescs(Samplers& samplers)
 		{
 			std::vector<CD3DX12_STATIC_SAMPLER_DESC> samplerDescs;
 
@@ -93,6 +93,8 @@ namespace forward
 			return samplerDescs;
 		}
 
+		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates(PSOPtrUnion psoPtr);
+
 		// Conversions from FrameGraph values to DX12 values.
 		static D3D12_FILL_MODE const msFillMode[];
 		static D3D12_CULL_MODE const msCullMode[];
@@ -111,7 +113,8 @@ namespace forward
 	{
 		friend class CommandListDX12;
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* d, PSOUnion& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, ComputePipelineStateObject& pso);
 		~DevicePipelineStateObjectDX12() override;
 
 		ID3D12PipelineState* GetDevicePSO();
@@ -123,14 +126,13 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
-		PSOUnion&			m_pso;
+		PSOPtrUnion			m_psoPtr;
 
 	private:
 		void BuildRootSignature(ID3D12Device* device);
 		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
 		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
 		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
-		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 	};
 
 	class DeviceRTPipelineStateObjectDX12 : public DeviceObject
@@ -157,7 +159,6 @@ namespace forward
 		void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
 		void BuildShaderTables(DeviceDX12* device);
 		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
-		std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates() const;
 
 		void PrepareBindlessDescriptorHeap(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges);
 		std::unique_ptr<DynamicDescriptorHeapDX12> m_bindlessDescriptorHeap;

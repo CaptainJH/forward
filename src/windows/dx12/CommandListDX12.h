@@ -29,7 +29,7 @@ namespace forward
 
 		void BindGPUVisibleHeaps();
 		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&);
-		void BindGraphicsPSO(DevicePipelineStateObjectDX12&);
+		void BindRasterPSO(DevicePipelineStateObjectDX12&);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
 		void PrepareGPUVisibleHeaps(RenderPass& pass);

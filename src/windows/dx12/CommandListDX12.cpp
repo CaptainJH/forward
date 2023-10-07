@@ -144,7 +144,23 @@ void CommandListDX12::BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12& rtPSO
 
 void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 {
-	if (std::holds_alternative<RasterPipelineStateObject>(pass.GetPSO()))
+	u32 stagedCBVs = 0;
+	u32 stagedSRVs = 0;
+	u32 stagedUAVs = 0;
+	auto stageCBVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceBufferDX12* deviceCB) {
+		assert(deviceCB);
+		*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
+		};
+	auto stageSRVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTextureDX12* deviceTex) {
+		assert(deviceTex);
+		*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+		};
+	auto stageUAVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTextureDX12* deviceTex) {
+		assert(deviceTex);
+		*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
+		};
+
+	if (pass.IsPSO<RasterPipelineStateObject>())
 	{
 		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
@@ -153,39 +169,23 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 			if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
 			{
-				u32 stagedCBVs = 0;
-				u32 stagedSRVs = 0;
-				u32 stagedUAVs = 0;
-				auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
-					assert(deviceCB);
-					*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
-					};
-				auto stageSRVFunc = [&](DeviceTextureDX12* deviceTex) {
-					assert(deviceTex);
-					*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
-					};
-				auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
-					assert(deviceTex);
-					*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
-					};
-
 				// stage CBVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
 				{
 					if (auto cb_vs = pso.m_VSState.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_vs);
-						stageCBVFunc(deviceCB);
+						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
 					else if (auto cb_gs = pso.m_GSState.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_gs);
-						stageCBVFunc(deviceCB);
+						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
 					else if (auto cb_ps = pso.m_PSState.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_ps);
-						stageCBVFunc(deviceCB);
+						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
 					else
 						break;
@@ -197,26 +197,20 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 					if (auto res_vs = pso.m_VSState.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_vs);
-						stageSRVFunc(deviceTex);
+						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else if (auto res_gs = pso.m_GSState.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_gs);
-						stageSRVFunc(deviceTex);
+						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else if (auto res_ps = pso.m_PSState.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_ps);
-						stageSRVFunc(deviceTex);
+						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else
 						break;
-				}
-
-				// stage UAVs
-				for (auto i = 0; i < 8; ++i)
-				{
-
 				}
 
 				assert(stagedCBVs + stagedSRVs + stagedUAVs == pso.m_usedCBV_SRV_UAV_Count);
@@ -231,7 +225,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			// TODO: stage Samplers
 		}
 	}
-	else if (std::holds_alternative<ComputePipelineStateObject>(pass.GetPSO()))
+	else if (pass.IsPSO<ComputePipelineStateObject>())
 	{
 		auto& pso = pass.GetPSO<ComputePipelineStateObject>();
 
@@ -240,29 +234,13 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 			if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
 			{
-				u32 stagedCBVs = 0;
-				u32 stagedSRVs = 0;
-				u32 stagedUAVs = 0;
-				auto stageCBVFunc = [&](DeviceBufferDX12* deviceCB) {
-					assert(deviceCB);
-					*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
-					};
-				auto stageSRVFunc = [&](DeviceTextureDX12* deviceTex) {
-					assert(deviceTex);
-					*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
-					};
-				auto stageUAVFunc = [&](DeviceTextureDX12* deviceTex) {
-					assert(deviceTex);
-					*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
-					};
-
 				// stage CBVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
 				{
 					if (auto cb_cs = pso.m_CSState.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_cs);
-						stageCBVFunc(deviceCB);
+						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
 				}
 
@@ -278,7 +256,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 					if (auto res_cs = pso.m_CSState.m_uavShaderRes[i])
 					{
 						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
-						stageUAVFunc(deviceTex);
+						stageUAVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 				}
 
@@ -371,13 +349,13 @@ void CommandListDX12::SetDynamicConstantBuffer(ConstantBufferBase* cb)
 		})->SyncCPUToGPU();
 }
 
-void CommandListDX12::BindGraphicsPSO(DevicePipelineStateObjectDX12& devicePSO)
+void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO)
 {
 	m_CmdList->SetGraphicsRootSignature(devicePSO.m_rootSignature.Get());
 	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
-	if (std::holds_alternative<RasterPipelineStateObject>(devicePSO.m_pso))
+	if (std::holds_alternative<RasterPipelineStateObject*>(devicePSO.m_psoPtr))
 	{
-		auto& pso = std::get<RasterPipelineStateObject>(devicePSO.m_pso);
+		auto& pso = *std::get<RasterPipelineStateObject*>(devicePSO.m_psoPtr);
 		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 		{
 			if (pso.m_IAState.m_vertexBuffers[i])
