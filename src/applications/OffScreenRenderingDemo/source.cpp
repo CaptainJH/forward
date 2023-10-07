@@ -1,6 +1,7 @@
 #include "ApplicationWin.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
+#include "ProfilingHelper.h"
 #include <iostream>
 
 using namespace forward;
@@ -48,8 +49,10 @@ i32 main()
 	if (!theApp.Init())
 		return 0;
 
+	ProfilingHelper::BeginPixCapture("OffScreenRendering_PIX_Capture.wpix");
 	theApp.Run();
 	theApp.SaveRT();
+	ProfilingHelper::EndPixCapture();
 }
 
 void OffScreenRenderingDemo::UpdateScene(f32 /*dt*/)
@@ -73,28 +76,30 @@ bool OffScreenRenderingDemo::Init()
 		return false;
 
 	m_renderPass = std::make_unique<RenderPass>(
-		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
-		// setup shaders
-		pso.m_VSState.m_shader = forward::make_shared<VertexShader>("OffScreenRenderingDemoVS", L"BasicShader", "VSMainQuad");
-		pso.m_PSState.m_shader = forward::make_shared<PixelShader>("OffScreenRenderingDemoPS", L"BasicShader", "PSMainQuad");
+		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
+			// setup shaders
+			pso.m_VSState.m_shader = forward::make_shared<VertexShader>("OffScreenRenderingDemoVS", L"BasicShader", "VSMainQuad");
+			pso.m_PSState.m_shader = forward::make_shared<PixelShader>("OffScreenRenderingDemoPS", L"BasicShader", "PSMainQuad");
 
-		// setup geometry
-		auto geometry = std::make_unique<SimpleGeometry>("Geometry", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());
-		builder << *geometry;
+			// setup geometry
+			auto geometry = std::make_unique<SimpleGeometry>("Geometry", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());
+			builder << *geometry;
 
-		// setup render targets
-		auto rtPtr = forward::make_shared<Texture2D>(std::string("RT"), DF_R8G8B8A8_UNORM,
-			mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
-		rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
-		pso.m_OMState.m_renderTargetResources[0] = rtPtr;
+			// setup render targets
+			auto rtPtr = forward::make_shared<Texture2D>(std::string("RT"), DF_R8G8B8A8_UNORM,
+				mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
+			rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
+			pso.m_OMState.m_renderTargetResources[0] = rtPtr;
 
-		auto dsPtr = forward::make_shared<Texture2D>(std::string("DS"), DF_D32_FLOAT,
-			mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
-		pso.m_OMState.m_depthStencilResource = dsPtr;
-		},
-		[](Device& device) {
-			device.GetCmdList().Draw(4);
-	});
+			auto dsPtr = forward::make_shared<Texture2D>(std::string("DS"), DF_D32_FLOAT,
+				mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
+			pso.m_OMState.m_depthStencilResource = dsPtr;
+
+			pso.m_RSState.m_rsState.frontCCW = false;
+			},
+			[](Device& device) {
+				device.GetCmdList().Draw(4);
+		});
 
 
 	return true;

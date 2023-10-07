@@ -33,7 +33,7 @@ bool HelloPyQTDll::Init()
 		return false;
 
 	m_renderPass = std::make_unique<RenderPass>(
-		[&]([[maybe_unused]]RenderPassBuilder& builder, PipelineStateObject& pso) {
+		[&]([[maybe_unused]]RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 
 			// setup shaders
 			pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", "VSMainQuad");

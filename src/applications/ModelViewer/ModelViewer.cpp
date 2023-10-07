@@ -113,7 +113,7 @@ bool ModelViewer::Init()
 
 		for (auto& rp : m_material->m_renderPassVec)
 		{
-			auto& pso = rp.GetPSO();
+			auto& pso = rp.GetPSO<RasterPipelineStateObject>();
 			if (!pso.m_VSState.m_constantBuffers[0])
 				break;
 

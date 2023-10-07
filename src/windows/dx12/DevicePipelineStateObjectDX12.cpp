@@ -3,7 +3,6 @@
 //***************************************************************************************
 #include "DevicePipelineStateObjectDX12.h"
 #include "dxCommon/ShaderDX.h"
-#include "FrameGraph/PipelineStateObjects.h"
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
@@ -17,7 +16,7 @@
 
 using namespace forward;
 
-DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso)
+DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, PSOUnion& pso)
 	: DeviceObject(nullptr)
 	, m_numElements(0)
 	, m_pso(pso)
@@ -26,28 +25,29 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 	auto device = d->GetDevice();
 	auto commandList = d->DeviceCommandList();
 
-	if (!pso.m_CSState.m_shader)
+	if (std::holds_alternative<RasterPipelineStateObject>(m_pso))
 	{
+		auto& rpso = std::get<RasterPipelineStateObject>(m_pso);
 		// setup graphic pipeline
-		VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
-		VertexShader* vsshader = pso.m_VSState.m_shader.get();
+		VertexBuffer* vbuffer = rpso.m_IAState.m_vertexBuffers[0].get();
+		VertexShader* vsshader = rpso.m_VSState.m_shader.get();
 		forward::shared_ptr<ShaderDX12> deviceVS = nullptr;
-		if (pso.m_VSState.m_shader)
+		if (rpso.m_VSState.m_shader)
 		{
-			deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
+			deviceVS = device_cast<ShaderDX12*>(rpso.m_VSState.m_shader);
 		}
 		forward::shared_ptr<ShaderDX12> deviceGS = nullptr;
-		if (pso.m_GSState.m_shader)
+		if (rpso.m_GSState.m_shader)
 		{
-			deviceGS = device_cast<ShaderDX12*>(pso.m_GSState.m_shader);
+			deviceGS = device_cast<ShaderDX12*>(rpso.m_GSState.m_shader);
 		}
 		forward::shared_ptr<ShaderDX12> devicePS = nullptr;
-		if (pso.m_PSState.m_shader)
+		if (rpso.m_PSState.m_shader)
 		{
-			devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
+			devicePS = device_cast<ShaderDX12*>(rpso.m_PSState.m_shader);
 		}
-		GeometryShader* gsshader = pso.m_GSState.m_shader.get();
-		PixelShader* psshader = pso.m_PSState.m_shader.get();
+		GeometryShader* gsshader = rpso.m_GSState.m_shader.get();
+		PixelShader* psshader = rpso.m_PSState.m_shader.get();
 
 		if (vbuffer && vsshader)
 		{
@@ -125,11 +125,11 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			ConfigBlendState(psoDesc.BlendState);
 			ConfigDepthStencilState(psoDesc.DepthStencilState);
 			psoDesc.SampleMask = UINT_MAX;
-			psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
+			psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(rpso.m_IAState.m_topologyType);
 			psoDesc.NumRenderTargets = 0;
-			for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
+			for (auto i = 0U; i < rpso.m_OMState.m_renderTargetResources.size(); ++i)
 			{
-				auto rt = pso.m_OMState.m_renderTargetResources[i];
+				auto rt = rpso.m_OMState.m_renderTargetResources[i];
 				if (rt)
 				{
 					++psoDesc.NumRenderTargets;
@@ -143,20 +143,20 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			}
 			else
 			{
-				psoDesc.SampleDesc.Count = pso.m_OMState.m_renderTargetResources[0]->GetSampCount();
+				psoDesc.SampleDesc.Count = rpso.m_OMState.m_renderTargetResources[0]->GetSampCount();
 				psoDesc.SampleDesc.Quality = 0;
 			}
-			if (pso.m_OMState.m_depthStencilResource)
+			if (rpso.m_OMState.m_depthStencilResource)
 			{
-				psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
+				psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(rpso.m_OMState.m_depthStencilResource->GetFormat());
 			}
 			HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
 		}
 
 		// setup vertex buffers
-		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+		for (auto i = 0U; i < rpso.m_IAState.m_vertexBuffers.size(); ++i)
 		{
-			auto vb = pso.m_IAState.m_vertexBuffers[i];
+			auto vb = rpso.m_IAState.m_vertexBuffers[i];
 			if (vb)
 			{
 				if (!vb->DeviceObject())
@@ -171,28 +171,28 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			}
 		}
 		// setup index buffer
-		auto ib = pso.m_IAState.m_indexBuffer;
+		auto ib = rpso.m_IAState.m_indexBuffer;
 		if (ib && !ib->DeviceObject())
 		{
 			auto deviceIB = forward::make_shared<DeviceBufferDX12>(commandList, ib.get(), *d);
 			ib->SetDeviceObject(deviceIB);
 		}
 		// setup shader resources
-		if (pso.m_PSState.m_shader)
+		if (rpso.m_PSState.m_shader)
 		{
 			const auto& allTextures = devicePS->GetTextures();
-			std::sort(pso.m_PSState.m_shaderResources.begin(), pso.m_PSState.m_shaderResources.begin() + allTextures.size(), 
+			std::sort(rpso.m_PSState.m_shaderResources.begin(), rpso.m_PSState.m_shaderResources.begin() + allTextures.size(),
 				[&](auto& lhs, auto& rhs)->bool {
 					return std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
 						return p.GetName() == lhs->Name();
 						}) <
-					std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
-						return p.GetName() == rhs->Name();
-						});
+						std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
+							return p.GetName() == rhs->Name();
+							});
 				});
-			for (auto i = 0U; i < pso.m_PSState.m_shaderResources.size(); ++i)
+			for (auto i = 0U; i < rpso.m_PSState.m_shaderResources.size(); ++i)
 			{
-				auto res = pso.m_PSState.m_shaderResources[i];
+				auto res = rpso.m_PSState.m_shaderResources[i];
 				if (res)
 				{
 					if (dynamic_cast<Texture2D*>(res.get()))
@@ -209,7 +209,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			}
 		}
 		// setup render targets
-		std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
+		std::for_each(rpso.m_OMState.m_renderTargetResources.begin(), rpso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
 			if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
 			{
 				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *d);
@@ -217,20 +217,21 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 			}
 			});
 		// setup depth stencil buffer
-		if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
+		if (rpso.m_OMState.m_depthStencilResource && !rpso.m_OMState.m_depthStencilResource->DeviceObject())
 		{
-			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pso.m_OMState.m_depthStencilResource.get(), *d);
-			pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
+			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(rpso.m_OMState.m_depthStencilResource.get(), *d);
+			rpso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
 		}
 
 		// Execute the initialization commands
 		d->GetDefaultQueue()->ExecuteCommandList([]() {});
 		d->GetDefaultQueue()->Flush();
 	}
-	else if (pso.m_CSState.m_shader)
+	else if (std::holds_alternative<ComputePipelineStateObject>(m_pso))
 	{
+		auto& cpso = std::get<ComputePipelineStateObject>(m_pso);
 		// setup compute pipeline
-		ComputeShader* csshader = pso.m_CSState.m_shader.get();
+		ComputeShader* csshader = cpso.m_CSState.m_shader.get();
 		forward::shared_ptr<ShaderDX12> deviceCS = nullptr;
 		if (!csshader->DeviceObject())
 		{
@@ -258,11 +259,11 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 		}
 
 		// setup shader resources
-		if (pso.m_CSState.m_shader)
+		if (cpso.m_CSState.m_shader)
 		{
-			for (auto i = 0U; i < pso.m_CSState.m_shaderResources.size(); ++i)
+			for (auto i = 0U; i < cpso.m_CSState.m_shaderResources.size(); ++i)
 			{
-				auto res = pso.m_CSState.m_shaderResources[i];
+				auto res = cpso.m_CSState.m_shaderResources[i];
 				if (res)
 				{
 					if (dynamic_cast<Texture2D*>(res.get()))
@@ -277,9 +278,9 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Pipe
 					}
 				}
 			}
-			for (auto i = 0U; i < pso.m_CSState.m_uavShaderRes.size(); ++i)
+			for (auto i = 0U; i < cpso.m_CSState.m_uavShaderRes.size(); ++i)
 			{
-				auto res = pso.m_CSState.m_uavShaderRes[i];
+				auto res = cpso.m_CSState.m_uavShaderRes[i];
 				if (res)
 				{
 					if (dynamic_cast<Texture2D*>(res.get()))
@@ -314,71 +315,126 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 	BindingRanges rangesSRV;
 	BindingRanges rangesUAV;
 
-	if (m_pso.m_VSState.m_shader)
+	if (std::holds_alternative<RasterPipelineStateObject>(m_pso))
 	{
-		auto deviceVS = device_cast<ShaderDX12*>(m_pso.m_VSState.m_shader);
-		DevicePipelineStateObjectHelper::CollectBindingInfo(deviceVS, rangesCBV, rangesSRV, rangesUAV);
+		auto& rpso = std::get<RasterPipelineStateObject>(m_pso);
+		if (rpso.m_VSState.m_shader)
+		{
+			auto deviceVS = device_cast<ShaderDX12*>(rpso.m_VSState.m_shader);
+			DevicePipelineStateObjectHelper::CollectBindingInfo(deviceVS, rangesCBV, rangesSRV, rangesUAV);
+		}
+		if (rpso.m_PSState.m_shader)
+		{
+			auto devicePS = device_cast<ShaderDX12*>(rpso.m_PSState.m_shader);
+			DevicePipelineStateObjectHelper::CollectBindingInfo(devicePS, rangesCBV, rangesSRV, rangesUAV);
+		}
+
+		rpso.m_usedCBV_SRV_UAV_Count = 0;
+		for (auto& r : rangesCBV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, r.Count(), r.bindStart));
+			rpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+		//DevicePipelineStateObjectHelper::CheckBindingResources(m_pso.m_VSState.m_constantBuffers, 
+		//	m_pso.m_PSState.m_constantBuffers, rangesCBV, "CBV");
+
+		for (auto& r : rangesSRV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart));
+			rpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+		DevicePipelineStateObjectHelper::CheckBindingResources(rpso.m_VSState.m_shaderResources,
+			rpso.m_PSState.m_shaderResources, rangesSRV, "SRV");
+
+		for (auto& r : rangesUAV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, r.Count(), r.bindStart));
+			rpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+
+		CD3DX12_ROOT_PARAMETER slotRootParameter;
+		slotRootParameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
+
+		// A root signature is an array of root parameters.
+		const u32 numParameters = rpso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
+		auto samplers = ConfigStaticSamplerStates();
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter,
+			static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+		Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+		HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
+
+		if (errorBlob != nullptr)
+		{
+			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		}
+
+		HR(device->CreateRootSignature(0,
+			serializedRootSig->GetBufferPointer(),
+			serializedRootSig->GetBufferSize(),
+			IID_PPV_ARGS(&m_rootSignature)));
 	}
-	if (m_pso.m_PSState.m_shader)
+	else if (std::holds_alternative<ComputePipelineStateObject>(m_pso))
 	{
-		auto devicePS = device_cast<ShaderDX12*>(m_pso.m_PSState.m_shader);
-		DevicePipelineStateObjectHelper::CollectBindingInfo(devicePS, rangesCBV, rangesSRV, rangesUAV);
+		auto& cpso = std::get<ComputePipelineStateObject>(m_pso);
+		if (cpso.m_CSState.m_shader)
+		{
+			auto deviceCS = device_cast<ShaderDX12*>(cpso.m_CSState.m_shader);
+			DevicePipelineStateObjectHelper::CollectBindingInfo(deviceCS, rangesCBV, rangesSRV, rangesUAV);
+		}
+
+		cpso.m_usedCBV_SRV_UAV_Count = 0;
+		for (auto& r : rangesCBV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, r.Count(), r.bindStart));
+			cpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+		//DevicePipelineStateObjectHelper::CheckBindingResources(m_pso.m_VSState.m_constantBuffers, 
+		//	m_pso.m_PSState.m_constantBuffers, rangesCBV, "CBV");
+
+		for (auto& r : rangesSRV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart));
+			cpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+
+		for (auto& r : rangesUAV.m_ranges)
+		{
+			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, r.Count(), r.bindStart));
+			cpso.m_usedCBV_SRV_UAV_Count += r.Count();
+		}
+		DevicePipelineStateObjectHelper::CheckBindingResources(cpso.m_CSState.m_uavShaderRes, rangesUAV, "UAV");
+
+		CD3DX12_ROOT_PARAMETER slotRootParameter;
+		slotRootParameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
+
+		// A root signature is an array of root parameters.
+		const u32 numParameters = cpso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
+		auto samplers = ConfigStaticSamplerStates();
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter,
+			static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+		Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
+		HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
+
+		if (errorBlob != nullptr)
+		{
+			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		}
+
+		HR(device->CreateRootSignature(0,
+			serializedRootSig->GetBufferPointer(),
+			serializedRootSig->GetBufferSize(),
+			IID_PPV_ARGS(&m_rootSignature)));
 	}
-	if (m_pso.m_CSState.m_shader)
-	{
-		auto deviceCS = device_cast<ShaderDX12*>(m_pso.m_CSState.m_shader);
-		DevicePipelineStateObjectHelper::CollectBindingInfo(deviceCS, rangesCBV, rangesSRV, rangesUAV);
-	}
-
-	m_pso.m_usedCBV_SRV_UAV_Count = 0;
-	for (auto& r : rangesCBV.m_ranges)
-	{
-		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, r.Count(), r.bindStart));
-		m_pso.m_usedCBV_SRV_UAV_Count += r.Count();
-	}
-	//DevicePipelineStateObjectHelper::CheckBindingResources(m_pso.m_VSState.m_constantBuffers, 
-	//	m_pso.m_PSState.m_constantBuffers, rangesCBV, "CBV");
-
-	for (auto& r : rangesSRV.m_ranges)
-	{
-		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart));
-		m_pso.m_usedCBV_SRV_UAV_Count += r.Count();
-	}
-	DevicePipelineStateObjectHelper::CheckBindingResources(m_pso.m_VSState.m_shaderResources, 
-		m_pso.m_PSState.m_shaderResources, rangesSRV, "SRV");
-
-	for (auto& r : rangesUAV.m_ranges)
-	{
-		descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, r.Count(), r.bindStart));
-		m_pso.m_usedCBV_SRV_UAV_Count += r.Count();
-	}
-	DevicePipelineStateObjectHelper::CheckBindingResources(m_pso.m_CSState.m_uavShaderRes, rangesUAV, "UAV");
-
-	CD3DX12_ROOT_PARAMETER slotRootParameter;
-	slotRootParameter.InitAsDescriptorTable((u32)descriptorRanges.size(), descriptorRanges.data());
-
-	// A root signature is an array of root parameters.
-	const u32 numParameters = m_pso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
-	auto samplers = ConfigStaticSamplerStates();
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter, 
-		static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	HR(D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf()));
-
-	if (errorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-	}
-
-	HR(device->CreateRootSignature(0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(&m_rootSignature)));
 }
 
 D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectHelper::Convert2DX12TopologyType(PrimitiveTopologyType topo)
@@ -407,8 +463,9 @@ D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectHelper::Convert2DX12Topol
 
 void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const
 {
+	auto& pso = std::get<RasterPipelineStateObject>(m_pso);
 	desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	auto& rsState = m_pso.m_RSState.m_rsState;
+	auto& rsState = pso.m_RSState.m_rsState;
 	desc.FillMode = DevicePipelineStateObjectHelper::msFillMode[rsState.fillMode];
 	desc.CullMode = DevicePipelineStateObjectHelper::msCullMode[rsState.cullMode];
 	desc.FrontCounterClockwise = rsState.frontCCW ? TRUE : FALSE;
@@ -422,8 +479,9 @@ void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC&
 
 void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) const
 {
+	auto& pso = std::get<RasterPipelineStateObject>(m_pso);
 	desc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	auto& blendState = m_pso.m_OMState.m_blendState;
+	auto& blendState = pso.m_OMState.m_blendState;
 	desc.AlphaToCoverageEnable = blendState.enableAlphaToCoverage ? TRUE : FALSE;
 	desc.IndependentBlendEnable = blendState.enableIndependentBlend ? TRUE : FALSE;
 	for (auto i = 0U; i < BlendState::NUM_TARGETS; ++i)
@@ -443,8 +501,9 @@ void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) con
 
 void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const
 {
+	auto& pso = std::get<RasterPipelineStateObject>(m_pso);
 	desc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	auto& dsState = m_pso.m_OMState.m_dsState;
+	auto& dsState = pso.m_OMState.m_dsState;
 	desc.DepthEnable = dsState.depthEnable ? TRUE : FALSE;
 	desc.DepthWriteMask = DevicePipelineStateObjectHelper::msWriteMask[dsState.writeMask];
 	desc.DepthFunc = DevicePipelineStateObjectHelper::msComparison[dsState.comparison];
@@ -465,12 +524,28 @@ void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_
 
 std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectDX12::ConfigStaticSamplerStates() const
 {
-	return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(m_pso.m_PSState.m_samplers);
+	return std::visit([](auto&& pso) {
+		using T = std::decay_t<decltype(pso)>;
+		if constexpr (std::is_same_v<T, RasterPipelineStateObject>)
+		{
+			return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(pso.m_PSState.m_samplers);
+		}
+		else if constexpr (std::is_same_v<T, ComputePipelineStateObject>)
+		{
+			return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(pso.m_CSState.m_samplers);
+		}
+		else if constexpr (std::is_same_v<T, RTPipelineStateObject>)
+		{
+			return DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(pso.m_rtState.m_samplers);
+		}
+		}, m_pso);
 }
 
 bool DevicePipelineStateObjectDX12::IsEmptyRootParams() const
 {
-	return m_pso.m_usedCBV_SRV_UAV_Count == 0;
+	return std::visit([](auto&& pso) {
+		return pso.m_usedCBV_SRV_UAV_Count;
+		}, m_pso) == 0;
 }
 
 D3D12_FILL_MODE const DevicePipelineStateObjectHelper::msFillMode[] =

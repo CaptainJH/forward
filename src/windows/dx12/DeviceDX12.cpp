@@ -341,13 +341,16 @@ void DeviceDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PipelineStateObject& pso) const
+DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PSOUnion& pso) const
 {
-	if (pso.m_OMState.m_renderTargetResources[0] && pso.m_OMState.m_renderTargetResources[0]->DeviceObject())
+	if (std::holds_alternative<RasterPipelineStateObject>(pso))
 	{
-		return device_cast<DeviceTexture2DDX12*>(pso.m_OMState.m_renderTargetResources[0]);
+		auto& rpso = std::get<RasterPipelineStateObject>(pso);
+		if (rpso.m_OMState.m_renderTargetResources[0] && rpso.m_OMState.m_renderTargetResources[0]->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_renderTargetResources[0]);
 	}
-	else if (m_SwapChain)
+
+	if (m_SwapChain)
 	{
 		auto rtPtr = m_SwapChain->GetCurrentRT();
 		auto deviceRes = rtPtr->GetDeviceResource();
@@ -359,18 +362,20 @@ DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PipelineStateObject& pso) con
 	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(PipelineStateObject& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(PSOUnion& pso) const
 {
 	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(pso);
 	assert(tex12);
 	return tex12->GetRenderTargetViewHandle();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PipelineStateObject& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PSOUnion& pso) const
 {
-	if (pso.m_OMState.m_depthStencilResource && pso.m_OMState.m_depthStencilResource->DeviceObject())
+	if (std::holds_alternative<RasterPipelineStateObject>(pso))
 	{
-		return device_cast<DeviceTexture2DDX12*>(pso.m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
+		auto& rpso = std::get<RasterPipelineStateObject>(pso);
+		if (rpso.m_OMState.m_depthStencilResource && rpso.m_OMState.m_depthStencilResource->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
 	}
 	else if (m_SwapChain)
 	{
@@ -388,98 +393,114 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PipelineStateObject& ps
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 {
-	auto& pso = pass.GetPSO();
-
-	if (!pso.m_devicePSO)
+	if (std::holds_alternative<RasterPipelineStateObject>(pass.GetPSO()))
 	{
-		pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
-	}
+		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
-	auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
-	const auto cbCounts = std::ranges::count_if(pso.m_VSState.m_constantBuffers, pred) 
-		+ std::ranges::count_if(pso.m_PSState.m_constantBuffers, pred);
-
-	if (cbCounts == 0 && pso.m_VSState.m_shader && pso.m_PSState.m_shader)
-	{
-		auto deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
-		for (auto& cb : deviceVS->GetCBuffers())
-			pso.m_VSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
-
-		auto devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
-		for (auto& cb : devicePS->GetCBuffers())
-			pso.m_PSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
-	}
-
-	// create & update device constant buffers
-	for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_VSState.m_constantBuffers[i];
-		if (cb)
-			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
-	}
-
-	for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_GSState.m_constantBuffers[i];
-		if (cb)
-			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
-	}
-
-	for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_PSState.m_constantBuffers[i];
-		if (cb)
-			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
-	}
-
-	for (auto i = 0U; i < pso.m_CSState.m_constantBuffers.size(); ++i)
-	{
-		auto cb = pso.m_CSState.m_constantBuffers[i];
-		if (cb)
-			m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
-	}
-
-	// create & update device vertex buffer
-	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
-	{
-		auto vb = pso.m_IAState.m_vertexBuffers[i];
-		if (vb)
+		if (!pso.m_devicePSO)
 		{
-			auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
-			deviceVB->SyncCPUToGPU();
+			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pass.GetPSO());
+		}
+
+		auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
+		const auto cbCounts = std::ranges::count_if(pso.m_VSState.m_constantBuffers, pred)
+			+ std::ranges::count_if(pso.m_PSState.m_constantBuffers, pred);
+
+		if (cbCounts == 0 && pso.m_VSState.m_shader && pso.m_PSState.m_shader)
+		{
+			auto deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
+			for (auto& cb : deviceVS->GetCBuffers())
+				pso.m_VSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+
+			auto devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
+			for (auto& cb : devicePS->GetCBuffers())
+				pso.m_PSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+		}
+
+		// create & update device constant buffers
+		for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
+		{
+			auto cb = pso.m_VSState.m_constantBuffers[i];
+			if (cb)
+				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
+
+		for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
+		{
+			auto cb = pso.m_GSState.m_constantBuffers[i];
+			if (cb)
+				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
+
+		for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
+		{
+			auto cb = pso.m_PSState.m_constantBuffers[i];
+			if (cb)
+				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
+
+		// create & update device vertex buffer
+		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+		{
+			auto vb = pso.m_IAState.m_vertexBuffers[i];
+			if (vb)
+			{
+				auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
+				deviceVB->SyncCPUToGPU();
+			}
+		}
+
+		// create & update device index buffer
+		auto ib = pso.m_IAState.m_indexBuffer;
+		if (ib)
+		{
+			auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
+			deviceIB->SyncCPUToGPU();
 		}
 	}
-
-	// create & update device index buffer
-	auto ib = pso.m_IAState.m_indexBuffer;
-	if (ib)
+	else if (std::holds_alternative<ComputePipelineStateObject>(pass.GetPSO()))
 	{
-		auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
-		deviceIB->SyncCPUToGPU();
+		auto& pso = pass.GetPSO<ComputePipelineStateObject>();
+
+		if (!pso.m_devicePSO)
+		{
+			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pass.GetPSO());
+		}
+
+		// create & update device constant buffers
+		for (auto i = 0U; i < pso.m_CSState.m_constantBuffers.size(); ++i)
+		{
+			auto cb = pso.m_CSState.m_constantBuffers[i];
+			if (cb)
+				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
 	}
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawRenderPass(RenderPass& pass)
 {
-	auto pso = dynamic_cast<DevicePipelineStateObjectDX12*>(pass.GetPSO().m_devicePSO.get());
+	auto GetDevicePSO = [](auto&& pso) {
+		return dynamic_cast<DevicePipelineStateObjectDX12*>(pso.m_devicePSO.get());
+		};
 
-	if (!pass.GetPSO().m_CSState.m_shader)
+	if (std::holds_alternative<RasterPipelineStateObject>(pass.GetPSO()))
 	{
+		auto& rpso = pass.GetPSO<RasterPipelineStateObject>();
 		// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
 		DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
 		D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 		memset(aRects, 0, sizeof(aRects));
-		if (pass.GetPSO().m_RSState.m_rsState.enableScissor)
+		if (rpso.m_RSState.m_rsState.enableScissor)
 		{
-			for (auto i = 0U; i < pass.GetPSO().m_RSState.m_activeScissorRectNum; ++i)
+			for (auto i = 0U; i < rpso.m_RSState.m_activeScissorRectNum; ++i)
 			{
-				auto rect = pass.GetPSO().m_RSState.m_scissorRects[i];
+				auto rect = rpso.m_RSState.m_scissorRects[i];
 				aRects[i].left = rect.left;
 				aRects[i].bottom = rect.height;
 				aRects[i].right = rect.width;
 				aRects[i].top = rect.top;
 			}
-			DeviceCommandList()->RSSetScissorRects(pass.GetPSO().m_RSState.m_rsState.enableScissor, aRects);
+			DeviceCommandList()->RSSetScissorRects(rpso.m_RSState.m_rsState.enableScissor, aRects);
 		}
 		else
 		{
@@ -504,7 +525,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
-		m_queue->GetCommandListDX12()->BindGraphicsPSO(*pso);
+		m_queue->GetCommandListDX12()->BindGraphicsPSO(*std::visit(GetDevicePSO, pass.GetPSO()));
 		//m_queue->GetCommandListDX12()->BindGraphicsDescriptorTableToRootParam();
 
 		// Draw
@@ -513,9 +534,9 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		// Indicate a state transition on the resource usage.
 		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
 	}
-	else if (pass.GetPSO().m_CSState.m_shader)
+	else if (std::holds_alternative<ComputePipelineStateObject>(pass.GetPSO()))
 	{
-		m_queue->GetCommandListDX12()->BindComputePSO(*pso);
+		m_queue->GetCommandListDX12()->BindComputePSO(*std::visit(GetDevicePSO, pass.GetPSO()));
 		//m_queue->GetCommandListDX12()->BindComputeDescriptorTableToRootParam();
 
 		// Draw
@@ -571,24 +592,23 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(64);
-	m_textRenderPass = new RenderPass(RenderPass::OF_NO_CLEAN,
-		[&](RenderPassBuilder& builder, PipelineStateObject& pso) {
-		builder << *m_textFont;
+	m_textRenderPass = new RenderPass(
+		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
+			builder << *m_textFont;
+			pso.m_RSState.m_rsState.frontCCW = true;
 
-		pso.m_RSState.m_rsState.frontCCW = true;
+			// setup render states
+			pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
+			pso.m_OMState.m_depthStencilResource = GetDefaultDS();
 
-		// setup render states
-		pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
-		pso.m_OMState.m_depthStencilResource = GetDefaultDS();
-
-		auto& target = pso.m_OMState.m_blendState.target[0];
-		target.enable = true;
-		target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
-		target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
-	},
+			auto& target = pso.m_OMState.m_blendState.target[0];
+			target.enable = true;
+			target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
+			target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
+		},
 		[&](Device& device) {
-		device.DrawIndexed(m_textFont->GetIndexCount());
-	});
+			device.DrawIndexed(m_textFont->GetIndexCount());
+		}, RenderPass::OF_NO_CLEAN);
 
 	m_currentFrameGraph = nullptr;
 
@@ -622,7 +642,7 @@ void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 	TransitionResource(srcDX12, backStateSrc);
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso)
+void DeviceDX12::SaveRenderTarget(const std::wstring& filename, PSOUnion& pso)
 {
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
 	auto rtPtr = deviceRT->GetTexture2D();
@@ -757,7 +777,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::AllocateCPUDescriptor(D3D12_DESCRIPTOR_H
 	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::BuildPSO(PipelineStateObject& /*pso*/)
+void DeviceDX12::BuildPSO(PSOUnion& /*pso*/)
 {
 	/// TODO: not implement yet
 }

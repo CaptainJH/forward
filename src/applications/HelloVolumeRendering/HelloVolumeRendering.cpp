@@ -349,7 +349,7 @@ struct DeviceContext
         m_cb = make_shared<ConstantBuffer<CB>>("ConstantBuffer");
 
         m_computePassPtr = std::make_unique<RenderPass>(
-            [&]([[maybe_unused]] RenderPassBuilder& builder, PipelineStateObject& pso) {
+            [&]([[maybe_unused]] RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
                 // setup shaders
                 pso.m_CSState.m_shader = make_shared<ComputeShader>("DrawVolumeShader", L"HelloVolume", "DrawVolume");
                 pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
@@ -358,6 +358,11 @@ struct DeviceContext
             [=](Device& device) {
                 device.GetCmdList().Dispatch(m_size / 8, m_size / 8, 1);
             });
+    }
+
+    ~DeviceContext()
+    {
+        m_devicePtr->Shutdown();
     }
 };
 

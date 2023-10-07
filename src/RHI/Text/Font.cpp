@@ -149,7 +149,7 @@ void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f
 
 void Font::OnRenderPassBuilding(RenderPass& pass)
 {
-	auto& pso = pass.GetPSO();
+	auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
 	pso.m_IAState.m_indexBuffer = mIndexBuffer;
 	pso.m_IAState.m_topologyType = mIndexBuffer->GetPrimitiveType();

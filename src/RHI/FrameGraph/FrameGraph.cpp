@@ -184,7 +184,9 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 		it_pass = m_passDB.end() - 1;
 	}
 
-	auto& pso = pass->GetPSO();
+	if (!pass->IsPSO<RasterPipelineStateObject>())
+		return;
+	auto& pso = pass->GetPSO<RasterPipelineStateObject>();
 
 	// vertex format
 	auto vformat = &pso.m_IAState.m_vertexLayout;
@@ -465,7 +467,10 @@ void FrameGraph::LinkInfo()
 	for (auto& passInfo : m_passDB)
 	{
 		auto pass_ptr = passInfo.m_renderPass;
-		auto& pso = pass_ptr->GetPSO();
+
+		if (!pass_ptr->IsPSO<RasterPipelineStateObject>())
+			continue;
+		auto& pso = pass_ptr->GetPSO<RasterPipelineStateObject>();
 
 		// vertex format
 		auto vformat = &pso.m_IAState.m_vertexLayout;

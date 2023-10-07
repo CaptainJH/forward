@@ -19,7 +19,7 @@ SimpleGeometry::~SimpleGeometry()
 
 void SimpleGeometry::OnRenderPassBuilding(RenderPass& pass)
 {
-	auto& pso = pass.GetPSO();
+	auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 	if (m_IB->GetNumElements())
 	{
 		pso.m_IAState.m_indexBuffer = m_IB;

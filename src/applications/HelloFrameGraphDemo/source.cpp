@@ -58,7 +58,7 @@ bool HelloFrameGraph::Init()
 		return false;
 
 	m_renderPass = new RenderPass(
-	[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+	[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
 		// setup shaders
         pso.m_VSState.m_shader = make_shared<VertexShader>("HelloFrameGraphVS", L"BasicShader", "VSMainQuad");
         pso.m_PSState.m_shader = make_shared<PixelShader>("HelloFrameGraphPS", L"BasicShader", "PSMainQuad");
@@ -106,7 +106,7 @@ bool HelloFrameGraph::Init()
 	m_uavTex = forward::make_shared<Texture2D>("UAV_Tex", forward::DF_B8G8R8A8_UNORM, 1024, 1024, forward::TextureBindPosition::TBP_Shader);
 	m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 	m_computePass = std::make_unique<RenderPass>(
-		[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+		[&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
 			// setup shaders
 			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 			pso.m_CSState.m_uavShaderRes[0] = m_uavTex;

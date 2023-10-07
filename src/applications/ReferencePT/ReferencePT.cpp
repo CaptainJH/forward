@@ -113,7 +113,7 @@ public:
 		m_rtPSO->m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("MissShaderTable", 
 			Vector<WString>{ L"Miss", L"MissShadow" });
 
-		m_rtPSO->m_deviceRTPSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
+		m_rtPSO->m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
 		return true;
 	}
@@ -163,7 +163,7 @@ protected:
 
 		if (auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12())
 		{
-			auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
+			auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_devicePSO.get());
 			cmdList->SetDynamicConstantBuffer(m_cb.get());
 			cmdList->BindGPUVisibleHeaps(*devicePSO);
 			cmdList->BindRTPSO(*devicePSO);

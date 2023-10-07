@@ -37,8 +37,7 @@ namespace forward
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
-					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN,
-					[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
@@ -63,7 +62,8 @@ namespace forward
 					},
 					[&](Device& r) {
 						r.DrawIndexed(p.second->GetNumElements());
-					}
+					},
+					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
 					));
 
 		}

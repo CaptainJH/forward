@@ -16,33 +16,45 @@ namespace forward
 
 		enum OperationFlags
 		{
-			OF_PRESENT		= 0x1,
+			OF_PRESENT			= 0x1,
 			OF_CLEAN_RT		= 0x2,
 			OF_CLEAN_DS		= 0x4,
 			OF_NO_CLEAN		= 0x8,
 			OF_DEFAULT		= OF_CLEAN_RT | OF_CLEAN_DS,
 		};
 
-		typedef std::function<void(RenderPassBuilder&, PipelineStateObject&)> SetupFuncType;
+		typedef std::function<void(RenderPassBuilder&, RasterPipelineStateObject&)> RasterSetupFuncType;
+		typedef std::function<void(RenderPassBuilder&, ComputePipelineStateObject&)> ComputeSetupFuncType;
+		typedef std::function<void(RenderPassBuilder&, RTPipelineStateObject&)> RTSetupFuncType;
 		typedef std::function<void(Device&)> ExecuteFuncType;
 
 	public:
-		RenderPass(OperationFlags operationType, SetupFuncType setup, ExecuteFuncType execute);
-		RenderPass(SetupFuncType setup, ExecuteFuncType execute);
-		RenderPass();
-		~RenderPass();
+		RenderPass(RasterSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
+		RenderPass(ComputeSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
+		RenderPass(RTSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
 
-		PipelineStateObject& GetPSO();
+		RenderPass() = delete;
+		~RenderPass() = default;
+
+		PSOUnion& GetPSO();
 		OperationFlags GetRenderPassFlags() const;
 		void Execute(Device&);
 		void AttachRenderPass(RenderPass* ptr);
 		RenderPass* GetNextRenderPass();
 
-	protected:
-		PipelineStateObject				m_pso;
-		RTPipelineStateObject			m_rtPSO;
+		template<class T> T& GetPSO()
+		{
+			return std::get<T>(m_pso);
+		}
 
-		const SetupFuncType				m_setupCallback;
+		template<class T> bool IsPSO()
+		{
+			return std::holds_alternative<T>(m_pso);
+		}
+
+	protected:
+		PSOUnion				m_pso;
+
 		const ExecuteFuncType			m_executeCallback;
 		const OperationFlags			m_opFlags;
 

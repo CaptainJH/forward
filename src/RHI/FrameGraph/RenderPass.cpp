@@ -7,38 +7,34 @@
 
 using namespace forward;
 
-PipelineStateObject& RenderPass::GetPSO()
+PSOUnion& RenderPass::GetPSO()
 {
 	return m_pso;
 }
 
-RenderPass::RenderPass(OperationFlags flags, SetupFuncType setup, ExecuteFuncType execute)
-	: m_setupCallback(setup)
-	, m_executeCallback(execute)
-    , m_opFlags(flags)
+RenderPass::RenderPass(RasterSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
+	: m_executeCallback(execute)
+	, m_opFlags(operationType)
+	, m_pso(RasterPipelineStateObject())
 {
 	RenderPassBuilder builder(this);
-	m_setupCallback(builder, GetPSO());
+	setupFunc(builder, GetPSO<RasterPipelineStateObject>());
 }
-
-RenderPass::RenderPass(SetupFuncType setup, ExecuteFuncType execute)
-	: m_setupCallback(setup)
-	, m_executeCallback(execute)
-    , m_opFlags(RenderPass::OF_DEFAULT)
+RenderPass::RenderPass(ComputeSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
+	: m_executeCallback(execute)
+	, m_opFlags(operationType)
+	, m_pso(ComputePipelineStateObject())
 {
 	RenderPassBuilder builder(this);
-	m_setupCallback(builder, GetPSO());
+	setupFunc(builder, GetPSO<ComputePipelineStateObject>());
 }
-
-RenderPass::RenderPass()
-	: m_setupCallback(nullptr)
-	, m_executeCallback(nullptr)
-    , m_opFlags(RenderPass::OF_DEFAULT)
-{}
-
-RenderPass::~RenderPass()
+RenderPass::RenderPass(RTSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
+	: m_executeCallback(execute)
+	, m_opFlags(operationType)
+	, m_pso(RTPipelineStateObject())
 {
-
+	RenderPassBuilder builder(this);
+	setupFunc(builder, GetPSO<RTPipelineStateObject>());
 }
 
 RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const

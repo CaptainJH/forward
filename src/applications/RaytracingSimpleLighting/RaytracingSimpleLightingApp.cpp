@@ -80,7 +80,7 @@ public:
 		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
 		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
 
-		m_rtPSO->m_deviceRTPSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
+		m_rtPSO->m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
 
 		return true;
 	}
@@ -114,7 +114,7 @@ protected:
 
 		if (auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12())
 		{
-			auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_deviceRTPSO.get());
+			auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_devicePSO.get());
 			cmdList->SetDynamicConstantBuffer(m_cb0.get());
 			cmdList->BindGPUVisibleHeaps(devicePSO);
 			cmdList->BindRTPSO(devicePSO);

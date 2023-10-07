@@ -6,14 +6,13 @@
 #include "RHI/ResourceSystem/DeviceObject.h"
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ShaderSystem/Shader.h"
+#include "FrameGraph/PipelineStateObjects.h"
 #include "dx12/dx12Util.h"
 #include "dx12/ShaderSystem/ShaderDX12.h"
 
 
 namespace forward
 {
-	struct PipelineStateObject;
-	struct RTPipelineStateObject;
 	struct BindingRanges;
 	class DeviceDX12;
 	class DynamicDescriptorHeapDX12;
@@ -112,7 +111,7 @@ namespace forward
 	{
 		friend class CommandListDX12;
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* d, PipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, PSOUnion& pso);
 		~DevicePipelineStateObjectDX12() override;
 
 		ID3D12PipelineState* GetDevicePSO();
@@ -124,7 +123,7 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
-		PipelineStateObject&			m_pso;
+		PSOUnion&			m_pso;
 
 	private:
 		void BuildRootSignature(ID3D12Device* device);

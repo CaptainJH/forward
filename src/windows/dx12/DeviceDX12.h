@@ -27,7 +27,6 @@ namespace forward
 	class DeviceResourceDX12;
 	class DeviceTexture2DDX12;
 	class CommandQueueDX12;
-	struct PipelineStateObject;
 
 
 	// This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible resource descriptors
@@ -86,7 +85,7 @@ namespace forward
 
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
-		void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) override;
+		void SaveRenderTarget(const std::wstring& filename, PSOUnion& pso) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
@@ -139,12 +138,12 @@ namespace forward
 
 		void OnResize();
 
-		void BuildPSO(PipelineStateObject& pso);
+		void BuildPSO(PSOUnion& pso);
 
 		//--------------------------------------------------------
-		DeviceTexture2DDX12* CurrentBackBuffer(PipelineStateObject& pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(PipelineStateObject& pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(PipelineStateObject& pso) const;
+		DeviceTexture2DDX12* CurrentBackBuffer(PSOUnion& pso) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(PSOUnion& pso) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(PSOUnion& pso) const;
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------

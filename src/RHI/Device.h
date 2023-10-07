@@ -7,6 +7,7 @@
 #include "DataFormat.h"
 #include "Vector4f.h"
 #include "ResourceSystem/DeviceResource.h"
+#include "FrameGraph/PipelineStateObjects.h"
 #include "CommandQueue.h"
 
 namespace forward
@@ -74,7 +75,7 @@ namespace forward
 
 		virtual void ResolveResource(Texture2D* dst, Texture2D* src) = 0;
 
-		virtual void SaveRenderTarget(const std::wstring& filename, PipelineStateObject& pso) = 0;
+		virtual void SaveRenderTarget(const std::wstring& filename, PSOUnion& pso) = 0;
 		virtual void SaveTexture(const std::wstring& filename, Texture2D* tex) = 0;
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;

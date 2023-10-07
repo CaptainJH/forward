@@ -3,6 +3,7 @@
 //***************************************************************************************
 #pragma once
 #include <array>
+#include <variant>
 #include "Vector4f.h"
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ResourceSystem/Texture.h"
@@ -374,7 +375,15 @@ namespace forward
 		shared_ptr<ShaderTable> m_missShaderTable;
 	};
 
-	struct PipelineStateObject
+	struct PipelineStateObjectBase
+	{
+		u32 m_usedCBV_SRV_UAV_Count = 0;
+		u32 m_usedSampler_Count = 0;
+
+		shared_ptr<DeviceObject>	m_devicePSO;
+	};
+
+	struct RasterPipelineStateObject : public PipelineStateObjectBase
 	{
 		InputAssemblerStageState	m_IAState;
 		RasterizerStageState			m_RSState;
@@ -383,16 +392,15 @@ namespace forward
 		VertexShaderStageState		m_VSState;
 		GeometryShaderStageState	m_GSState;
 		PixelShaderStageState			m_PSState;
-		ComputeShaderStageState		m_CSState;
+	};
 
-		u32 m_usedCBV_SRV_UAV_Count = 0;
-		u32 m_usedSampler_Count = 0;
-
-		shared_ptr<DeviceObject>	m_devicePSO;
+	struct ComputePipelineStateObject : public PipelineStateObjectBase
+	{
+		ComputeShaderStageState	m_CSState;
 	};
 	
 	struct SceneData;
-	struct RTPipelineStateObject
+	struct RTPipelineStateObject : public PipelineStateObjectBase
 	{
 		struct InstanceData
 		{
@@ -404,12 +412,11 @@ namespace forward
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> m_meshes;
 		Vector<InstanceData> m_instances;
 		RaytracingShaderStageState m_rtState;
-		u32 m_usedCBV_SRV_UAV_Count = 0;
 		u32 m_maxPayloadSizeInByte = 32;
-
-		shared_ptr<DeviceObject> m_deviceRTPSO;
 
 		RTPipelineStateObject() = default;
 		RTPipelineStateObject(const SceneData& scene);
 	};
+
+	typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;
 }
