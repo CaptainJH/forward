@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "FrameGraph/Geometry.h"
+#include "renderers/ReferencePTRenderer.h"
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandListDX12.h"
 #include "dx12/CommandQueueDX12.h"
@@ -7,40 +8,8 @@
 #include "dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
 #include "dx12/DevicePipelineStateObjectDX12.h"
-#include "SceneData.h"
 
 using namespace forward;
-
-struct Light {
-	float3 position;
-	u32 type;
-	float3 intensity;
-	u32 pad;
-};
-
-struct RaytracingData
-{
-	float4x4 view;
-	float4x4 proj;
-
-	f32 skyIntensity;
-	u32 lightCount;
-	u32 frameNumber;
-	u32 maxBounces;
-
-	f32 exposureAdjustment;
-	u32 accumulatedFrames;
-	BOOL enableAntiAliasing;
-	f32 focusDistance;
-
-	f32 apertureSize;
-	BOOL enableAccumulation;
-	f32 pad;
-	f32 pad2;
-
-	Light lights[4];
-};
-
 
 class ReferencePT : public Application
 {

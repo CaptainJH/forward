@@ -521,7 +521,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 
 		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.m_devicePSO.get());
 		m_queue->GetCommandListDX12()->BindRasterPSO(devicePSO);
-		pass.Execute(*this);
+		pass.Execute(*m_queue->GetCommandList());
 	
 		// Indicate a state transition on the resource usage.
 		TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
@@ -531,7 +531,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		auto& cpso = pass.GetPSO<ComputePipelineStateObject>();
 		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(cpso.m_devicePSO.get());
 		m_queue->GetCommandListDX12()->BindComputePSO(devicePSO);
-		pass.Execute(*this);
+		pass.Execute(*m_queue->GetCommandList());
 	}
 
 }
@@ -597,40 +597,13 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 			target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
 			target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
 		},
-		[&](Device& device) {
-			device.DrawIndexed(m_textFont->GetIndexCount());
+		[&](CommandList& cmdList) {
+			cmdList.DrawIndexed(m_textFont->GetIndexCount());
 		}, RenderPass::OF_NO_CLEAN);
 
 	m_currentFrameGraph = nullptr;
 
 	return true;
-}
-//--------------------------------------------------------------------------------
-void DeviceDX12::DrawIndexed(u32 indexCount)
-{
-	DeviceCommandList()->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
-}
-//--------------------------------------------------------------------------------
-void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
-{
-	if (!dst->DeviceObject())
-	{
-		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dst, *this);
-		dst->SetDeviceObject(deviceTex);
-	}
-
-	DeviceResourceDX12* dstDX12 = device_cast<DeviceResourceDX12*>(dst);
-	auto backStateDst = dstDX12->GetResourceState();
-	TransitionResource(dstDX12, D3D12_RESOURCE_STATE_RESOLVE_DEST);
-	DeviceResourceDX12* srcDX12 = device_cast<DeviceResourceDX12*>(src);
-	auto backStateSrc = srcDX12->GetResourceState();
-	TransitionResource(srcDX12, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-	
-	DeviceCommandList()->ResolveSubresource(dstDX12->GetDeviceResource().Get(), 0, srcDX12->GetDeviceResource().Get(), 0, 
-		static_cast<DXGI_FORMAT>(dst->GetFormat()));
-
-	TransitionResource(dstDX12, backStateDst);
-	TransitionResource(srcDX12, backStateSrc);
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso)

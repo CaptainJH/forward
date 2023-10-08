@@ -134,8 +134,8 @@ bool MSAA_Demo::Init()
 			pso.m_RSState.m_rsState.enableScissor = true;
 			pso.m_RSState.m_rsState.frontCCW = false;
 		},
-		[&](Device& device) {
-			device.DrawIndexed(m_geometry->GetIndexCount());
+		[&](CommandList& cmdList) {
+			cmdList.DrawIndexed(m_geometry->GetIndexCount());
 
 			// update constant buffer for next pass
 			(*m_constantBufferPS).GetTypedData()->colorAA = Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
@@ -164,9 +164,9 @@ bool MSAA_Demo::Init()
 
 			pso.m_RSState.m_rsState.frontCCW = false;
 		},
-			[&](Device& device) {
-			device.DrawIndexed(m_geometry->GetIndexCount());
-			device.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
+			[&](CommandList& cmdList) {
+			cmdList.DrawIndexed(m_geometry->GetIndexCount());
+			cmdList.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
 		});
 	//m_renderPass->AttachRenderPass(m_renderPassMSAA.get());
 
@@ -193,8 +193,8 @@ bool MSAA_Demo::Init()
 			pso.m_RSState.m_rsState.enableScissor = true;
 			pso.m_RSState.m_rsState.frontCCW = false;
 			},
-			[&](Device& device) {
-				device.GetCmdList().Draw(m_quad->GetVertexCount());
+			[&](CommandList& cmdList) {
+				cmdList.Draw(m_quad->GetVertexCount());
 		}, RenderPass::OF_NO_CLEAN);
 	//m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());
 

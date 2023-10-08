@@ -72,8 +72,8 @@ bool HelloPyQTDll::Init()
 			auto rsPtr = m_pDevice->GetDefaultRT();
 			pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 		},
-		[](Device& device) {
-			device.GetCmdList().Draw(4);
+		[](CommandList& cmdList) {
+			cmdList.Draw(4);
 	});
 
 	return true;

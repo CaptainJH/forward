@@ -10,6 +10,7 @@ namespace forward
 {
 	enum class QueueType;
 	class CommandQueueDX12;
+	class DeviceResourceDX12;
 	class DevicePipelineStateObjectDX12;
 	class DeviceRTPipelineStateObjectDX12;
 
@@ -26,6 +27,7 @@ namespace forward
 		void Dispatch(u32 x, u32 y, u32 z) override;
 		void DispatchRays(RTPipelineStateObject& pso) override;
 		void CopyResource(Resource& dst, Resource& src) override;
+		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
 		void BindGPUVisibleHeaps();
 		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&);

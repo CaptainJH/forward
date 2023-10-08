@@ -1,5 +1,5 @@
 #pragma once
-#include "FrameGraph/Effect.h"
+#include "FrameGraph/Renderer.h"
 #include "RHI/SceneData.h"
 #include "AutodeskStandardSurface.h"
 
@@ -123,8 +123,7 @@ namespace forward
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
-					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN,
-					[&](RenderPassBuilder& /*builder*/, PipelineStateObject& pso) {
+					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
@@ -151,9 +150,9 @@ namespace forward
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
 						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
 					},
-					[&](Device& r) {
+					[&](CommandList& r) {
 						r.DrawIndexed(p.second->GetNumElements());
-					}
+					}, m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
 			));
 
 		}

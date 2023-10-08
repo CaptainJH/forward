@@ -37,9 +37,9 @@ RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const
 	return m_opFlags;
 }
 
-void RenderPass::Execute(Device& device)
+void RenderPass::Execute(CommandList& cmdList)
 {
-	m_executeCallback(device);
+	m_executeCallback(cmdList);
 }
 
 void RenderPass::AttachRenderPass(RenderPass* ptr)

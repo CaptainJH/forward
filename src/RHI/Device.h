@@ -68,12 +68,8 @@ namespace forward
 		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 		virtual void Shutdown() = 0;
 
-		virtual void DrawIndexed(u32 indexCount) = 0;
-
 		virtual void BeginDrawFrameGraph(FrameGraph* fg);
 		virtual void EndDrawFrameGraph() = 0;
-
-		virtual void ResolveResource(Texture2D* dst, Texture2D* src) = 0;
 
 		virtual void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) = 0;
 		virtual void SaveTexture(const std::wstring& filename, Texture2D* tex) = 0;

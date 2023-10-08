@@ -355,8 +355,8 @@ struct DeviceContext
                 pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
                 pso.m_CSState.m_constantBuffers[0] = m_cb;
             },
-            [=](Device& device) {
-                device.GetCmdList().Dispatch(m_size / 8, m_size / 8, 1);
+            [=](CommandList& cmdList) {
+                cmdList.Dispatch(m_size / 8, m_size / 8, 1);
             });
     }
 

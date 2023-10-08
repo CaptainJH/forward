@@ -161,8 +161,8 @@ namespace forward
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
 						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
 					},
-					[&](Device& r) {
-						r.DrawIndexed(p.second->GetNumElements());
+					[&](CommandList& cmdList) {
+						cmdList.DrawIndexed(p.second->GetNumElements());
 					}, m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
 					));
 

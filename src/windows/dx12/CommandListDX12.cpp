@@ -427,3 +427,25 @@ void CommandListDX12::CopyResource(Resource& dst, Resource& src)
 	postCopyBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(srcDX.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, srcState);
 	m_CmdList->ResourceBarrier(ARRAYSIZE(postCopyBarriers), postCopyBarriers);
 }
+
+void CommandListDX12::ResolveResource(Texture2D* dst, Texture2D* src)
+{
+	if (!dst->DeviceObject())
+	{
+		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dst, GetDeviceDX12());
+		dst->SetDeviceObject(deviceTex);
+	}
+
+	DeviceResourceDX12* dstDX12 = device_cast<DeviceResourceDX12*>(dst);
+	auto backStateDst = dstDX12->GetResourceState();
+	GetDeviceDX12().TransitionResource(dstDX12, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+	DeviceResourceDX12* srcDX12 = device_cast<DeviceResourceDX12*>(src);
+	auto backStateSrc = srcDX12->GetResourceState();
+	GetDeviceDX12().TransitionResource(srcDX12, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+
+	m_CmdList->ResolveSubresource(dstDX12->GetDeviceResource().Get(), 0, srcDX12->GetDeviceResource().Get(), 0,
+		static_cast<DXGI_FORMAT>(dst->GetFormat()));
+
+	GetDeviceDX12().TransitionResource(dstDX12, backStateDst);
+	GetDeviceDX12().TransitionResource(srcDX12, backStateSrc);
+}

@@ -7,7 +7,7 @@
 
 namespace forward
 {
-	class Device;
+	class CommandList;
 	class RenderPassBuilder;
 
 	class RenderPass
@@ -26,7 +26,7 @@ namespace forward
 		typedef std::function<void(RenderPassBuilder&, RasterPipelineStateObject&)> RasterSetupFuncType;
 		typedef std::function<void(RenderPassBuilder&, ComputePipelineStateObject&)> ComputeSetupFuncType;
 		typedef std::function<void(RenderPassBuilder&, RTPipelineStateObject&)> RTSetupFuncType;
-		typedef std::function<void(Device&)> ExecuteFuncType;
+		typedef std::function<void(CommandList&)> ExecuteFuncType;
 
 	public:
 		RenderPass(RasterSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
@@ -37,7 +37,7 @@ namespace forward
 		~RenderPass() = default;
 
 		OperationFlags GetRenderPassFlags() const;
-		void Execute(Device&);
+		void Execute(CommandList&);
 		void AttachRenderPass(RenderPass* ptr);
 		RenderPass* GetNextRenderPass();
 

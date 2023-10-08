@@ -97,8 +97,8 @@ bool OffScreenRenderingDemo::Init()
 
 			pso.m_RSState.m_rsState.frontCCW = false;
 			},
-			[](Device& device) {
-				device.GetCmdList().Draw(4);
+			[](CommandList& cmdList) {
+				cmdList.Draw(4);
 		});
 
 

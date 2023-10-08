@@ -81,10 +81,6 @@ namespace forward
 		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
 		void Shutdown() override;
 
-		void DrawIndexed(u32 indexCount) override;
-
-		void ResolveResource(Texture2D* dst, Texture2D* src) override;
-
 		void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 

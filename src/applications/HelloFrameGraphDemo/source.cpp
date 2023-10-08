@@ -98,8 +98,8 @@ bool HelloFrameGraph::Init()
 
 		pso.m_RSState.m_rsState.frontCCW = false;
 		},
-		[](Device& device) {
-			device.GetCmdList().Draw(4);
+		[](CommandList& cmdList) {
+			cmdList.Draw(4);
 	});
 
 
@@ -111,8 +111,8 @@ bool HelloFrameGraph::Init()
 			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 			pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
 		},
-		[](Device& device) {
-			device.GetCmdList().Dispatch(64, 64, 1);
+		[](CommandList& cmdList) {
+			cmdList.Dispatch(64, 64, 1);
 		});
 
 
