@@ -416,6 +416,7 @@ namespace forward
 
 		RTPipelineStateObject() = default;
 		RTPipelineStateObject(const SceneData& scene);
+		void FeedWithSceneData(const SceneData& scene);
 	};
 
 	typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;

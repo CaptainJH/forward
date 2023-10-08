@@ -64,6 +64,13 @@ namespace forward
 			String typeName;
 		};
 		std::unordered_map<String, ShaderParamData> m_shaderParamsInfo;
+
+		static const u32 MaterialDataSpace = 1U;
+		static const u32 IndexDataSpace = 2U;
+		static const u32 VertexDataSpace = 3U;
+		static const u32 TextureSpace = 4U;
+		static const u32 AccelerationStructuresSpace = 99U;
+		static const u32 BindlessDescriptorCount = 0x4000;
 	};
 
 

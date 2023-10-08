@@ -27,13 +27,5 @@ namespace forward
 		static bool GetTypes(ID3D12ShaderReflectionType* rtype,
 			u32 numMembers, HLSLShaderType& stype);
 		static bool IsTextureArray(D3D_SRV_DIMENSION dim);
-
-	public:
-		static const u32 MaterialDataSpace = 1U;
-		static const u32 IndexDataSpace = 2U;
-		static const u32 VertexDataSpace = 3U;
-		static const u32 TextureSpace = 4U;
-		static const u32 AccelerationStructuresSpace = 99U;
-		static const u32 BindlessDescriptorCount = 0x4000;
 	};
 }

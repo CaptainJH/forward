@@ -141,7 +141,7 @@ void DynamicDescriptorHeapDX12::BindDescriptorTableToRootParam(ID3D12GraphicsCom
 	{
 		// Set the descriptors on the command list using the passed-in setter function.
 		setFunc(commandList, 0, m_CurrentGPUDescriptorHandle);
-		if (m_DescriptorHandleCache.size() < ShaderDX12::BindlessDescriptorCount)
+		if (m_DescriptorHandleCache.size() < Shader::BindlessDescriptorCount)
 		{
 			m_CurrentGPUDescriptorHandle =
 				m_CurrentGPUDescriptorHandle.Offset(descriptorTableCache.NumDescriptors, m_DescriptorHandleIncrementSize);

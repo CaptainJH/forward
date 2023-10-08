@@ -194,6 +194,11 @@ bool BindingRanges::AddRange(BindingRange range)
 
 RTPipelineStateObject::RTPipelineStateObject(const SceneData& scene)
 {
+	FeedWithSceneData(scene);
+}
+
+void RTPipelineStateObject::FeedWithSceneData(const SceneData& scene)
+{
 	m_meshes.reserve(scene.mMeshData.size());
 	for (auto& mesh : scene.mMeshData)
 		m_meshes.emplace_back(mesh.m_VB, mesh.m_IB);

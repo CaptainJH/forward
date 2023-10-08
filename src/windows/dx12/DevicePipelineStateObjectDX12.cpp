@@ -871,7 +871,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 		}
 
 		CD3DX12_ROOT_PARAMETER scene_root_parameter;
-		scene_root_parameter.InitAsShaderResourceView(0, ShaderDX12::AccelerationStructuresSpace);
+		scene_root_parameter.InitAsShaderResourceView(0, Shader::AccelerationStructuresSpace);
 		slotRootParameters.push_back(scene_root_parameter);
 
 		BindingRanges samplerRange;
@@ -900,7 +900,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 			serializedRootSig->GetBufferSize(),
 			IID_PPV_ARGS(&m_raytracingGlobalRootSignature)));
 
-		if (m_rtPSO.m_usedCBV_SRV_UAV_Count >= ShaderDX12::BindlessDescriptorCount)
+		if (m_rtPSO.m_usedCBV_SRV_UAV_Count >= Shader::BindlessDescriptorCount)
 		{
 			if (!m_bindlessDescriptorHeap)
 				m_bindlessDescriptorHeap = std::make_unique<DynamicDescriptorHeapDX12>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,

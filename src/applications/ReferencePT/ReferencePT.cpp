@@ -59,19 +59,19 @@ public:
 		m_rtPSO->m_rtState.m_uavShaderRes[1] = m_uav1Tex;
 
 		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{ 
-			.m_space = ShaderDX12::VertexDataSpace });
+			.m_space = Shader::VertexDataSpace });
 		for (auto& m : m_scene.mMeshData)
 			newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
 		auto& newlyAddedStageIB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = ShaderDX12::IndexDataSpace });
+			.m_space = Shader::IndexDataSpace });
 		for (auto& m : m_scene.mMeshData)
 			newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
 		auto& newlyAddedStageTex = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = ShaderDX12::TextureSpace });
+			.m_space = Shader::TextureSpace });
 		for (auto& t : m_scene.mTextures)
 			newlyAddedStageTex.m_shaderResources.emplace_back(t);
 		m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = ShaderDX12::MaterialDataSpace,
+			.m_space = Shader::MaterialDataSpace,
 			.m_shaderResources = { m_materials },
 			});
 		m_rtPSO->m_rtState.m_samplers[0] = make_shared<SamplerState>("Sampler0");

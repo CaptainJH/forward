@@ -28,7 +28,7 @@ namespace forward
 			bool ret = true;
 			for (auto& r : ranges.m_ranges)
 			{
-				if (r.Count() >= ShaderDX12::BindlessDescriptorCount)
+				if (r.Count() >= Shader::BindlessDescriptorCount)
 					continue;
 				for (auto bind = r.bindStart; bind <= r.bindEnd; ++bind)
 				{
@@ -49,7 +49,7 @@ namespace forward
 			bool ret = true;
 			for (auto& r : ranges.m_ranges)
 			{
-				if (r.Count() >= ShaderDX12::BindlessDescriptorCount)
+				if (r.Count() >= Shader::BindlessDescriptorCount)
 					continue;
 				for (auto bind = r.bindStart; bind <= r.bindEnd; ++bind)
 				{

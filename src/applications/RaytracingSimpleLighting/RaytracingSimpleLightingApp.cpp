@@ -68,11 +68,11 @@ public:
 		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
 
 		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = ShaderDX12::VertexDataSpace });
+			.m_space = Shader::VertexDataSpace });
 		for (auto& m : m_scene.mMeshData)
 			newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
 		auto& newlyAddedStageIB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = ShaderDX12::IndexDataSpace });
+			.m_space = Shader::IndexDataSpace });
 		for (auto& m : m_scene.mMeshData)
 			newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
 
