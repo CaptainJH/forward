@@ -1,13 +1,13 @@
 #pragma once
-#include "FrameGraph/Effect.h"
+#include "FrameGraph/Renderer.h"
 #include "RHI/SceneData.h"
 
 namespace forward
 {
-	class SimpleAlbedo final : public Effect
+	class SimpleAlbedoRenderer final : public RendererBase
 	{
 	public:
-		SimpleAlbedo(SceneData& sd, u32 geoId)
+		SimpleAlbedoRenderer(SceneData& sd, u32 geoId)
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");

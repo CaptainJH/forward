@@ -1,21 +1,21 @@
-#include "Effect.h"
+#include "Renderer.h"
 
 using namespace forward;
 
-Effect::Effect()
+RendererBase::RendererBase()
 {
 }
 
-Effect::~Effect()
+RendererBase::~RendererBase()
 {}
 
-Effect& Effect::SetPass(u8 passIndex)
+RendererBase& RendererBase::SetPass(u8 passIndex)
 {
 	m_currentPassIndex = passIndex;
 	return *this;
 }
 
-void Effect::DrawEffect(FrameGraph* fg)
+void RendererBase::DrawEffect(FrameGraph* fg)
 {
 	std::for_each(m_renderPassVec.begin(), m_renderPassVec.end(), [=](RenderPass& rp) {
 		fg->DrawRenderPass(&rp);

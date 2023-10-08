@@ -1,6 +1,6 @@
 #include "Application.h"
-#include "effects/AutodeskStandardSurface.h"
-#include "effects/MaterialXEffect.h"
+#include "renderers/AutodeskStandardSurface.h"
+#include "renderers/MaterialXRenderer.h"
 #include "ArcBall.h"
 #include "../MaterialXReader/MaterialXReader.h"
 #include "pystring.h"
@@ -32,7 +32,7 @@ protected:
 	Vector3f rotateVector(Quaternion<f32> q, Vector3f v);
 
 private:
-	shared_ptr<forward::MaterialXEffect> m_material;
+	shared_ptr<forward::MaterialXRenderer> m_material;
 	ArcBall m_arcCam;
 	std::unordered_map<std::string, std::string> m_paramsPS;
 };
@@ -57,8 +57,8 @@ bool ModelViewer::Init()
 	if (!Application::Init())
 		return false;
 
-	std::filesystem::path materialXFilePath = "D:/Downloads/Midnite_Fleece_Fabric_1k_8b/Midnite_Fleece_Fabric.mtlx";
-	//std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
+	//std::filesystem::path materialXFilePath = "D:\\Documents\\GitHub\\MaterialX\\resources\\Materials\\Examples\\UsdPreviewSurface\\usd_preview_surface_glass.mtlx";
+	std::filesystem::path materialXFilePath = "D:/Documents/GitHub/MaterialX_JHQ/MaterialX/resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
 	std::string outVS, outPS;
 	if (Forward_Read_MaterialX(materialXFilePath.string().c_str(), outVS, outPS, m_paramsPS) != 0)
 	{
@@ -67,7 +67,7 @@ bool ModelViewer::Init()
 	}
 
 	auto sceneData = SceneData::LoadFromFileForStandSurface(L"shaderball.glb", m_pDevice->mLoadedResourceMgr);
-	m_material = make_shared<MaterialXEffect>(sceneData, materialXFilePath.filename().replace_extension().string().c_str(), outVS.c_str(), outPS.c_str());
+	m_material = make_shared<MaterialXRenderer>(sceneData, materialXFilePath.filename().replace_extension().string().c_str(), outVS.c_str(), outPS.c_str());
 	m_material->envRadianceTex = make_shared<Texture2D>("u_envRadiance", L"Lights/san_giuseppe_bridge_split.hdr");
 	m_material->envIrradianceTex = make_shared<Texture2D>("u_envIrradiance", L"Lights/irradiance/san_giuseppe_bridge_split.hdr");
 	for (auto pair : m_paramsPS)

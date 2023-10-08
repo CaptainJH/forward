@@ -10,13 +10,13 @@
 namespace forward
 {
 	class FrameGraph;
-	class Effect : public intrusive_ref_counter
+	class RendererBase : public intrusive_ref_counter
 	{
 	public:
-		Effect();
-		virtual ~Effect();
+		RendererBase();
+		virtual ~RendererBase();
 
-		Effect& SetPass(u8 passIndex);
+		RendererBase& SetPass(u8 passIndex);
 		void DrawEffect(FrameGraph*);
 		void Update(f32 dt) { if (mUpdateFunc)mUpdateFunc(dt); }
 

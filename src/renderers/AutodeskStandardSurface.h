@@ -1,5 +1,5 @@
 #pragma once
-#include "FrameGraph/Effect.h"
+#include "FrameGraph/Renderer.h"
 #include "RHI/SceneData.h"
 
 namespace forward
@@ -88,7 +88,7 @@ namespace forward
 		LightData u_lightData[3];
 	};
 
-	class AutodeskStandardSurface final : public Effect
+	class AutodeskStandardSurface final : public RendererBase
 	{
 	public:
 		AutodeskStandardSurface(SceneData& sd)

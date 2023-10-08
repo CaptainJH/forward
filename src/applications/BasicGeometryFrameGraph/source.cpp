@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "effects/SimpleAlbedo.h"
+#include "renderers/SimpleAlbedo.h"
 
 using namespace forward;
 
@@ -19,7 +19,7 @@ protected:
 	void DrawScene() override;
 
 private:
-	shared_ptr<forward::SimpleAlbedo> m_albedoEffect;
+	shared_ptr<forward::SimpleAlbedoRenderer> m_albedoEffect;
 };
 
 void BasicGeometryFrameGraph::UpdateScene(f32 dt)
@@ -53,7 +53,7 @@ bool BasicGeometryFrameGraph::Init()
 			instancesWithBaseTex.push_back(&ins);
 		});
 	auto instance = instancesWithBaseTex.back();
-	m_albedoEffect = make_shared<SimpleAlbedo>(sceneData, instance->meshId);
+	m_albedoEffect = make_shared<SimpleAlbedoRenderer>(sceneData, instance->meshId);
 	m_albedoEffect->mAlbedoTex = sceneData.mTextures[sceneData.mMaterials[instance->materialId].materialData.baseColorTexIdx];
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
 

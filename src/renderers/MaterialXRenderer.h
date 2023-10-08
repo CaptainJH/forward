@@ -1,13 +1,13 @@
 #pragma once
-#include "FrameGraph/Effect.h"
+#include "FrameGraph/Renderer.h"
 #include "RHI/SceneData.h"
 
 namespace forward
 {
-	class MaterialXEffect final : public Effect
+	class MaterialXRenderer final : public RendererBase
 	{
 	public:
-		MaterialXEffect(SceneData& sd, const i8* shaderName, const i8* vs, const i8* ps)
+		MaterialXRenderer(SceneData& sd, const i8* shaderName, const i8* vs, const i8* ps)
 		{
 			const std::string vsName = String(shaderName) + "_vs";
 			const std::string psName = String(shaderName) + "_ps";

@@ -85,7 +85,7 @@ namespace forward
 	//	bool SR_Midnite_Fleece_Fabric_thin_walled;
 	//};
 
-	class Midnite_Fleece_Fabric final : public Effect
+	class Midnite_Fleece_Fabric final : public RendererBase
 	{
 	public:
 		Midnite_Fleece_Fabric(SceneData& sd)
