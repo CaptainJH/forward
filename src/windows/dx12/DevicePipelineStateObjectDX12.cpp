@@ -649,6 +649,8 @@ DeviceRTPipelineStateObjectDX12::DeviceRTPipelineStateObjectDX12(DeviceDX12* d, 
 	: DeviceObject(nullptr)
 	, m_rtPSO(rtPSO)
 {
+	PrepareDeviceResources(d);
+
 	BuildRaytracingPipelineStateObject(d);
 	BuildAccelerationStructures(d);
 	BuildShaderTables(d);
@@ -1112,6 +1114,76 @@ std::unordered_map<WString, Vector<WString>> DeviceRTPipelineStateObjectDX12::Ge
 	}
 
 	return ret;
+}
+
+void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
+{
+	auto cmdList = d->GetDefaultQueue()->GetCommandListDX12();
+
+	for (auto& pCB : m_rtPSO.m_rtState.m_constantBuffers)
+	{
+		if (pCB && !pCB->DeviceObject())
+			cmdList->SetDynamicConstantBuffer(pCB.get());
+	}
+
+	//for (auto& pSRV : m_rtPSO.m_rtState.m_uavShaderRes)
+	//{
+	//	if(!pSRV->DeviceObject())
+	//		pSRV->SetDeviceObject(make_shared<Device)
+	//}
+
+	for (auto& pUAV : m_rtPSO.m_rtState.m_uavShaderRes)
+	{
+		if (pUAV && !pUAV->DeviceObject())
+		{	
+			if (pUAV->GetType() == FGOT_TEXTURE2)
+			{
+				Texture2D* pTex2D = dynamic_cast<Texture2D*>(pUAV.get());
+				if (pTex2D)
+					pUAV->SetDeviceObject(make_shared<DeviceTexture2DDX12>(pTex2D, *d));
+			}
+		}
+	}
+
+	for (auto& gp : m_rtPSO.m_meshes)
+	{
+		if (!gp.first->DeviceObject())
+			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdList->GetDeviceCmdListPtr().Get(), gp.first.get(), *d));
+		if (!gp.second->DeviceObject())
+			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdList->GetDeviceCmdListPtr().Get(), gp.second.get(), *d));
+	}
+
+	for (auto& bindlessStage : m_rtPSO.m_rtState.m_bindlessShaderStageStates)
+	{
+		for (auto& pCB : bindlessStage.m_constantBuffers)
+		{
+			if (pCB && !pCB->DeviceObject())
+				cmdList->SetDynamicConstantBuffer(pCB.get());
+		}
+
+		for (auto& pSRV : bindlessStage.m_shaderResources)
+		{
+			if (pSRV && !pSRV->DeviceObject())
+			{
+				if (pSRV->GetType() == FGOT_STRUCTURED_BUFFER)
+					pSRV->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdList->GetDeviceCmdListPtr().Get(), pSRV.get(), *d));
+				else if (pSRV->GetType() == FGOT_TEXTURE2)
+				{
+					Texture2D* pTex2D = dynamic_cast<Texture2D*>(pSRV.get());
+					if (pTex2D)
+						pSRV->SetDeviceObject(make_shared<DeviceTexture2DDX12>(pTex2D, *d));
+				}
+			}
+		}
+
+		for (auto& pUAV : bindlessStage.m_uavShaderRes)
+		{
+			if (pUAV && !pUAV->DeviceObject())
+			{
+				assert(false);
+			}
+		}
+	}
 }
 
 // Pretty-print a state object tree.

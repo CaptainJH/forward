@@ -265,8 +265,7 @@ namespace forward
 
 	struct PipelineStageState
 	{
-		PipelineStageState()
-		{}
+		PipelineStageState() = default;
 	};
 
 	struct InputAssemblerStageState : public PipelineStageState

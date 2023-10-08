@@ -473,6 +473,21 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 		}
 	}
+	else if (pass.IsPSO<RTPipelineStateObject>())
+	{
+		auto& pso = pass.GetPSO<RTPipelineStateObject>();
+
+		if (!pso.m_devicePSO)
+			pso.m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(this, pso);
+		else
+		{
+			for (auto& pCB : pso.m_rtState.m_constantBuffers)
+			{
+				if (pCB)
+					m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(pCB.get());
+			}
+		}
+	}
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawRenderPass(RenderPass& pass)

@@ -49,8 +49,6 @@ public:
 
 		m_cb = make_shared<ConstantBuffer<RaytracingData>>("g_sceneCB");
 
-		prepareDeviceResources();
-
 		// setup shaders
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"PathTracer");
 
@@ -151,26 +149,6 @@ protected:
 
 	DeviceDX12* m_pDeviceDX12 = nullptr;
 	SceneData m_scene;
-
-private:
-	void prepareDeviceResources()
-	{
-		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		auto cmdListDevice = cmdList->GetDeviceCmdListPtr();
-		cmdList->SetDynamicConstantBuffer(m_cb.get());
-		for (auto& gp : m_rtPSO->m_meshes)
-		{
-			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), gp.first.get(), *m_pDeviceDX12));
-			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), gp.second.get(), *m_pDeviceDX12));
-		}
-
-		m_uav0Tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(m_uav0Tex.get(), *m_pDeviceDX12));
-		m_uav1Tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(m_uav1Tex.get(), *m_pDeviceDX12));
-		m_materials->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdListDevice.Get(), m_materials.get(), *m_pDeviceDX12));
-
-		for (auto& tex : m_scene.mTextures)
-			tex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(tex.get(), *m_pDeviceDX12));
-	}
 };
 
 FORWARD_APPLICATION_MAIN(ReferencePT, 1920, 1080);

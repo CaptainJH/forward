@@ -159,6 +159,7 @@ namespace forward
 		void CreateLocalRootSignatureSubobjects(CD3DX12_STATE_OBJECT_DESC* raytracingPipeline);
 		void BuildShaderTables(DeviceDX12* device);
 		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
+		void PrepareDeviceResources(DeviceDX12* device);
 
 		void PrepareBindlessDescriptorHeap(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges);
 		std::unique_ptr<DynamicDescriptorHeapDX12> m_bindlessDescriptorHeap;

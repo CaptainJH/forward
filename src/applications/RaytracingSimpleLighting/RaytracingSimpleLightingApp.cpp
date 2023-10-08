@@ -59,7 +59,6 @@ public:
 		*m_cb1 = {
 			.albedo = {1.0f, 1.0f, 1.0f, 1.0f}
 		};
-		prepareDeviceResources();
 
 		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
 
@@ -134,22 +133,6 @@ protected:
 	Vector3f m_eyePos = { 0.0f, 2.0f, -5.0f };
 
 	SceneData m_scene;
-
-private:
-	void prepareDeviceResources()
-	{
-		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		auto commandList = cmdList->GetDeviceCmdListPtr().Get();
-		cmdList->SetDynamicConstantBuffer(m_cb0.get());
-		cmdList->SetDynamicConstantBuffer(m_cb1.get());
-		for (auto& gp : m_rtPSO->m_meshes)
-		{
-			gp.first->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.first.get(), *m_pDeviceDX12));
-			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, gp.second.get(), *m_pDeviceDX12));
-		}
-
-		m_uavTex->SetDeviceObject(make_shared<DeviceTexture2DDX12>(m_uavTex.get(), *m_pDeviceDX12));
-	}
 };
 
 FORWARD_APPLICATION_MAIN(RaytracingSimpleLighting, 1920, 1080);
