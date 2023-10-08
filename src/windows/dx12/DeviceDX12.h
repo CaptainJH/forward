@@ -94,7 +94,6 @@ namespace forward
 		shared_ptr<Texture2D> GetCurrentSwapChainRT();
 
 		CommandQueue& GetQueue() override;
-		CommandList& GetCmdList() override;
 		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
 		CommandQueueDX12* GetDefaultQueue();
 

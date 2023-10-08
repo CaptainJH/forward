@@ -815,8 +815,3 @@ CommandQueue& DeviceDX12::GetQueue()
 {
 	return *m_queue.get();
 }
-
-CommandList& DeviceDX12::GetCmdList()
-{
-	return *GetQueue().GetCommandList().get();
-}
