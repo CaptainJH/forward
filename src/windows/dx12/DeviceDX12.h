@@ -93,7 +93,7 @@ namespace forward
 		shared_ptr<Texture2D> GetDefaultDS() const override;
 		shared_ptr<Texture2D> GetCurrentSwapChainRT();
 
-		CommandQueue& GetQueue() override;
+		void FlushDefaultQueue() override;
 		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
 		CommandQueueDX12* GetDefaultQueue();
 

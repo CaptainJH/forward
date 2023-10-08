@@ -78,7 +78,7 @@ namespace forward
 
 		virtual shared_ptr<Texture2D> GetDefaultRT() const = 0;
 		virtual shared_ptr<Texture2D> GetDefaultDS() const = 0;
-		virtual CommandQueue& GetQueue() = 0;
+		virtual void FlushDefaultQueue() = 0;
 
 		virtual shared_ptr<CommandQueue> MakeCommandQueue(QueueType t=QueueType::Direct) = 0;
 

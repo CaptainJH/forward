@@ -521,8 +521,7 @@ void ApplicationWin::ShutdownRendererComponents()
 
 void ApplicationWin::RequestTermination()
 {
-	if (m_pDevice)
-		m_pDevice->GetQueue().Flush();
+	if (m_pDevice) m_pDevice->FlushDefaultQueue();
 	// This triggers the termination of the application
 	PostQuitMessage(0);
 }

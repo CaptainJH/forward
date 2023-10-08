@@ -811,7 +811,7 @@ CommandQueueDX12* DeviceDX12::GetDefaultQueue()
 	return m_queue.get();
 }
 
-CommandQueue& DeviceDX12::GetQueue()
+void DeviceDX12::FlushDefaultQueue()
 {
-	return *m_queue.get();
+	return GetDefaultQueue()->Flush();
 }
