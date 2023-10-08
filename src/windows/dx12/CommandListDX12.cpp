@@ -353,28 +353,27 @@ void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO)
 {
 	m_CmdList->SetGraphicsRootSignature(devicePSO.m_rootSignature.Get());
 	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
-	if (std::holds_alternative<RasterPipelineStateObject*>(devicePSO.m_psoPtr))
-	{
-		auto& pso = *std::get<RasterPipelineStateObject*>(devicePSO.m_psoPtr);
-		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
-		{
-			if (pso.m_IAState.m_vertexBuffers[i])
-			{
-				auto vbv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
-				m_CmdList->IASetVertexBuffers(i, 1, &vbv);
-			}
-		}
-		if (pso.m_IAState.m_indexBuffer)
-		{
-			auto ibv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_indexBuffer)->IndexBufferView();
-			m_CmdList->IASetIndexBuffer(&ibv);
-		}
-		m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(pso.m_IAState.m_topologyType));
+	assert(std::holds_alternative<RasterPipelineStateObject*>(devicePSO.m_psoPtr));
 
-		if (!devicePSO.IsEmptyRootParams())
-			for (auto& heap : m_DynamicDescriptorHeaps)
-				heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+	auto& pso = *std::get<RasterPipelineStateObject*>(devicePSO.m_psoPtr);
+	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+	{
+		if (pso.m_IAState.m_vertexBuffers[i])
+		{
+			auto vbv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
+			m_CmdList->IASetVertexBuffers(i, 1, &vbv);
+		}
 	}
+	if (pso.m_IAState.m_indexBuffer)
+	{
+		auto ibv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_indexBuffer)->IndexBufferView();
+		m_CmdList->IASetIndexBuffer(&ibv);
+	}
+	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(pso.m_IAState.m_topologyType));
+
+	if (!devicePSO.IsEmptyRootParams())
+		for (auto& heap : m_DynamicDescriptorHeaps)
+			heap.BindDescriptorTableToRootParam(m_CmdList.Get(), &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
 }
 
 void CommandListDX12::BindComputePSO(DevicePipelineStateObjectDX12& devicePSO)

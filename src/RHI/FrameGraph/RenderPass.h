@@ -36,7 +36,6 @@ namespace forward
 		RenderPass() = delete;
 		~RenderPass() = default;
 
-		PSOUnion& GetPSO();
 		OperationFlags GetRenderPassFlags() const;
 		void Execute(Device&);
 		void AttachRenderPass(RenderPass* ptr);

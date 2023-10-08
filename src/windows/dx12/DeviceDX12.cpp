@@ -341,13 +341,12 @@ void DeviceDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PSOUnion& pso) const
+DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(RasterPipelineStateObject* pso) const
 {
-	if (std::holds_alternative<RasterPipelineStateObject>(pso))
+	if (pso)
 	{
-		auto& rpso = std::get<RasterPipelineStateObject>(pso);
-		if (rpso.m_OMState.m_renderTargetResources[0] && rpso.m_OMState.m_renderTargetResources[0]->DeviceObject())
-			return device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_renderTargetResources[0]);
+		if (pso->m_OMState.m_renderTargetResources[0] && pso->m_OMState.m_renderTargetResources[0]->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(pso->m_OMState.m_renderTargetResources[0]);
 	}
 
 	if (m_SwapChain)
@@ -362,20 +361,19 @@ DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(PSOUnion& pso) const
 	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(PSOUnion& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(RasterPipelineStateObject* pso) const
 {
 	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(pso);
 	assert(tex12);
 	return tex12->GetRenderTargetViewHandle();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(PSOUnion& pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(RasterPipelineStateObject* pso) const
 {
-	if (std::holds_alternative<RasterPipelineStateObject>(pso))
+	if (pso)
 	{
-		auto& rpso = std::get<RasterPipelineStateObject>(pso);
-		if (rpso.m_OMState.m_depthStencilResource && rpso.m_OMState.m_depthStencilResource->DeviceObject())
-			return device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
+		if (pso->m_OMState.m_depthStencilResource && pso->m_OMState.m_depthStencilResource->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(pso->m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
 	}
 	else if (m_SwapChain)
 	{
@@ -479,10 +477,6 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawRenderPass(RenderPass& pass)
 {
-	auto GetDevicePSO = [](auto&& pso) {
-		return dynamic_cast<DevicePipelineStateObjectDX12*>(pso.m_devicePSO.get());
-		};
-
 	if (pass.IsPSO<RasterPipelineStateObject>())
 	{
 		auto& rpso = pass.GetPSO<RasterPipelineStateObject>();
@@ -508,11 +502,11 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		}
 
 		// Indicate a state transition on the resource usage.
-		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_RENDER_TARGET);
+		TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		// Specify the buffers we are going to render to.
-		D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(pass.GetPSO());
-		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(pass.GetPSO());
+		D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(&rpso);
+		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);
 		DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
 		// Clear the back buffer and depth buffer.
 		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
@@ -525,15 +519,18 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
-		m_queue->GetCommandListDX12()->BindRasterPSO(*std::visit(GetDevicePSO, pass.GetPSO()));
+		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.m_devicePSO.get());
+		m_queue->GetCommandListDX12()->BindRasterPSO(devicePSO);
 		pass.Execute(*this);
 	
 		// Indicate a state transition on the resource usage.
-		TransitionResource(CurrentBackBuffer(pass.GetPSO()), D3D12_RESOURCE_STATE_PRESENT);
+		TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
 	}
 	else if (pass.IsPSO<ComputePipelineStateObject>())
 	{
-		m_queue->GetCommandListDX12()->BindComputePSO(*std::visit(GetDevicePSO, pass.GetPSO()));
+		auto& cpso = pass.GetPSO<ComputePipelineStateObject>();
+		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(cpso.m_devicePSO.get());
+		m_queue->GetCommandListDX12()->BindComputePSO(devicePSO);
 		pass.Execute(*this);
 	}
 
@@ -636,7 +633,7 @@ void DeviceDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 	TransitionResource(srcDX12, backStateSrc);
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::SaveRenderTarget(const std::wstring& filename, PSOUnion& pso)
+void DeviceDX12::SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso)
 {
 	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
 	auto rtPtr = deviceRT->GetTexture2D();

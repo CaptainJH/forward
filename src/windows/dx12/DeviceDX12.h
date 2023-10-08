@@ -85,7 +85,7 @@ namespace forward
 
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
-		void SaveRenderTarget(const std::wstring& filename, PSOUnion& pso) override;
+		void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
@@ -141,9 +141,9 @@ namespace forward
 		void BuildPSO(PSOUnion& pso);
 
 		//--------------------------------------------------------
-		DeviceTexture2DDX12* CurrentBackBuffer(PSOUnion& pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(PSOUnion& pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(PSOUnion& pso) const;
+		DeviceTexture2DDX12* CurrentBackBuffer(RasterPipelineStateObject* pso) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(RasterPipelineStateObject* pso) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(RasterPipelineStateObject* pso) const;
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------

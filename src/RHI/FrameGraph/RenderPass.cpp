@@ -7,11 +7,6 @@
 
 using namespace forward;
 
-PSOUnion& RenderPass::GetPSO()
-{
-	return m_pso;
-}
-
 RenderPass::RenderPass(RasterSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)

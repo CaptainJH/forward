@@ -107,5 +107,5 @@ bool OffScreenRenderingDemo::Init()
 
 void OffScreenRenderingDemo::SaveRT()
 {
-	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass->GetPSO());
+	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", &m_renderPass->GetPSO<RasterPipelineStateObject>());
 }
