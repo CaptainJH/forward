@@ -64,7 +64,8 @@ namespace forward
     class DeviceDX12 : public Device
     {
     public:
-        DeviceDX12();
+		DeviceDX12();
+		DeviceDX12(u32 w, u32 h, HWND hwnd = 0);
         virtual ~DeviceDX12();
 
         // Access to the renderer.  There should only be a single instance
@@ -77,9 +78,6 @@ namespace forward
 		void DeleteResource(ResourcePtr ptr) override;
 
 		void OnResize(u32 width, u32 height) override;
-
-		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
-		void Shutdown() override;
 
 		void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
@@ -111,6 +109,9 @@ namespace forward
 
 		static void ReportLiveObjects();
 
+	protected:
+		bool Initialize(SwapChainConfig& config, bool bOffScreen) override;
+
 	private:
         // Provide the feature level of the current machine.  This can be
 		// called before or after the device has been created.
@@ -131,6 +132,7 @@ namespace forward
 
 		void CreateCommandObjects();
 
+		void Shutdown();
 		void OnResize();
 
 		//--------------------------------------------------------

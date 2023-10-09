@@ -336,13 +336,6 @@ struct DeviceContext
     {
         m_devicePtr = std::make_unique<DeviceDX12>();
 
-        SwapChainConfig Config;
-        Config.SetWidth(s);
-        Config.SetHeight(s);
-        Config.SetOutputWindow((HWND)0);
-
-        m_devicePtr->Initialize(Config, true);
-
         m_uavTex = make_shared<Texture2D>("UAV_Tex", forward::DF_R32G32B32A32_FLOAT, s, s, forward::TextureBindPosition::TBP_Shader);
         m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 
@@ -358,11 +351,6 @@ struct DeviceContext
             [=](CommandList& cmdList) {
                 cmdList.Dispatch(m_size / 8, m_size / 8, 1);
             });
-    }
-
-    ~DeviceContext()
-    {
-        m_devicePtr->Shutdown();
     }
 };
 

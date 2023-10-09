@@ -82,10 +82,30 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocator::Allocate(u32 Count, ID3D12Devic
 //--------------------------------------------------------------------------------
 DeviceDX12::DeviceDX12()
 {
+	SwapChainConfig config;
+	if (!Initialize(config, true))
+	{
+		MessageBox(NULL, L"Could not create a hardware or software Direct3D device - the program will now abort!", L"Error",
+			MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+	}
+}
+DeviceDX12::DeviceDX12(u32 w, u32 h, HWND hwnd)
+{
+	SwapChainConfig Config;
+	Config.SetWidth(w);
+	Config.SetHeight(h);
+	Config.SetOutputWindow(hwnd);
+
+	if (!Initialize(Config, hwnd == 0))
+	{
+		MessageBox(NULL, L"Could not create a hardware or software Direct3D device - the program will now abort!", L"Error",
+			MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
+	}
 }
 //--------------------------------------------------------------------------------
 DeviceDX12::~DeviceDX12()
 {
+	Shutdown();
 	DescriptorAllocator::DestroyAll();
 }
 //--------------------------------------------------------------------------------

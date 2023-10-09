@@ -485,34 +485,18 @@ bool ApplicationWin::ConfigureRendererComponents()
 
 	case DeviceType::Device_Forward_DX12:
 	{
-		m_pDevice = new DeviceDX12;
+		m_pDevice = new DeviceDX12(mClientWidth, mClientHeight, MainWnd());
 		break;
 	}
 	default:
 		assert(false);
 	}
-
-	SwapChainConfig Config;
-	Config.SetWidth(mClientWidth);
-	Config.SetHeight(mClientHeight);
-	Config.SetOutputWindow(MainWnd());
-
-	if (!m_pDevice->Initialize(Config, IsOffScreenRendering()))
-	{
-		ShowWindow(MainWnd(), SW_HIDE);
-		MessageBox(MainWnd(), L"Could not create a hardware or software Direct3D 11 device - the program will now abort!",
-			mMainWndCaption.c_str(), MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
-		RequestTermination();
-		return false;
-	}
-
 	return true;
 }
 void ApplicationWin::ShutdownRendererComponents()
 {
 	if (m_pDevice)
 	{
-		m_pDevice->Shutdown();
 		SAFE_DELETE(m_pDevice);
 		DeviceDX12::ReportLiveObjects();
 	}

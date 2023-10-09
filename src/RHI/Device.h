@@ -65,9 +65,6 @@ namespace forward
 
 		virtual void OnResize(u32 width, u32 height) = 0;
 
-		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
-		virtual void Shutdown() = 0;
-
 		virtual void BeginDrawFrameGraph(FrameGraph* fg);
 		virtual void EndDrawFrameGraph() = 0;
 
@@ -88,7 +85,8 @@ namespace forward
 		LoadedResourceManager mLoadedResourceMgr;
 
 	protected:
-		Device();
+		Device() = default;
+		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 
 		FrameGraph* m_currentFrameGraph = nullptr;
 
