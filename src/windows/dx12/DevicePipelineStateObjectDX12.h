@@ -143,6 +143,7 @@ namespace forward
 		~DeviceRTPipelineStateObjectDX12() override;
 
 		ID3D12StateObject* GetDeviceRTPSO();
+		void CommitDescriptorsTo(DeviceDX12& d, DynamicDescriptorHeapDX12& heap);
 
 	private:
 		RTPipelineStateComPtr			m_devicePSO;
@@ -161,7 +162,7 @@ namespace forward
 		std::unordered_map<WString, Vector<WString>> GetHitGroupsInfo() const;
 		void PrepareDeviceResources(DeviceDX12* device);
 
-		void PrepareBindlessDescriptorHeap(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges);
+		void StageDescriptorsToCache(Vector<CD3DX12_DESCRIPTOR_RANGE>& descriptorRanges);
 		std::unique_ptr<DynamicDescriptorHeapDX12> m_bindlessDescriptorHeap;
 
 		static void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc);

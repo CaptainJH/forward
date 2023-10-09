@@ -548,7 +548,13 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		m_queue->GetCommandListDX12()->BindComputePSO(devicePSO);
 		pass.Execute(*m_queue->GetCommandList());
 	}
-
+	else if (pass.IsPSO<RTPipelineStateObject>())
+	{
+		auto& pso = pass.GetPSO<RTPipelineStateObject>();
+		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
+		m_queue->GetCommandListDX12()->BindRTPSO(devicePSO);
+		pass.Execute(*m_queue->GetCommandList());
+	}
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::DeleteResource(ResourcePtr /*ptr*/)

@@ -272,6 +272,13 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			// TODO: stage Samplers
 		}
 	}
+	else if (pass.IsPSO<RTPipelineStateObject>())
+	{
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+		auto& pso = pass.GetPSO<RTPipelineStateObject>();
+		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
+		devicePSO.CommitDescriptorsTo(GetDeviceDX12(), heap);
+	}
 }
 
 void CommandListDX12::PrepareGPUVisibleHeaps(RTPipelineStateObject& pso)
@@ -393,8 +400,8 @@ void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
 
 	if (deviceRTPSO.m_bindlessDescriptorHeap)
 	{
-		deviceRTPSO.m_bindlessDescriptorHeap->BindDescriptorTableToRootParam(m_CmdList.Get(), 
-			&ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+		auto gpuHandle = deviceRTPSO.m_bindlessDescriptorHeap->GPUHandle();
+		m_CmdList->SetComputeRootDescriptorTable(0, gpuHandle);
 	}
 	else
 	{
