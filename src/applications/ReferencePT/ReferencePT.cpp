@@ -1,13 +1,6 @@
 #include "Application.h"
 #include "FrameGraph/Geometry.h"
 #include "renderers/ReferencePTRenderer.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandListDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
-#include "dx12/ResourceSystem/DeviceBufferDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DevicePipelineStateObjectDX12.h"
 
 using namespace forward;
 
@@ -33,121 +26,66 @@ public:
 
 		mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
 		mFPCamera.SetPosition(float3(0.0f, 0.0f, -3.0f));
-		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
-		m_rtPSO = std::make_unique<RTPipelineStateObject>(m_scene);
-		m_rtPSO->m_maxPayloadSizeInByte = 64;
 
-		m_uav0Tex = make_shared<Texture2D>("UAV0_Tex", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
-		m_uav0Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		m_uav1Tex = make_shared<Texture2D>("UAV1_Tex", DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
-		m_uav1Tex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+		m_pt = make_shared<ReferencePTRenderer>(m_scene);
+		m_pt->SetupRenderPass(*m_pDevice);
 
-		m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("MaterialDataBuffer", (u32)m_scene.mMaterials.size());
-		for (auto i = 0U; i < m_scene.mMaterials.size(); ++i)
-			(*m_materials)[i] = m_scene.mMaterials[i].materialData;
+		m_pt->mUpdateFunc = [&](f32) {
+			auto viewMat = mFPCamera.GetViewMatrix();
+			static float4x4 lastViewMat = viewMat;
+			static u32 accumulatedFrames = 0;
+			bool resetAccumulation = !lastViewMat.equalWithAbsError(viewMat, std::numeric_limits<f32>::epsilon());
+			if (resetAccumulation)
+				accumulatedFrames = 1;
+			else
+				++accumulatedFrames;
 
-		m_cb = make_shared<ConstantBuffer<RaytracingData>>("g_sceneCB");
+			*m_pt->m_cb = RaytracingData{
+				.view = viewMat.inverse(),
+				.proj = mFPCamera.GetProjectionMatrix(),
 
-		// setup shaders
-		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"PathTracer");
+				.skyIntensity = 3.0f,
+				.lightCount = 0,
+				.frameNumber = ++m_frames,
+				.maxBounces = 8,
 
-		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uav0Tex;
-		m_rtPSO->m_rtState.m_uavShaderRes[1] = m_uav1Tex;
+				.exposureAdjustment = 0.2f,
+				.accumulatedFrames = accumulatedFrames,
+				.enableAntiAliasing = TRUE,
+				.focusDistance = 10.0f,
 
-		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{ 
-			.m_space = Shader::VertexDataSpace });
-		for (auto& m : m_scene.mMeshData)
-			newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
-		auto& newlyAddedStageIB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = Shader::IndexDataSpace });
-		for (auto& m : m_scene.mMeshData)
-			newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
-		auto& newlyAddedStageTex = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = Shader::TextureSpace });
-		for (auto& t : m_scene.mTextures)
-			newlyAddedStageTex.m_shaderResources.emplace_back(t);
-		m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = Shader::MaterialDataSpace,
-			.m_shaderResources = { m_materials },
-			});
-		m_rtPSO->m_rtState.m_samplers[0] = make_shared<SamplerState>("Sampler0");
+				.apertureSize = 0.0f,
+				.enableAccumulation = resetAccumulation ? FALSE : TRUE,
 
-		m_rtPSO->m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RayGenShaderTable", Vector<WString>{ L"RayGen" });
-		m_rtPSO->m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("HitGroupShaderTable",
-			Vector<WString>{ L"HitGroup_ClosestHit", L"HitGroup_AnyHit", L"HitGroupShadow_AnyHitShadow" });
-		m_rtPSO->m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("MissShaderTable", 
-			Vector<WString>{ L"Miss", L"MissShadow" });
+				.lights = {}
+			};
 
-		m_rtPSO->m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
+			lastViewMat = viewMat;
+			};
 
 		return true;
 	}
 
 protected:
-	void UpdateScene(f32) override
+	void UpdateScene(f32 dt) override
 	{
 		mFPCamera.UpdateViewMatrix();
-		static u32 frames = 0;
-		++frames;
-
-		auto viewMat = mFPCamera.GetViewMatrix();
-		static float4x4 lastViewMat = viewMat;
-		static u32 accumulatedFrames = 0;
-		bool resetAccumulation = !lastViewMat.equalWithAbsError(viewMat, std::numeric_limits<f32>::epsilon());
-		if (resetAccumulation)
-			accumulatedFrames = 1;
-		else
-			++accumulatedFrames;
-		
-		*m_cb = RaytracingData{
-			.view = viewMat.inverse(),
-			.proj = mFPCamera.GetProjectionMatrix(),
-
-			.skyIntensity = 3.0f,
-			.lightCount = 0,
-			.frameNumber = frames,
-			.maxBounces = 8,
-
-			.exposureAdjustment = 0.2f,
-			.accumulatedFrames = accumulatedFrames,
-			.enableAntiAliasing = TRUE,
-			.focusDistance = 10.0f,
-
-			.apertureSize = 0.0f,
-			.enableAccumulation = resetAccumulation ? FALSE : TRUE,
-
-			.lights = {}
-		};
-
-		lastViewMat = viewMat;
+		m_pt->Update(dt);
 	}
+
+	u32 m_frames = 0U;
 
 	void DrawScene() override
 	{
-		m_pDeviceDX12->BeginDraw();
-
-		if (auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12())
-		{
-			auto devicePSO = dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_devicePSO.get());
-			cmdList->SetDynamicConstantBuffer(m_cb.get());
-			cmdList->BindGPUVisibleHeaps(*devicePSO);
-			cmdList->BindRTPSO(*devicePSO);
-			cmdList->DispatchRays(*m_rtPSO);
-			cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uav0Tex);
-		}
-
-		m_pDeviceDX12->EndDraw();
+		FrameGraph fg;
+		m_pDevice->BeginDrawFrameGraph(&fg);
+		m_pt->DrawEffect(&fg);
+		m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
+		m_pDevice->EndDrawFrameGraph();
 	}
 
-	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
-	shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
-	shared_ptr<Texture2D> m_uav0Tex;
-	shared_ptr<Texture2D> m_uav1Tex;
-	shared_ptr<StructuredBuffer<SceneData::MaterialData>> m_materials;
-
-	DeviceDX12* m_pDeviceDX12 = nullptr;
+	shared_ptr<ReferencePTRenderer> m_pt;
 	SceneData m_scene;
 };
 

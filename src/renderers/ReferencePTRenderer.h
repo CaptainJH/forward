@@ -45,6 +45,7 @@ namespace forward
 		}
 
 		shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
+		shared_ptr<Texture2D> m_uavRT;
 
 		void SetupRenderPass(Device& d)
 		{
@@ -57,9 +58,9 @@ namespace forward
 					pso.m_rtState.m_constantBuffers[0] = m_cb;
 
 					auto rt = d.GetDefaultRT();
-					auto uavRT = make_shared<Texture2D>("RefPT_UAV_RT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_rtState.m_uavShaderRes[0] = uavRT;
+					m_uavRT = make_shared<Texture2D>("RefPT_UAV_RT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
+					m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+					pso.m_rtState.m_uavShaderRes[0] = m_uavRT;
 					auto uavAccumulation = make_shared<Texture2D>("RefPT_UAV_Accumulation", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 					uavAccumulation->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 					pso.m_rtState.m_uavShaderRes[1] = uavAccumulation;
@@ -96,8 +97,9 @@ namespace forward
 						Vector<WString>{ L"Miss", L"MissShadow" });
 				},
 				[&](CommandList& cmdList) {
-					cmdList;
-					//r.DrawIndexed(p.second->GetNumElements());
+					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
+					cmdList.DispatchRays(rtPSO);
+					cmdList.CopyResource(*d.GetCurrentSwapChainRT(), *m_uavRT);
 				}
 			));
 		}

@@ -280,7 +280,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 		auto& pso = pass.GetPSO<RTPipelineStateObject>();
 		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
-		heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *devicePSO.m_bindlessDescriptorHeap.get());
+		heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *devicePSO.m_bindlessDescriptorHeap.get(), Shader::BindlessHeapStartOffset);
 	}
 }
 
