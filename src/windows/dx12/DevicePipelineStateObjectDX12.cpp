@@ -667,12 +667,6 @@ ID3D12StateObject* DeviceRTPipelineStateObjectDX12::GetDeviceRTPSO()
 	return m_devicePSO.Get();
 }
 
-void DeviceRTPipelineStateObjectDX12::CommitDescriptorsTo(DeviceDX12& d, DynamicDescriptorHeapDX12& heap)
-{
-	if (m_bindlessDescriptorHeap)
-		heap.CommitStagedDescriptorsFrom(d, *m_bindlessDescriptorHeap);
-}
-
 void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 {
 	auto device = d->GetDevice();
@@ -914,9 +908,6 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 				m_bindlessDescriptorHeap = std::make_unique<DynamicDescriptorHeapDX12>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 					m_rtPSO.m_usedCBV_SRV_UAV_Count);
 			StageDescriptorsToCache(descriptorRanges);
-			auto cmdList = d->GetDefaultQueue()->GetCommandListDX12();
-			m_bindlessDescriptorHeap->BindGPUVisibleDescriptorHeap(*cmdList);
-			m_bindlessDescriptorHeap->CommitStagedDescriptors2(*d);
 		}
 	}
 

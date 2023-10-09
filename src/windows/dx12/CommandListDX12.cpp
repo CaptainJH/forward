@@ -136,10 +136,13 @@ void CommandListDX12::BindGPUVisibleHeaps()
 
 void CommandListDX12::BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12& rtPSO)
 {
+	BindGPUVisibleHeaps();
 	if (rtPSO.m_bindlessDescriptorHeap)
-		rtPSO.m_bindlessDescriptorHeap->BindGPUVisibleDescriptorHeap(*this);
-	else
-		BindGPUVisibleHeaps();
+	{
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+		heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *rtPSO.m_bindlessDescriptorHeap.get(), Shader::BindlessHeapStartOffset);
+
+	}
 }
 
 void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
@@ -277,7 +280,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 		auto& pso = pass.GetPSO<RTPipelineStateObject>();
 		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
-		devicePSO.CommitDescriptorsTo(GetDeviceDX12(), heap);
+		heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *devicePSO.m_bindlessDescriptorHeap.get());
 	}
 }
 
@@ -400,7 +403,8 @@ void CommandListDX12::BindRTPSO(DeviceRTPipelineStateObjectDX12& deviceRTPSO)
 
 	if (deviceRTPSO.m_bindlessDescriptorHeap)
 	{
-		auto gpuHandle = deviceRTPSO.m_bindlessDescriptorHeap->GPUHandle();
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+		auto gpuHandle = heap.GPUHandle(Shader::BindlessHeapStartOffset);
 		m_CmdList->SetComputeRootDescriptorTable(0, gpuHandle);
 	}
 	else

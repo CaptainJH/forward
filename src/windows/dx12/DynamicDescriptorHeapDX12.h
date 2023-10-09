@@ -28,8 +28,7 @@ namespace forward
 		void BindGPUVisibleDescriptorHeap(CommandListDX12& commandList);
 		void BindDescriptorTableToRootParam(ID3D12GraphicsCommandList* commandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
 		void CommitStagedDescriptors(DeviceDX12& d);
-		void CommitStagedDescriptors2(DeviceDX12& d);
-		void CommitStagedDescriptorsFrom(DeviceDX12& d, DynamicDescriptorHeapDX12& heap);
+		void CommitStagedDescriptorsFrom(DeviceDX12& d, DynamicDescriptorHeapDX12& heap, u32 offset=0U);
 		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle(u32 offset = 0);
 
 	private:

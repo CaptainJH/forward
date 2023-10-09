@@ -72,69 +72,13 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptors(DeviceDX12& d)
 	}
 }
 
-void DynamicDescriptorHeapDX12::CommitStagedDescriptors2(DeviceDX12& d)
-{
-	if (m_currentDescriptorTableOffset == 0) return;
-
-	if (m_CurrentCPUDescriptorHandle == CD3DX12_CPU_DESCRIPTOR_HANDLE(D3D12_DEFAULT))
-		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-	u32 totalDescriptorCount = 0;
-	for (auto i = 0U; i < m_currentDescriptorTableOffset; ++i)
-		totalDescriptorCount += m_DescriptorTableCache[i].NumDescriptors;
-
-	if (totalDescriptorCount > 0)
-	{
-		D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache.begin()->BaseDescriptor;
-
-		for (auto idx = 0U; idx < m_DescriptorHandleCache.size();)
-		{
-			auto handle = m_DescriptorHandleCache[idx];
-
-			if (!handle.ptr)
-			{
-				++idx;
-				pSrcDescriptorHandles += 1;
-				m_CurrentCPUDescriptorHandle.Offset(1, m_DescriptorHandleIncrementSize);
-				continue;
-			}
-
-			auto startIdx = idx;
-			while (handle.ptr)
-			{
-				if (++idx >= m_DescriptorHandleCache.size())
-					break;
-				handle = m_DescriptorHandleCache[idx];
-			}
-			const auto rangeCount = idx - startIdx;
-
-			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] =
-			{
-				m_CurrentCPUDescriptorHandle
-			};
-			u32 pDestDescriptorRangeSizes[] =
-			{
-				rangeCount
-			};
-
-			// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-			d.GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
-				rangeCount, pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
-
-			m_CurrentCPUDescriptorHandle =
-				m_CurrentCPUDescriptorHandle.Offset(rangeCount, m_DescriptorHandleIncrementSize);
-			pSrcDescriptorHandles += rangeCount;
-		}
-
-	}
-}
-
-void DynamicDescriptorHeapDX12::CommitStagedDescriptorsFrom(DeviceDX12& d, DynamicDescriptorHeapDX12& srcHeap)
+void DynamicDescriptorHeapDX12::CommitStagedDescriptorsFrom(DeviceDX12& d, DynamicDescriptorHeapDX12& srcHeap, u32 offset)
 {
 	if (srcHeap.m_currentDescriptorTableOffset == 0) return;
-	assert(m_DescriptorHandleIncrementSize == srcHeap.m_DescriptorHandleIncrementSize);
 
-	srcHeap.m_CurrentCPUDescriptorHandle = srcHeap.m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dstHandle;
+	dstHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	dstHandle = dstHandle.Offset(offset, m_DescriptorHandleIncrementSize);
 
 	u32 totalDescriptorCount = 0;
 	for (auto i = 0U; i < srcHeap.m_currentDescriptorTableOffset; ++i)
@@ -152,7 +96,7 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptorsFrom(DeviceDX12& d, Dynam
 			{
 				++idx;
 				pSrcDescriptorHandles += 1;
-				srcHeap.m_CurrentCPUDescriptorHandle.Offset(1, m_DescriptorHandleIncrementSize);
+				dstHandle.Offset(1, m_DescriptorHandleIncrementSize);
 				continue;
 			}
 
@@ -167,7 +111,7 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptorsFrom(DeviceDX12& d, Dynam
 
 			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] =
 			{
-				m_CurrentCPUDescriptorHandle
+				dstHandle
 			};
 			u32 pDestDescriptorRangeSizes[] =
 			{
@@ -178,8 +122,7 @@ void DynamicDescriptorHeapDX12::CommitStagedDescriptorsFrom(DeviceDX12& d, Dynam
 			d.GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
 				rangeCount, pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
 
-			m_CurrentCPUDescriptorHandle =
-				m_CurrentCPUDescriptorHandle.Offset(rangeCount, m_DescriptorHandleIncrementSize);
+			dstHandle = dstHandle.Offset(rangeCount, m_DescriptorHandleIncrementSize);
 			pSrcDescriptorHandles += rangeCount;
 		}
 

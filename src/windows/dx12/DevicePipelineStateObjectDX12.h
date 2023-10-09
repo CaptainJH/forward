@@ -143,7 +143,6 @@ namespace forward
 		~DeviceRTPipelineStateObjectDX12() override;
 
 		ID3D12StateObject* GetDeviceRTPSO();
-		void CommitDescriptorsTo(DeviceDX12& d, DynamicDescriptorHeapDX12& heap);
 
 	private:
 		RTPipelineStateComPtr			m_devicePSO;

@@ -71,6 +71,7 @@ namespace forward
 		static const u32 TextureSpace = 4U;
 		static const u32 AccelerationStructuresSpace = 99U;
 		static const u32 BindlessDescriptorCount = 0x4000;
+		static const u32 BindlessHeapStartOffset = 0x1000;
 	};
 
 
