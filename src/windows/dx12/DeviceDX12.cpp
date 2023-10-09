@@ -756,11 +756,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::AllocateCPUDescriptor(D3D12_DESCRIPTOR_H
 	return m_DescriptorAllocators[Type].Allocate(Count, m_pDevice.Get());
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::BuildPSO(PSOUnion& /*pso*/)
-{
-	/// TODO: not implement yet
-}
-//--------------------------------------------------------------------------------
 u32 DeviceDX12::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE type) const
 {
 	return m_pDevice->GetDescriptorHandleIncrementSize(type);

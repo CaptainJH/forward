@@ -133,8 +133,6 @@ namespace forward
 
 		void OnResize();
 
-		void BuildPSO(PSOUnion& pso);
-
 		//--------------------------------------------------------
 		DeviceTexture2DDX12* CurrentBackBuffer(RasterPipelineStateObject* pso) const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(RasterPipelineStateObject* pso) const;
