@@ -336,7 +336,7 @@ struct DeviceContext
     {
         m_devicePtr = std::make_unique<DeviceDX12>();
 
-        SwapChainConfig Config(m_devicePtr.get());
+        SwapChainConfig Config;
         Config.SetWidth(s);
         Config.SetHeight(s);
         Config.SetOutputWindow((HWND)0);

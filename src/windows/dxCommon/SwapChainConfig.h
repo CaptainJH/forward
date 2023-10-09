@@ -17,8 +17,8 @@ namespace forward
 	public:
 		static const u32 SwapChainBufferCount = 2;
 
-		SwapChainConfig(const Device* pRender);
-		virtual ~SwapChainConfig();
+		SwapChainConfig();
+		~SwapChainConfig() = default;
 
 		void SetWidth( u32 width );
 		void SetHeight( u32 height );

@@ -492,7 +492,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 		assert(false);
 	}
 
-	SwapChainConfig Config(m_pDevice);
+	SwapChainConfig Config;
 	Config.SetWidth(mClientWidth);
 	Config.SetHeight(mClientHeight);
 	Config.SetOutputWindow(MainWnd());

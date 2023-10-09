@@ -4,16 +4,9 @@
 //--------------------------------------------------------------------------------
 using namespace forward;
 //--------------------------------------------------------------------------------
-SwapChainConfig::SwapChainConfig(const Device* pRender)
+SwapChainConfig::SwapChainConfig()
 {
-	if (pRender->GetRendererAPI() == RendererAPI::DirectX11)
-		SetDefaultsDX11();
-	else if (pRender->GetRendererAPI() == RendererAPI::DirectX12)
-		SetDefaultsDX12();
-}
-//--------------------------------------------------------------------------------
-SwapChainConfig::~SwapChainConfig()
-{
+	SetDefaultsDX12();
 }
 //--------------------------------------------------------------------------------
 void SwapChainConfig::SetDefaultsDX11()
