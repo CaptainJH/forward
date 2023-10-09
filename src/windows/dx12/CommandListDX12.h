@@ -30,12 +30,12 @@ namespace forward
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
 		void BindGPUVisibleHeaps();
-		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&);
+		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&); // only used by demo RaytracingSimpleLighting
 		void BindRasterPSO(DevicePipelineStateObjectDX12&);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
-		void PrepareGPUVisibleHeaps(RTPipelineStateObject& pso);
+		void PrepareGPUVisibleHeaps(RTPipelineStateObject& pso); // only used by demo HelloRaytracing
 		void CommitStagedDescriptors();
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
