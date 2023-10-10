@@ -90,15 +90,16 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		Imath::Quatf q(rot.w, rot.x, rot.y, rot.z);
 		auto mRot = q.toMatrix44();
 
-		ret.mInstances.push_back({
-			.name = node.mName.C_Str(),
-			.meshId = node.mMeshes[0],
-			.materialId = scene->mMeshes[node.mMeshes[0]]->mMaterialIndex,
-			.translation = {pos.x, pos.y, pos.z},
-			.scale = {scale.x, scale.y, scale.z},
-			.rotation = {rot.w, rot.x, rot.y, rot.z},
-			.mat = mRot * mS * mT
-			});
+		for (auto i = 0U; i < node.mNumMeshes; ++i)
+			ret.mInstances.push_back({
+				.name = node.mName.C_Str(),
+				.meshId = node.mMeshes[i],
+				.materialId = scene->mMeshes[node.mMeshes[0]]->mMaterialIndex,
+				.translation = {pos.x, pos.y, pos.z},
+				.scale = {scale.x, scale.y, scale.z},
+				.rotation = {rot.w, rot.x, rot.y, rot.z},
+				.mat = mRot * mS * mT
+				});
 		};
 
 	auto& rootNode = *scene->mRootNode;
