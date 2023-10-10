@@ -32,6 +32,7 @@ namespace forward
 		RenderPass(RasterSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
 		RenderPass(ComputeSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
 		RenderPass(RTSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
+		RenderPass(SceneData& sceneData, RTSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType = OF_DEFAULT);
 
 		RenderPass() = delete;
 		~RenderPass() = default;

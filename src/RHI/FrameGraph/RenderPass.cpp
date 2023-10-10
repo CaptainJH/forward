@@ -31,6 +31,14 @@ RenderPass::RenderPass(RTSetupFuncType setupFunc, ExecuteFuncType execute, Opera
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<RTPipelineStateObject>());
 }
+RenderPass::RenderPass(SceneData& sceneData, RTSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
+	: m_executeCallback(execute)
+	, m_opFlags(operationType)
+	, m_pso(RTPipelineStateObject(sceneData))
+{
+	RenderPassBuilder builder(this);
+	setupFunc(builder, GetPSO<RTPipelineStateObject>());
+}
 
 RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const
 {

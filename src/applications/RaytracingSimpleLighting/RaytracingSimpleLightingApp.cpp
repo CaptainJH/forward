@@ -1,12 +1,5 @@
 #include "Application.h"
-#include "FrameGraph/Geometry.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandListDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
-#include "dx12/ResourceSystem/DeviceBufferDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DevicePipelineStateObjectDX12.h"
+#include "FrameGraph/FrameGraph.h"
 #include "SceneData.h"
 
 using namespace forward;
@@ -45,13 +38,10 @@ public:
 		if (!Application::Init())
 			return false;
 
-		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
 		m_scene = SceneData::LoadFromFile(L"DamagedHelmet/DamagedHelmet.gltf", m_pDevice->mLoadedResourceMgr);
-		m_rtPSO = std::make_unique<RTPipelineStateObject>(m_scene);
 
 		m_uavTex = make_shared<Texture2D>("UAV_Tex", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
 		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
 
 		m_cb0 = make_shared<ConstantBuffer<SceneConstantBuffer>>("g_sceneCB");
 		m_cb1 = make_shared<ConstantBuffer<CubeConstantBuffer>>("g_cubeCB");
@@ -60,26 +50,32 @@ public:
 			.albedo = {1.0f, 1.0f, 1.0f, 1.0f}
 		};
 
-		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
+		m_rtPass = std::make_unique<RenderPass>(m_scene,
+			[&](RenderPassBuilder&, RTPipelineStateObject& pso) {
+				pso.m_rtState.m_constantBuffers[0] = m_cb0;
+				pso.m_rtState.m_constantBuffers[1] = m_cb1;
+				pso.m_rtState.m_uavShaderRes[0] = m_uavTex;
 
-		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb0;
-		m_rtPSO->m_rtState.m_constantBuffers[1] = m_cb1;
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
+				auto& newlyAddedStageVB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					.m_space = Shader::VertexDataSpace });
+				for (auto& m : m_scene.mMeshData)
+					newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
+				auto& newlyAddedStageIB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					.m_space = Shader::IndexDataSpace });
+				for (auto& m : m_scene.mMeshData)
+					newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
 
-		auto& newlyAddedStageVB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = Shader::VertexDataSpace });
-		for (auto& m : m_scene.mMeshData)
-			newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
-		auto& newlyAddedStageIB = m_rtPSO->m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
-			.m_space = Shader::IndexDataSpace });
-		for (auto& m : m_scene.mMeshData)
-			newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
+				pso.m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"RaytracingSimpleLighting");
+				pso.m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", L"MyRaygenShader");
+				pso.m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
+				pso.m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
 
-		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", L"MyRaygenShader");
-		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
-		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
-
-		m_rtPSO->m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);
+			},
+			[&](CommandList& cmdList) {
+				cmdList.DispatchRays(m_rtPass->GetPSO<RTPipelineStateObject>());
+				cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_uavTex);
+			}
+		);
 
 		return true;
 	}
@@ -109,26 +105,17 @@ protected:
 
 	void DrawScene() override
 	{
-		m_pDeviceDX12->BeginDraw();
-
-		if (auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12())
-		{
-			auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_devicePSO.get());
-			cmdList->SetDynamicConstantBuffer(m_cb0.get());
-			cmdList->BindGPUVisibleHeaps(devicePSO);
-			cmdList->BindRTPSO(devicePSO);
-			cmdList->DispatchRays(*m_rtPSO);
-			cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
-		}
-
-		m_pDeviceDX12->EndDraw();
+		FrameGraph fg;
+		m_pDevice->BeginDrawFrameGraph(&fg);
+		fg.DrawRenderPass(m_rtPass.get());
+		m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
+		m_pDevice->EndDrawFrameGraph();
 	}
 
-	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
+	std::unique_ptr<RenderPass> m_rtPass;
 	shared_ptr<ConstantBuffer<SceneConstantBuffer>> m_cb0;
 	shared_ptr<ConstantBuffer<CubeConstantBuffer>> m_cb1;
 	shared_ptr<Texture2D> m_uavTex;
-	DeviceDX12* m_pDeviceDX12 = nullptr;
 
 	Vector3f m_eyePos = { 0.0f, 2.0f, -5.0f };
 

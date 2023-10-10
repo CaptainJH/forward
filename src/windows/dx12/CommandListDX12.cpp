@@ -134,17 +134,6 @@ void CommandListDX12::BindGPUVisibleHeaps()
 	cbvHeap.BindGPUVisibleDescriptorHeap(*this);
 }
 
-void CommandListDX12::BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12& rtPSO)
-{
-	BindGPUVisibleHeaps();
-	if (rtPSO.m_bindlessDescriptorHeap)
-	{
-		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-		heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *rtPSO.m_bindlessDescriptorHeap.get(), Shader::BindlessHeapStartOffset);
-
-	}
-}
-
 void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 {
 	u32 stagedCBVs = 0;

@@ -1162,7 +1162,8 @@ void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
 		{
 			if (pSRV && !pSRV->DeviceObject())
 			{
-				if (pSRV->GetType() == FGOT_STRUCTURED_BUFFER)
+				if (pSRV->GetType() == FGOT_STRUCTURED_BUFFER
+					|| pSRV->GetType() == FGOT_VERTEX_BUFFER || pSRV->GetType() == FGOT_INDEX_BUFFER)
 					pSRV->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdList->GetDeviceCmdListPtr().Get(), pSRV.get(), *d));
 				else if (pSRV->GetType() == FGOT_TEXTURE2)
 				{

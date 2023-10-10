@@ -29,11 +29,10 @@ namespace forward
 		void CopyResource(Resource& dst, Resource& src) override;
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
-		void BindGPUVisibleHeaps();
-		void BindGPUVisibleHeaps(DeviceRTPipelineStateObjectDX12&); // only used by demo RaytracingSimpleLighting
 		void BindRasterPSO(DevicePipelineStateObjectDX12&);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
+		void BindGPUVisibleHeaps();
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
 		void CommitStagedDescriptors();
 
