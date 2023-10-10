@@ -35,7 +35,6 @@ namespace forward
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
-		void PrepareGPUVisibleHeaps(RTPipelineStateObject& pso); // only used by demo HelloRaytracing
 		void CommitStagedDescriptors();
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;

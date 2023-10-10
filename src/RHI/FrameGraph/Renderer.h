@@ -13,8 +13,8 @@ namespace forward
 	class RendererBase : public intrusive_ref_counter
 	{
 	public:
-		RendererBase();
-		virtual ~RendererBase();
+		RendererBase() = default;
+		virtual ~RendererBase() = default;
 
 		RendererBase& SetPass(u8 passIndex);
 		void DrawEffect(FrameGraph*);

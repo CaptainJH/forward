@@ -1,13 +1,7 @@
 
 #include "Application.h"
 #include "FrameGraph/Geometry.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandListDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
-#include "dx12/ResourceSystem/DeviceBufferDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DevicePipelineStateObjectDX12.h"
+#include "FrameGraph/FrameGraph.h"
 
 using namespace forward;
 
@@ -52,18 +46,12 @@ public:
 			 1 - border / AspectRatio(), 1.0f - border
 		};
 
-		m_pDeviceDX12 = static_cast<DeviceDX12*>(m_pDevice);
-		auto commandList = m_pDeviceDX12->DeviceCommandList();
-		m_rtPSO = std::make_unique<RTPipelineStateObject>();
-
 		// setup geometry
 		m_ib = make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, 3);
 		m_ib->AddFace(TriangleIndices(0, 1, 2));
-		auto deviceIB = make_shared<DeviceBufferDX12>(commandList, m_ib.get(), *m_pDeviceDX12);
-		m_ib->SetDeviceObject(deviceIB);
 
-		f32 depthValue = 1.0;
-		f32 offset = 0.7f;
+		const f32 depthValue = 1.0;
+		const f32 offset = 0.7f;
 		Vertex_POS vertices[] =
 		{
 			// The sample raytraces in screen space coordinates.
@@ -77,58 +65,52 @@ public:
 		m_vb->AddVertex(vertices[0]);
 		m_vb->AddVertex(vertices[1]);
 		m_vb->AddVertex(vertices[2]);
-		auto deviceVB = make_shared<DeviceBufferDX12>(commandList, m_vb.get(), *m_pDeviceDX12);
-		m_vb->SetDeviceObject(deviceVB);
-		m_rtPSO->m_meshes.emplace_back(std::make_pair(m_vb, m_ib));
 
 		m_cb = make_shared<ConstantBuffer<RayGenConstantBuffer>>("g_sceneCB");
 		*m_cb = m_rayGenCB;
-		m_rtPSO->m_rtState.m_constantBuffers[0] = m_cb;
 
 		m_uavTex = make_shared<Texture2D>("UAV_Tex", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_Shader);
-		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		auto deviceUAVTex = make_shared<DeviceTexture2DDX12>(m_uavTex.get(), *m_pDeviceDX12);
-		m_uavTex->SetDeviceObject(deviceUAVTex);
-		m_rtPSO->m_rtState.m_uavShaderRes[0] = m_uavTex;
+		m_uavTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);	
 
-		// setup shaders
-		m_rtPSO->m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"HelloRaytracing");
-		m_rtPSO->m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", L"MyRaygenShader");
-		m_rtPSO->m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
-		m_rtPSO->m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
+		m_rtPass = std::make_unique<RenderPass>(
+			[&](RenderPassBuilder&, RTPipelineStateObject& pso) {
+				pso.m_meshes.emplace_back(std::make_pair(m_vb, m_ib));
+				pso.m_rtState.m_uavShaderRes[0] = m_uavTex;
+				pso.m_rtState.m_constantBuffers[0] = m_cb;
 
-		m_rtPSO->m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(m_pDeviceDX12, *m_rtPSO);		
+				// setup shaders
+				pso.m_rtState.m_shader = make_shared<RaytracingShaders>("RaytracingShader", L"HelloRaytracing");
+				pso.m_rtState.m_rayGenShaderTable = make_shared<ShaderTable>("RayGenShaderTable", L"MyRaygenShader");
+				pso.m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
+				pso.m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
+			},
+			[&](CommandList& cmdList) {
+				auto& rtPSO = m_rtPass->GetPSO<RTPipelineStateObject>();
+				cmdList.DispatchRays(rtPSO);
+				cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_uavTex);
+			}
+		);
 
 		return true;
 	}
 
 protected:
-	void UpdateScene(f32) override
-	{
-
-	}
+	void UpdateScene(f32) override {}
 
 	void DrawScene() override
 	{
-		m_pDeviceDX12->BeginDraw();
-
-		auto cmdList = m_pDeviceDX12->GetDefaultQueue()->GetCommandListDX12();
-		cmdList->BindGPUVisibleHeaps();
-		cmdList->PrepareGPUVisibleHeaps(*m_rtPSO);
-		cmdList->CommitStagedDescriptors();
-		cmdList->BindRTPSO(*dynamic_cast<DeviceRTPipelineStateObjectDX12*>(m_rtPSO->m_devicePSO.get()));
-		cmdList->DispatchRays(*m_rtPSO);
-		cmdList->CopyResource(*m_pDeviceDX12->GetCurrentSwapChainRT(), *m_uavTex);
-
-		m_pDeviceDX12->EndDraw();
+		FrameGraph fg;
+		m_pDevice->BeginDrawFrameGraph(&fg);
+		fg.DrawRenderPass(m_rtPass.get());
+		m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
+		m_pDevice->EndDrawFrameGraph();
 	}
 
-	std::unique_ptr<RTPipelineStateObject> m_rtPSO;
 	shared_ptr<IndexBuffer> m_ib;
 	shared_ptr<VertexBuffer> m_vb;
 	shared_ptr<ConstantBuffer<RayGenConstantBuffer>> m_cb;
 	shared_ptr<Texture2D> m_uavTex;
-	DeviceDX12* m_pDeviceDX12 = nullptr;
+	std::unique_ptr<RenderPass> m_rtPass;
 
 	// Raytracing scene
 	RayGenConstantBuffer m_rayGenCB;
