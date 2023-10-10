@@ -20,11 +20,16 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 {
 	SceneData ret;
 
-	WString sceneFilePathW = FileSystem::getSingleton().GetModelsFolder() + fileName;
+	String sceneFileFullPath = TextHelper::ToAscii(fileName);
+	WString sceneFilePathW = fileName;
 	if (!FileSystem::getSingleton().FileExists(sceneFilePathW))
-		sceneFilePathW = FileSystem::getSingleton().GetExternFolder() + fileName;
-	assert(FileSystem::getSingleton().FileExists(sceneFilePathW));
-	const String sceneFileFullPath = TextHelper::ToAscii(sceneFilePathW);
+	{
+		sceneFilePathW = FileSystem::getSingleton().GetModelsFolder() + fileName;
+		if (!FileSystem::getSingleton().FileExists(sceneFilePathW))
+			sceneFilePathW = FileSystem::getSingleton().GetExternFolder() + fileName;
+		assert(FileSystem::getSingleton().FileExists(sceneFilePathW));
+		sceneFileFullPath = TextHelper::ToAscii(sceneFilePathW);
+	}
 
 	const aiScene* scene = aiImportFile(sceneFileFullPath.c_str(), aiProcess_MakeLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
