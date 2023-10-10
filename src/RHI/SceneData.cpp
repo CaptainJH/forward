@@ -84,7 +84,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		}
 	}
 
-	auto AddInstance = [&](aiNode& node) {
+	std::function<void(aiNode&, float4x4)> AddInstance = [&](aiNode& node, float4x4 parentMat) {
 		aiVector3D scale, pos;
 		aiQuaternion rot;
 		node.mTransformation.Decompose(scale, rot, pos);
@@ -94,6 +94,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 		mS.setScale(float3(scale.x, scale.y, scale.z));
 		Imath::Quatf q(rot.w, rot.x, rot.y, rot.z);
 		auto mRot = q.toMatrix44();
+		auto currentTransformMat = mRot * mS * mT * parentMat;
 
 		for (auto i = 0U; i < node.mNumMeshes; ++i)
 			ret.mInstances.push_back({
@@ -103,23 +104,15 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 				.translation = {pos.x, pos.y, pos.z},
 				.scale = {scale.x, scale.y, scale.z},
 				.rotation = {rot.w, rot.x, rot.y, rot.z},
-				.mat = mRot * mS * mT
+				.mat = currentTransformMat
 				});
+		for (auto i = 0U; i < node.mNumChildren; ++i)
+			AddInstance(*node.mChildren[i], currentTransformMat);
 		};
 
+	float4x4 instMat; instMat.makeIdentity();
 	auto& rootNode = *scene->mRootNode;
-	if (rootNode.mNumMeshes > 0)
-	{
-		AddInstance(rootNode);
-	}
-
-	for (auto idx = 0U; idx < scene->mRootNode->mNumChildren; ++idx)
-	{
-		auto node = scene->mRootNode->mChildren[idx];
-		if (node->mNumMeshes == 0)
-			continue;
-		AddInstance(*node);
-	}
+	AddInstance(rootNode, instMat);
 
 	auto FindTextureId = [&](const String& n)->u32 {
 		std::filesystem::path sceneFile = sceneFilePathW;
