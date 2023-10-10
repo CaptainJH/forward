@@ -62,7 +62,7 @@ void GraphicsObject::CheckMemoryLeak()
 void GraphicsObject::SetDeviceObject(forward::DeviceObject* obj)
 {
 	m_deviceObjectPtr = obj;
-	obj->PostSetDeviceObject(this);
+	if (obj)obj->PostSetDeviceObject(this);
 }
 
 void GraphicsObject::SetDeviceObject(DeviceObjPtr p)

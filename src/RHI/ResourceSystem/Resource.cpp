@@ -5,15 +5,6 @@
 
 using namespace forward;
 
-Resource::Resource()
-	: m_numElements(0)
-	, m_numActiveElements(0)
-    , m_elementSize(0)
-    , m_numBytes(0)
-    , m_data(nullptr)
-	, m_usage(ResourceUsage::RU_IMMUTABLE)
-{}
-
 Resource::Resource(const std::string& name)
 	: m_numElements(0)
     , m_numActiveElements(0)
@@ -106,6 +97,9 @@ void Resource::Initialize(u32 numElements, u32 elementSize)
 void Resource::SetUsage(ResourceUsage usage)
 {
 	m_usage = usage;
+	if (m_usage == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL ||
+		m_usage == ResourceUsage::RU_DYNAMIC_UPDATE)
+		m_dynamicResPool.Init(this);
 }
 
 ResourceUsage Resource::GetUsage() const
@@ -166,4 +160,15 @@ void Resource::CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 src
 			dstSlice += dstSlicePitch;
 		}
 	}
+}
+
+void RWResourcePool::ResetDeviceResource(u64 u)
+{
+	if (!m_resourcePtr) return;
+	for (auto& pair : m_DeviceResPool)
+	{
+		if (pair.first == u)
+			pair.first = 0;
+	}
+	m_resourcePtr->SetDeviceObject(nullptr);
 }

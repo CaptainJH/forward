@@ -18,10 +18,27 @@ namespace forward
 		RU_CPU_GPU_BIDIRECTIONAL, // D3D11_USAGE_STAGING		GPU read/write, CPU read/write
 	};
 
+	class Resource;
+	class RWResourcePool
+	{
+	public:
+		RWResourcePool() = default;
+		template<class F> ResourcePtr FetchDeviceResource(u64 u, F&& failFunc);
+		void ResetDeviceResource(u64 u);
+		void Init(Resource* res) { m_resourcePtr = res; m_DeviceResPool.reserve(PoolSize); }
+
+	private:
+		typedef std::pair<u64, ResourcePtr> DeviceResourceEntryType;
+		const static u32 PoolSize = 2;
+		Vector<DeviceResourceEntryType> m_DeviceResPool;
+
+		Resource* m_resourcePtr = nullptr;
+	};
+
 	class Resource : public GraphicsObject
 	{
 	public:
-		Resource();
+		Resource() = delete;
 		Resource(const std::string& name);
 		virtual ~Resource();
 
@@ -49,6 +66,18 @@ namespace forward
 			return reinterpret_cast<T>(GetData());
 		}
 
+		template<class F> ResourcePtr UpdateDynamicResource(u64 u, F&& failFunc)
+		{
+			if (GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL ||
+				GetUsage() == ResourceUsage::RU_DYNAMIC_UPDATE)
+			{
+				m_dynamicResPool.ResetDeviceResource(u);
+				return m_dynamicResPool.FetchDeviceResource(u, failFunc);
+			}
+			else
+				return nullptr;
+		}
+
 		static void CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData);
 		static void CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData,
 			u32 dstRowPitch, u32 dstSlicePitch, u8* dstData);
@@ -62,5 +91,30 @@ namespace forward
 		std::vector<u8> m_storage;
 		u8*		m_data;
 		ResourceUsage	m_usage;
+
+		RWResourcePool m_dynamicResPool;
 	};
+
+	template<class F> 
+	ResourcePtr RWResourcePool::FetchDeviceResource(u64 u, F&& failFunc)
+	{
+		if (!m_resourcePtr) return nullptr;
+		assert(!m_resourcePtr->DeviceObject());
+		ResourcePtr ret = nullptr;
+		for (auto& pair : m_DeviceResPool)
+			if (pair.first == 0)
+			{
+				ret = pair.second;
+				pair.first = u;
+				break;
+			}
+		if (!ret)
+		{
+			ret = failFunc();
+			m_DeviceResPool.emplace_back(std::make_pair(u, ret));
+		}
+		m_resourcePtr->SetDeviceObject(ret);
+		assert(m_resourcePtr->DeviceObject());
+		return ret;
+	}
 }

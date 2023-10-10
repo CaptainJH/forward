@@ -63,43 +63,7 @@ namespace forward
 		++m_numActiveElements;
 	}
 
-	class RWBuffer : public Buffer
-	{
-	public:
-		RWBuffer(const std::string& name);
-		template<class F>
-		ResourcePtr FetchDeviceBuffer(u64 u, F&& failFunc);
-		void ResetDeviceBuffer(u64 u);
-
-	protected:
-		typedef std::pair<u64, ResourcePtr> DeviceResourceEntryType;
-		std::vector<DeviceResourceEntryType> m_DeviceResPool;
-	};
-
-
-
-	template<class F>
-	ResourcePtr RWBuffer::FetchDeviceBuffer(u64 u, F&& failFunc)
-	{
-		assert(!this->DeviceObject());
-		ResourcePtr ret = nullptr;
-		for (auto& pair : m_DeviceResPool)
-			if (pair.first == 0)
-			{
-				ret = pair.second;
-				pair.first = u;
-			}
-		if (!ret)
-		{
-			ret = failFunc();
-			m_DeviceResPool.push_back(std::make_pair(u, ret));
-		}
-		SetDeviceObject(ret);
-		assert(this->DeviceObject());
-		return ret;
-	}
-
-	class ConstantBufferBase : public RWBuffer
+	class ConstantBufferBase : public Buffer
 	{
 	public:
 		ConstantBufferBase(const std::string& name);
@@ -152,11 +116,11 @@ namespace forward
 	}
 
 	template<class T>
-	class StructuredBuffer : public RWBuffer
+	class StructuredBuffer : public Buffer
 	{
 	public:
 		StructuredBuffer(const std::string& name, u32 size)
-			: RWBuffer(name)
+			: Buffer(name)
 		{
 			m_type = FGOT_STRUCTURED_BUFFER;
 			m_usage = RU_IMMUTABLE;

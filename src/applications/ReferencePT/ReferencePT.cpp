@@ -83,6 +83,7 @@ protected:
 		m_pt->DrawEffect(&fg);
 		m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 		m_pDevice->EndDrawFrameGraph();
+		m_pDevice->FlushDefaultQueue();
 	}
 
 	shared_ptr<ReferencePTRenderer> m_pt;

@@ -98,29 +98,16 @@ const VertexFormat& VertexBuffer::GetVertexFormat() const
 }
 
 ConstantBufferBase::ConstantBufferBase(const std::string& name)
-	: RWBuffer(name)
+	: Buffer(name)
 {
-	m_usage = RU_DYNAMIC_UPDATE;
+	SetUsage(RU_DYNAMIC_UPDATE);
+	m_type = FGOT_CONSTANT_BUFFER;
 }
 
 ConstantBufferBase::ConstantBufferBase(const std::string& name, u32 size)
-	: RWBuffer(name)
+	: Buffer(name)
 {
-	m_usage = RU_DYNAMIC_UPDATE;
+	SetUsage(RU_DYNAMIC_UPDATE);
 	m_type = FGOT_CONSTANT_BUFFER;
 	Initialize(1, size);
-}
-
-RWBuffer::RWBuffer(const std::string& name)
-	: Buffer(name)
-{}
-
-void RWBuffer::ResetDeviceBuffer(u64 u)
-{
-	for (auto& pair : m_DeviceResPool)
-	{
-		if (pair.first == u)
-			pair.first = 0;
-	}
-	m_deviceObjectPtr = nullptr;
 }
