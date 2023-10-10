@@ -94,7 +94,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 			ret.mInstances.push_back({
 				.name = node.mName.C_Str(),
 				.meshId = node.mMeshes[i],
-				.materialId = scene->mMeshes[node.mMeshes[0]]->mMaterialIndex,
+				.materialId = scene->mMeshes[node.mMeshes[i]]->mMaterialIndex,
 				.translation = {pos.x, pos.y, pos.z},
 				.scale = {scale.x, scale.y, scale.z},
 				.rotation = {rot.w, rot.x, rot.y, rot.z},
