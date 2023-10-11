@@ -142,10 +142,10 @@ float3 integrate(const float3& ray_orig, const float3& ray_dir, const std::vecto
         return background_color;
 
     float step_size = 0.2f;
-    float absorption = 0.1f;
-    float scattering = 0.1f;
-    float density = 1.0f;
-    int ns = static_cast<int>(std::ceil((isect.t1 - isect.t0) / step_size));
+    const float absorption = 0.1f;
+    const float scattering = 0.1f;
+    const float density = 1.0f;
+    const int ns = static_cast<int>(std::ceil((isect.t1 - isect.t0) / step_size));
     step_size = (isect.t1 - isect.t0) / ns;
 
     float3 light_dir{ 0, 1, 0 };
@@ -221,9 +221,9 @@ void DrawVolume(u32 size, std::vector<float3>& buffer)
 {
     buffer.resize(size * size, { 0.0f, 0.0f, 0.0f });
 
-    auto frameAspectRatio = size / float(size);
-    float fov = 45;
-    float focal = tan(f_PI / 180 * fov * 0.5f);
+    const auto frameAspectRatio = size / float(size);
+    const float fov = 45;
+    const float focal = tan(f_PI / 180 * fov * 0.5f);
 
     float3 rayOrig(0.0f);
     float3 rayDir(0.0f);
@@ -253,17 +253,17 @@ void DrawVolume_WithPolicy(u32 size, std::vector<float3>& buffer, Policy p)
 {
     buffer.resize(size * size, { 0.0f, 0.0f, 0.0f });
 
-    auto frameAspectRatio = size / float(size);
-    float fov = 45;
-    float focal = tan(f_PI / 180 * fov * 0.5f);
+    const auto frameAspectRatio = size / float(size);
+    const float fov = 45;
+    const float focal = tan(f_PI / 180 * fov * 0.5f);
 
     std::for_each(p, buffer.begin(), buffer.end(), [=, &buffer](auto& data) {
         float3 rayOrig(0.0f);
         float3 rayDir(0.0f);
 
         auto offset = &data - buffer.data();
-        auto i = offset / size;
-        auto j = offset % size;
+        auto i = offset % size;
+        auto j = offset / size;
         rayDir.x = (2.f * (i + 0.5f) / size - 1) * focal;
         rayDir.y = (1 - 2.f * (j + 0.5f) / size) * focal * 1 / frameAspectRatio; // Maya style
         rayDir.z = -1.f;
@@ -375,29 +375,29 @@ void DrawVolume_ComputeShader(DeviceContext& ctx)
 int main()
 {
     unsigned int size = 512;
-    //std::vector<float3> buffer;
-    //Setup();
-    //FileSystem fileSystem;
+    std::vector<float3> buffer;
+    Setup();
+    FileSystem fileSystem;
     //DrawVolume(size, buffer);
-    //DrawVolume_WithPolicy(size, buffer, std::execution::par);
+    DrawVolume_WithPolicy(size, buffer, std::execution::par);
     //DrawVolume_TBB(size, buffer);
 
     // writing file
-    //std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
-    //DirectX::Image resultImage = {
-    //    .width = size,
-    //    .height = size,
-    //    .format = DXGI_FORMAT_R32G32B32_FLOAT,
-    //    .rowPitch = size * sizeof(float3),
-    //    .slicePitch = size * size * sizeof(float3),
-    //    .pixels = reinterpret_cast<uint8_t*>(buffer.data())
-    //};
-    //DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
+    std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + L"HelloVolumeRendering.exr";
+    DirectX::Image resultImage = {
+        .width = size,
+        .height = size,
+        .format = DXGI_FORMAT_R32G32B32_FLOAT,
+        .rowPitch = size * sizeof(float3),
+        .slicePitch = size * size * sizeof(float3),
+        .pixels = reinterpret_cast<uint8_t*>(buffer.data())
+    };
+    DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
 
-    DeviceContext ctx(size);
-    ProfilingHelper::BeginPixCapture("HelloVolume_PIX_Capture.wpix");
-    DrawVolume_ComputeShader(ctx);
-    ProfilingHelper::EndPixCapture();
+    //DeviceContext ctx(size);
+    //ProfilingHelper::BeginPixCapture("HelloVolume_PIX_Capture.wpix");
+    //DrawVolume_ComputeShader(ctx);
+    //ProfilingHelper::EndPixCapture();
 
 }
 #else
