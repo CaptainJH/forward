@@ -53,8 +53,6 @@
 #endif
 
 #include "dx12/DeviceDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dxCommon/SwapChainConfig.h"
 #include "FrameGraph/FrameGraph.h"
 #include "ProfilingHelper.h"
 
@@ -366,7 +364,7 @@ void DrawVolume_ComputeShader(DeviceContext& ctx)
     ctx.m_devicePtr->BeginDrawFrameGraph(&fg);
     fg.DrawRenderPass(ctx.m_computePassPtr.get());
     ctx.m_devicePtr->EndDrawFrameGraph();
-    ctx.m_devicePtr->GetDefaultQueue()->Flush();
+    ctx.m_devicePtr->FlushDefaultQueue();
 
 #ifndef RUN_BENCHMARK
     ctx.m_devicePtr->SaveTexture(L"HelloVolumeFromComputeShader.dds", ctx.m_uavTex.get());
