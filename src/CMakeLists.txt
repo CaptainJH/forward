@@ -1,22 +1,6 @@
 
 set(forward_source_root ${CMAKE_CURRENT_SOURCE_DIR})
 
-#set(BOOST_ROOT "C:/")
-#set(Boost_INCLUDE_DIR ${BOOST_ROOT})
-#set(Boost_LIBRARY_DIR ${BOOST_ROOT})
-#set(Boost_LIBRARY_DIR C:/Users/jhq/Downloads/boost_1_59_0/stage/lib)
-find_package(Boost)
-if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS}) 
-	link_directories(${Boost_LIBRARY_DIRS})
-	MESSAGE( STATUS "${Boost_INCLUDE_DIRS}")
-	MESSAGE( STATUS "${Boost_LIBRARY_DIRS}")
-	#target_link_libraries(progname ${Boost_LIBRARIES})
-endif()
-
-set(TBB_DIR "${forward_repository_root}/extern/src/oneTBB/lib/cmake/tbb/" CACHE PATH "Specify the oneTBB root path")
-find_package(TBB 2021.10.0)
-
 include_directories("${forward_source_root}/")
 include_directories("include/")
 include_directories("core/")
