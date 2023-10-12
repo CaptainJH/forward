@@ -1,5 +1,10 @@
+#pragma warning( push )
+#pragma warning( disable : 4127 )
+#pragma warning( disable : 4251 )
+#pragma warning( disable : 4275 )
+#include <OpenVDB/openvdb.h>
+#pragma warning( pop )
 
-#include "PCH.h"
 #include "Application.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "dxCommon/DirectXTexEXR.h"
