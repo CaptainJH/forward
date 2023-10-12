@@ -7,6 +7,8 @@
 #include <ImathColor.h>
 #include <ImathVec.h>
 #include <ImathMatrix.h>
+#include <ImathLine.h>
+#include <ImathBox.h>
 
 
 namespace forward
@@ -35,6 +37,8 @@ namespace forward
 	typedef Imath::Matrix33<forward::f32> float3x3;
 	typedef Imath::Matrix44<forward::f32> float4x4;
 
+	typedef Imath::Line3f Ray;
+	typedef Imath::Box3f Box;
 	typedef Imath::Color3f Color3;
 	typedef Imath::Color4f Color4;
 

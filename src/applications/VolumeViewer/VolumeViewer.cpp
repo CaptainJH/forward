@@ -5,6 +5,7 @@
 #include "dxCommon/DirectXTexEXR.h"
 
 #include <execution>
+#include <ImathBoxAlgo.h>
 
 
 using namespace forward;
@@ -12,9 +13,9 @@ using namespace forward;
 float4x4 cameraToWorld{ 0.844328f, 0, -0.535827f, 0, -0.170907f, 0.947768f, -0.269306f, 0, 0.50784f, 0.318959f, 0.800227f, 0, 83.292171f, 45.137326f, 126.430772f, 1 };
 struct Grid
 {
-    u32 baseResolution = 128U;
+    const u32 baseResolution = 128U;
     std::unique_ptr<float[]> densityData;
-    float3 bounds[2]{ float3(-30), float3(30) };
+    Box bb = { float3(-30.0f), float3(30.0f) };
     float operator () (const u32& xi, const u32& yi, const u32& zi) const 
     {
         if (xi < 0 || xi > baseResolution - 1 ||
@@ -26,53 +27,14 @@ struct Grid
     }
 };
 
-struct Ray
+bool raybox(const Ray& ray, const Box& bound, float& tmin, float& tmax)
 {
-    Ray(const float3& p, const float3& d) : orig(p), dir(d)
-    {
-        invDir = { 1 / dir.x, 1 / dir.y, 1 / dir.z };
+    float3 entry, exit;
+    auto intersect = Imath::findEntryAndExitPoints(ray, bound, entry, exit);
+    if (!intersect) return false;
 
-        sign[0] = (invDir.x < 0);
-        sign[1] = (invDir.y < 0);
-        sign[2] = (invDir.z < 0);
-    }
-    float3 operator() (const float& t) const
-    {
-        return orig + dir * t;
-    }
-    float3 orig;
-    float3 dir, invDir;
-    bool sign[3];
-};
-
-bool raybox(const Ray& ray, const float3 bounds[2], float& tmin, float& tmax)
-{
-    float a, b, c, d, e, f;
-    a = bounds[ray.sign[0]].x - ray.orig.x;
-    b = bounds[1 - ray.sign[0]].x - ray.orig.x;
-    c = bounds[ray.sign[1]].y - ray.orig.y;
-    d = bounds[1 - ray.sign[1]].y - ray.orig.y;
-
-    float x0 = a == 0 ? 0 : a * ray.invDir.x;
-    float x1 = b == 0 ? 0 : b * ray.invDir.x;
-    float y0 = c == 0 ? 0 : c * ray.invDir.y;
-    float y1 = d == 0 ? 0 : d * ray.invDir.y;
-
-    if ((x0 > y1) || (y0 > x1)) return false;
-
-    tmin = (y0 > x0) ? y0 : x0;
-    tmax = (y1 < x1) ? y1 : x1;
-
-    e = bounds[ray.sign[2]].z - ray.orig.z;
-    f = bounds[1 - ray.sign[2]].z - ray.orig.z;
-
-    float z0 = e == 0 ? 0 : e * ray.invDir.z;
-    float z1 = f == 0 ? 0 : f * ray.invDir.z;
-
-    if ((tmin > z1) || (z0 > tmax)) return false;
-
-    tmin = std::max(z0, tmin);
-    tmax = std::min(z1, tmax);
+    tmin = (entry - ray.pos).length();
+    tmax = (exit - ray.pos).length();
 
     return true;
 }
@@ -91,9 +53,9 @@ float phaseHG(const float3& viewDir, const float3& lightDir, const float& g)
 //[/comment]
 float lookup(const Grid& grid, const float3& p)
 {
-    float3 gridSize = grid.bounds[1] - grid.bounds[0];
-    float3 pLocal = (p - grid.bounds[0]) / gridSize;
-    float3 pVoxel = pLocal * static_cast<f32>(grid.baseResolution);
+    const float3 gridSize = grid.bb.max - grid.bb.min;
+    const float3 pLocal = (p - grid.bb.min) / gridSize;
+    const float3 pVoxel = pLocal * static_cast<f32>(grid.baseResolution);
 
     float3 pLattice(pVoxel.x - 0.5f, pVoxel.y - 0.5f, pVoxel.z - 0.5f);
     int xi = static_cast<int>(std::floor(pLattice.x));
@@ -163,8 +125,8 @@ void integrate(
         Tvol *= Tsample;
 
         float tlMin, tlMax;
-        Ray lightRay(samplePos, lightDir);
-        if (density > 0 && raybox(lightRay, grid.bounds, tlMin, tlMax) && tlMax > 0) 
+        Ray lightRay(samplePos, samplePos + lightDir);
+        if (density > 0 && raybox(lightRay, grid.bb, tlMin, tlMax) && tlMax > 0) 
         {
             size_t numStepsLight = static_cast<size_t>(std::ceil(tlMax / stepSize));
             float strideLight = tlMax / numStepsLight;
@@ -214,7 +176,7 @@ void initRenderContext(RenderContext& rc)
 void trace(Ray& ray, Color3& L, float& transmittance, const RenderContext& /*rc*/, const Grid& grid)
 {
     float tmin, tmax;
-    if (raybox(ray, grid.bounds, tmin, tmax))
+    if (raybox(ray, grid.bb, tmin, tmax))
         integrate(ray, tmin, tmax, L, transmittance, grid);
 }
 
@@ -262,7 +224,7 @@ void render(const size_t& frame)
                 cameraToWorld.multDirMatrix(rayDir, rayDir);
                 rayDir.normalize();
 
-                Ray ray(rayOrig, rayDir);
+                Ray ray(rayOrig, rayOrig + rayDir);
 
                 Color3 L(0.0f); // radiance for that ray (light collected)
                 float transmittance = 1;
