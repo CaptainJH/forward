@@ -20,6 +20,7 @@ struct Grid
 {
     const u32 baseResolution = 128U;
     std::unique_ptr<float[]> densityData;
+    openvdb::FloatGrid::Ptr vdbGrid;
     Box bb = { float3(-30.0f), float3(30.0f) };
     float operator () (const u32& xi, const u32& yi, const u32& zi) const 
     {
@@ -260,6 +261,43 @@ void render(const size_t& frame)
     DirectX::SaveToEXRFile(resultImage, exrFilePath.c_str());
 }
 
+openvdb::FloatGrid::Ptr convertToVDB(u32 frame)
+{
+    std::cout << "Convert frame: " << frame << std::endl;
+
+    //[comment]
+    // Load the density data from file into memory for this current frame
+    //[/comment]
+    std::ifstream ifs;
+    std::stringstream ss;
+    ss << "D:/Documents/GitHub/scratchapixel/volume-rendering-for-developers/cachefiles/grid." << frame << ".bin";
+    ifs.open(ss.str().c_str(), std::ios::binary);
+    Grid srcGrid;
+    srcGrid.densityData = std::make_unique<float[]>(srcGrid.baseResolution * srcGrid.baseResolution * srcGrid.baseResolution);
+    ifs.read((char*)srcGrid.densityData.get(), sizeof(float) * srcGrid.baseResolution * srcGrid.baseResolution * srcGrid.baseResolution);
+    ifs.close();
+
+    auto retGrid = openvdb::FloatGrid::create();
+    openvdb::FloatGrid::Accessor accessor = retGrid->getAccessor();
+
+    for (auto x = 0U; x < srcGrid.baseResolution; ++x)
+    {
+        for (auto y = 0U; y < srcGrid.baseResolution; ++y)
+        {
+            for (auto z = 0U; z < srcGrid.baseResolution; ++z)
+            {
+                openvdb::Coord xyz(x, y, z);
+                accessor.setValue(xyz, srcGrid(x, y, z));
+            }
+        }
+    }
+    std::stringstream ssN;
+    ssN << "smoke." << frame << ".grid";
+    retGrid->setName(ssN.str());
+
+    return retGrid;
+}
+
 class VolumeViewer : public Application
 {
 public:
@@ -276,8 +314,6 @@ protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
 
-
-
 private:
 
 };
@@ -288,6 +324,7 @@ bool VolumeViewer::Init()
 	if (!Application::Init())
 		return false;
 
+    openvdb::initialize();
 	return true;
 }
 
@@ -300,8 +337,15 @@ void VolumeViewer::DrawScene()
 {
     //for (auto frame = 1; frame <= 90; ++frame)
     //    render(frame);
-    render(0);
+    //render(0);
     render(50);
+
+    //Vector<openvdb::FloatGrid::Ptr> grids;
+    //for (auto frame = 1; frame <= 90; ++frame)
+    //    grids.emplace_back(convertToVDB(frame));
+
+    //std::wstring outputVDBFile = FileSystem::getSingleton().GetSavedFolder() + L"smoke.vdb";
+    //openvdb::io::File(TextHelper::ToAscii(outputVDBFile)).write(grids);
 }
 
 int main()
