@@ -20,7 +20,6 @@ struct Grid
 {
     const u32 baseResolution = 128U;
     std::unique_ptr<float[]> densityData;
-    openvdb::FloatGrid::Ptr vdbGrid;
     Box bb = { float3(-30.0f), float3(30.0f) };
     float operator () (const u32& xi, const u32& yi, const u32& zi) const 
     {
@@ -30,6 +29,15 @@ struct Grid
             return 0;
 
         return densityData[(zi * baseResolution + yi) * baseResolution + xi];
+    }
+
+    void readFromVDB(openvdb::FloatGrid::Ptr vdb)
+    {
+        for (openvdb::FloatGrid::ValueOnCIter iter = vdb->cbeginValueOn(); iter; ++iter) 
+        {
+            auto coord = iter.getCoord();
+            densityData[(coord.z() * baseResolution + coord.y()) * baseResolution + coord.x()] = *iter;
+        }
     }
 };
 
@@ -190,17 +198,21 @@ void render(const size_t& frame)
 {
     std::cout << "Rendering frame: " << frame << std::endl;
 
-    //[comment]
-    // Load the density data from file into memory for this current frame
-    //[/comment]
-    std::ifstream ifs;
-    std::stringstream ss;
-    ss << "D:/Documents/GitHub/scratchapixel/volume-rendering-for-developers/cachefiles/grid." << frame << ".bin";
-    ifs.open(ss.str().c_str(), std::ios::binary);
     Grid grid;
     grid.densityData = std::make_unique<float[]>(grid.baseResolution * grid.baseResolution * grid.baseResolution);
-    ifs.read((char*)grid.densityData.get(), sizeof(float) * grid.baseResolution * grid.baseResolution * grid.baseResolution);
-    ifs.close();
+    
+    std::wstring vdbFilePath = FileSystem::getSingleton().GetSavedFolder() + L"smoke.vdb";
+    openvdb::io::File vdbFile(TextHelper::ToAscii(vdbFilePath));
+    vdbFile.open();
+    std::stringstream gridName;
+    gridName << "smoke." << frame << ".grid";
+    auto gridIt = std::find_if(vdbFile.beginName(), vdbFile.endName(), [&](openvdb::Name n) {
+        return n == gridName.str();
+        });
+    assert(gridIt != vdbFile.endName());
+    auto vdbGrid = openvdb::gridPtrCast<openvdb::FloatGrid>(vdbFile.readGrid(gridIt.gridName()));
+    grid.readFromVDB(vdbGrid);
+    vdbFile.close();
 
     const u32 width = 640, height = 480;
 
