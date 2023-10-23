@@ -538,23 +538,21 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 
 		// Specify the buffers we are going to render to.
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rt = {};
-		for (auto idx = 0U; idx < rpso.m_OMState.m_renderTargetResources.size(); ++idx)
+		for (auto& r : rpso.m_OMState.m_renderTargetResources)
 		{
-			auto r = rpso.m_OMState.m_renderTargetResources[idx];
-			if (r && r->DeviceObject())
+			if (!r) break;
+			if (r->DeviceObject())
 			{
 				auto rtD = device_cast<DeviceTexture2DDX12*>(r);
 				rt.emplace_back(rtD->GetRenderTargetViewHandle());
 				TransitionResource(rtD, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			}
-			else if (r && r->Name() == "DefaultRT")
+			else if (r->Name() == "DefaultRT")
 			{
 				rt.emplace_back(CurrentBackBufferView(&rpso));
 				TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
 				break;
 			}
-			else
-				break;
 		}
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);
 		DeviceCommandList()->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);

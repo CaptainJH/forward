@@ -16,10 +16,10 @@ namespace forward
 	public:
 		RasterGBufferRenderer(SceneData& sd)
 		{
-			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_N_T_UV");
-			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"DXR_Tutorials", "Tutorial_3_PS");
+			mVS = make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_N_T_UV");
+			mPS = make_shared<PixelShader>("SimpleAlbedo_PS", L"DXR_Tutorials", "Tutorial_3_PS");
 			mCB1 = make_shared<ConstantBuffer<float3>>("CB1");
-			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
+			mSamp = make_shared<SamplerState>("SimpleAlbedo_Samp");
 
 			FeedWithSceneData(sd);
 		}
