@@ -1,6 +1,7 @@
 struct VS_OUTPUT
 {
 	float4 position : SV_Position;
+    float3 posWorld : POSITION;
 	float4 color : COLOR;
 	float2 uv : TEXCOORD0;
 };
@@ -21,7 +22,7 @@ GBuffer Tutorial_3_PS( in VS_OUTPUT input ) : SV_Target
     GBuffer gBufOut;
 	gBufOut.color = baseTexture.Sample(baseSampler, input.uv);
     gBufOut.normal = float4(normalTexture.Sample(baseSampler, input.uv).xyz, 1.0f);
-    gBufOut.pos = float4(input.position.xyz / input.position.w, 1.0f);
+    gBufOut.pos = float4(input.posWorld, 1.0f);
 
 	return gBufOut;
 }

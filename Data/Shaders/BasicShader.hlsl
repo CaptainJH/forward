@@ -1,7 +1,8 @@
 //-----------------------------------------------------------------------------
 cbuffer Transforms : register(b0)
 {
-	matrix WorldViewProjMatrix;	
+	matrix ViewProjMatrix;
+	matrix WorldMatrix;	
 };
 
 //-----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ struct VS_INPUT_P_N_T_UV
 struct VS_OUTPUT
 {
 	float4 position : SV_Position;
+	float3 posWorld : POSITION;
 	float4 color : COLOR;
 	float2 uv : TEXCOORD0;
 };
@@ -37,19 +39,8 @@ VS_OUTPUT VSMain( in VS_INPUT v )
 {
 	VS_OUTPUT o = (VS_OUTPUT)0;
 
-	o.position = mul(v.position, WorldViewProjMatrix);
+	o.position = mul(v.position, ViewProjMatrix);
 	o.color = v.color;
-
-	return o;
-}
-
-VS_OUTPUT VSMain_P_UV(in VS_INPUT_P_UV v)
-{
-	VS_OUTPUT o = (VS_OUTPUT)0;
-
-	o.position = mul(v.position, WorldViewProjMatrix);
-	o.color = float4(0.0f, 0, 0, 0);
-	o.uv = v.uv;
 
 	return o;
 }
@@ -58,7 +49,9 @@ VS_OUTPUT VSMain_P_N_T_UV(in VS_INPUT_P_N_T_UV v)
 {
 	VS_OUTPUT o = (VS_OUTPUT)0;
 
-	o.position = mul(v.position, WorldViewProjMatrix);
+	matrix mvp = mul(WorldMatrix, ViewProjMatrix);
+	o.position = mul(v.position, mvp);
+	o.posWorld = mul(v.position, WorldMatrix);
 	o.color = float4(1.0f, 0, 0, 0);
 	o.uv = v.uv;
 

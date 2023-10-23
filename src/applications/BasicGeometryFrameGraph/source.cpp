@@ -62,7 +62,10 @@ bool BasicGeometryFrameGraph::Init()
 		frames += dt * 0.001f;
 		float4x4 rotM;
 		rotM.rotate(float3(0, frames, 0));
-		*m_albedoEffect->mCBs[0] = object2WorldMatrix * rotM * mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix();
+		*m_albedoEffect->mCBs[0] = {
+			.ViewProjMatrix = mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix(),
+			.WorldMatrix = object2WorldMatrix * rotM,
+		};
 	};
 
 	return true;

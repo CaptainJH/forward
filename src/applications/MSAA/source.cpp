@@ -7,6 +7,7 @@ using namespace forward;
 struct CBufferTypeVS
 {
 	Matrix4f mat;
+	Matrix4f dummy;
 };
 
 struct CBufferTypePS

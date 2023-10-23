@@ -6,10 +6,16 @@ namespace forward
 {
 	class SimpleAlbedoRenderer final : public RendererBase
 	{
+		struct CB
+		{
+			float4x4 ViewProjMatrix;
+			float4x4 WorldMatrix;
+		};
+
 	public:
 		SimpleAlbedoRenderer(SceneData& sd)
 		{
-			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
+			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_N_T_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
@@ -18,7 +24,7 @@ namespace forward
 
 		shared_ptr<VertexShader> mVS;
 		shared_ptr<PixelShader> mPS;
-		Vector<shared_ptr<ConstantBuffer<float4x4>>> mCBs;
+		Vector<shared_ptr<ConstantBuffer<CB>>> mCBs;
 		shared_ptr<SamplerState> mSamp;
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
@@ -41,7 +47,7 @@ namespace forward
 
 				std::stringstream ss;
 				ss << "instance_" << idx;
-				mCBs.emplace_back(forward::make_shared<ConstantBuffer<float4x4>>(ss.str()));
+				mCBs.emplace_back(forward::make_shared<ConstantBuffer<CB>>(ss.str()));
 			}
 		}
 
@@ -89,7 +95,10 @@ namespace forward
 		{
 			for (auto idx = 0U; idx < mInstMatrix.size(); ++idx)
 			{
-				*mCBs[idx] = mInstMatrix[idx] * viewMat * projMat;
+				*mCBs[idx] = {
+					.ViewProjMatrix = viewMat * projMat,
+					.WorldMatrix = mInstMatrix[idx]
+				};
 			}
 		}
 	};
