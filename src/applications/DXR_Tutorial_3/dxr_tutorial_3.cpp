@@ -55,6 +55,7 @@ bool DXR_Tutorial_3::Init()
 
 	m_gBufferRender->mUpdateFunc = [=](f32) {
 		m_gBufferRender->updateConstantBuffer(mFPCamera.GetViewMatrix(), mFPCamera.GetProjectionMatrix());
+		*m_gBufferRender->mCB1 = mFPCamera.GetPosition();
 	};
 
 	return true;

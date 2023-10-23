@@ -10,6 +10,7 @@ namespace forward
 		{
 			float4x4 ViewProjMatrix;
 			float4x4 WorldMatrix;
+			float4x4 InverseTransposeWorldMatrix;
 		};
 
 	public:
@@ -17,6 +18,7 @@ namespace forward
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_N_T_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"DXR_Tutorials", "Tutorial_3_PS");
+			mCB1 = make_shared<ConstantBuffer<float3>>("CB1");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
 			FeedWithSceneData(sd);
@@ -25,6 +27,7 @@ namespace forward
 		shared_ptr<VertexShader> mVS;
 		shared_ptr<PixelShader> mPS;
 		Vector<shared_ptr<ConstantBuffer<CB>>> mCBs;
+		shared_ptr<ConstantBuffer<float3>> mCB1;
 		shared_ptr<SamplerState> mSamp;
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
@@ -91,6 +94,7 @@ namespace forward
 
 						// setup constant buffer
 						pso.m_VSState.m_constantBuffers[0] = cb;
+						pso.m_PSState.m_constantBuffers[1] = mCB1;
 
 						// setup render states
 						pso.m_OMState.m_renderTargetResources[0] = m_rt_color;
@@ -114,7 +118,8 @@ namespace forward
 			{
 				*mCBs[idx] = {
 					.ViewProjMatrix = viewMat * projMat,
-					.WorldMatrix = mInstMatrix[idx]
+					.WorldMatrix = mInstMatrix[idx],
+					.InverseTransposeWorldMatrix = mInstMatrix[idx].inverse().transpose(),
 				};
 			}
 		}

@@ -3,6 +3,12 @@ cbuffer Transforms : register(b0)
 {
 	matrix ViewProjMatrix;
 	matrix WorldMatrix;	
+	matrix InverseTransposeWorldMatrix;
+};
+
+cbuffer CB1 : register(b1)
+{
+    float3 CamPosition;
 };
 
 //-----------------------------------------------------------------------------
@@ -30,6 +36,7 @@ struct VS_OUTPUT
 {
 	float4 position : SV_Position;
 	float3 posWorld : POSITION;
+	float3 normalWorld : NORMAL;
 	float4 color : COLOR;
 	float2 uv : TEXCOORD0;
 };
@@ -52,6 +59,7 @@ VS_OUTPUT VSMain_P_N_T_UV(in VS_INPUT_P_N_T_UV v)
 	matrix mvp = mul(WorldMatrix, ViewProjMatrix);
 	o.position = mul(v.position, mvp);
 	o.posWorld = mul(v.position, WorldMatrix);
+	o.normalWorld = mul(v.normal, InverseTransposeWorldMatrix);
 	o.color = float4(1.0f, 0, 0, 0);
 	o.uv = v.uv;
 
@@ -66,7 +74,6 @@ float4 PSMain( in VS_OUTPUT input ) : SV_Target
 {
 	float4 color = baseTexture.Sample(baseSampler, input.uv);
 	return color;
-	//return input.color;
 }
 
 
