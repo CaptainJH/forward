@@ -536,21 +536,39 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
 		}
 
-		// Indicate a state transition on the resource usage.
-		TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
 		// Specify the buffers we are going to render to.
-		D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = CurrentBackBufferView(&rpso);
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rt = {};
+		for (auto idx = 0U; idx < rpso.m_OMState.m_renderTargetResources.size(); ++idx)
+		{
+			auto r = rpso.m_OMState.m_renderTargetResources[idx];
+			if (r && r->DeviceObject())
+			{
+				auto rtD = device_cast<DeviceTexture2DDX12*>(r);
+				rt.emplace_back(rtD->GetRenderTargetViewHandle());
+				TransitionResource(rtD, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			}
+			else if (r && r->Name() == "DefaultRT")
+			{
+				rt.emplace_back(CurrentBackBufferView(&rpso));
+				TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				break;
+			}
+			else
+				break;
+		}
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);
-		DeviceCommandList()->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+		DeviceCommandList()->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);
 		// Clear the back buffer and depth buffer.
 		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 		{
-			DeviceCommandList()->ClearRenderTargetView(currentBackBufferView, clearColours, 0, nullptr);
+			for (auto& r : rt)
+				DeviceCommandList()->ClearRenderTargetView(r, clearColours, 0, nullptr);
 		}
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 		{
+			auto rtD = device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_depthStencilResource);
+			TransitionResource(rtD, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
@@ -559,7 +577,8 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		pass.Execute(*m_queue->GetCommandList());
 	
 		// Indicate a state transition on the resource usage.
-		TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
+		if (rpso.m_OMState.m_renderTargetResources[0]->Name() == "DefaultRT")
+			TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
 	}
 	else if (pass.IsPSO<ComputePipelineStateObject>())
 	{

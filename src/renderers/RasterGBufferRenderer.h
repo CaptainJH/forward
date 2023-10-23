@@ -4,13 +4,13 @@
 
 namespace forward
 {
-	class SimpleAlbedoRenderer final : public RendererBase
+	class RasterGBufferRenderer final : public RendererBase
 	{
 	public:
-		SimpleAlbedoRenderer(SceneData& sd)
+		RasterGBufferRenderer(SceneData& sd)
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
-			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
+			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"DXR_Tutorials", "Tutorial_3_PS");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
 			FeedWithSceneData(sd);
@@ -24,6 +24,13 @@ namespace forward
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
 		Vector<shared_ptr<Texture2D>> mAlbedoTexs;
 		Vector<float4x4> mInstMatrix;
+
+		shared_ptr<Texture2D> m_gBuffer_Pos;
+		shared_ptr<Texture2D> m_gBuffer_Normal;
+		shared_ptr<Texture2D> m_gBuffer_Diffuse;
+
+		shared_ptr<Texture2D> m_rt_color;
+		shared_ptr<Texture2D> m_depth;
 
 		void FeedWithSceneData(SceneData& sd)
 		{
@@ -53,6 +60,7 @@ namespace forward
 				auto& p = mMeshBuffers[idx];
 				auto& albedoTex = mAlbedoTexs[idx];
 				auto& cb = mCBs[idx];
+				const bool isLast = idx == mMeshBuffers.size() - 1;
 				m_renderPassVec.push_back(RenderPass(
 					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
 						// setup shaders
@@ -74,11 +82,14 @@ namespace forward
 						pso.m_VSState.m_constantBuffers[0] = cb;
 
 						// setup render states
-						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
-						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
+						pso.m_OMState.m_renderTargetResources[0] = m_rt_color;
+						pso.m_OMState.m_renderTargetResources[1] = m_gBuffer_Pos;
+						pso.m_OMState.m_depthStencilResource = m_depth;
 					},
-					[&p](CommandList& cmdList) {
+					[&, isLast](CommandList& cmdList) {
 						cmdList.DrawIndexed(p.second->GetNumElements());
+						if (isLast)
+							cmdList.CopyResource(*r.GetCurrentSwapChainRT(), *m_rt_color);
 					},
 					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
 				));

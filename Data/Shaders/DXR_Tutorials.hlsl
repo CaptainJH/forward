@@ -1,0 +1,24 @@
+struct VS_OUTPUT
+{
+	float4 position : SV_Position;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
+};
+
+struct GBuffer 
+{
+    float4 color   : SV_Target0;
+	float4 pos    : SV_Target1;
+};
+
+Texture2D baseTexture : register(t0);
+SamplerState baseSampler : register(s0);
+//-----------------------------------------------------------------------------
+GBuffer Tutorial_3_PS( in VS_OUTPUT input ) : SV_Target
+{
+    GBuffer gBufOut;
+	gBufOut.color = baseTexture.Sample(baseSampler, input.uv);
+    gBufOut.pos = float4(input.position.www, 1.0f);
+
+	return gBufOut;
+}
