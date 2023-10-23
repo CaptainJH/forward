@@ -23,6 +23,7 @@ namespace forward
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
 		Vector<shared_ptr<Texture2D>> mAlbedoTexs;
+		Vector<shared_ptr<Texture2D>> mNormalTexs;
 		Vector<float4x4> mInstMatrix;
 
 		shared_ptr<Texture2D> m_gBuffer_Pos;
@@ -41,7 +42,9 @@ namespace forward
 				if (material.normalTexName.empty() || material.roughnessMetalnessTexName.empty())
 					continue;
 				auto texId = material.materialData.baseColorTexIdx;
+				auto norId = material.materialData.normalTexIdx;
 				mAlbedoTexs.emplace_back(sd.mTextures[texId]);
+				mNormalTexs.emplace_back(sd.mTextures[norId]);
 				auto& geo = sd.mMeshData[inst.meshId];
 				mMeshBuffers.emplace_back(std::make_pair(geo.m_VB, geo.m_IB));
 				mInstMatrix.emplace_back(inst.mat);
@@ -59,6 +62,7 @@ namespace forward
 			{
 				auto& p = mMeshBuffers[idx];
 				auto& albedoTex = mAlbedoTexs[idx];
+				auto& normalTex = mNormalTexs[idx];
 				auto& cb = mCBs[idx];
 				const bool isLast = idx == mMeshBuffers.size() - 1;
 				m_renderPassVec.push_back(RenderPass(
@@ -68,6 +72,7 @@ namespace forward
 						pso.m_PSState.m_shader = mPS;
 
 						pso.m_PSState.m_shaderResources[0] = albedoTex;
+						pso.m_PSState.m_shaderResources[1] = normalTex;
 						pso.m_PSState.m_samplers[0] = mSamp;
 
 						// setup geometry
@@ -84,6 +89,7 @@ namespace forward
 						// setup render states
 						pso.m_OMState.m_renderTargetResources[0] = m_rt_color;
 						pso.m_OMState.m_renderTargetResources[1] = m_gBuffer_Pos;
+						pso.m_OMState.m_renderTargetResources[2] = m_gBuffer_Normal;
 						pso.m_OMState.m_depthStencilResource = m_depth;
 					},
 					[&, isLast](CommandList& cmdList) {

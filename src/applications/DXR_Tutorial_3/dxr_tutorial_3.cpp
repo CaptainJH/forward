@@ -50,6 +50,7 @@ bool DXR_Tutorial_3::Init()
 	m_gBufferRender->m_rt_color = make_shared<Texture2D>("RT_Color", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
 	m_gBufferRender->m_depth = make_shared<Texture2D>("RT_Depth", DF_D24_UNORM_S8_UINT, mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
 	m_gBufferRender->m_gBuffer_Pos = make_shared<Texture2D>("RT_gBuffer_Pos", DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
+	m_gBufferRender->m_gBuffer_Normal = make_shared<Texture2D>("RT_gBuffer_Normal", DF_R32G32B32A32_FLOAT, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
 	m_gBufferRender->SetupRenderPass(*m_pDevice);
 
 	m_gBufferRender->mUpdateFunc = [=](f32) {
