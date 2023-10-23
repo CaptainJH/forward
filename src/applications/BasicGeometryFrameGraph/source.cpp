@@ -53,8 +53,7 @@ bool BasicGeometryFrameGraph::Init()
 			instancesWithBaseTex.push_back(&ins);
 		});
 	auto instance = instancesWithBaseTex.back();
-	m_albedoEffect = make_shared<SimpleAlbedoRenderer>(sceneData, instance->meshId);
-	m_albedoEffect->mAlbedoTex = sceneData.mTextures[sceneData.mMaterials[instance->materialId].materialData.baseColorTexIdx];
+	m_albedoEffect = make_shared<SimpleAlbedoRenderer>(sceneData);
 	m_albedoEffect->SetupRenderPass(*m_pDevice);
 
 	auto object2WorldMatrix = instance->mat;
@@ -63,7 +62,7 @@ bool BasicGeometryFrameGraph::Init()
 		frames += dt * 0.001f;
 		float4x4 rotM;
 		rotM.rotate(float3(0, frames, 0));
-		*m_albedoEffect->mCB = object2WorldMatrix * rotM * mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix();
+		*m_albedoEffect->mCBs[0] = object2WorldMatrix * rotM * mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix();
 	};
 
 	return true;

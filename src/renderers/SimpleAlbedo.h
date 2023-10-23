@@ -7,44 +7,61 @@ namespace forward
 	class SimpleAlbedoRenderer final : public RendererBase
 	{
 	public:
-		SimpleAlbedoRenderer(SceneData& sd, u32 geoId)
+		SimpleAlbedoRenderer(SceneData& sd)
 		{
 			mVS = forward::make_shared<VertexShader>("SimpleAlbedo_VS", L"BasicShader", "VSMain_P_UV");
 			mPS = forward::make_shared<PixelShader>("SimpleAlbedo_PS", L"BasicShader", "PSMain");
-			mCB = forward::make_shared<ConstantBuffer<float4x4>>("SimpleAlbedo_CB");
 			mSamp = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 
-			FeedWithSceneData(sd, geoId);
+			FeedWithSceneData(sd);
 		}
 
 		shared_ptr<VertexShader> mVS;
 		shared_ptr<PixelShader> mPS;
-		shared_ptr<ConstantBuffer<float4x4>> mCB;
+		Vector<shared_ptr<ConstantBuffer<float4x4>>> mCBs;
 		shared_ptr<SamplerState> mSamp;
 
 		Vector<std::pair<shared_ptr<VertexBuffer>, shared_ptr<IndexBuffer>>> mMeshBuffers;
-		shared_ptr<Texture2D> mAlbedoTex;
+		Vector<shared_ptr<Texture2D>> mAlbedoTexs;
+		Vector<float4x4> mInstMatrix;
 
-		void FeedWithSceneData(SceneData& sd, u32 geoId)
+		void FeedWithSceneData(SceneData& sd)
 		{
-			//for (auto& geo : sd.mMeshData)
-			//	mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
-			auto& geo = sd.mMeshData[geoId];
-			mMeshBuffers.push_back(std::make_pair(geo.m_VB, geo.m_IB));
+			for (auto idx = 0U; idx < sd.mInstances.size(); ++idx)
+			{
+				auto& inst = sd.mInstances[idx];
+				auto& material = sd.mMaterials[inst.materialId];
+				if (material.normalTexName.empty() || material.roughnessMetalnessTexName.empty())
+					continue;
+				auto texId = material.materialData.baseColorTexIdx;
+				mAlbedoTexs.emplace_back(sd.mTextures[texId]);
+				auto& geo = sd.mMeshData[inst.meshId];
+				mMeshBuffers.emplace_back(std::make_pair(geo.m_VB, geo.m_IB));
+				mInstMatrix.emplace_back(inst.mat);
+
+				std::stringstream ss;
+				ss << "instance_" << idx;
+				mCBs.emplace_back(forward::make_shared<ConstantBuffer<float4x4>>(ss.str()));
+			}
 		}
 
 		void SetupRenderPass(Device& r)
 		{
-			for (auto& p : mMeshBuffers)
+			assert(mMeshBuffers.size() == mAlbedoTexs.size());
+			for (auto idx = 0U; idx < mMeshBuffers.size(); ++idx)
+			{
+				auto& p = mMeshBuffers[idx];
+				auto& albedoTex = mAlbedoTexs[idx];
+				auto& cb = mCBs[idx];
 				m_renderPassVec.push_back(RenderPass(
 					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
-						
-						pso.m_PSState.m_shaderResources[0] = mAlbedoTex;
+
+						pso.m_PSState.m_shaderResources[0] = albedoTex;
 						pso.m_PSState.m_samplers[0] = mSamp;
-						
+
 						// setup geometry
 						if (p.second && p.second->GetNumElements())
 							pso.m_IAState.m_indexBuffer = p.second;
@@ -52,20 +69,30 @@ namespace forward
 
 						pso.m_IAState.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
-						
+
 						// setup constant buffer
-						pso.m_VSState.m_constantBuffers[0] = mCB;
-						
+						pso.m_VSState.m_constantBuffers[0] = cb;
+
 						// setup render states
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
 						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
+
+						//pso.m_RSState.m_rsState.frontCCW = false;
 					},
 					[&p](CommandList& cmdList) {
 						cmdList.DrawIndexed(p.second->GetNumElements());
 					},
 					m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
-					));
+				));
+			}
+		}
 
+		void updateConstantBuffer(float4x4 viewMat, float4x4 projMat)
+		{
+			for (auto idx = 0U; idx < mInstMatrix.size(); ++idx)
+			{
+				*mCBs[idx] = mInstMatrix[idx] * viewMat * projMat;
+			}
 		}
 	};
 }

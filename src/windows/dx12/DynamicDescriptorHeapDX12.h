@@ -37,7 +37,7 @@ namespace forward
 		 * A 32-bit mask is used to keep track of the root parameter indices that
 		 * are descriptor tables.
 		 */
-		static const u32 MaxDescriptorTables = 32;
+		static const u32 MaxDescriptorTables = 1024;
 
 		// Describes the type of descriptors that can be staged using this 
 		// dynamic descriptor heap.

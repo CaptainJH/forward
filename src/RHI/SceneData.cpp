@@ -67,7 +67,7 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 					.Pos = Vector3f(v.x, v.y, v.z), 
 					.Normal = Vector3f(n.x, n.y, n.z),
 					.Tangent = Vector3f(t.x, t.y, t.z),
-					.UV = Vector2f(std::abs(uv.x), std::abs(uv.y)) 
+					.UV = Vector2f(uv.x, 1.0 - uv.y) 
 					});
 			}
 

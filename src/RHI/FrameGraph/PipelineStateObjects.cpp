@@ -90,7 +90,7 @@ void RasterizerStageState::AddScissorRect(forward::RECT rect)
 
 SamplerState::SamplerState(const std::string& name)
 	: DrawingState(name, FGOT_SAMPLER_STATE)
-	, filter(MIN_P_MAG_P_MIP_P)
+	, filter(ANISOTROPIC)
 	, mipLODBias(0.0f)
 	, maxAnisotropy(1)
 	, comparison(NEVER)
@@ -98,9 +98,9 @@ SamplerState::SamplerState(const std::string& name)
 	, minLOD(-1024)
 	, maxLOD(1024)
 {
-	mode[0] = CLAMP;
-	mode[1] = CLAMP;
-	mode[2] = CLAMP;
+	mode[0] = WRAP;
+	mode[1] = WRAP;
+	mode[2] = WRAP;
 }
 
 void ShaderStageState::SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params)
