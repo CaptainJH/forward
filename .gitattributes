@@ -16,3 +16,7 @@
 Data/Textures/grasscube1024.dds filter=lfs diff=lfs merge=lfs -text
 *.glb filter=lfs diff=lfs merge=lfs -text
 *.hdr filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+Data/Models/Sponza/glTF/Sponza.assbin filter=lfs diff=lfs merge=lfs -text
+Data/Models/Sponza/glTF/Sponza.bin filter=lfs diff=lfs merge=lfs -text
