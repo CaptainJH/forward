@@ -46,7 +46,7 @@ bool DXR_Tutorial_4::Init()
 
 	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
 	mFPCamera.SetPosition(0.0f, 0.0f, -3.0f);
-	auto sceneData = SceneData::LoadFromFile(L"D:/Documents/GitHub/Mastering-Graphics-Programming-with-Vulkan/deps/src/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf", m_pDevice->mLoadedResourceMgr);
+	auto sceneData = SceneData::LoadFromFile(L"Sponza/glTF/Sponza.gltf", m_pDevice->mLoadedResourceMgr);
 	m_gBufferRender = make_shared<RTGBufferRenderer>(sceneData);
 	m_gBufferRender->SetupRenderPass(*m_pDevice);
 
