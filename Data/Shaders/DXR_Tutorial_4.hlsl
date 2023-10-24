@@ -190,27 +190,6 @@ float3 hashAndColor(int i) {
 //    Utilities
 // -------------------------------------------------------------------------
 
-// Clever offset_ray function from Ray Tracing Gems chapter 6
-// Offsets the ray origin from current position p, along normal n (which must be geometric normal)
-// so that no self-intersection can occur.
-float3 offsetRay(const float3 p, const float3 n)
-{
-	static const float origin = 1.0f / 32.0f;
-	static const float float_scale = 1.0f / 65536.0f;
-	static const float int_scale = 256.0f;
-
-	int3 of_i = int3(int_scale * n.x, int_scale * n.y, int_scale * n.z);
-
-	float3 p_i = float3(
-		asfloat(asint(p.x) + ((p.x < 0) ? -of_i.x : of_i.x)),
-		asfloat(asint(p.y) + ((p.y < 0) ? -of_i.y : of_i.y)),
-		asfloat(asint(p.z) + ((p.z < 0) ? -of_i.z : of_i.z)));
-
-	return float3(abs(p.x) < origin ? p.x + float_scale * n.x : p_i.x,
-		abs(p.y) < origin ? p.y + float_scale * n.y : p_i.y,
-		abs(p.z) < origin ? p.z + float_scale * n.z : p_i.z);
-}
-
 // Helpers to convert between linear and sRGB color spaces
 float3 linearToSrgb(float3 linearColor)
 {
@@ -251,37 +230,6 @@ float4 encodeNormals(float3 geometryNormal, float3 shadingNormal) {
 void decodeNormals(float4 encodedNormals, out float3 geometryNormal, out float3 shadingNormal) {
 	geometryNormal = decodeNormalOctahedron(encodedNormals.xy);
 	shadingNormal = decodeNormalOctahedron(encodedNormals.zw);
-}
-
-// -------------------------------------------------------------------------
-//    Lights & Shadows
-// -------------------------------------------------------------------------
-
-// Casts a shadow ray and returns true if light is unoccluded
-// Note that we use dedicated hit group with simpler shaders for shadow rays
-bool castShadowRay(float3 hitPosition, float3 surfaceNormal, float3 directionToLight, float TMax)
-{
-	RayDesc ray;
-	ray.Origin = offsetRay(hitPosition, surfaceNormal);
-	ray.Direction = directionToLight;
-	ray.TMin = 0.0f;
-	ray.TMax = TMax;
-
-	ShadowHitInfo payload;
-	payload.hasHit = true; //< Initialize hit flag to true, it will be set to false on a miss
-
-	// Trace the ray
-	TraceRay(
-		sceneBVH,
-		RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-		0xFF,
-		SHADOW_RAY_INDEX,
-		0,
-		SHADOW_RAY_INDEX,
-		ray,
-		payload);
-
-	return !payload.hasHit;
 }
 
 // -------------------------------------------------------------------------
@@ -494,29 +442,11 @@ void HitGroup_AnyHit(inout HitInfo payload : SV_RayPayload, Attributes attrib : 
 	if (testOpacityAnyHit(attrib)) IgnoreHit();
 }
 
-[shader("anyhit")]
-void HitGroupShadow_AnyHitShadow(inout ShadowHitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
-{
-	// At any hit for shadow rays, we test opacity and discard the hit if it's transparent
-	// But also end the search if we encounter any opaque surface
-	if (testOpacityAnyHit(attrib))
-		IgnoreHit();
-	else
-		AcceptHitAndEndSearch();
-}
-
 [shader("miss")]
 void Miss(inout HitInfo payload)
 {
 	// We indicate miss by storing invalid material ID in the payload
     payload.materialID = INVALID_ID;
-}
-
-[shader("miss")]
-void MissShadow(inout ShadowHitInfo payload)
-{
-	// For shadow rays, miss means that light is unoccluded. Note that there's no closest hit shader for shadows. That's because we don't need to know details of the closest hit, just whether any opaque hit occured or not.
-	payload.hasHit = false;
 }
 
 [shader("raygeneration")]
@@ -531,13 +461,6 @@ void RayGen()
 	// Figure out pixel coordinates being raytraced
 	float2 pixel = float2(DispatchRaysIndex().xy);
 	const float2 resolution = float2(DispatchRaysDimensions().xy);
-
-	// Antialiasing (optional)
-	// if (gData.enableAntiAliasing) {
-	// 	// Add a random offset to the pixel 's screen coordinates .
-	// 	float2 offset = float2(rand(rngState), rand(rngState));
-	// 	pixel += lerp(-0.5.xx, 0.5.xx, offset);
-	// }
 
 	pixel = (((pixel + 0.5f) / resolution) * 2.0f - 1.0f);
 
@@ -585,8 +508,6 @@ void RayGen()
             // Account for emissive surfaces
             radiance += throughput * material.baseColor;
 
-            // Offset a new ray origin from the hitpoint to prevent self-intersections
-            ray.Origin = offsetRay(payload.hitPosition, geometryNormal);
             PosWorldOutput[LaunchIndex] = float4(payload.hitPosition, 1.0f);
             NormWorldOutput[LaunchIndex] = float4(geometryNormal, 1.0f);
         }
