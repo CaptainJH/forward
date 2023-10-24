@@ -23,8 +23,10 @@ namespace forward
 
 			m_rt_color = make_shared<Texture2D>("RT_Color", DF_R8G8B8A8_UNORM, width, height, TextureBindPosition::TBP_RT);
 			m_depth = make_shared<Texture2D>("RT_Depth", DF_D24_UNORM_S8_UINT, width, height, TextureBindPosition::TBP_DS);
-			m_gBuffer_Pos = make_shared<Texture2D>("RT_gBuffer_Pos", DF_R32G32B32A32_FLOAT, width, height, TextureBindPosition::TBP_RT);
-			m_gBuffer_Normal = make_shared<Texture2D>("RT_gBuffer_Normal", DF_R32G32B32A32_FLOAT, width, height, TextureBindPosition::TBP_RT);
+			m_gBuffer_Pos = make_shared<Texture2D>("RT_gBuffer_Pos", DF_R32G32B32A32_FLOAT, width, height, 
+				TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
+			m_gBuffer_Normal = make_shared<Texture2D>("RT_gBuffer_Normal", DF_R32G32B32A32_FLOAT, width, height, 
+				TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 
 			FeedWithSceneData(sd);
 		}

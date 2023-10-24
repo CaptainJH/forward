@@ -1,7 +1,6 @@
 #pragma once
 #include "FrameGraph/Renderer.h"
 #include "RHI/SceneData.h"
-#include "SceneData.h"
 
 namespace forward
 {

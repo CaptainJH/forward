@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "renderers/RasterGBufferRenderer.h"
+#include "renderers/RTAORenderer.h"
 
 using namespace forward;
 
@@ -20,6 +21,7 @@ protected:
 
 private:
 	shared_ptr<RasterGBufferRenderer> m_gBufferRender;
+	shared_ptr<RTAORenderer> m_rtaoRenderer;
 	u32 m_frames = 0U;
 };
 
@@ -27,6 +29,7 @@ void DXR_Tutorial_5::UpdateScene(f32 dt)
 {
 	mFPCamera.UpdateViewMatrix();
 	m_gBufferRender->Update(dt);
+	m_rtaoRenderer->Update(dt);
 }
 
 void DXR_Tutorial_5::DrawScene()
@@ -34,6 +37,7 @@ void DXR_Tutorial_5::DrawScene()
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
 	m_gBufferRender->DrawEffect(&fg);
+	m_rtaoRenderer->DrawEffect(&fg);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
 }
@@ -53,6 +57,20 @@ bool DXR_Tutorial_5::Init()
 	m_gBufferRender->mUpdateFunc = [=](f32) {
 		m_gBufferRender->updateConstantBuffer(mFPCamera.GetViewMatrix(), mFPCamera.GetProjectionMatrix());
 		*m_gBufferRender->mCB1 = mFPCamera.GetPosition();
+		};
+
+	m_rtaoRenderer = make_shared<RTAORenderer>(sceneData);
+	m_rtaoRenderer->m_posWorld = m_gBufferRender->m_gBuffer_Pos;
+	m_rtaoRenderer->m_normalWorld = m_gBufferRender->m_gBuffer_Normal;
+	m_rtaoRenderer->SetupRenderPass(*m_pDevice);
+
+	m_rtaoRenderer->mUpdateFunc = [&](f32) {
+		*m_rtaoRenderer->m_cb = {
+			.gAORadius = 1.0f,
+			.gFrameCount = ++m_frames,
+			.gMinT = 0.001f,
+			.gNumRays = 2
+		};
 		};
 
 	return true;
