@@ -45,13 +45,9 @@ namespace forward
 					// setup shaders
 					pso.m_rtState.m_shader = make_shared<RaytracingShaders>("RTAO_Shader", L"RTAO");
 
-					pso.m_rtState.m_samplers[0] = make_shared<SamplerState>("RTAO_Sampler0");
-
-					pso.m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RTAO_RayGenShaderTable", Vector<WString>{ L"AoRayGen" });
-					pso.m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("RTAO_HitGroupShaderTable",
-						Vector<WString>{ L"HitGroup_AoAnyHit" });
-					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RTAO_MissShaderTable",
-						Vector<WString>{ L"AoMiss" });
+					pso.m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RTAO_RayGenShaderTable", L"AoRayGen");
+					pso.m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("RTAO_HitGroupShaderTable", L"HitGroup_AoAnyHit");
+					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RTAO_MissShaderTable", L"AoMiss");
 				},
 				[&](CommandList& cmdList) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
