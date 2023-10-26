@@ -63,7 +63,7 @@ namespace forward
 		void RotateY(f32 angle);
 
 		// After modifying camera position/orientation, call to rebuild the view matrix.
-		void UpdateViewMatrix();
+		bool UpdateViewMatrix();
 
 	private:
 

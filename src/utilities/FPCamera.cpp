@@ -156,8 +156,9 @@ void FPCamera::RotateY(f32 angle)
 	mViewDirty = true;
 }
 
-void FPCamera::UpdateViewMatrix()
+bool FPCamera::UpdateViewMatrix()
 {
+	bool ret = mViewDirty;
 	if (mViewDirty)
 	{
 		float3 R = mRight;
@@ -190,4 +191,5 @@ void FPCamera::UpdateViewMatrix()
 
 		mViewDirty = false;
 	}
+	return ret;
 }

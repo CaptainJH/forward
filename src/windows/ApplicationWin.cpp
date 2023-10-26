@@ -640,6 +640,10 @@ void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
 
 void ApplicationWin::UpdateCameraMovement(f32 dt)
 {
-	mFPCamera.Walk(m_cameraWalkSpeed * dt);
-	mFPCamera.Strafe(m_cameraStrafeSpeed * dt);
+	if (m_cameraStrafeSpeed > std::numeric_limits<f32>::epsilon() ||
+		m_cameraWalkSpeed > std::numeric_limits<f32>::epsilon())
+	{
+		mFPCamera.Walk(m_cameraWalkSpeed * dt);
+		mFPCamera.Strafe(m_cameraStrafeSpeed * dt);
+	}
 }
