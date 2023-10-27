@@ -407,7 +407,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 			descriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, r.Count(), r.bindStart));
 			cpso.m_usedCBV_SRV_UAV_Count += r.Count();
 		}
-		DevicePipelineStateObjectHelper::CheckBindingResources(cpso.m_CSState.m_shaderResources, rangesCBV, "SRV");
+		DevicePipelineStateObjectHelper::CheckBindingResources(cpso.m_CSState.m_shaderResources, rangesSRV, "SRV");
 
 		for (auto& r : rangesUAV.m_ranges)
 		{
