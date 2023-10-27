@@ -19,20 +19,12 @@ public:
 protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
-	void OnSpace() override { m_applyJitter = !m_applyJitter; }
 
 private:
 	shared_ptr<RTGBufferRenderer> m_gBufferRender;
 	shared_ptr<RTAORenderer> m_rtaoRenderer;
 	u32 m_frames = 0U;
 	u32 m_accumulatedFrames = 0U;
-
-	// for camera jittering
-	// camera jittering is the content for dxr_tutorial_7, 
-	// and I implement it here, so I'll skip dxr_tutorial_7
-	std::uniform_real_distribution<f32> m_rngDist;
-	std::mt19937 m_rng;
-	bool m_applyJitter = false;
 };
 
 void DXR_Tutorial_8::UpdateScene(f32 dt)
@@ -58,10 +50,6 @@ bool DXR_Tutorial_8::Init()
 	if (!Application::Init())
 		return false;
 
-	auto now = std::chrono::high_resolution_clock::now();
-	auto msTime = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-	m_rng = std::mt19937(u32(msTime.time_since_epoch().count()));
-
 	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
 	mFPCamera.SetPosition(0.0f, 0.0f, -3.0f);
 	auto sceneData = SceneData::LoadFromFile(L"Sponza/glTF/Sponza.gltf", m_pDevice->mLoadedResourceMgr);
@@ -69,13 +57,6 @@ bool DXR_Tutorial_8::Init()
 	m_gBufferRender->SetupRenderPass(*m_pDevice);
 
 	m_gBufferRender->mUpdateFunc = [=](f32) {
-		float4x4 jitteringMat;
-		if (m_applyJitter)
-		{
-			auto xJitter = (m_rngDist(m_rng) - 0.5f) / static_cast<f32>(mClientWidth);
-			auto yJitter = (m_rngDist(m_rng) - 0.5f) / static_cast<f32>(mClientHeight);
-			jitteringMat.translate(float3(xJitter, yJitter, 0.0f));
-		}
 		*m_gBufferRender->m_cb = RaytracingData{
 			.view = mFPCamera.GetViewMatrix().inverse(),
 			.proj = mFPCamera.GetProjectionMatrix(),
