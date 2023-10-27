@@ -9,7 +9,7 @@ public:
 	DXR_Tutorial_4(i32 width, i32 height)
 		: Application(width, height)
 	{
-		mMainWndCaption = L"DXR Tutorial 4";
+		mMainWndCaption = L"DXR Tutorial 4: Creating a ray traced G-buffer";
 	}
 
     bool Init() override;

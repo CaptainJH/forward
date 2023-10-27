@@ -11,7 +11,7 @@ public:
 	DXR_Tutorial_6(i32 width, i32 height)
 		: Application(width, height)
 	{
-		mMainWndCaption = L"DXR Tutorial 6";
+		mMainWndCaption = L"DXR Tutorial 6: Adding a simple temporal accumulation pass";
 	}
 
     bool Init() override;

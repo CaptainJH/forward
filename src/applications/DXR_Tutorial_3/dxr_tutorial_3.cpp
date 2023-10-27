@@ -9,7 +9,7 @@ public:
 	DXR_Tutorial_3(i32 width, i32 height)
 		: Application(width, height)
 	{
-		mMainWndCaption = L"DXR Tutorial 3";
+		mMainWndCaption = L"DXR Tutorial 3: Creating a basic, rasterized G-buffer";
 	}
 
     bool Init() override;

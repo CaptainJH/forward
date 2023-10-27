@@ -10,7 +10,7 @@ public:
 	DXR_Tutorial_5(i32 width, i32 height)
 		: Application(width, height)
 	{
-		mMainWndCaption = L"DXR Tutorial 5";
+		mMainWndCaption = L"DXR Tutorial 5: Ray traced ambient occlusion using a hybrid raster / ray tracing renderer";
 	}
 
     bool Init() override;
