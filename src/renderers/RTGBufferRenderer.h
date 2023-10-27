@@ -13,6 +13,8 @@ namespace forward
 
 		shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
 		shared_ptr<Texture2D> m_uavRT;
+		shared_ptr<Texture2D> m_gBuffer_Pos;
+		shared_ptr<Texture2D> m_gBuffer_Normal;
 
 		void SetupRenderPass(Device& d)
 		{
@@ -31,12 +33,12 @@ namespace forward
 					auto uavAccumulation = make_shared<Texture2D>("RefPT_UAV_Accumulation", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 					uavAccumulation->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 					pso.m_rtState.m_uavShaderRes[1] = uavAccumulation;
-					auto uavPosWorld = make_shared<Texture2D>("UAV_PosWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					uavPosWorld->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_rtState.m_uavShaderRes[2] = uavPosWorld;
-					auto uavNormalWorld = make_shared<Texture2D>("UAV_NormalWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					uavNormalWorld->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_rtState.m_uavShaderRes[3] = uavNormalWorld;
+					m_gBuffer_Pos = make_shared<Texture2D>("UAV_PosWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
+					m_gBuffer_Pos->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+					pso.m_rtState.m_uavShaderRes[2] = m_gBuffer_Pos;
+					m_gBuffer_Normal = make_shared<Texture2D>("UAV_NormalWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
+					m_gBuffer_Normal->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+					pso.m_rtState.m_uavShaderRes[3] = m_gBuffer_Normal;
 
 					m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("RefPT_MaterialDataBuffer", (u32)m_sceneData.mMaterials.size());
 					for (auto i = 0U; i < m_sceneData.mMaterials.size(); ++i)
