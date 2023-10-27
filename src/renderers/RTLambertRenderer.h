@@ -9,8 +9,8 @@ namespace forward
 		struct RayGenCB
 		{
 			float3 gLightIntensity;
-			float3 gLightPos;
 			float gMinT;      // Min distance to start a ray to avoid self-occlusion
+			float3 gLightPos;
 		};
 
 		RTLambertRenderer(SceneData& sd)

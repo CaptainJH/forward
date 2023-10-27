@@ -107,8 +107,8 @@ bool DXR_Tutorial_9::Init()
 	m_lambertRenderer->mUpdateFunc = [&](f32) {
 		*m_lambertRenderer->m_cb = {
 			.gLightIntensity = float3(1.0f, 1.0f, 1.0f),
-			.gLightPos = m_lightPos,
 			.gMinT = 1.0f,
+			.gLightPos = m_lightPos,
 		};
 		if (m_lambertRenderer->m_cb_accumulation)
 			*m_lambertRenderer->m_cb_accumulation = m_accumulatedFrames;

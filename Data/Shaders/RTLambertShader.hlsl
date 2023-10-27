@@ -10,8 +10,8 @@ struct ShadowRayPayload
 cbuffer RayGenCB : register( b0 )
 {
     float3 gLightIntensity;
-    float3 gLightPos;
 	float gMinT;      // Min distance to start a ray to avoid self-occlusion
+    float3 gLightPos;
 }
 
 // Input and out textures that need to be set by the C++ code
@@ -77,14 +77,14 @@ void LambertShadowsRayGen()
 			float LdotN = saturate(dot(worldNorm.xyz, toLight));
 
 			// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
-			float shadowMult = 1.0f;//shadowRayVisibility(worldPos.xyz, toLight, gMinT, distToLight);
+			float shadowMult = shadowRayVisibility(worldPos.xyz, toLight, gMinT, distToLight);
 
 			// Accumulate our Lambertian shading color
-			shadeColor += shadowMult * LdotN; 
+			shadeColor += shadowMult * LdotN * gLightIntensity; 
 		}
 
 		// Modulate based on the physically based Lambertian term (albedo/pi)
-		// shadeColor *= difMatlColor.rgb / 3.141592f;
+		shadeColor *= difMatlColor.rgb / 3.141592f;
 	}
 
 	// Save out our final shaded
