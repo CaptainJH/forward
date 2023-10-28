@@ -64,6 +64,8 @@ RWTexture2D<float4> accumulationBuffer				: register(u1);
 RWTexture2D<float4> PosWorldOutput                  : register(u2);
 RWTexture2D<float4> NormWorldOutput                 : register(u3);
 
+Texture2D<float4> skyTexture						: register(t0);
+
 // TLAS of our scene
 RaytracingAccelerationStructure sceneBVH			: register(t0, space99);
 
@@ -405,11 +407,24 @@ RayDesc generatePrimaryRay(float2 posNdcXy, inout RngStateType rngState)
 //    Sky
 // -------------------------------------------------------------------------
 
+// Convert our world space direction to a (u,v) coord in a latitude-longitude spherical map
+float2 wsVectorToLatLong(float3 dir)
+{
+	float3 p = normalize(dir);
+	float u = (1.f + atan2(p.x, -p.z) * ONE_OVER_PI) * 0.5f;
+	float v = acos(p.y) * ONE_OVER_PI;
+	return float2(u, v);
+}
+
 float3 loadSkyValue(float3 rayDirection) {
+
+	// Convert our ray direction to a (u,v) coordinate
+	float2 uv = wsVectorToLatLong( rayDirection );
+	float4 skyValue = skyTexture.SampleLevel(linearSampler, uv, 0.0f);
 
 	// Load the sky value for given direction here, e.g. from environment map, procedural sky, etc.
 	// Make sure to only account for sun once - either on the skybox or as an analytical light (if sun is included as explicit directional light, it shouldn't be on the skybox)
-	return gData.skyIntensity;
+	return gData.skyIntensity * skyValue.rgb;
 }
 
 // -------------------------------------------------------------------------

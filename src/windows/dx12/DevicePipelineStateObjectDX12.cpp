@@ -1123,11 +1123,18 @@ void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
 			cmdList->SetDynamicConstantBuffer(pCB.get());
 	}
 
-	//for (auto& pSRV : m_rtPSO.m_rtState.m_uavShaderRes)
-	//{
-	//	if(!pSRV->DeviceObject())
-	//		pSRV->SetDeviceObject(make_shared<Device)
-	//}
+	for (auto& pSRV : m_rtPSO.m_rtState.m_shaderResources)
+	{
+		if (pSRV && !pSRV->DeviceObject())
+		{
+			if (pSRV->GetType() == FGOT_TEXTURE2)
+			{
+				Texture2D* pTex2D = dynamic_cast<Texture2D*>(pSRV.get());
+				if (pTex2D)
+					pSRV->SetDeviceObject(make_shared<DeviceTexture2DDX12>(pTex2D, *d));
+			}
+		}
+	}
 
 	for (auto& pUAV : m_rtPSO.m_rtState.m_uavShaderRes)
 	{

@@ -15,6 +15,7 @@ namespace forward
 		shared_ptr<Texture2D> m_uavRT;
 		shared_ptr<Texture2D> m_gBuffer_Pos;
 		shared_ptr<Texture2D> m_gBuffer_Normal;
+		shared_ptr<Texture2D> m_envTex;
 
 		void SetupRenderPass(Device& d)
 		{
@@ -25,6 +26,9 @@ namespace forward
 
 					m_cb = make_shared<ConstantBuffer<RaytracingData>>("RefPT_CB");
 					pso.m_rtState.m_constantBuffers[0] = m_cb;
+
+					m_envTex = make_shared<Texture2D>("u_envRadiance", L"Lights/san_giuseppe_bridge_split.hdr");
+					pso.m_rtState.m_shaderResources[0] = m_envTex;
 
 					auto rt = d.GetDefaultRT();
 					m_uavRT = make_shared<Texture2D>("RefPT_UAV_RT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
