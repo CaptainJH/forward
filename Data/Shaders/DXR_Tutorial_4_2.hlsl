@@ -222,34 +222,6 @@ MaterialProperties loadMaterialProperties(uint materialID, float2 uvs) {
 	return result;
 }
 
-// Performs an opacity test in any hit shader for potential hit. Returns true if hit point is transparent and can be ignored
-bool testOpacityAnyHit(BuiltInTriangleIntersectionAttributes attrib) {
-
-	// Load material at hit point
-	uint materialID;
-	uint geometryID;
-	unpackInstanceID(InstanceID(), materialID, geometryID);
-
-	MaterialData mData = materials[materialID];
-	float opacity = mData.opacity;
-	
-	// Also load the opacity texture if available
-	if (mData.baseColorTexIdx != INVALID_ID) {
-		float3 barycentrics = float3((1.0f - attrib.barycentrics.x - attrib.barycentrics.y), attrib.barycentrics.x, attrib.barycentrics.y);
-		VertexAttributes vertex = GetVertexAttributes(geometryID, PrimitiveIndex(), barycentrics);
-		opacity *= textures[mData.baseColorTexIdx].SampleLevel(linearSampler, vertex.uv, 0.0f).a;
-	}
-
-	// Decide whether this hit is opaque or not according to chosen alpha testing mode
-	if (mData.alphaMode == ALPHA_MODE_MASK) {
-		return (opacity < mData.alphaCutoff);
-	} else {
-		// Alpha blending mode
-		float u = 0.5f; // If you want alpha blending, there should be a random u. Semi-transparent things are, however, better rendered using refracted rays with real IoR
-		return (opacity < u);
-	}
-}
-
 // -------------------------------------------------------------------------
 //    Camera
 // -------------------------------------------------------------------------
@@ -391,7 +363,7 @@ void HitGroup_ClosestHit(inout HitInfo payload, BuiltInTriangleIntersectionAttri
 void HitGroup_AnyHit(inout HitInfo payload, BuiltInTriangleIntersectionAttributes attrib)
 {
 	// At any hit, we test opacity and discard the hit if it's transparent
-	if (testOpacityAnyHit(attrib)) IgnoreHit();
+	if (alphaTestFails(attrib)) IgnoreHit();
 }
 
 [shader("miss")]
@@ -402,7 +374,7 @@ void Miss(inout HitInfo payload)
 }
 
 [shader("raygeneration")]
-void RayGen()
+void SimpleDiffuseGIRayGen()
 {
 	uint2 LaunchIndex = DispatchRaysIndex().xy;
 	uint2 LaunchDimensions = DispatchRaysDimensions().xy;

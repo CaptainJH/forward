@@ -73,7 +73,7 @@ namespace forward
 						});
 					pso.m_rtState.m_samplers[0] = make_shared<SamplerState>("RefPT_Sampler0");
 
-					pso.m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RefPT_RayGenShaderTable", Vector<WString>{ L"RayGen" });
+					pso.m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RefPT_RayGenShaderTable", L"SimpleDiffuseGIRayGen");
 					pso.m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("RefPT_HitGroupShaderTable",
 						Vector<WString>{ L"HitGroup_ClosestHit", L"HitGroup_AnyHit" });
 					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RefPT_MissShaderTable",
