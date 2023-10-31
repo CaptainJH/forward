@@ -25,6 +25,7 @@ private:
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 	bool m_useGI = false;
+	float3 m_lightPos = float3(1.12f, 9.0f, 0.6f);
 };
 
 void DXR_Tutorial_4_2::UpdateScene(f32 dt)
@@ -94,7 +95,10 @@ bool DXR_Tutorial_4_2::Init()
 			.lights = {}
 		};
 
-		*m_tempRender->m_gi_cb = m_useGI ? 1 : 0;
+		*m_tempRender->m_gi_cb = {
+			.g_LightPos = m_lightPos,
+			.g_use_GI = m_useGI ? 1U : 0U,
+		};
 
 		lastViewMat = viewMat;
 		};

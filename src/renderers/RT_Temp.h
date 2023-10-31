@@ -6,13 +6,19 @@ namespace forward
 	class RTTemp : public RendererBase
 	{
 	public:
+		struct GI_CB
+		{
+			float3 g_LightPos;
+			u32 g_use_GI;
+		};
+
 		RTTemp(SceneData& sd)
 			: m_sceneData(sd)
 		{
 		}
 
 		shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
-		shared_ptr<ConstantBuffer<u32>> m_gi_cb;
+		shared_ptr<ConstantBuffer<GI_CB>> m_gi_cb;
 		shared_ptr<Texture2D> m_uavRT;
 		//shared_ptr<Texture2D> m_gBuffer_Pos;
 		//shared_ptr<Texture2D> m_gBuffer_Normal;
@@ -27,7 +33,7 @@ namespace forward
 
 					m_cb = make_shared<ConstantBuffer<RaytracingData>>("RefPT_CB");
 					pso.m_rtState.m_constantBuffers[0] = m_cb;
-					m_gi_cb = make_shared<ConstantBuffer<u32>>("RefPT_GI_CB");
+					m_gi_cb = make_shared<ConstantBuffer<GI_CB>>("RefPT_GI_CB");
 					pso.m_rtState.m_constantBuffers[1] = m_gi_cb;
 
 					m_envTex = make_shared<Texture2D>("u_envRadiance", L"Lights/san_giuseppe_bridge_split.hdr");

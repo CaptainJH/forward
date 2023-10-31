@@ -57,6 +57,7 @@ cbuffer RaytracingDataCB : register(b0)
 
 cbuffer GIControl : register(b1)
 {
+	float3 g_LightPos;
 	uint g_Enable_GI;
 }
 
@@ -467,13 +468,12 @@ float3 shootIndirectRay(float3 rayOrigin, float3 rayDir, float minT, uint seed)
 
 	if (payload.hasHit())
 	{
-		float3 gLightPos = float3(1.12f, 9.0f, 0.6f);
 		float3 geometryNormal;
 		float3 shadingNormal;
 		decodeNormals(payload.encodedNormals, geometryNormal, shadingNormal);
 		// We need to query our scene to find info about the current light
-		float distToLight = distance(gLightPos, payload.hitPosition);
-		float3 toLight = normalize(gLightPos - payload.hitPosition);
+		float distToLight = distance(g_LightPos, payload.hitPosition);
+		float3 toLight = normalize(g_LightPos - payload.hitPosition);
 
 		// Compute our lambertion term (L dot N)
 		float LdotN = saturate(dot(shadingNormal, toLight));
@@ -582,10 +582,9 @@ void RayGen()
             if (dot(geometryNormal, V) < 0.0f) geometryNormal = -geometryNormal;
             if (dot(geometryNormal, shadingNormal) < 0.0f) shadingNormal = -shadingNormal;
 
-			float3 gLightPos = float3(1.12f, 9.0f, 0.6f);
 			// We need to query our scene to find info about the current light
-			float distToLight = distance(gLightPos, payload.hitPosition);      // How far away is it?
-			float3 toLight = normalize(gLightPos - payload.hitPosition);         // What direction is it from our current pixel?
+			float distToLight = distance(g_LightPos, payload.hitPosition);      // How far away is it?
+			float3 toLight = normalize(g_LightPos - payload.hitPosition);         // What direction is it from our current pixel?
 
 			// Compute our lambertion term (L dot N)
 			float LdotN = saturate(dot(shadingNormal, toLight));
