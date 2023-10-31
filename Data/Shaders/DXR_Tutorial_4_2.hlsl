@@ -500,8 +500,6 @@ void RayGen()
 		if (!payload.hasHit()) 
         {
 			radiance += throughput * loadSkyValue(ray.Direction);
-            // PosWorldOutput[LaunchIndex] = float4(0.0f, 0.0f, 0.0f, 0.0f);
-            // NormWorldOutput[LaunchIndex] = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		}
         else
         {
@@ -514,14 +512,19 @@ void RayGen()
             if (dot(geometryNormal, V) < 0.0f) geometryNormal = -geometryNormal;
             if (dot(geometryNormal, shadingNormal) < 0.0f) shadingNormal = -shadingNormal;
 
+			float3 gLightPos = float3(1.12f, 9.0f, 0.6f);
+			// We need to query our scene to find info about the current light
+			float distToLight = distance(gLightPos, payload.hitPosition);      // How far away is it?
+			float3 toLight = normalize(gLightPos - payload.hitPosition);         // What direction is it from our current pixel?
+
+			// Compute our lambertion term (L dot N)
+			float LdotN = saturate(dot(shadingNormal, toLight));
+
             // Load material properties at the hit point
             MaterialProperties material = loadMaterialProperties(payload.materialID, payload.uvs);
 
             // Account for emissive surfaces
-            radiance += throughput * material.baseColor;
-
-            // PosWorldOutput[LaunchIndex] = float4(payload.hitPosition, 1.0f);
-            // NormWorldOutput[LaunchIndex] = float4(geometryNormal, 1.0f);
+            radiance += throughput * material.baseColor * LdotN;
         }
 	}
 
