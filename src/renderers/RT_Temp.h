@@ -75,9 +75,9 @@ namespace forward
 
 					pso.m_rtState.m_rayGenShaderTable = forward::make_shared<ShaderTable>("RefPT_RayGenShaderTable", L"SimpleDiffuseGIRayGen");
 					pso.m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("RefPT_HitGroupShaderTable",
-						Vector<WString>{ L"HitGroup_ClosestHit", L"HitGroup_AnyHit" });
+						Vector<WString>{ L"HitGroup_ClosestHit", L"HitGroup_AnyHit", L"HitGroupShadow_ShadowAnyHit" });
 					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RefPT_MissShaderTable",
-						Vector<WString>{ L"Miss" });
+						Vector<WString>{ L"Miss", L"ShadowMiss" });
 				},
 				[&](CommandList& cmdList) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();

@@ -37,6 +37,12 @@ static float M_PI = 3.141592f;
 //    Structures
 // -------------------------------------------------------------------------
 
+// Payload for our shadow rays. 
+struct ShadowRayPayload
+{
+	float visFactor;  // Will be 1.0 for fully lit, 0.0 for fully shadowed
+};
+
 struct VertexAttributes
 {
 	float3 position;
@@ -282,16 +288,14 @@ float shadowRayVisibility( float3 origin, float3 direction, float minT, float ma
 	ray.TMin = minT;            // The closest distance we'll count as a hit
 	ray.TMax = maxT;            // The farthest distance we'll count as a hit
 
-	HitInfo payload = (HitInfo) 0;
+	ShadowRayPayload payload = (ShadowRayPayload) 0;
 
 	// Query if anything is between the current point and the light
 	TraceRay(sceneBVH, 
 		     RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 
-		     0xFF, 0, 0, 0, ray, payload);
+		     0xFF, 1, 0, 1, ray, payload);
 
-	// Return our ray payload (which is 1 for visible, 0 for occluded)
-	if (!payload.hasHit()) return 1.0f;
-	return 0.0f;
+	return payload.visFactor;
 }
 
 // A utility function to trace an indirect ray and return the color it sees.
@@ -443,4 +447,21 @@ void SimpleDiffuseGIRayGen()
 	// Copy accumulated result into output buffer (this one is only RGB8, so precision is not good enough for accumulation)
 	// Note: Conversion from linear to sRGB here is not be necessary if conversion is applied later in the pipeline
 	RTOutput[LaunchIndex] = float4(linearToSrgb(radiance * gData.exposureAdjustment), 1.0f);
+}
+
+// What code is executed when our ray misses all geometry?
+[shader("miss")]
+void ShadowMiss(inout ShadowRayPayload rayData)
+{
+	// If we miss all geometry, then the light is visibile
+	rayData.visFactor = 1.0f;
+}
+
+// What code is executed when our ray hits a potentially transparent surface?
+[shader("anyhit")]
+void HitGroupShadow_ShadowAnyHit(inout ShadowRayPayload rayData, BuiltInTriangleIntersectionAttributes attribs)
+{
+	// Is this a transparent part of the surface?  If so, ignore this hit
+	if (alphaTestFails(attribs))
+		IgnoreHit();
 }
