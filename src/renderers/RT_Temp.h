@@ -34,15 +34,6 @@ namespace forward
 					m_uavRT = make_shared<Texture2D>("RefPT_UAV_RT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 					m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 					pso.m_rtState.m_uavShaderRes[0] = m_uavRT;
-					//auto uavAccumulation = make_shared<Texture2D>("RefPT_UAV_Accumulation", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					//uavAccumulation->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					//pso.m_rtState.m_uavShaderRes[1] = uavAccumulation;
-					//m_gBuffer_Pos = make_shared<Texture2D>("UAV_PosWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					//m_gBuffer_Pos->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					//pso.m_rtState.m_uavShaderRes[2] = m_gBuffer_Pos;
-					//m_gBuffer_Normal = make_shared<Texture2D>("UAV_NormalWorld", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
-					//m_gBuffer_Normal->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					//pso.m_rtState.m_uavShaderRes[3] = m_gBuffer_Normal;
 
 					m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("RefPT_MaterialDataBuffer", (u32)m_sceneData.mMaterials.size());
 					for (auto i = 0U; i < m_sceneData.mMaterials.size(); ++i)

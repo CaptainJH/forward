@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "renderers/RasterGBufferRenderer.h"
 #include "renderers/RT_Temp.h"
 
 using namespace forward;
@@ -19,21 +20,24 @@ protected:
 	void DrawScene() override;
 
 private:
-	shared_ptr<RTTemp> m_gBufferRender;
+	shared_ptr<RTTemp> m_tempRender;
+	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 };
 
 void DXR_Tutorial_4_2::UpdateScene(f32 dt)
 {
 	mFPCamera.UpdateViewMatrix();
-	m_gBufferRender->Update(dt);
+	m_rasterGBufferRender->Update(dt);
+	m_tempRender->Update(dt);
 }
 
 void DXR_Tutorial_4_2::DrawScene()
 {
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
-	m_gBufferRender->DrawEffect(&fg);
+	m_rasterGBufferRender->DrawEffect(&fg);
+	m_tempRender->DrawEffect(&fg);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
 }
@@ -47,10 +51,18 @@ bool DXR_Tutorial_4_2::Init()
 	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 100.0f);
 	mFPCamera.SetPosition(0.0f, 0.0f, -3.0f);
 	auto sceneData = SceneData::LoadFromFile(L"Sponza/glTF/Sponza.gltf", m_pDevice->mLoadedResourceMgr);
-	m_gBufferRender = make_shared<RTTemp>(sceneData);
-	m_gBufferRender->SetupRenderPass(*m_pDevice);
+	m_rasterGBufferRender = make_shared<RasterGBufferRenderer>(sceneData, mClientWidth, mClientHeight);
+	m_rasterGBufferRender->SetupRenderPass(*m_pDevice);
 
-	m_gBufferRender->mUpdateFunc = [&](f32) {
+	m_rasterGBufferRender->mUpdateFunc = [=](f32) {
+		m_rasterGBufferRender->updateConstantBuffer(mFPCamera.GetViewMatrix(), mFPCamera.GetProjectionMatrix());
+		*m_rasterGBufferRender->mCB1 = mFPCamera.GetPosition();
+		};
+
+	m_tempRender = make_shared<RTTemp>(sceneData);
+	m_tempRender->SetupRenderPass(*m_pDevice);
+
+	m_tempRender->mUpdateFunc = [&](f32) {
 		auto viewMat = mFPCamera.GetViewMatrix();
 		static float4x4 lastViewMat = viewMat;
 		static u32 accumulatedFrames = 0;
@@ -60,7 +72,7 @@ bool DXR_Tutorial_4_2::Init()
 		else
 			++accumulatedFrames;
 
-		*m_gBufferRender->m_cb = RaytracingData{
+		*m_tempRender->m_cb = RaytracingData{
 			.view = viewMat.inverse(),
 			.proj = mFPCamera.GetProjectionMatrix(),
 
