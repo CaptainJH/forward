@@ -557,7 +557,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);
 		DeviceCommandList()->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);
 		// Clear the back buffer and depth buffer.
-		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, Colors::Black.w };
+		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, 0.0f };
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 		{
 			for (auto& r : rt)

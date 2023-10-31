@@ -65,6 +65,9 @@ cbuffer GIControl : register(b1)
 RWTexture2D<float4> RTOutput						: register(u0);
 
 Texture2D<float4> skyTexture						: register(t0);
+Texture2D<float4> g_PosTex							: register(t1);
+Texture2D<float4> g_NormalTex						: register(t2);
+Texture2D<float4> g_DiffuseTex						: register(t3);
 
 // TLAS of our scene
 RaytracingAccelerationStructure sceneBVH			: register(t0, space99);
@@ -534,38 +537,26 @@ void RayGen()
 	uint2 LaunchIndex = DispatchRaysIndex().xy;
 	uint2 LaunchDimensions = DispatchRaysDimensions().xy;
 
-	// Initialize random numbers generator
-	RngStateType rngState = initRNG(LaunchIndex, LaunchDimensions, gData.frameNumber);
-
-	// Figure out pixel coordinates being raytraced
-	float2 pixel = float2(DispatchRaysIndex().xy);
-	const float2 resolution = float2(DispatchRaysDimensions().xy);
-
-	pixel = (((pixel + 0.5f) / resolution) * 2.0f - 1.0f);
-
-	// Initialize ray to the primary ray
-	RayDesc ray = generatePrimaryRay(pixel, rngState);
-	HitInfo payload = (HitInfo) 0;
+	// Load g-buffer data:  world-space position, normal, and diffuse color
+	float4 worldPos     = g_PosTex[LaunchIndex];
+	float3 worldNorm    = g_NormalTex[LaunchIndex].xyz;
+	float3 difMatlColor = g_DiffuseTex[LaunchIndex].rgb;
 
 	// Initialize path tracing data
 	float3 radiance = float3(0.0f, 0.0f, 0.0f);
 	float3 throughput = float3(1.0f, 1.0f, 1.0f);
 	
     {
-		// Trace the ray
-		TraceRay(
-			sceneBVH,
-			RAY_FLAG_NONE,
-			0xFF,
-			STANDARD_RAY_INDEX,
-			0,
-			STANDARD_RAY_INDEX,
-			ray,
-			payload);
-
 		// On a miss, load the sky value and break out of the ray tracing loop
-		if (!payload.hasHit()) 
+		if (worldPos.w == 0.0f) 
         {
+			// Figure out pixel coordinates being raytraced
+			float2 pixel = float2(DispatchRaysIndex().xy);
+			const float2 resolution = float2(LaunchDimensions.xy);
+			pixel = ((pixel + 0.5f) / resolution) * 2.0f - 1.0f;
+
+			// Initialize ray to the primary ray
+			RayDesc ray = generatePinholeCameraRay(pixel);
 			radiance += throughput * loadSkyValue(ray.Direction);
 		}
         else
@@ -573,48 +564,36 @@ void RayGen()
 			// Initialize our random number generator
 			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, gData.frameNumber, 16);
 
-            // Decode normals and flip them towards the incident ray direction (needed for backfacing triangles)
-            float3 geometryNormal;
-            float3 shadingNormal;
-            decodeNormals(payload.encodedNormals, geometryNormal, shadingNormal);
-
-            float3 V = -ray.Direction;
-            if (dot(geometryNormal, V) < 0.0f) geometryNormal = -geometryNormal;
-            if (dot(geometryNormal, shadingNormal) < 0.0f) shadingNormal = -shadingNormal;
-
 			// We need to query our scene to find info about the current light
-			float distToLight = distance(g_LightPos, payload.hitPosition);      // How far away is it?
-			float3 toLight = normalize(g_LightPos - payload.hitPosition);         // What direction is it from our current pixel?
+			float distToLight = distance(g_LightPos, worldPos);      // How far away is it?
+			float3 toLight = normalize(g_LightPos - worldPos);         // What direction is it from our current pixel?
 
 			// Compute our lambertion term (L dot N)
-			float LdotN = saturate(dot(shadingNormal, toLight));
-
-            // Load material properties at the hit point
-            MaterialProperties material = loadMaterialProperties(payload.materialID, payload.uvs);
+			float LdotN = saturate(dot(worldNorm, toLight));
 
 			// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
-			float shadowMult = shadowRayVisibility(payload.hitPosition, toLight, 1.0f, distToLight);
+			float shadowMult = shadowRayVisibility(worldPos, toLight, 1.0f, distToLight);
 
             // Account for emissive surfaces
-            radiance += shadowMult * throughput * material.baseColor * LdotN / M_PI;
+            radiance += shadowMult * throughput * difMatlColor * LdotN / M_PI;
 
 			// Now do our indirect illumination
 			if(g_Enable_GI > 0)
 			{
 				// Select a random direction for our diffuse interreflection ray.
-				float3 bounceDir = getCosHemisphereSample(randSeed, shadingNormal);      // Use cosine sampling
+				float3 bounceDir = getCosHemisphereSample(randSeed, worldNorm);      // Use cosine sampling
 
 				// Get NdotL for our selected ray direction
-				float NdotL = saturate(dot(shadingNormal, bounceDir));
+				float NdotL = saturate(dot(worldNorm, bounceDir));
 
 				// Shoot our indirect global illumination ray
-				float3 bounceColor = shootIndirectRay(payload.hitPosition, bounceDir, 1.0f, randSeed);
+				float3 bounceColor = shootIndirectRay(worldPos, bounceDir, 1.0f, randSeed);
 
 				// Probability of selecting this ray ( cos/pi for cosine sampling, 1/2pi for uniform sampling )
 				float sampleProb = NdotL / M_PI;
 
 				// Accumulate the color.  For performance, terms could (and should) be cancelled here.
-				radiance += (NdotL * bounceColor * material.baseColor / M_PI) / sampleProb;
+				radiance += (NdotL * bounceColor * difMatlColor / M_PI) / sampleProb;
 			}
         }
 	}

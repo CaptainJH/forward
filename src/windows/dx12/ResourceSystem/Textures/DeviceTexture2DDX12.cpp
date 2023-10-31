@@ -128,7 +128,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	else if (TBP & TBP_RT)
 	{
 		optClear.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
-		f32 clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		f32 clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 		memcpy(optClear.Color, clearColor, sizeof(clearColor));
 		optClearPtr = &optClear;
 	}

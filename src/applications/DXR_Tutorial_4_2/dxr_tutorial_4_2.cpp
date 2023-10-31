@@ -63,6 +63,9 @@ bool DXR_Tutorial_4_2::Init()
 		};
 
 	m_tempRender = make_shared<RTTemp>(sceneData);
+	m_tempRender->m_gBuffer_Pos = m_rasterGBufferRender->m_gBuffer_Pos;
+	m_tempRender->m_gBuffer_Normal = m_rasterGBufferRender->m_gBuffer_Normal;
+	m_tempRender->m_gBuffer_Diffuse = m_rasterGBufferRender->m_rt_color;
 	m_tempRender->SetupRenderPass(*m_pDevice);
 
 	m_tempRender->mUpdateFunc = [&](f32) {
