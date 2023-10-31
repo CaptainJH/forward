@@ -37,11 +37,6 @@ static float M_PI = 3.141592f;
 //    Structures
 // -------------------------------------------------------------------------
 
-struct Attributes
-{
-	float2 uv;
-};
-
 struct VertexAttributes
 {
 	float3 position;
@@ -316,7 +311,7 @@ MaterialProperties loadMaterialProperties(uint materialID, float2 uvs) {
 }
 
 // Performs an opacity test in any hit shader for potential hit. Returns true if hit point is transparent and can be ignored
-bool testOpacityAnyHit(Attributes attrib) {
+bool testOpacityAnyHit(BuiltInTriangleIntersectionAttributes attrib) {
 
 	// Load material at hit point
 	uint materialID;
@@ -328,7 +323,7 @@ bool testOpacityAnyHit(Attributes attrib) {
 	
 	// Also load the opacity texture if available
 	if (mData.baseColorTexIdx != INVALID_ID) {
-		float3 barycentrics = float3((1.0f - attrib.uv.x - attrib.uv.y), attrib.uv.x, attrib.uv.y);
+		float3 barycentrics = float3((1.0f - attrib.barycentrics.x - attrib.barycentrics.y), attrib.barycentrics.x, attrib.barycentrics.y);
 		VertexAttributes vertex = GetVertexAttributes(geometryID, PrimitiveIndex(), barycentrics);
 		opacity *= textures[mData.baseColorTexIdx].SampleLevel(linearSampler, vertex.uv, 0.0f).a;
 	}
@@ -501,7 +496,7 @@ float3 shootIndirectRay(float3 rayOrigin, float3 rayDir, float minT, uint seed)
 // -------------------------------------------------------------------------
 
 [shader("closesthit")]
-void HitGroup_ClosestHit(inout HitInfo payload, Attributes attrib)
+void HitGroup_ClosestHit(inout HitInfo payload, BuiltInTriangleIntersectionAttributes attrib)
 {
 	// At closest hit, we first load material and geometry ID packed into InstanceID 
 	uint materialID;
@@ -509,7 +504,7 @@ void HitGroup_ClosestHit(inout HitInfo payload, Attributes attrib)
 	unpackInstanceID(InstanceID(), materialID, geometryID);
 
 	// Read hit point properties (position, normal, UVs, ...) from vertex buffer
-	float3 barycentrics = float3((1.0f - attrib.uv.x - attrib.uv.y), attrib.uv.x, attrib.uv.y);
+	float3 barycentrics = float3((1.0f - attrib.barycentrics.x - attrib.barycentrics.y), attrib.barycentrics.x, attrib.barycentrics.y);
 	VertexAttributes vertex = GetVertexAttributes(geometryID, PrimitiveIndex(), barycentrics);
 
 	// Encode hit point properties and material ID into payload
@@ -520,7 +515,7 @@ void HitGroup_ClosestHit(inout HitInfo payload, Attributes attrib)
 }
 
 [shader("anyhit")]
-void HitGroup_AnyHit(inout HitInfo payload : SV_RayPayload, Attributes attrib : SV_IntersectionAttributes)
+void HitGroup_AnyHit(inout HitInfo payload, BuiltInTriangleIntersectionAttributes attrib)
 {
 	// At any hit, we test opacity and discard the hit if it's transparent
 	if (testOpacityAnyHit(attrib)) IgnoreHit();
