@@ -28,9 +28,11 @@
 // This is a code sample accompanying "The Reference Path Tracer" chapter in Ray Tracing Gems 2
 // v1.0, April 2021
 
+#include "hlslUtils.hlsl"
 #include "shared.h"
 #include "brdf.h"
 
+static float M_PI = 3.141592f;
 // -------------------------------------------------------------------------
 //    Structures
 // -------------------------------------------------------------------------
@@ -446,6 +448,49 @@ float shadowRayVisibility( float3 origin, float3 direction, float minT, float ma
 	return 0.0f;
 }
 
+// A utility function to trace an indirect ray and return the color it sees.
+//    -> Note:  This assumes the indirect hit programs and miss programs are index 1!
+float3 shootIndirectRay(float3 rayOrigin, float3 rayDir, float minT, uint seed)
+{
+	// Setup shadow ray
+	RayDesc rayColor;
+	rayColor.Origin = rayOrigin;  // Where does it start?
+	rayColor.Direction = rayDir;  // What direction do we shoot it?
+	rayColor.TMin = minT;         // The closest distance we'll count as a hit
+	rayColor.TMax = 1.0e38f;      // The farthest distance we'll count as a hit
+
+	// Initialize the ray's payload data with black return color and the current rng seed
+	HitInfo payload = (HitInfo) 0; 
+
+	// Trace our ray to get a color in the indirect direction.  Use hit group #1 and miss shader #1
+	TraceRay(sceneBVH, 0, 0xFF, 0, 0, 0, rayColor, payload);
+
+	if (payload.hasHit())
+	{
+		float3 gLightPos = float3(1.12f, 9.0f, 0.6f);
+		float3 geometryNormal;
+		float3 shadingNormal;
+		decodeNormals(payload.encodedNormals, geometryNormal, shadingNormal);
+		// We need to query our scene to find info about the current light
+		float distToLight = distance(gLightPos, payload.hitPosition);
+		float3 toLight = normalize(gLightPos - payload.hitPosition);
+
+		// Compute our lambertion term (L dot N)
+		float LdotN = saturate(dot(shadingNormal, toLight));
+
+		// Shoot our shadow ray to our randomly selected light
+		float shadowMult = shadowRayVisibility(payload.hitPosition, toLight, 1.0f, distToLight);
+
+		MaterialProperties material = loadMaterialProperties(payload.materialID, payload.uvs);
+
+		return shadowMult * material.baseColor * LdotN / M_PI;
+	}
+	else
+	{
+		return loadSkyValue(rayDir);
+	}
+}
+
 // -------------------------------------------------------------------------
 //    Raytracing shaders
 // -------------------------------------------------------------------------
@@ -525,6 +570,9 @@ void RayGen()
 		}
         else
         {
+			// Initialize our random number generator
+			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, 1, 16);
+
             // Decode normals and flip them towards the incident ray direction (needed for backfacing triangles)
             float3 geometryNormal;
             float3 shadingNormal;
@@ -549,7 +597,25 @@ void RayGen()
 			float shadowMult = shadowRayVisibility(payload.hitPosition, toLight, 1.0f, distToLight);
 
             // Account for emissive surfaces
-            radiance += shadowMult * throughput * material.baseColor * LdotN;
+            radiance += shadowMult * throughput * material.baseColor * LdotN / M_PI;
+
+			// Now do our indirect illumination
+			{
+				// Select a random direction for our diffuse interreflection ray.
+				float3 bounceDir = getCosHemisphereSample(randSeed, shadingNormal);      // Use cosine sampling
+
+				// Get NdotL for our selected ray direction
+				float NdotL = saturate(dot(shadingNormal, bounceDir));
+
+				// Shoot our indirect global illumination ray
+				float3 bounceColor = shootIndirectRay(payload.hitPosition, bounceDir, 1.0f, randSeed);
+
+				// Probability of selecting this ray ( cos/pi for cosine sampling, 1/2pi for uniform sampling )
+				float sampleProb = NdotL / M_PI;
+
+				// Accumulate the color.  For performance, terms could (and should) be cancelled here.
+				radiance += (NdotL * bounceColor * material.baseColor / M_PI) / sampleProb;
+			}
         }
 	}
 
