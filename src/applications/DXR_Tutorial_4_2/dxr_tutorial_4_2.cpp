@@ -18,19 +18,22 @@ public:
 protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
-	void OnSpace() override { m_useGI = !m_useGI; }
+	void OnSpace() override { m_useGI = !m_useGI; m_resetAccumulation = true; }
 
 private:
 	shared_ptr<RTTemp> m_tempRender;
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
-	bool m_useGI = false;
+	bool m_useGI = true;
 	float3 m_lightPos = float3(1.12f, 9.0f, 0.6f);
+	u32 m_accumulatedFrames = 0U;
+	bool m_resetAccumulation = false;
 };
 
 void DXR_Tutorial_4_2::UpdateScene(f32 dt)
 {
-	mFPCamera.UpdateViewMatrix();
+	m_accumulatedFrames = (mFPCamera.UpdateViewMatrix() || m_resetAccumulation) ? 0U : m_accumulatedFrames + 1;
+	if (m_accumulatedFrames == 0) m_resetAccumulation = false;
 	m_rasterGBufferRender->Update(dt);
 	m_tempRender->Update(dt);
 }
@@ -43,6 +46,7 @@ void DXR_Tutorial_4_2::DrawScene()
 	m_tempRender->DrawEffect(&fg);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
+	m_pDevice->FlushDefaultQueue();
 }
 
 bool DXR_Tutorial_4_2::Init()
@@ -69,17 +73,9 @@ bool DXR_Tutorial_4_2::Init()
 	m_tempRender->SetupRenderPass(*m_pDevice);
 
 	m_tempRender->mUpdateFunc = [&](f32) {
-		auto viewMat = mFPCamera.GetViewMatrix();
-		static float4x4 lastViewMat = viewMat;
-		static u32 accumulatedFrames = 0;
-		bool resetAccumulation = !lastViewMat.equalWithAbsError(viewMat, std::numeric_limits<f32>::epsilon());
-		if (resetAccumulation)
-			accumulatedFrames = 1;
-		else
-			++accumulatedFrames;
 
 		*m_tempRender->m_cb = RaytracingData{
-			.view = viewMat.inverse(),
+			.view = mFPCamera.GetViewMatrix().inverse(),
 			.proj = mFPCamera.GetProjectionMatrix(),
 
 			.skyIntensity = 3.0f,
@@ -88,7 +84,7 @@ bool DXR_Tutorial_4_2::Init()
 			.maxBounces = 1,
 
 			.exposureAdjustment = 0.2f,
-			.accumulatedFrames = 1,
+			.accumulatedFrames = m_accumulatedFrames,
 			.enableAntiAliasing = TRUE,
 			.focusDistance = 10.0f,
 
@@ -103,7 +99,6 @@ bool DXR_Tutorial_4_2::Init()
 			.g_use_GI = m_useGI ? 1U : 0U,
 		};
 
-		lastViewMat = viewMat;
 		};
 
 	return true;
