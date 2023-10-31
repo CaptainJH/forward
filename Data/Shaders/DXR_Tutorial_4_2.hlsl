@@ -424,6 +424,28 @@ float3 loadSkyValue(float3 rayDirection) {
 	return gData.skyIntensity * skyValue.rgb;
 }
 
+// Helper function to shoot shadow rays.  In: ray origin, dir, & min/max dist;  Out: 1=lit, 0=shadowed
+float shadowRayVisibility( float3 origin, float3 direction, float minT, float maxT )
+{
+	// Setup our shadow ray
+	RayDesc ray;
+	ray.Origin = origin;        // Where does it start?
+	ray.Direction = direction;  // What direction do we shoot it?
+	ray.TMin = minT;            // The closest distance we'll count as a hit
+	ray.TMax = maxT;            // The farthest distance we'll count as a hit
+
+	HitInfo payload = (HitInfo) 0;
+
+	// Query if anything is between the current point and the light
+	TraceRay(sceneBVH, 
+		     RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, 
+		     0xFF, 0, 0, 0, ray, payload);
+
+	// Return our ray payload (which is 1 for visible, 0 for occluded)
+	if (!payload.hasHit()) return 1.0f;
+	return 0.0f;
+}
+
 // -------------------------------------------------------------------------
 //    Raytracing shaders
 // -------------------------------------------------------------------------
@@ -523,8 +545,11 @@ void RayGen()
             // Load material properties at the hit point
             MaterialProperties material = loadMaterialProperties(payload.materialID, payload.uvs);
 
+			// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
+			float shadowMult = shadowRayVisibility(payload.hitPosition, toLight, 1.0f, distToLight);
+
             // Account for emissive surfaces
-            radiance += throughput * material.baseColor * LdotN;
+            radiance += shadowMult * throughput * material.baseColor * LdotN;
         }
 	}
 
