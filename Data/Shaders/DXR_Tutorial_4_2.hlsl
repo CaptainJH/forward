@@ -36,6 +36,11 @@ static float M_PI = 3.141592f;
 // -------------------------------------------------------------------------
 //    Structures
 // -------------------------------------------------------------------------
+// The payload used for our indirect global illumination rays
+struct IndirectRayPayload
+{
+	float3 color;    // The (returned) color in the ray's direction
+};
 
 // Payload for our shadow rays. 
 struct ShadowRayPayload
@@ -310,34 +315,12 @@ float3 shootIndirectRay(float3 rayOrigin, float3 rayDir, float minT, uint seed)
 	rayColor.TMax = 1.0e38f;      // The farthest distance we'll count as a hit
 
 	// Initialize the ray's payload data with black return color and the current rng seed
-	HitInfo payload = (HitInfo) 0; 
+	IndirectRayPayload payload = (IndirectRayPayload) 0; 
 
 	// Trace our ray to get a color in the indirect direction.  Use hit group #1 and miss shader #1
 	TraceRay(sceneBVH, 0, 0xFF, 0, 0, 0, rayColor, payload);
 
-	if (payload.hasHit())
-	{
-		float3 geometryNormal;
-		float3 shadingNormal;
-		decodeNormals(payload.encodedNormals, geometryNormal, shadingNormal);
-		// We need to query our scene to find info about the current light
-		float distToLight = distance(g_LightPos, payload.hitPosition);
-		float3 toLight = normalize(g_LightPos - payload.hitPosition);
-
-		// Compute our lambertion term (L dot N)
-		float LdotN = saturate(dot(shadingNormal, toLight));
-
-		// Shoot our shadow ray to our randomly selected light
-		float shadowMult = shadowRayVisibility(payload.hitPosition, toLight, 1.0f, distToLight);
-
-		MaterialProperties material = loadMaterialProperties(payload.materialID, payload.uvs);
-
-		return shadowMult * material.baseColor * LdotN / M_PI;
-	}
-	else
-	{
-		return loadSkyValue(rayDir);
-	}
+	return payload.color;
 }
 
 // -------------------------------------------------------------------------
@@ -345,7 +328,7 @@ float3 shootIndirectRay(float3 rayOrigin, float3 rayDir, float minT, uint seed)
 // -------------------------------------------------------------------------
 
 [shader("closesthit")]
-void HitGroup_ClosestHit(inout HitInfo payload, BuiltInTriangleIntersectionAttributes attrib)
+void HitGroupIndirect_ClosestHit(inout IndirectRayPayload payload, BuiltInTriangleIntersectionAttributes attrib)
 {
 	// At closest hit, we first load material and geometry ID packed into InstanceID 
 	uint materialID;
@@ -356,25 +339,32 @@ void HitGroup_ClosestHit(inout HitInfo payload, BuiltInTriangleIntersectionAttri
 	float3 barycentrics = float3((1.0f - attrib.barycentrics.x - attrib.barycentrics.y), attrib.barycentrics.x, attrib.barycentrics.y);
 	VertexAttributes vertex = GetVertexAttributes(geometryID, PrimitiveIndex(), barycentrics);
 
-	// Encode hit point properties and material ID into payload
-	payload.encodedNormals = encodeNormals(vertex.geometryNormal, vertex.shadingNormal);
-	payload.hitPosition = vertex.position;
-	payload.materialID = materialID;
-	payload.uvs = vertex.uv;
+	// We need to query our scene to find info about the current light
+	float distToLight = distance(g_LightPos, vertex.position);
+	float3 toLight = normalize(g_LightPos - vertex.position);
+
+	// Compute our lambertion term (L dot N)
+	float LdotN = saturate(dot(vertex.shadingNormal, toLight));
+
+	// Shoot our shadow ray to our randomly selected light
+	float shadowMult = shadowRayVisibility(vertex.position, toLight, RayTMin(), distToLight);
+
+	MaterialProperties material = loadMaterialProperties(materialID, vertex.uv);
+
+	payload.color = shadowMult * material.baseColor * LdotN / M_PI;
 }
 
 [shader("anyhit")]
-void HitGroup_AnyHit(inout HitInfo payload, BuiltInTriangleIntersectionAttributes attrib)
+void HitGroupIndirect_AnyHit(inout IndirectRayPayload payload, BuiltInTriangleIntersectionAttributes attrib)
 {
 	// At any hit, we test opacity and discard the hit if it's transparent
 	if (alphaTestFails(attrib)) IgnoreHit();
 }
 
 [shader("miss")]
-void Miss(inout HitInfo payload)
+void IndirectMiss(inout IndirectRayPayload payload)
 {
-	// We indicate miss by storing invalid material ID in the payload
-    payload.materialID = INVALID_ID;
+	payload.color = loadSkyValue(WorldRayDirection());
 }
 
 [shader("raygeneration")]
