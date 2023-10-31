@@ -18,11 +18,13 @@ public:
 protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
+	void OnSpace() override { m_useGI = !m_useGI; }
 
 private:
 	shared_ptr<RTTemp> m_tempRender;
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
+	bool m_useGI = false;
 };
 
 void DXR_Tutorial_4_2::UpdateScene(f32 dt)
@@ -91,6 +93,8 @@ bool DXR_Tutorial_4_2::Init()
 
 			.lights = {}
 		};
+
+		*m_tempRender->m_gi_cb = m_useGI ? 1 : 0;
 
 		lastViewMat = viewMat;
 		};

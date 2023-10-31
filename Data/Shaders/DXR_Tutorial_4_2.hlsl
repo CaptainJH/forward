@@ -60,6 +60,11 @@ cbuffer RaytracingDataCB : register(b0)
 	RaytracingData gData;
 }
 
+cbuffer GIControl : register(b1)
+{
+	uint g_Enable_GI;
+}
+
 // Output buffer with accumulated and tonemapped image
 RWTexture2D<float4> RTOutput						: register(u0);
 
@@ -571,7 +576,7 @@ void RayGen()
         else
         {
 			// Initialize our random number generator
-			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, 1, 16);
+			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, gData.frameNumber, 16);
 
             // Decode normals and flip them towards the incident ray direction (needed for backfacing triangles)
             float3 geometryNormal;
@@ -600,6 +605,7 @@ void RayGen()
             radiance += shadowMult * throughput * material.baseColor * LdotN / M_PI;
 
 			// Now do our indirect illumination
+			if(g_Enable_GI > 0)
 			{
 				// Select a random direction for our diffuse interreflection ray.
 				float3 bounceDir = getCosHemisphereSample(randSeed, shadingNormal);      // Use cosine sampling
