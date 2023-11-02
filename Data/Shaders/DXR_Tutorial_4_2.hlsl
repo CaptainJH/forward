@@ -74,7 +74,6 @@ cbuffer GIControl : register(b1)
 
 // Output buffer with accumulated and tonemapped image
 RWTexture2D<float4> RTOutput						: register(u0);
-RWTexture2D<float4> accumulationBuffer				: register(u1);
 
 Texture2D<float4> skyTexture						: register(t0);
 Texture2D<float4> g_PosTex							: register(t1);
@@ -437,13 +436,7 @@ void SimpleDiffuseGIRayGen()
 
 	// Copy accumulated result into output buffer (this one is only RGB8, so precision is not good enough for accumulation)
 	// Note: Conversion from linear to sRGB here is not be necessary if conversion is applied later in the pipeline
-	float4 v = float4(linearToSrgb(radiance * gData.exposureAdjustment), 1.0f);
-
-    if(gData.accumulatedFrames > 0)
-        accumulationBuffer[LaunchIndex] = accumulationBuffer[LaunchIndex] + v;
-    else
-        accumulationBuffer[LaunchIndex] = v;
-    RTOutput[LaunchIndex] = accumulationBuffer[LaunchIndex] / (gData.accumulatedFrames + 1);
+	RTOutput[LaunchIndex] = float4(linearToSrgb(radiance * gData.exposureAdjustment), 1.0f);
 }
 
 // What code is executed when our ray misses all geometry?

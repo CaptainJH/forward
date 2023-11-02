@@ -239,7 +239,11 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage SRVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
 				{
-
+					if (auto res_cs = pso.m_CSState.m_shaderResources[i])
+					{
+						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
+						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
+					}
 				}
 
 				// stage UAVs

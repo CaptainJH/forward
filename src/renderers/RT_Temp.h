@@ -19,7 +19,9 @@ namespace forward
 
 		shared_ptr<ConstantBuffer<RaytracingData>> m_cb;
 		shared_ptr<ConstantBuffer<GI_CB>> m_gi_cb;
+		shared_ptr<ConstantBuffer<u32>> m_cb_accumulation;
 		shared_ptr<Texture2D> m_uavRT;
+		shared_ptr<Texture2D> m_lastFrameTex;
 		shared_ptr<Texture2D> m_uavRT2;
 		shared_ptr<Texture2D> m_gBuffer_Pos;
 		shared_ptr<Texture2D> m_gBuffer_Normal;
@@ -32,6 +34,8 @@ namespace forward
 			auto rt = d.GetDefaultRT();
 			const auto w = rt->GetWidth();
 			const auto h = rt->GetHeight();
+			m_lastFrameTex = make_shared<Texture2D>("RefPT_SRV_LastFrameTex", DF_R8G8B8A8_UNORM, w, h, TextureBindPosition::TBP_Shader);
+
 			m_renderPassVec.emplace_back(RenderPass(
 				[&, w, h](RenderPassBuilder& /*builder*/, RTPipelineStateObject& pso) {
 					pso.FeedWithSceneData(m_sceneData);
@@ -50,9 +54,6 @@ namespace forward
 					m_uavRT = make_shared<Texture2D>("RefPT_UAV_RT", DF_R8G8B8A8_UNORM, w, h, TextureBindPosition::TBP_Shader);
 					m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 					pso.m_rtState.m_uavShaderRes[0] = m_uavRT;
-					m_accumulationTex = make_shared<Texture2D>("RTAO_ACCUMULATION_UAV_OUTPUT", DF_R32G32B32A32_FLOAT, w, h, TextureBindPosition::TBP_Shader);
-					m_accumulationTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_rtState.m_uavShaderRes[1] = m_accumulationTex;
 
 					m_materials = make_shared<StructuredBuffer<SceneData::MaterialData>>("RefPT_MaterialDataBuffer", (u32)m_sceneData.mMaterials.size());
 					for (auto i = 0U; i < m_sceneData.mMaterials.size(); ++i)
@@ -88,7 +89,34 @@ namespace forward
 				[&](CommandList& cmdList) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
 					cmdList.DispatchRays(rtPSO);
-					cmdList.CopyResource(*d.GetCurrentSwapChainRT(), *m_uavRT);
+					cmdList.CopyResource(*m_lastFrameTex, *m_uavRT);
+				}
+			));
+
+			m_renderPassVec.emplace_back(RenderPass(
+				[&, w, h](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+
+					m_cb_accumulation = make_shared<ConstantBuffer<u32>>("RTAO_ACCUMULATION_CB");
+					pso.m_CSState.m_constantBuffers[0] = m_cb_accumulation;
+
+					m_uavRT2 = make_shared<Texture2D>("RefPT_UAV_RT2", DF_R8G8B8A8_UNORM, w, h, TextureBindPosition::TBP_Shader);
+					m_uavRT2->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+					pso.m_CSState.m_uavShaderRes[0] = m_uavRT2;
+
+					m_accumulationTex = make_shared<Texture2D>("RTAO_ACCUMULATION_UAV_OUTPUT", DF_R32G32B32A32_FLOAT, w, h, TextureBindPosition::TBP_Shader);
+					m_accumulationTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
+					pso.m_CSState.m_uavShaderRes[1] = m_accumulationTex;
+
+					pso.m_CSState.m_shaderResources[0] = m_lastFrameTex;
+
+					// setup shaders
+					pso.m_CSState.m_shader = make_shared<ComputeShader>("RTAO_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain_WAR");
+				},
+				[&, w, h](CommandList& cmdList) {
+					const u32 x = w / 8;
+					const u32 y = h / 8;
+					cmdList.Dispatch(x, y, 1);
+					cmdList.CopyResource(*d.GetCurrentSwapChainRT(), *m_uavRT2);
 				}
 			));
 		}

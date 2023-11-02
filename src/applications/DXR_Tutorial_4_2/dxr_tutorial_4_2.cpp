@@ -46,7 +46,6 @@ void DXR_Tutorial_4_2::DrawScene()
 	m_tempRender->DrawEffect(&fg);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
-	m_pDevice->FlushDefaultQueue();
 }
 
 bool DXR_Tutorial_4_2::Init()
@@ -98,6 +97,8 @@ bool DXR_Tutorial_4_2::Init()
 			.g_LightPos = m_lightPos,
 			.g_use_GI = m_useGI ? 1U : 0U,
 		};
+
+		*m_tempRender->m_cb_accumulation = m_accumulatedFrames;
 
 		};
 
