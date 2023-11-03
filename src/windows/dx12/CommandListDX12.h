@@ -35,6 +35,7 @@ namespace forward
 		void BindGPUVisibleHeaps();
 		void PrepareGPUVisibleHeaps(RenderPass& pass);
 		void CommitStagedDescriptors();
+		void GenerateMipmaps(Texture2D* tex);
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
@@ -47,6 +48,8 @@ namespace forward
 		DeviceDX12& GetDeviceDX12();
 
 	private:
+		void ExecuteMipmapRenderPasses();
+		void PrepareGPUVisibleHeapForMipmap(RenderPass& pass, u32 targetMipLevel);
 		CommandListDX12(Device& d, QueueType t);
 		CommandAllocatorComPtr				m_CmdListAlloc;
 		CommandListComPtr						m_CmdList;
@@ -58,5 +61,7 @@ namespace forward
 		};
 
 		friend class CommandQueueDX12;
+
+		Vector<std::pair<u32, RenderPass>> m_mipmapGenerationPass;
 	};
 }

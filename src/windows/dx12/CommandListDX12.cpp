@@ -21,10 +21,12 @@ void CommandListDX12::Reset()
 		[](DynamicDescriptorHeapDX12& heap) {
 			heap.Reset();
 		});
+	m_mipmapGenerationPass.clear();
 }
 
 void CommandListDX12::Close()
 {
+	ExecuteMipmapRenderPasses();
 	HR(m_CmdList->Close());
 }
 
@@ -317,6 +319,59 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 	}
 }
 
+void CommandListDX12::PrepareGPUVisibleHeapForMipmap(RenderPass& pass, u32 targetMipLevel)
+{
+	u32 stagedSRVs = 0;
+	u32 stagedUAVs = 0;
+	auto stageSRVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTexture2DDX12* deviceTex) {
+		assert(deviceTex);
+		*(baseDescriptorHandleAddr + stagedSRVs++) = deviceTex->GetMipmapSRView(GetDeviceDX12().GetDevice(), targetMipLevel - 1);
+		};
+	auto stageUAVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTexture2DDX12* deviceTex) {
+		assert(deviceTex);
+		*(baseDescriptorHandleAddr + stagedSRVs + stagedUAVs++) = deviceTex->GetMipmapUAView(GetDeviceDX12().GetDevice(), targetMipLevel);
+		};
+
+	auto& pso = pass.GetPSO<ComputePipelineStateObject>();
+
+	if (pso.m_usedCBV_SRV_UAV_Count > 0)
+	{
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+		if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
+		{
+			// stage SRVs
+			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
+			{
+				if (auto res_cs = pso.m_CSState.m_shaderResources[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
+					stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
+				}
+			}
+
+			// stage UAVs
+			for (auto i = 0; i < 8; ++i)
+			{
+				if (auto res_cs = pso.m_CSState.m_uavShaderRes[i])
+				{
+					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
+					stageUAVFunc(baseDescriptorHandleAddr, deviceTex);
+				}
+			}
+
+			assert(stagedSRVs + stagedUAVs == pso.m_usedCBV_SRV_UAV_Count);
+		}
+	}
+
+	if (pso.m_usedSampler_Count > 0)
+	{
+		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER];
+		heap.PrepareDescriptorHandleCache(pso.m_usedSampler_Count);
+
+		// TODO: stage Samplers
+	}
+}
+
 DeviceDX12& CommandListDX12::GetDeviceDX12()
 {
 	return static_cast<DeviceDX12&>(m_device);
@@ -431,4 +486,47 @@ void CommandListDX12::ResolveResource(Texture2D* dst, Texture2D* src)
 
 	GetDeviceDX12().TransitionResource(dstDX12, backStateDst);
 	GetDeviceDX12().TransitionResource(srcDX12, backStateSrc);
+}
+
+void CommandListDX12::GenerateMipmaps(Texture2D* tex)
+{
+	auto w = tex->GetWidth() / 2;
+	auto mipLevel = 1;
+	while (w)
+	{
+		m_mipmapGenerationPass.emplace_back(std::make_pair(mipLevel++, RenderPass(
+			[&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+				// setup shaders
+				pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("MipmapGenerator", L"MipmapGenerator", "MipmapGenerator");
+				pso.m_CSState.m_uavShaderRes[0] = tex;
+				pso.m_CSState.m_shaderResources[0] = tex;
+			},
+			[=](CommandList& cmdList) {
+				cmdList.Dispatch(w, w, 1);
+			})));
+		w /= 2;
+	}
+}
+
+void CommandListDX12::ExecuteMipmapRenderPasses()
+{
+	if (m_mipmapGenerationPass.empty())
+		return;
+
+	BindGPUVisibleHeaps();
+	for (auto& r_pair : m_mipmapGenerationPass)
+	{
+		auto& r = r_pair.second;
+		auto& d = GetDeviceDX12();
+		auto& pso = r.GetPSO<ComputePipelineStateObject>();
+		if (!pso.m_devicePSO)
+			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(&d, pso);
+
+		PrepareGPUVisibleHeapForMipmap(r, r_pair.first);
+		auto tex2D = device_cast<DeviceTexture2DDX12*>(pso.m_CSState.m_uavShaderRes[0]);
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(tex2D->GetDeviceResource().Get());
+		GetDeviceCmdListPtr()->ResourceBarrier(1, &barrier);
+		d.DrawRenderPass(r);
+	}
+	CommitStagedDescriptors();
 }

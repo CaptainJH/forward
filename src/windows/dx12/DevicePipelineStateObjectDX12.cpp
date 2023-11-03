@@ -271,12 +271,12 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Comp
 			auto res = pso.m_CSState.m_shaderResources[i];
 			if (res)
 			{
-				if (dynamic_cast<Texture2D*>(res.get()))
+				if (dynamic_cast<Texture2D*>(res.get()) && !res->DeviceObject())
 				{
 					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);
 				}
-				else if (dynamic_cast<TextureCube*>(res.get()))
+				else if (dynamic_cast<TextureCube*>(res.get()) && !res->DeviceObject())
 				{
 					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);
@@ -288,7 +288,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Comp
 			auto res = pso.m_CSState.m_uavShaderRes[i];
 			if (res)
 			{
-				if (dynamic_cast<Texture2D*>(res.get()))
+				if (dynamic_cast<Texture2D*>(res.get()) && !res->DeviceObject())
 				{
 					auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);

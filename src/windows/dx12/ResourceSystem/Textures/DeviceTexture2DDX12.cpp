@@ -4,6 +4,7 @@
 #include "DeviceTexture2DDX12.h"
 #include "dx12/DeviceDX12.h"
 #include "dx12/CommandQueueDX12.h"
+#include "dx12/CommandListDX12.h"
 
 using namespace forward;
 
@@ -98,7 +99,7 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	desc.Width = tex->GetWidth();
 	desc.Height = tex->GetHeight();
 	desc.DepthOrArraySize = 1;
-	desc.MipLevels = static_cast<u16>(tex->GetMipLevelNum());
+	desc.MipLevels = (tex->IsFileTexture() && tex->WantAutoGenerateMips()) ? 0 : static_cast<u16>(tex->GetMipLevelNum());
 	desc.Format = static_cast<DXGI_FORMAT>(tex->GetFormat());
 	desc.SampleDesc.Count = tex->GetSampCount();
 	desc.SampleDesc.Quality = 0;
@@ -110,11 +111,6 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	const auto TBP = tex->GetBindPosition();
 	D3D12_CLEAR_VALUE optClear;
 	D3D12_CLEAR_VALUE* optClearPtr = nullptr;
-
-	if (tex->IsFileTexture() && (TBP & TBP_Shader))
-	{
-		desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-	}
 
 	if (TBP & TBP_DS)
 	{
@@ -163,6 +159,9 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 			IID_PPV_ARGS(m_stagingResPtr.GetAddressOf())));
 
 		SyncCPUToGPU();
+
+		if (tex->IsFileTexture() && tex->WantAutoGenerateMips() && tex->GetMipLevelNum() == 1)
+			d.GetDefaultQueue()->GetCommandListDX12()->GenerateMipmaps(tex);
 	}
 
 	if (tex->GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL)
@@ -342,7 +341,7 @@ void DeviceTexture2DDX12::CreateSRView(ID3D12Device* device, const D3D12_RESOURC
 	srvDesc.Format = tx.Format;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = tx.MipLevels;
+	srvDesc.Texture2D.MipLevels = (u32)(-1);
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	device->CreateShaderResourceView(m_deviceResPtr.Get(), &srvDesc, m_srvHandle);
 }
@@ -356,6 +355,35 @@ void DeviceTexture2DDX12::CreateUAView(ID3D12Device* device, const D3D12_RESOURC
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Texture2D.MipSlice = 0;
 	device->CreateUnorderedAccessView(m_deviceResPtr.Get(), nullptr, &uavDesc, m_uavHandle);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetMipmapUAView(ID3D12Device* device, u32 mipLevel)
+{
+	auto desc = m_deviceResPtr->GetDesc();
+	auto handle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = desc.Format;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = mipLevel;
+	device->CreateUnorderedAccessView(m_deviceResPtr.Get(), nullptr, &uavDesc, handle);
+	return handle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceTexture2DDX12::GetMipmapSRView(ID3D12Device* device, u32 mipLevel)
+{
+	auto desc = m_deviceResPtr->GetDesc();
+	auto handle = m_device.AllocateCPUDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = mipLevel;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	device->CreateShaderResourceView(m_deviceResPtr.Get(), &srvDesc, handle);
+	return handle;
 }
 
 void DeviceTexture2DDX12::CreateDSSRView(ID3D12Device* /*device*/, const D3D12_RESOURCE_DESC& /*tx*/)
