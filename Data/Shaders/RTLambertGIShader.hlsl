@@ -85,6 +85,47 @@ SamplerState linearSampler							: register(s0);
 //    Utilities
 // -------------------------------------------------------------------------
 
+#define TONEMAP_GAMMA 1.0f
+
+// Reinhard Tonemapper
+float3 tonemap_reinhard(in float3 color)
+{
+   color *= 16;
+   color = color/(1+color);
+   float3 ret = pow(color, TONEMAP_GAMMA); // gamma
+   return ret;
+}
+
+// Uncharted 2 Tonemapper
+float3 tonemap_uncharted2(in float3 x)
+{
+    float A = 0.22;
+    float B = 0.30;
+    float C = 0.10;
+    float D = 0.20;
+    float E = 0.01;
+    float F = 0.30;
+
+    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
+float3 tonemap_uc2(in float3 color)
+{
+    float W = 11.2;
+
+    color *= 16;  // Hardcoded Exposure Adjustment
+
+    float exposure_bias = 2.0f;
+    float3 curr = tonemap_uncharted2(exposure_bias*color);
+
+    float3 white_scale = 1.0f/tonemap_uncharted2(W);
+    float3 ccolor = curr*white_scale;
+
+    float3 ret = pow(abs(ccolor), TONEMAP_GAMMA); // gamma
+
+    return ret;
+}
+
 // Helpers to convert between linear and sRGB color spaces
 float3 linearToSrgb(float3 linearColor)
 {
@@ -407,7 +448,7 @@ void SimpleDiffuseGIRayGen()
 
 	// Copy accumulated result into output buffer (this one is only RGB8, so precision is not good enough for accumulation)
 	// Note: Conversion from linear to sRGB here is not be necessary if conversion is applied later in the pipeline
-	RTOutput[LaunchIndex] = float4(linearToSrgb(radiance * gData.exposureAdjustment), 1.0f);
+	RTOutput[LaunchIndex] = float4(tonemap_uc2(radiance * gData.exposureAdjustment), 1.0f);
 }
 
 // What code is executed when our ray misses all geometry?
