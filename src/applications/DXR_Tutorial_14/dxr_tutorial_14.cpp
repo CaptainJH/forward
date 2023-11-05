@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "renderers/RasterGBufferRenderer.h"
-#include "renderers/RTLambertRenderer.h"
+#include "renderers/RTggxRenderer.h"
 
 using namespace forward;
 
@@ -37,7 +37,7 @@ protected:
 	}
 
 private:
-	shared_ptr<RTLambertRenderer> m_lambertGIRender;
+	shared_ptr<RTggxRenderer> m_ggxGIRender;
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 	bool m_useGI = true;
@@ -51,7 +51,7 @@ void DXR_Tutorial_14::UpdateScene(f32 dt)
 	m_accumulatedFrames = (mFPCamera.UpdateViewMatrix() || m_resetAccumulation) ? 0U : m_accumulatedFrames + 1;
 	if (m_accumulatedFrames == 0) m_resetAccumulation = false;
 	m_rasterGBufferRender->Update(dt);
-	m_lambertGIRender->Update(dt);
+	m_ggxGIRender->Update(dt);
 }
 
 void DXR_Tutorial_14::DrawScene()
@@ -59,7 +59,7 @@ void DXR_Tutorial_14::DrawScene()
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
 	m_rasterGBufferRender->DrawEffect(&fg);
-	m_lambertGIRender->DrawEffect(&fg);
+	m_ggxGIRender->DrawEffect(&fg);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
 }
@@ -81,15 +81,15 @@ bool DXR_Tutorial_14::Init()
 		*m_rasterGBufferRender->mCB1 = mFPCamera.GetPosition();
 		};
 
-	m_lambertGIRender = make_shared<RTLambertRenderer>(sceneData);
-	m_lambertGIRender->m_posWorld = m_rasterGBufferRender->m_gBuffer_Pos;
-	m_lambertGIRender->m_normalWorld = m_rasterGBufferRender->m_gBuffer_Normal;
-	m_lambertGIRender->m_diffuse = m_rasterGBufferRender->m_rt_color;
-	m_lambertGIRender->SetupRenderPassWithGI(*m_pDevice);
+	m_ggxGIRender = make_shared<RTggxRenderer>(sceneData);
+	m_ggxGIRender->m_posWorld = m_rasterGBufferRender->m_gBuffer_Pos;
+	m_ggxGIRender->m_normalWorld = m_rasterGBufferRender->m_gBuffer_Normal;
+	m_ggxGIRender->m_diffuse = m_rasterGBufferRender->m_rt_color;
+	m_ggxGIRender->SetupRenderPassWithGI(*m_pDevice);
 
-	m_lambertGIRender->mUpdateFunc = [&](f32) {
+	m_ggxGIRender->mUpdateFunc = [&](f32) {
 
-		*m_lambertGIRender->m_rt_cb = RaytracingData{
+		*m_ggxGIRender->m_rt_cb = RaytracingData{
 			.view = mFPCamera.GetViewMatrix().inverse(),
 			.proj = mFPCamera.GetProjectionMatrix(),
 
@@ -109,12 +109,12 @@ bool DXR_Tutorial_14::Init()
 			.lights = {}
 		};
 
-		*m_lambertGIRender->m_gi_cb = {
+		*m_ggxGIRender->m_gi_cb = {
 			.g_LightPos = m_lightPos,
 			.g_use_GI = m_useGI ? 1U : 0U,
 		};
 
-		*m_lambertGIRender->m_cb_accumulation = m_accumulatedFrames;
+		*m_ggxGIRender->m_cb_accumulation = m_accumulatedFrames;
 
 		};
 
