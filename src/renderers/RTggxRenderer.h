@@ -20,6 +20,7 @@ namespace forward
 			u32 g_use_GI;
 			float3 g_cameraPos;
 			u32 g_max_ray_depth;
+			u32 g_use_Local;
 		};
 
 		RTggxRenderer(SceneData& sd)

@@ -19,6 +19,7 @@ protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
 	void OnSpace() override { m_useGI = !m_useGI; m_resetAccumulation = true; }
+	void OnEnter() override { m_useLocal = !m_useLocal; m_resetAccumulation = true; }
 	void OnChar(i8 key, bool pressed) override
 	{
 		Application::OnChar(key, pressed);
@@ -41,6 +42,7 @@ private:
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 	bool m_useGI = true;
+	bool m_useLocal = true;
 	float3 m_lightPos = float3(1.12f, 9.0f, 0.6f);
 	u32 m_accumulatedFrames = 0U;
 	bool m_resetAccumulation = false;
@@ -115,6 +117,7 @@ bool DXR_Tutorial_14::Init()
 			.g_use_GI = m_useGI ? 1U : 0U,
 			.g_cameraPos = mFPCamera.GetPosition(),
 			.g_max_ray_depth = 3U,
+			.g_use_Local = m_useLocal ? 1U : 0U,
 		};
 
 		*m_ggxGIRender->m_cb_accumulation = m_accumulatedFrames;

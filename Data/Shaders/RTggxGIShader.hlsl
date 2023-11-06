@@ -45,6 +45,7 @@ cbuffer GIControl : register(b1)
 	uint g_Enable_GI;
 	float3 g_camPos;
 	uint gMaxDepth;
+	uint g_Enable_Local;
 }
 
 // Output buffer with accumulated and tonemapped image
@@ -421,11 +422,15 @@ float3 ggxDirect(inout uint rndSeed, float3 hit, float3 N, float3 V, float3 dif,
 	float distToLight = distance(g_LightPos, hit);      // How far away is it?
 	float3 L = normalize(g_LightPos - hit);         // What direction is it from our current pixel?
 
+	// JHQ: ignore this light if N dot L is negative (i.e., light is behind the surface)
+	if(dot(N, L) < 0.0f)
+		return 0.0f;
+
 	// Compute our lambertion term (L dot N)
 	float NdotL = saturate(dot(N, L));
 
 	// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
-	float shadowMult = shadowRayVisibility(hit, L, 1.0f, distToLight);
+	float shadowMult = shadowRayVisibility(hit, L, 0.001f, distToLight);
 
 	// Compute half vectors and additional dot products for GGX
 	float3 H = normalize(V + L);
@@ -490,10 +495,11 @@ float3 ggxIndirect(inout uint rndSeed, float3 hit, float3 N, float3 V, float3 di
 		float  D = ggxNormalDistribution(NdotH, rough);          // The GGX normal distribution
 		float  G = ggxSchlickMaskingTerm(NdotL, NdotV, rough);   // Use Schlick's masking term approx
 		float3 F = schlickFresnel(spec, LdotH);                  // Use Schlick's approx to Fresnel
-		float3 ggxTerm = D * G * F / (4 * NdotL * NdotV);        // The Cook-Torrance microfacet BRDF
+		float3 ggxTerm = /*D * */ G * F / (4 * NdotL * NdotV);        // The Cook-Torrance microfacet BRDF
 
 		// What's the probability of sampling vector H from getGGXMicrofacet()?
-		float  ggxProb = D * NdotH / (4 * LdotH);
+		// JHQ: cancel out D here & the ggxTerm above to avoid visual artifacts
+		float  ggxProb = /*D * */ NdotH / (4 * LdotH);
 
 		// Accumulate the color:  ggx-BRDF * incomingLight * NdotL / probability-of-sampling
 		//    -> Should really simplify the math above.
@@ -591,8 +597,11 @@ void ggxGIRayGen()
 			// Initialize our random number generator
 			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, gData.frameNumber, 16);
 
-			radiance = ggxDirect(randSeed, worldPos.xyz, worldNorm.xyz, V,
-				                   difMatlColor.rgb, specularF0, roughness);
+			if(g_Enable_Local > 0)
+			{
+				radiance += ggxDirect(randSeed, worldPos.xyz, worldNorm.xyz, V,
+									difMatlColor.rgb, specularF0, roughness);
+			}
 
 			// Now do our indirect illumination
 			if(g_Enable_GI > 0)
