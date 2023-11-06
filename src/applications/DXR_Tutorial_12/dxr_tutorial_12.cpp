@@ -19,12 +19,29 @@ protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
 	void OnSpace() override { m_useGI = !m_useGI; m_resetAccumulation = true; }
+	void OnEnter() override { m_useLocal = !m_useLocal; m_resetAccumulation = true; }
+	void OnChar(i8 key, bool pressed) override
+	{
+		Application::OnChar(key, pressed);
+
+		if (key == 'U' && pressed)
+		{
+			m_resetAccumulation = true;
+			m_lightPos.y += 0.2f;
+		}
+		else if (key == 'J' && pressed)
+		{
+			m_resetAccumulation = true;
+			m_lightPos.y -= 0.2f;
+		}
+	}
 
 private:
 	shared_ptr<RTLambertRenderer> m_lambertGIRender;
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 	bool m_useGI = true;
+	bool m_useLocal = true;
 	float3 m_lightPos = float3(1.12f, 9.0f, 0.6f);
 	u32 m_accumulatedFrames = 0U;
 	bool m_resetAccumulation = false;
@@ -96,6 +113,7 @@ bool DXR_Tutorial_12::Init()
 		*m_lambertGIRender->m_gi_cb = {
 			.g_LightPos = m_lightPos,
 			.g_use_GI = m_useGI ? 1U : 0U,
+			.g_use_Local = m_useLocal ? 1U : 0U,
 		};
 
 		*m_lambertGIRender->m_cb_accumulation = m_accumulatedFrames;

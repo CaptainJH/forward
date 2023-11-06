@@ -34,7 +34,6 @@ protected:
 			m_resetAccumulation = true;
 			m_lightPos.y -= 0.2f;
 		}
-
 	}
 
 private:

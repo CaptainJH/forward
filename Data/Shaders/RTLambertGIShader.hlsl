@@ -41,6 +41,7 @@ cbuffer GIControl : register(b1)
 {
 	float3 g_LightPos;
 	uint g_Enable_GI;
+	uint g_Enable_Local;
 }
 
 // Output buffer with accumulated and tonemapped image
@@ -412,18 +413,21 @@ void SimpleDiffuseGIRayGen()
 			// Initialize our random number generator
 			uint randSeed = initRand(LaunchIndex.x + LaunchIndex.y * LaunchDimensions.x, gData.frameNumber, 16);
 
-			// We need to query our scene to find info about the current light
-			float distToLight = distance(g_LightPos, worldPos);      // How far away is it?
-			float3 toLight = normalize(g_LightPos - worldPos);         // What direction is it from our current pixel?
+			if(g_Enable_Local > 0)
+			{
+				// We need to query our scene to find info about the current light
+				float distToLight = distance(g_LightPos, worldPos);      // How far away is it?
+				float3 toLight = normalize(g_LightPos - worldPos);         // What direction is it from our current pixel?
 
-			// Compute our lambertion term (L dot N)
-			float LdotN = saturate(dot(worldNorm, toLight));
+				// Compute our lambertion term (L dot N)
+				float LdotN = saturate(dot(worldNorm, toLight));
 
-			// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
-			float shadowMult = shadowRayVisibility(worldPos, toLight, 1.0f, distToLight);
+				// Shoot our ray.  Return 1.0 for lit, 0.0 for shadowed
+				float shadowMult = shadowRayVisibility(worldPos, toLight, 1.0f, distToLight);
 
-            // Account for emissive surfaces
-            radiance += shadowMult * throughput * difMatlColor * LdotN / M_PI;
+				// Account for emissive surfaces
+				radiance += shadowMult * throughput * difMatlColor * LdotN / M_PI;
+			}
 
 			// Now do our indirect illumination
 			if(g_Enable_GI > 0)

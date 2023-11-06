@@ -18,6 +18,7 @@ namespace forward
 		{
 			float3 g_LightPos;
 			u32 g_use_GI;
+			u32 g_use_Local;
 		};
 
 		RTLambertRenderer(SceneData& sd)
