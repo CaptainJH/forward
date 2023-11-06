@@ -18,6 +18,8 @@ namespace forward
 		{
 			float3 g_LightPos;
 			u32 g_use_GI;
+			float3 g_cameraPos;
+			u32 g_max_ray_depth;
 		};
 
 		RTggxRenderer(SceneData& sd)
@@ -29,6 +31,7 @@ namespace forward
 		shared_ptr<Texture2D> m_uavRT;
 		shared_ptr<Texture2D> m_posWorld;
 		shared_ptr<Texture2D> m_normalWorld;
+		shared_ptr<Texture2D> m_roughnessMetalness;
 		shared_ptr<Texture2D> m_diffuse;
 		shared_ptr<Texture2D> m_envTex;
 
@@ -60,6 +63,7 @@ namespace forward
 					pso.m_rtState.m_shaderResources[1] = m_posWorld;
 					pso.m_rtState.m_shaderResources[2] = m_normalWorld;
 					pso.m_rtState.m_shaderResources[3] = m_diffuse;
+					pso.m_rtState.m_shaderResources[4] = m_roughnessMetalness;
 
 					m_uavRT = make_shared<Texture2D>("RTggx_UAV_RT", DF_R8G8B8A8_UNORM, w, h, TextureBindPosition::TBP_Shader);
 					m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);

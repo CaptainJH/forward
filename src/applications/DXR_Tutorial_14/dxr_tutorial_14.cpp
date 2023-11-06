@@ -41,7 +41,7 @@ private:
 	shared_ptr<RasterGBufferRenderer> m_rasterGBufferRender;
 	u32 m_frames = 0U;
 	bool m_useGI = true;
-	float3 m_lightPos = float3(1.12f, 1.0f, 0.6f);
+	float3 m_lightPos = float3(1.12f, 9.0f, 0.6f);
 	u32 m_accumulatedFrames = 0U;
 	bool m_resetAccumulation = false;
 };
@@ -85,6 +85,7 @@ bool DXR_Tutorial_14::Init()
 	m_ggxGIRender->m_posWorld = m_rasterGBufferRender->m_gBuffer_Pos;
 	m_ggxGIRender->m_normalWorld = m_rasterGBufferRender->m_gBuffer_Normal;
 	m_ggxGIRender->m_diffuse = m_rasterGBufferRender->m_rt_color;
+	m_ggxGIRender->m_roughnessMetalness = m_rasterGBufferRender->m_gBuffer_RoughnessMetalness;
 	m_ggxGIRender->SetupRenderPassWithGI(*m_pDevice);
 
 	m_ggxGIRender->mUpdateFunc = [&](f32) {
@@ -112,6 +113,8 @@ bool DXR_Tutorial_14::Init()
 		*m_ggxGIRender->m_gi_cb = {
 			.g_LightPos = m_lightPos,
 			.g_use_GI = m_useGI ? 1U : 0U,
+			.g_cameraPos = mFPCamera.GetPosition(),
+			.g_max_ray_depth = 3U,
 		};
 
 		*m_ggxGIRender->m_cb_accumulation = m_accumulatedFrames;
