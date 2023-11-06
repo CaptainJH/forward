@@ -2,12 +2,14 @@
 
 struct GBuffer 
 {
-    float4 color   : SV_Target0;
-	float4 pos    : SV_Target1;
-    float4 normal : SV_Target2;
+    float4 color                : SV_Target0;
+	float4 pos                  : SV_Target1;
+    float4 normal               : SV_Target2;
+    float4 roughnessMetalness   : SV_Target3;
 };
 
-Texture2D normalTexture : register(t1);
+Texture2D normalTexture             : register(t1);
+Texture2D roughnessMetalnessTexture : register(t2);
 //-----------------------------------------------------------------------------
 // Calculates a cotangent frame without precomputed tangents by Christian Schüler
 // ported from GLSL to HLSL; see: http://www.thetenthplanet.de/archives/1180
@@ -35,6 +37,7 @@ GBuffer Tutorial_3_PS( in VS_OUTPUT input ) : SV_Target
     GBuffer gBufOut;
 	gBufOut.color = baseTexture.Sample(baseSampler, input.uv);
     gBufOut.pos = float4(input.posWorld, 1.0f);
+    gBufOut.roughnessMetalness = roughnessMetalnessTexture.Sample(baseSampler, input.uv);
 
     float3 sampledNormal = normalTexture.Sample(baseSampler, input.uv).xyz * 2 - 1.0f;
     float3x3 cotangentFrame = calcWorldSpaceCotangentFrame(input.normalWorld, normalize(CamPosition - input.posWorld), input.uv);
