@@ -40,58 +40,6 @@ using namespace forward;
 
 const float kInfinity = std::numeric_limits<float>::max();
 
-template<typename T>
-class Vec3
-{
-public:
-    Vec3() : x(0), y(0), z(0) {}
-    Vec3(T xx) : x(xx), y(xx), z(xx) {}
-    Vec3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {}
-    Vec3 operator * (const T& r) const { return Vec3(x * r, y * r, z * r); }
-    Vec3 operator * (const Vec3<T> &v) const { return Vec3(x * v.x, y * v.y, z * v.z); }
-    Vec3 operator + (const Vec3& v) const { return Vec3(x + v.x, y + v.y, z + v.z); }
-    Vec3 operator - (const Vec3& v) const { return Vec3(x - v.x, y - v.y, z - v.z); }
-    template<typename U>
-    Vec3 operator / (const Vec3<U>& v) const { return Vec3(x / v.x, y / v.y, z / v.z); }
-    friend Vec3 operator / (const T r, const Vec3& v)
-    {
-        return Vec3(r / v.x, r / v.y, r / v.z);
-    }
-    const T& operator [] (size_t i) const { return (&x)[i]; }
-    T& operator [] (size_t i) { return (&x)[i]; }
-    T length2() const { return x * x + y * y + z * z; }
-    T length() const { return std::sqrt(length2()); }
-    Vec3& operator += (const Vec3<T>& v) { x += v.x, y += v.y, z += v.z; return *this; }
-    Vec3& operator *= (const float& r) { x *= r, y *= r, z *= r; return *this; }
-    friend Vec3 operator * (const float&r, const Vec3& v)
-    {
-        return Vec3(v.x * r, v.y * r, v.z * r);
-    }
-    friend std::ostream& operator << (std::ostream& os, const Vec3<T>& v)
-    {
-        os << v.x << " " << v.y << " " << v.z << std::endl; return os;
-    }
-    T x, y, z;
-};
-
-template<typename T>
-void normalize(Vec3<T>& vec)
-{
-    T len2 = vec.length2();
-    if (len2 > 0) {
-        T invLen = 1 / std::sqrt(len2);
-        vec.x *= invLen, vec.y *= invLen, vec.z *= invLen;
-    }
-}
-
-template<typename T>
-T dot(const Vec3<T>& va, const Vec3<T>& vb)
-{
-    return va.x * vb.x + va.y * vb.y + va.z * vb.z;
-}
-
-using Vec3f = Vec3<float>;
-
 // [comment]
 // The atmosphere class. Stores data about the planetory body (its radius), the atmosphere itself
 // (thickness) and things such as the Mie and Rayleigh coefficients, the sun direction, etc.
@@ -100,7 +48,7 @@ class Atmosphere
 {
 public:
     Atmosphere(
-        Vec3f sd = Vec3f(0, 1, 0), 
+        float3 sd = float3(0, 1, 0), 
         float er = 6360e3, float ar = 6420e3,
         float hr = 7994, float hm = 1200) :
         sunDirection(sd),
@@ -110,20 +58,20 @@ public:
         Hm(hm)
     {}
 
-    Vec3f computeIncidentLight(const Vec3f& orig, const Vec3f& dir, float tmin, float tmax) const;
+    float3 computeIncidentLight(const float3& orig, const float3& dir, float tmin, float tmax) const;
 
-    Vec3f sunDirection;     // The sun direction (normalized)
+    float3 sunDirection;     // The sun direction (normalized)
     float earthRadius;      // In the paper this is usually Rg or Re (radius ground, eart)
     float atmosphereRadius; // In the paper this is usually R or Ra (radius atmosphere)
     float Hr;               // Thickness of the atmosphere if density was uniform (Hr)
     float Hm;               // Same as above but for Mie scattering (Hm)
 
-    static const Vec3f betaR;
-    static const Vec3f betaM;
+    static const float3 betaR;
+    static const float3 betaM;
 };
 
-const Vec3f Atmosphere::betaR(3.8e-6f, 13.5e-6f, 33.1e-6f);
-const Vec3f Atmosphere::betaM(21e-6f);
+const float3 Atmosphere::betaR(3.8e-6f, 13.5e-6f, 33.1e-6f);
+const float3 Atmosphere::betaM(21e-6f);
 
 bool solveQuadratic(float a, float b, float c, float& x1, float& x2)
 {
@@ -148,7 +96,7 @@ bool solveQuadratic(float a, float b, float c, float& x1, float& x2)
 // [comment]
 // A simple routine to compute the intersection of a ray with a sphere
 // [/comment]
-bool raySphereIntersect(const Vec3f& orig, const Vec3f& dir, const float& radius, float& t0, float& t1)
+bool raySphereIntersect(const float3& orig, const float3& dir, const float& radius, float& t0, float& t1)
 {
     // They ray dir is normalized so A = 1 
     float A = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
@@ -168,24 +116,24 @@ bool raySphereIntersect(const Vec3f& orig, const Vec3f& dir, const float& radius
 // sample along the primary ray, we then "cast" a light ray and raymarch along that ray as well.
 // We basically shoot a ray in the direction of the sun.
 // [/comment]
-Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, float tmin, float tmax) const
+float3 Atmosphere::computeIncidentLight(const float3& orig, const float3& dir, float tmin, float tmax) const
 {
     float t0, t1;
-    if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return 0;
+    if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return float3(0.0f);
     if (t0 > tmin && t0 > 0) tmin = t0;
     if (t1 < tmax) tmax = t1;
     uint32_t numSamples = 16;
     uint32_t numSamplesLight = 8;
     float segmentLength = (tmax - tmin) / numSamples;
     float tCurrent = tmin;
-    Vec3f sumR(0), sumM(0); // mie and rayleigh contribution
+    float3 sumR(0), sumM(0); // mie and rayleigh contribution
     float opticalDepthR = 0, opticalDepthM = 0;
-    float mu = dot(dir, sunDirection); // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
+    float mu = dir.dot(sunDirection); // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
     float phaseR = 3.f / (16.f * f_PI) * (1.f + mu * mu);
     float g = 0.76f;
     float phaseM = 3.f / (8.f * f_PI) * ((1.f - g * g) * (1.f + mu * mu)) / ((2.f + g * g) * pow(1.f + g * g - 2.f * g * mu, 1.5f));
     for (uint32_t i = 0; i < numSamples; ++i) {
-        Vec3f samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
+        float3 samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
         float height = samplePosition.length() - earthRadius;
         // compute optical depth for light
         float hr = exp(-height / Hr) * segmentLength;
@@ -199,7 +147,7 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
         float opticalDepthLightR = 0, opticalDepthLightM = 0;
         uint32_t j;
         for (j = 0; j < numSamplesLight; ++j) {
-            Vec3f samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
+            float3 samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
             float heightLight = samplePositionLight.length() - earthRadius;
             if (heightLight < 0) break;
             opticalDepthLightR += exp(-heightLight / Hr) * segmentLengthLight;
@@ -207,8 +155,8 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
             tCurrentLight += segmentLengthLight;
         }
         if (j == numSamplesLight) {
-            Vec3f tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
-            Vec3f attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
+            float3 tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
+            float3 attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
             sumR += attenuation * hr;
             sumM += attenuation * hm;
         }
@@ -222,7 +170,7 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
     return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 20;
 }
 
-void renderSkydome(const Vec3f& sunDir, const wchar_t* filename)
+void renderSkydome(const float3& sunDir, const wchar_t* filename)
 {
     Atmosphere atmosphere(sunDir);
     auto t0 = std::chrono::high_resolution_clock::now();
@@ -231,8 +179,8 @@ void renderSkydome(const Vec3f& sunDir, const wchar_t* filename)
     // Render fisheye
     // [/comment]
     const unsigned width = 512, height = 512;
-    Vec3f *image = new Vec3f[width * height], *p = image;
-    memset(image, 0x0, sizeof(Vec3f) * width * height);
+    float3 *image = new float3[width * height], *p = image;
+    memset(image, 0x0, sizeof(float3) * width * height);
     for (unsigned j = 0; j < height; ++j) {
         float y = 2.f * (j + 0.5f) / float(height - 1) - 1.f;
         for (unsigned i = 0; i < width; ++i, ++p) {
@@ -241,26 +189,24 @@ void renderSkydome(const Vec3f& sunDir, const wchar_t* filename)
             if (z2 <= 1) {
                 float phi = std::atan2(y, x);
                 float theta = std::acos(1 - z2);
-                Vec3f dir(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
+                float3 dir(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
                 // 1 meter above sea level
-                *p = atmosphere.computeIncidentLight(Vec3f(0, atmosphere.earthRadius + 1, 0), dir, 0, kInfinity);
+                *p = atmosphere.computeIncidentLight(float3(0, atmosphere.earthRadius + 1, 0), dir, 0, kInfinity);
             }
         }
-        //std::cout << (int)(100 * j / (width - 1)) << "%" << std::endl;
-
     }
 #else
     // [comment]
     // Render from a normal camera
     // [/comment]
     const unsigned width = 640, height = 480;
-    Vec3f *image = new Vec3f[width * height], *p = image;
-    memset(image, 0x0, sizeof(Vec3f) * width * height);
+    float3 *image = new float3[width * height], *p = image;
+    memset(image, 0x0, sizeof(float3) * width * height);
     float aspectRatio = width / float(height);
     float fov = 65;
     float angle = std::tan(fov * M_PI / 180 * 0.5f);
     unsigned numPixelSamples = 4;
-    Vec3f orig(0, atmosphere.earthRadius + 1000, 30000); // camera position
+    float3 orig(0, atmosphere.earthRadius + 1000, 30000); // camera position
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(0, 1); // to generate random floats in the range [0:1]
     for (unsigned y = 0; y < height; ++y) {
@@ -269,7 +215,7 @@ void renderSkydome(const Vec3f& sunDir, const wchar_t* filename)
                 for (unsigned n = 0; n < numPixelSamples; ++n) {
                     float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / float(width) - 1) * aspectRatio * angle;
                     float rayy = (1 - (y + (n + distribution(generator)) / numPixelSamples) / float(height) * 2) * angle;
-                    Vec3f dir(rayx, rayy, -1);
+                    float3 dir(rayx, rayy, -1);
                     normalize(dir);
                     // [comment]
                     // Does the ray intersect the planetory body? (the intersection test is against the Earth here
@@ -329,14 +275,14 @@ int main()
         filename << "skydome." << p.first << ".exr";
         auto angle = p.second;
         std::cout << "Rendering image" << p.first << "angle = " << angle * 180 / f_PI << std::endl;
-        renderSkydome(Vec3f(0, cos(angle), -sin(angle)), filename.str().c_str());
+        renderSkydome(float3(sin(angle), cos(angle), 0), filename.str().c_str());
         });
 #else
     // [comment]
     // Render one single image
     // [/comment]
     float angle = M_PI * 0;
-    Vec3f sunDir(0, std::cos(angle), -std::sin(angle));
+    float3 sunDir(0, std::cos(angle), -std::sin(angle));
     std::cout << "Sun direction: " << sunDir << std::endl;
     renderSkydome(sunDir, L"skydome.exr");
 #endif
