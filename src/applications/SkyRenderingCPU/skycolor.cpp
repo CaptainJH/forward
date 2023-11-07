@@ -35,6 +35,7 @@
 #include "Utils.h"
 #include "FileSystem.h"
 #include "dxCommon/DirectXTexEXR.h"
+#include <random>
 
 using namespace forward;
 
@@ -173,7 +174,7 @@ float3 Atmosphere::computeIncidentLight(const float3& orig, const float3& dir, f
 void renderSkydome(const float3& sunDir, const wchar_t* filename)
 {
     Atmosphere atmosphere(sunDir);
-    auto t0 = std::chrono::high_resolution_clock::now();
+    auto tStart = std::chrono::high_resolution_clock::now();
 #if 1
     // [comment]
     // Render fisheye
@@ -204,7 +205,7 @@ void renderSkydome(const float3& sunDir, const wchar_t* filename)
     memset(image, 0x0, sizeof(float3) * width * height);
     float aspectRatio = width / float(height);
     float fov = 65;
-    float angle = std::tan(fov * M_PI / 180 * 0.5f);
+    float angle = std::tan(fov * f_PI / 180 * 0.5f);
     unsigned numPixelSamples = 4;
     float3 orig(0, atmosphere.earthRadius + 1000, 30000); // camera position
     std::default_random_engine generator;
@@ -216,7 +217,7 @@ void renderSkydome(const float3& sunDir, const wchar_t* filename)
                     float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / float(width) - 1) * aspectRatio * angle;
                     float rayy = (1 - (y + (n + distribution(generator)) / numPixelSamples) / float(height) * 2) * angle;
                     float3 dir(rayx, rayy, -1);
-                    normalize(dir);
+                    dir.normalize();
                     // [comment]
                     // Does the ray intersect the planetory body? (the intersection test is against the Earth here
                     // not against the atmosphere). If the ray intersects the Earth body and that the intersection
@@ -238,10 +239,9 @@ void renderSkydome(const float3& sunDir, const wchar_t* filename)
             }
             *p *= 1.f / (numPixelSamples * numPixelSamples);
         }
-        fprintf(stderr, "\b\b\b\b%3d%c", (int)(100 * y / (width - 1)), '%');
     }
 #endif
-    std::cout << "\b\b\b\b" << ((std::chrono::duration<float>)(std::chrono::high_resolution_clock::now() - t0)).count() << " seconds" << std::endl;
+    std::cout << ((std::chrono::duration<float>)(std::chrono::high_resolution_clock::now() - tStart)).count() << " seconds" << std::endl;
 
     // writing file
     std::wstring exrFilePath = FileSystem::getSingleton().GetSavedFolder() + filename;
