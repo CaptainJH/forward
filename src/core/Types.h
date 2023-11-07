@@ -31,7 +31,7 @@ namespace forward
 	typedef std::string String;
 	template<class T> using Vector = std::vector<T>;
 
-	typedef Imath::Vec3<forward::f32> float2;
+	typedef Imath::Vec2<forward::f32> float2;
 	typedef Imath::Vec3<forward::f32> float3;
 	typedef Imath::Vec4<forward::f32> float4;
 	typedef Imath::Matrix33<forward::f32> float3x3;
