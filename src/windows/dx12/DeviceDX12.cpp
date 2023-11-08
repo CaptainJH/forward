@@ -551,7 +551,6 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			{
 				rt.emplace_back(CurrentBackBufferView(&rpso));
 				TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
-				break;
 			}
 		}
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);

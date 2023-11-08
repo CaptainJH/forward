@@ -73,6 +73,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 {
 	gApplication = this;
 	DeviceType = DeviceType::Device_Forward_DX12;
+	mFPCamera.SetLens(f_PIDIV2, static_cast<f32>(width) / static_cast<f32>(height), 1.0f, 1000.0f);
 }
 
 ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)

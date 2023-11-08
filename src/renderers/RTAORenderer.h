@@ -78,8 +78,8 @@ namespace forward
 						pso.m_CSState.m_shader = make_shared<ComputeShader>("RTAO_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain");
 					},
 					[&](CommandList& cmdList) {
-						constexpr u32 x = 1920 / 8;
-						constexpr u32 y = 1080 / 8;
+						u32 x = m_uavRT->GetWidth() / 8;
+						u32 y = m_uavRT->GetHeight() / 8;
 						cmdList.Dispatch(x, y, 1);
 						cmdList.CopyResource(*d.GetCurrentSwapChainRT(), *m_uavRT);
 					}
