@@ -15,7 +15,8 @@
 
 using namespace forward;
 
-float4x4 cameraToWorld{ 0.844328f, 0, -0.535827f, 0, -0.170907f, 0.947768f, -0.269306f, 0, 0.50784f, 0.318959f, 0.800227f, 0, 83.292171f, 45.137326f, 126.430772f, 1 };
+float4x4 g_cameraToWorld{ 0.844328f, 0, -0.535827f, 0, -0.170907f, 0.947768f, -0.269306f, 0, 0.50784f, 0.318959f, 0.800227f, 0, 83.292171f, 45.137326f, 126.430772f, 1 };
+float3 g_cameraPos;
 struct Grid
 {
     const u32 baseResolution = 128U;
@@ -223,7 +224,7 @@ void render(const size_t& frame)
 
     Vector<Color3> imgbuf(width * height);
 
-    const float3 rayOrig = float3(0) * cameraToWorld;
+    const float3 rayOrig = g_cameraPos;
 
     std::for_each(std::execution::par, imgbuf.begin(), imgbuf.end(), [&](auto& data) {
         auto offset = &data - imgbuf.data();
@@ -234,13 +235,13 @@ void render(const size_t& frame)
         //float  opacity = 0;
         for (unsigned jj = 0; jj < nsamples; ++jj) {
             for (unsigned ii = 0; ii < nsamples; ++ii) {
-                float3 rayDir;
-                rayDir.x = (2 * (i + 1.f / nsamples * (ii + 0.5f)) / width - 1) * rc.focal;
-                rayDir.y = (1 - 2 * (j + 1.f / nsamples * (jj + 0.5f)) / height) * rc.focal * 1 / rc.frameAspectRatio; // Maya style
-                rayDir.z = -1;
 
-                cameraToWorld.multDirMatrix(rayDir, rayDir);
-                rayDir.normalize();
+                const float screenPos_x = 2 * (i + 0.5f) / width - 1;
+                const float screenPos_y = 1 - 2 * (j + 0.5f) / height;
+                float4 screenPos = { screenPos_x, screenPos_y, 0.0f, 1.0f };
+                float4 world4 = screenPos * g_cameraToWorld;
+                float3 world = { world4.x / world4.w, world4.y / world4.w, world4.z / world4.w };
+                float3 rayDir = (world - rayOrig).normalize();
 
                 Ray ray(rayOrig, rayOrig + rayDir);
 
@@ -347,6 +348,13 @@ void VolumeViewer::UpdateScene(f32)
 
 void VolumeViewer::DrawScene()
 {
+    g_cameraPos = { 0, 20.0f, -50.0f };
+    mFPCamera.SetPosition(g_cameraPos);
+    mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 10000.0f);
+    mFPCamera.LookAt(g_cameraPos, float3(0.0f), float3(0, 1, 0));
+    mFPCamera.UpdateViewMatrix();
+    g_cameraToWorld = (mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix()).inverse();
+
     //for (auto frame = 1; frame <= 90; ++frame)
     //    render(frame);
     //render(0);
@@ -367,7 +375,7 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	VolumeViewer theApp(1200, 800);
+	VolumeViewer theApp(640, 480);
 
 	if (!theApp.Init())
 		return 0;
