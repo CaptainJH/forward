@@ -12,6 +12,7 @@ using namespace forward;
 
 class VolumeViewerGPU : public Application
 {
+	const static u32 baseResolution = 128U;
 	struct CB
 	{
 		float4x4 ProjectionToWorld;
@@ -33,10 +34,13 @@ protected:
 	void DrawScene() override;
 	void OnSpace() { m_pause = !m_pause; }
 
+	void readGridFromVDB(u32 idx);
+
 private:
 	shared_ptr<Texture2D> m_uavRT;
 	shared_ptr<ConstantBuffer<CB>> m_cb;
 	std::unique_ptr<RenderPass> m_volumePass;
+	std::vector<f32> m_grid;
 	u32 m_frames = 0U;
 	bool m_pause = false;
 };
@@ -60,6 +64,27 @@ void VolumeViewerGPU::DrawScene()
 	m_pDevice->EndDrawFrameGraph();
 }
 
+void VolumeViewerGPU::readGridFromVDB(u32 idx)
+{
+	std::wstring vdbFilePath = FileSystem::getSingleton().GetSavedFolder() + L"smoke.vdb";
+	openvdb::io::File vdbFile(TextHelper::ToAscii(vdbFilePath));
+	vdbFile.open();
+	std::stringstream gridName;
+	gridName << "smoke." << idx << ".grid";
+	auto gridIt = std::find_if(vdbFile.beginName(), vdbFile.endName(), [&](openvdb::Name n) {
+		return n == gridName.str();
+		});
+	assert(gridIt != vdbFile.endName());
+	m_grid.resize(baseResolution * baseResolution * baseResolution, 0.0f);
+	auto vdbGrid = openvdb::gridPtrCast<openvdb::FloatGrid>(vdbFile.readGrid(gridIt.gridName()));
+	for (openvdb::FloatGrid::ValueOnCIter iter = vdbGrid->cbeginValueOn(); iter; ++iter)
+	{
+		auto coord = iter.getCoord();
+		m_grid[(coord.z() * baseResolution + coord.y()) * baseResolution + coord.x()] = *iter;
+	}
+	vdbFile.close();
+}
+
 bool VolumeViewerGPU::Init()
 {
 	Log::Get().Open();
@@ -70,6 +95,8 @@ bool VolumeViewerGPU::Init()
 	mFPCamera.SetPosition(camPos);
 	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 10000.0f);
 	mFPCamera.LookAt(camPos, float3(0.0f), float3(0, 1, 0));
+	openvdb::initialize();
+	readGridFromVDB(50);
 
 	m_volumePass = std::make_unique<RenderPass>([&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
 
