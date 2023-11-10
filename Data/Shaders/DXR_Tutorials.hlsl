@@ -32,7 +32,7 @@ float3x3 calcWorldSpaceCotangentFrame(float3 wsNormal, float3 wsInvViewDir, floa
     return float3x3(T * invmax, B * invmax, wsNormal);
 }
 
-GBuffer Tutorial_3_PS( in VS_OUTPUT input ) : SV_Target
+GBuffer Tutorial_3_PS( in VS_OUTPUT input )
 {
     GBuffer gBufOut;
 	gBufOut.color = baseTexture.Sample(baseSampler, input.uv);

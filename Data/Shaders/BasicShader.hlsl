@@ -58,8 +58,8 @@ VS_OUTPUT VSMain_P_N_T_UV(in VS_INPUT_P_N_T_UV v)
 
 	matrix mvp = mul(WorldMatrix, ViewProjMatrix);
 	o.position = mul(v.position, mvp);
-	o.posWorld = mul(v.position, WorldMatrix);
-	o.normalWorld = mul(v.normal, InverseTransposeWorldMatrix);
+	o.posWorld = mul(v.position, WorldMatrix).xyz;
+	o.normalWorld = mul(v.normal, InverseTransposeWorldMatrix).xyz;
 	o.color = float4(1.0f, 0, 0, 0);
 	o.uv = v.uv;
 

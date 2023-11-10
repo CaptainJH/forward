@@ -47,6 +47,8 @@ float phaseHG(float3 viewDir, float3 lightDir, float g)
     return 1 / (4 * M_PI) * (1 - g * g) / pow(1 + g * g - 2 * g * costheta, 1.5f);
 }
 
+// the ray AABB intersection test comes from Ray Tracing Gems 2
+// Chapter2: RAY AXIS-ALIGNED BOUNDING BOX INTERSECTION
 bool raybox(Ray ray, out float tmin, out float tmax)
 {
     float3 invRaydir = { 1 / ray.rayDir.x, 1 / ray.rayDir.y, 1 / ray.rayDir.z };
