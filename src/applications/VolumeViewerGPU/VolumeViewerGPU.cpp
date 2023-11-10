@@ -12,7 +12,7 @@ using namespace forward;
 
 class VolumeViewerGPU : public Application
 {
-	const static u32 baseResolution = 128U;
+	constexpr static u32 baseResolution = 128U;
 	constexpr static u32 GridCount = 60U;
 	struct CB
 	{
@@ -128,13 +128,18 @@ bool VolumeViewerGPU::Init()
 	mFPCamera.LookAt(camPos, float3(0.0f), float3(0, 1, 0));
 	openvdb::initialize();
 
+	// forward::shared_ptr is not thread-safe, so they have to be initialized in the main thread.
 	for (auto idx = 0U; idx < GridCount; ++idx)
 	{
+		constexpr u32 size = baseResolution * baseResolution * baseResolution;
+		m_gridBuffer[idx] = make_shared<StructuredBuffer<f32>>("VolumeRendering_GridDataBuffer", size);
+	}
+	std::for_each(std::execution::par, std::begin(m_gridBuffer), std::end(m_gridBuffer), [&](auto& buf) {
+		const u32 idx = static_cast<u32>(&buf - m_gridBuffer);
 		readGridFromVDB(idx);
-		m_gridBuffer[idx] = make_shared<StructuredBuffer<f32>>("VolumeRendering_GridDataBuffer", (u32)m_grid[idx].size());
 		for (auto i = 0U; i < m_grid[idx].size(); ++i)
 			(*m_gridBuffer[idx])[i] = m_grid[idx][i];
-	}
+		});
 
 	m_volumePass = std::make_unique<RenderPass>([&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
 
