@@ -1,8 +1,10 @@
+#include "hlslUtils.hlsl"
 
 cbuffer PerFrameCB : register(b0)
 {
     float4x4 ProjectionToWorld;
     float4   CameraPosition;
+    int      FrameCount;
 }
 
 RWTexture2D<float4> outputBuffer        : register(u0);  
@@ -109,7 +111,8 @@ void integrate(
     Ray ray,                        // camera ray 
     float tMin, float tMax,         // range of integration
     out float3 L,                   // radiance (out)
-    out float T)                    // transmission (out)
+    out float T,
+    uint randSeed)                    // transmission (out)
 {
     const float stepSize = 0.05f;
     float sigma_a = 0.5f;
@@ -162,9 +165,9 @@ void integrate(
 
         if (Tvol < 1e-3) 
         {
-            // if (rand() / (float)RAND_MAX > 1.f / d)
-            //     break;
-            // else
+            if (nextRand(randSeed) > 1.f / d)
+                break;
+            else
                 Tvol *= d;
         }
     }
@@ -173,15 +176,11 @@ void integrate(
     T = Tvol;
 }
 
-void trace(Ray ray, out float3 L, out float transmittance)
+void trace(Ray ray, out float3 L, out float transmittance, uint randSeed)
 {
     float tmin, tmax;
     if (raybox(ray, tmin, tmax))
-    {
-        //integrate(ray, tmin, tmax, L, transmittance, grid);
-        L = 0.7;
-        transmittance = 0.0f;
-    }
+        integrate(ray, tmin, tmax, L, transmittance, randSeed);
 }
 
 [numthreads(8, 8, 1)]
@@ -200,9 +199,12 @@ void VolumeMain(uint3 DTid : SV_DispatchThreadID)
     float3 rayDirection = normalize(world.xyz - rayOrigin);
     Ray ray = { rayOrigin, rayDirection };
 
+    // Initialize our random number generator
+    uint randSeed = initRand(DTid.x + DTid.y * width, FrameCount, 16);
+
     float3 L = 0.0f; // radiance for that ray (light collected)
     float transmittance = 1;
-    trace(ray, L, transmittance);
+    trace(ray, L, transmittance, randSeed);
     v.rgb += backgroundColor * transmittance + L;
 
     outputBuffer[DTid.xy] = v;

@@ -16,6 +16,7 @@ class VolumeViewerGPU : public Application
 	{
 		float4x4 ProjectionToWorld;
 		float4   CameraPosition;
+		u32		FrameCount;
 	};
 
 public:
@@ -46,6 +47,7 @@ void VolumeViewerGPU::UpdateScene(f32)
 	*m_cb = {
 		.ProjectionToWorld = (mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix()).inverse(),
 		.CameraPosition = mFPCamera.GetPosition(),
+		.FrameCount = m_frames++,
 	};
 }
 
