@@ -374,7 +374,7 @@ void ShaderDX12::ReflectShader(Microsoft::WRL::ComPtr<ID3D12ShaderReflection> re
 			HR(cbuffer->GetDesc(&cbDesc));
 
 			D3D12_SHADER_INPUT_BIND_DESC resDesc;
-			HR(reflector->GetResourceBindingDescByName(cbDesc.Name, &resDesc));
+			HR(reflector->GetResourceBindingDesc(i, &resDesc));
 
 			if (cbDesc.Type == D3D_CT_CBUFFER)
 			{
