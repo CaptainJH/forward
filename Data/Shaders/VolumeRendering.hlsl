@@ -5,13 +5,12 @@ cbuffer PerFrameCB : register(b0)
     float4x4 ProjectionToWorld;
     float4   CameraPosition;
     int      FrameCount;
+    int      width;
+    int      height;
 }
 
 RWTexture2D<float4> outputBuffer        : register(u0);  
 StructuredBuffer<float> Grid            : register(t0);
-
-static int width = 640;
-static int height = 480;
 
 static float M_PI = 3.141592f;
 static float kInfinity = 1.0e38f;
@@ -205,7 +204,7 @@ void VolumeMain(uint3 DTid : SV_DispatchThreadID)
     float3 L = 0.0f; // radiance for that ray (light collected)
     float transmittance = 1;
     trace(ray, L, transmittance, randSeed);
-    v.rgb += backgroundColor * transmittance + L;
+    v.rgb += (backgroundColor * transmittance + L) * 0.8f;
 
     outputBuffer[DTid.xy] = v;
 }

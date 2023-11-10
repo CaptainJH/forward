@@ -18,6 +18,8 @@ class VolumeViewerGPU : public Application
 		float4x4 ProjectionToWorld;
 		float4   CameraPosition;
 		u32		FrameCount;
+		u32		Width;
+		u32		Height;
 	};
 
 public:
@@ -39,19 +41,32 @@ protected:
 private:
 	shared_ptr<Texture2D> m_uavRT;
 	shared_ptr<ConstantBuffer<CB>> m_cb;
+	shared_ptr<StructuredBuffer<f32>> m_gridBuffer;
 	std::unique_ptr<RenderPass> m_volumePass;
 	std::vector<f32> m_grid;
 	u32 m_frames = 0U;
 	bool m_pause = false;
 };
 
-void VolumeViewerGPU::UpdateScene(f32)
+void VolumeViewerGPU::UpdateScene(f32 dt)
 {
+	const auto radiansToRotateBy = dt * 0.001f;
+	float4x4 rotMat;
+	rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
+	auto eyePos3 = mFPCamera.GetPosition();
+	float4 eyePos(eyePos3.x, eyePos3.y, eyePos3.z, 1.0f);
+	eyePos = eyePos * rotMat;
+	eyePos3 = { eyePos.x, eyePos.y, eyePos.z };
+	mFPCamera.SetPosition(eyePos3);
+	mFPCamera.LookAt(eyePos3, float3(0.0f), float3(0, 1, 0));
+
 	mFPCamera.UpdateViewMatrix();
 	*m_cb = {
 		.ProjectionToWorld = (mFPCamera.GetViewMatrix() * mFPCamera.GetProjectionMatrix()).inverse(),
 		.CameraPosition = mFPCamera.GetPosition(),
 		.FrameCount = m_frames++,
+		.Width = static_cast<u32>(mClientWidth),
+		.Height = static_cast<u32>(mClientHeight),
 	};
 }
 
@@ -98,6 +113,10 @@ bool VolumeViewerGPU::Init()
 	openvdb::initialize();
 	readGridFromVDB(50);
 
+	m_gridBuffer = make_shared<StructuredBuffer<f32>>("VolumeRendering_GridDataBuffer", (u32)m_grid.size());
+	for (auto i = 0U; i < m_grid.size(); ++i)
+		(*m_gridBuffer)[i] = m_grid[i];
+
 	m_volumePass = std::make_unique<RenderPass>([&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
 
 		m_cb = make_shared<ConstantBuffer<CB>>("Volume_CB");
@@ -107,13 +126,14 @@ bool VolumeViewerGPU::Init()
 		m_uavRT = make_shared<Texture2D>("Volume_UAV_OUTPUT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 		m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 		pso.m_CSState.m_uavShaderRes[0] = m_uavRT;
+		pso.m_CSState.m_shaderResources[0] = m_gridBuffer;
 
 		// setup shaders
 		pso.m_CSState.m_shader = make_shared<ComputeShader>("Volume_Shader", L"VolumeRendering", "VolumeMain");
 		},
 		[&](CommandList& cmdList) {
-			constexpr u32 x = 640 / 8;
-			constexpr u32 y = 480 / 8;
+			const u32 x = mClientWidth / 8;
+			const u32 y = mClientHeight / 8;
 			cmdList.Dispatch(x, y, 1);
 			cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_uavRT);
 		});

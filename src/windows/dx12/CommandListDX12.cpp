@@ -145,9 +145,9 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		assert(deviceCB);
 		*(baseDescriptorHandleAddr + stagedCBVs++) = deviceCB->GetCBViewCPUHandle();
 		};
-	auto stageSRVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTextureDX12* deviceTex) {
-		assert(deviceTex);
-		*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceTex->GetShaderResourceViewHandle();
+	auto stageSRVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceResourceDX12* deviceRes) {
+		assert(deviceRes);
+		*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs++) = deviceRes->GetShaderResourceViewHandle();
 		};
 	auto stageUAVFunc = [&](D3D12_CPU_DESCRIPTOR_HANDLE* baseDescriptorHandleAddr, DeviceTextureDX12* deviceTex) {
 		assert(deviceTex);
@@ -190,17 +190,17 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				{
 					if (auto res_vs = pso.m_VSState.m_shaderResources[i])
 					{
-						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_vs);
+						auto deviceTex = device_cast<DeviceResourceDX12*>(res_vs);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else if (auto res_gs = pso.m_GSState.m_shaderResources[i])
 					{
-						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_gs);
+						auto deviceTex = device_cast<DeviceResourceDX12*>(res_gs);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else if (auto res_ps = pso.m_PSState.m_shaderResources[i])
 					{
-						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_ps);
+						auto deviceTex = device_cast<DeviceResourceDX12*>(res_ps);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
 					else
@@ -243,8 +243,8 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				{
 					if (auto res_cs = pso.m_CSState.m_shaderResources[i])
 					{
-						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
-						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
+						auto deviceRes = device_cast<DeviceResourceDX12*>(res_cs);
+						stageSRVFunc(baseDescriptorHandleAddr, deviceRes);
 					}
 				}
 
@@ -297,7 +297,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			{
 				if (auto res = pso.m_rtState.m_shaderResources[i])
 				{
-					auto deviceRes = device_cast<DeviceTexture2DDX12*>(res);
+					auto deviceRes = device_cast<DeviceResourceDX12*>(res);
 					stageSRVFunc(baseDescriptorHandleAddr, deviceRes);
 				}
 				else

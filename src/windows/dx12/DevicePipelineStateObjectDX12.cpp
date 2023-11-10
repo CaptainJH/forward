@@ -233,6 +233,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Comp
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = d->GetDevice();
+	auto commandList = d->DeviceCommandList();
 	assert(std::holds_alternative<ComputePipelineStateObject*>(m_psoPtr));
 
 	// setup compute pipeline
@@ -281,6 +282,9 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Comp
 					auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *d);
 					res->SetDeviceObject(deviceTex);
 				}
+				else if (res->GetType() == FGOT_STRUCTURED_BUFFER
+					|| res->GetType() == FGOT_VERTEX_BUFFER || res->GetType() == FGOT_INDEX_BUFFER)
+					res->SetDeviceObject(make_shared<DeviceBufferDX12>(commandList, res.get(), *d));
 			}
 		}
 		for (auto i = 0U; i < pso.m_CSState.m_uavShaderRes.size(); ++i)
