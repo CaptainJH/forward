@@ -112,6 +112,11 @@ DeviceTexture2DDX12::DeviceTexture2DDX12(Texture2D* tex, DeviceDX12& d)
 	D3D12_CLEAR_VALUE optClear;
 	D3D12_CLEAR_VALUE* optClearPtr = nullptr;
 
+	if (tex->IsFileTexture() && (TBP & TBP_Shader))
+	{
+		desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	}
+
 	if (TBP & TBP_DS)
 	{
 		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
