@@ -13,6 +13,7 @@ using namespace forward;
 class VolumeViewerGPU : public Application
 {
 	const static u32 baseResolution = 128U;
+	constexpr static u32 GridCount = 60U;
 	struct CB
 	{
 		float4x4 ProjectionToWorld;
@@ -20,6 +21,7 @@ class VolumeViewerGPU : public Application
 		u32		FrameCount;
 		u32		Width;
 		u32		Height;
+		u32		VolumeIndex;
 	};
 
 public:
@@ -34,31 +36,44 @@ public:
 protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
-	void OnSpace() { m_pause = !m_pause; }
+	void OnSpace() override { m_pauseRotate = !m_pauseRotate; }
+	void OnEnter() override { m_pauseReplay = !m_pauseReplay; }
 
 	void readGridFromVDB(u32 idx);
 
 private:
 	shared_ptr<Texture2D> m_uavRT;
 	shared_ptr<ConstantBuffer<CB>> m_cb;
-	shared_ptr<StructuredBuffer<f32>> m_gridBuffer;
+	shared_ptr<StructuredBuffer<f32>> m_gridBuffer[GridCount];
 	std::unique_ptr<RenderPass> m_volumePass;
-	std::vector<f32> m_grid;
+	std::vector<f32> m_grid[GridCount];
 	u32 m_frames = 0U;
-	bool m_pause = false;
+	bool m_pauseRotate = true;
+	bool m_pauseReplay = false;
+	f32 m_currentVolumeIdx = 0.0f;
 };
 
 void VolumeViewerGPU::UpdateScene(f32 dt)
 {
-	const auto radiansToRotateBy = dt * 0.001f;
-	float4x4 rotMat;
-	rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
-	auto eyePos3 = mFPCamera.GetPosition();
-	float4 eyePos(eyePos3.x, eyePos3.y, eyePos3.z, 1.0f);
-	eyePos = eyePos * rotMat;
-	eyePos3 = { eyePos.x, eyePos.y, eyePos.z };
-	mFPCamera.SetPosition(eyePos3);
-	mFPCamera.LookAt(eyePos3, float3(0.0f), float3(0, 1, 0));
+	if (!m_pauseRotate)
+	{
+		const auto radiansToRotateBy = dt * 0.001f;
+		float4x4 rotMat;
+		rotMat.rotate(float3{ 0, radiansToRotateBy, 0 });
+		auto eyePos3 = mFPCamera.GetPosition();
+		float4 eyePos(eyePos3.x, eyePos3.y, eyePos3.z, 1.0f);
+		eyePos = eyePos * rotMat;
+		eyePos3 = { eyePos.x, eyePos.y, eyePos.z };
+		mFPCamera.SetPosition(eyePos3);
+		mFPCamera.LookAt(eyePos3, float3(0.0f), float3(0, 1, 0));
+	}
+
+	if (!m_pauseReplay)
+	{
+		m_currentVolumeIdx += dt * 0.01f;
+		if (m_currentVolumeIdx > GridCount)
+			m_currentVolumeIdx = 0.0f;
+	}
 
 	mFPCamera.UpdateViewMatrix();
 	*m_cb = {
@@ -67,6 +82,7 @@ void VolumeViewerGPU::UpdateScene(f32 dt)
 		.FrameCount = m_frames++,
 		.Width = static_cast<u32>(mClientWidth),
 		.Height = static_cast<u32>(mClientHeight),
+		.VolumeIndex = static_cast<u32>(std::floor(m_currentVolumeIdx)),
 	};
 }
 
@@ -85,17 +101,17 @@ void VolumeViewerGPU::readGridFromVDB(u32 idx)
 	openvdb::io::File vdbFile(TextHelper::ToAscii(vdbFilePath));
 	vdbFile.open();
 	std::stringstream gridName;
-	gridName << "smoke." << idx << ".grid";
+	gridName << "smoke." << idx + 1 << ".grid";
 	auto gridIt = std::find_if(vdbFile.beginName(), vdbFile.endName(), [&](openvdb::Name n) {
 		return n == gridName.str();
 		});
 	assert(gridIt != vdbFile.endName());
-	m_grid.resize(baseResolution * baseResolution * baseResolution, 0.0f);
+	m_grid[idx].resize(baseResolution * baseResolution * baseResolution, 0.0f);
 	auto vdbGrid = openvdb::gridPtrCast<openvdb::FloatGrid>(vdbFile.readGrid(gridIt.gridName()));
 	for (openvdb::FloatGrid::ValueOnCIter iter = vdbGrid->cbeginValueOn(); iter; ++iter)
 	{
 		auto coord = iter.getCoord();
-		m_grid[(coord.z() * baseResolution + coord.y()) * baseResolution + coord.x()] = *iter;
+		m_grid[idx][(coord.z() * baseResolution + coord.y()) * baseResolution + coord.x()] = *iter;
 	}
 	vdbFile.close();
 }
@@ -111,11 +127,14 @@ bool VolumeViewerGPU::Init()
 	mFPCamera.SetLens(AngleToRadians(65), AspectRatio(), 0.001f, 10000.0f);
 	mFPCamera.LookAt(camPos, float3(0.0f), float3(0, 1, 0));
 	openvdb::initialize();
-	readGridFromVDB(50);
 
-	m_gridBuffer = make_shared<StructuredBuffer<f32>>("VolumeRendering_GridDataBuffer", (u32)m_grid.size());
-	for (auto i = 0U; i < m_grid.size(); ++i)
-		(*m_gridBuffer)[i] = m_grid[i];
+	for (auto idx = 0U; idx < GridCount; ++idx)
+	{
+		readGridFromVDB(idx);
+		m_gridBuffer[idx] = make_shared<StructuredBuffer<f32>>("VolumeRendering_GridDataBuffer", (u32)m_grid[idx].size());
+		for (auto i = 0U; i < m_grid[idx].size(); ++i)
+			(*m_gridBuffer[idx])[i] = m_grid[idx][i];
+	}
 
 	m_volumePass = std::make_unique<RenderPass>([&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
 
@@ -126,7 +145,8 @@ bool VolumeViewerGPU::Init()
 		m_uavRT = make_shared<Texture2D>("Volume_UAV_OUTPUT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 		m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
 		pso.m_CSState.m_uavShaderRes[0] = m_uavRT;
-		pso.m_CSState.m_shaderResources[0] = m_gridBuffer;
+		for (auto i = 0U; i < GridCount; ++i)
+			pso.m_CSState.m_shaderResources[i] = m_gridBuffer[i];
 
 		// setup shaders
 		pso.m_CSState.m_shader = make_shared<ComputeShader>("Volume_Shader", L"VolumeRendering", "VolumeMain");

@@ -7,10 +7,11 @@ cbuffer PerFrameCB : register(b0)
     int      FrameCount;
     int      width;
     int      height;
+    int      VolumeIndex;
 }
 
 RWTexture2D<float4> outputBuffer        : register(u0);  
-StructuredBuffer<float> Grid            : register(t0);
+StructuredBuffer<float> Grid[60]        : register(t0);
 
 static float M_PI = 3.141592f;
 static float kInfinity = 1.0e38f;
@@ -71,7 +72,7 @@ float grid(int xi, int yi, int zi)
         zi < 0 || zi > baseResolution - 1)
         return 0;
 
-    return Grid[(zi * baseResolution + yi) * baseResolution + xi];
+    return Grid[VolumeIndex][(zi * baseResolution + yi) * baseResolution + xi];
 }
 
 float lookup(float3 p)
