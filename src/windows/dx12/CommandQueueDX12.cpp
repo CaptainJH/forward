@@ -1,15 +1,14 @@
 //***************************************************************************************
 // CommandQueueDX12.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
-#include "dxCommon/SwapChainConfig.h"
 #include "CommandQueueDX12.h"
 #include "CommandListDX12.h"
 #include "DeviceDX12.h"
 
 using namespace forward;
 
-CommandQueueDX12::CommandQueueDX12(Device& d, QueueType t)
-	: CommandQueue(d, t)
+CommandQueueDX12::CommandQueueDX12(Device& d, QueueType t, u32 maxCmdListCount)
+	: CommandQueue(d, t, maxCmdListCount)
 	, m_FenceValue(0)
 {
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -35,7 +34,7 @@ shared_ptr<CommandList> CommandQueueDX12::GetCommandList()
 	{
 		while (m_AvailableCmdLists.empty())
 		{
-			if (m_InFlightCmdLists.empty() || m_InFlightCmdLists.unsafe_size() < SwapChainConfig::SwapChainBufferCount)
+			if (m_InFlightCmdLists.empty() || m_InFlightCmdLists.unsafe_size() < m_maxCmdListCount)
 				m_AvailableCmdLists.push(new CommandListDX12(m_device, m_queueType));
 			else
 				updateInFlightCmdListQueue();
@@ -58,10 +57,7 @@ shared_ptr<CommandListDX12> CommandQueueDX12::GetCommandListDX12()
 void CommandQueueDX12::ExecuteCommandList()
 {
 	assert(m_CurrentCmdList);
-	m_CurrentCmdList->Close();
-
-	ID3D12CommandList* deviceCmdsLists[] = { GetCommandListDX12()->m_CmdList.Get()};
-	m_CommandQueue->ExecuteCommandLists(_countof(deviceCmdsLists), deviceCmdsLists);
+	ExecuteCommandList(*GetCommandListDX12());
 }
 
 u64 CommandQueueDX12::Signal()
@@ -125,4 +121,11 @@ void CommandQueueDX12::updateInFlightCmdListQueue()
 		m_AvailableCmdLists.push(std::get<1>(entry));
 	}
 	assert(!m_AvailableCmdLists.empty());
+}
+
+void CommandQueueDX12::ExecuteCommandList(CommandListDX12& cmdList)
+{
+	cmdList.Close();
+	ID3D12CommandList* deviceCmdsLists[] = { cmdList.m_CmdList.Get() };
+	m_CommandQueue->ExecuteCommandLists(_countof(deviceCmdsLists), deviceCmdsLists);
 }

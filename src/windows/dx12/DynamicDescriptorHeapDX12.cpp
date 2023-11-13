@@ -20,9 +20,6 @@ DynamicDescriptorHeapDX12::DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE 
 	}
 }
 
-DynamicDescriptorHeapDX12::~DynamicDescriptorHeapDX12()
-{}
-
 void DynamicDescriptorHeapDX12::Reset()
 {
 	m_AvailableDescriptorHeaps = m_DescriptorHeapPool;
@@ -209,4 +206,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE DynamicDescriptorHeapDX12::GPUHandle(u32 offset)
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHeapStart;
 	gpuHeapStart = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	return gpuHeapStart.Offset(offset, m_DescriptorHandleIncrementSize);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DynamicDescriptorHeapDX12::CPUHandle(u32 offset)
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHeapStart;
+	cpuHeapStart = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	return cpuHeapStart.Offset(offset, m_DescriptorHandleIncrementSize);
 }

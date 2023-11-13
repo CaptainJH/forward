@@ -20,7 +20,7 @@ namespace forward
 	class CommandQueue : public intrusive_ref_counter
 	{
 	public:
-		CommandQueue(Device& d, QueueType t) : m_device(d), m_queueType(t) {}
+		CommandQueue(Device& d, QueueType t, u32 maxCmdListCount) : m_device(d), m_queueType(t), m_maxCmdListCount(maxCmdListCount) {}
 		virtual ~CommandQueue() {}
 
 		// Get an available command list from the command queue.
@@ -48,5 +48,7 @@ namespace forward
 		// a shared pointer to the "in-flight" command list.
 		using CommandListEntry = std::tuple<u64, shared_ptr<CommandList>>;
 		Concurrent_Queue<CommandListEntry> m_InFlightCmdLists;
+
+		const u32 m_maxCmdListCount;
 	};
 }

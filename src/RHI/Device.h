@@ -78,9 +78,12 @@ namespace forward
 		virtual shared_ptr<Texture2D> GetCurrentSwapChainRT() = 0;
 		virtual void FlushDefaultQueue() = 0;
 
-		virtual shared_ptr<CommandQueue> MakeCommandQueue(QueueType t=QueueType::Direct) = 0;
+		virtual shared_ptr<CommandQueue> MakeCommandQueue(QueueType t, u32 maxCmdListCount) = 0;
 
 		void AddExternalResource(const char* name, void* res);
+
+		void EnableImGUI(bool b) { m_imguiEnabled = b; }
+		bool IsImGUIEnabled() const { return m_imguiEnabled; }
 
 		LoadedResourceManager mLoadedResourceMgr;
 
@@ -89,6 +92,7 @@ namespace forward
 		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 
 		FrameGraph* m_currentFrameGraph = nullptr;
+		bool		m_imguiEnabled = true;
 
 		std::map<std::string, void*> m_externalResourceContext;
 

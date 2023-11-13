@@ -20,7 +20,7 @@ namespace forward
 	public:
 		DynamicDescriptorHeapDX12(D3D12_DESCRIPTOR_HEAP_TYPE heapType, u32 numDescriptorPerHeap = gNumDescriporPerHeap);
 
-		~DynamicDescriptorHeapDX12();
+		~DynamicDescriptorHeapDX12() = default;
 
 		void Reset();
 
@@ -30,6 +30,7 @@ namespace forward
 		void CommitStagedDescriptors(DeviceDX12& d);
 		void CommitStagedDescriptorsFrom(DeviceDX12& d, DynamicDescriptorHeapDX12& heap, u32 offset=0U);
 		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle(u32 offset = 0);
+		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle(u32 offset = 0);
 
 	private:
 		/**
@@ -99,5 +100,7 @@ namespace forward
 		DescriptorHeapComPtr RequestDescriptorHeap(ID3D12Device* device);
 		// Create a new descriptor heap if no descriptor heap is available.
 		DescriptorHeapComPtr CreateDescriptorHeap(ID3D12Device* device);
+
+		friend class DeviceDX12;
 	};
 }

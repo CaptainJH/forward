@@ -92,7 +92,7 @@ namespace forward
 		shared_ptr<Texture2D> GetCurrentSwapChainRT() override;
 
 		void FlushDefaultQueue() override;
-		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t) override;
+		shared_ptr<CommandQueue> MakeCommandQueue(QueueType t, u32 maxCmdListCount) override;
 		CommandQueueDX12* GetDefaultQueue();
 
 		///////////////////////////////////////////////////////////////////////
@@ -135,6 +135,8 @@ namespace forward
 		void Shutdown();
 		void OnResize();
 
+		void DrawImGui();
+
 		//--------------------------------------------------------
 		DeviceTexture2DDX12* CurrentBackBuffer(RasterPipelineStateObject* pso) const;
 		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(RasterPipelineStateObject* pso) const;
@@ -156,6 +158,7 @@ namespace forward
 		Microsoft::WRL::ComPtr<IDXGIFactory6> m_Factory;
 
 		shared_ptr<forward::CommandQueueDX12> m_queue;
+		shared_ptr<forward::CommandListDX12> m_guiCmdList;
 
 		DescriptorAllocator					m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = 
 		{

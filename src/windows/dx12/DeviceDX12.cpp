@@ -1,6 +1,10 @@
 //***************************************************************************************
 // DeviceDX12.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
+#include <dear_imgui/imgui.h>
+#include <dear_imgui/backends/imgui_impl_win32.h>
+#include <dear_imgui/backends/imgui_impl_dx12.h>
+
 #include "DeviceDX12.h"
 
 #include "Log.h"
@@ -343,7 +347,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 //--------------------------------------------------------------------------------
 void DeviceDX12::CreateCommandObjects()
 {
-	m_queue = static_cast<CommandQueueDX12*>(MakeCommandQueue(QueueType::Direct).get());
+	m_queue = static_cast<CommandQueueDX12*>(MakeCommandQueue(QueueType::Direct, SwapChainConfig::SwapChainBufferCount).get());
 }
 //--------------------------------------------------------------------------------
 void DeviceDX12::OnResize()
@@ -638,6 +642,23 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 
 	mScissorRect = { 0, 0, static_cast<i32>(m_width), static_cast<i32>(m_height) };
 
+	/// initialize Dear ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
+	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
+	ImGui_ImplWin32_Init(config.GetSwapChainDesc().OutputWindow);
+	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
+	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
+	ImGui_ImplDX12_Init(m_pDevice.Get(), config.GetSwapChainDesc().BufferCount,
+		config.GetSwapChainDesc().BufferDesc.Format,
+		srvHeap.Get(),
+		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
+		srvHeap->GetCPUDescriptorHandleForHeapStart(),
+		srvHeap->GetGPUDescriptorHandleForHeapStart());
+
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(64);
 	m_textRenderPass = new RenderPass(
@@ -742,10 +763,13 @@ void DeviceDX12::EndDrawFrameGraph()
 	m_queue->GetCommandListDX12()->CommitStagedDescriptors();
 
 	m_queue->ExecuteCommandList([=]() {
-		if (m_SwapChain) m_SwapChain->Present();
+		if (m_SwapChain && !IsImGUIEnabled()) m_SwapChain->Present();
 		});
 
 	m_currentFrameGraph = nullptr;
+
+	if (IsImGUIEnabled())
+		DrawImGui();
 }
 
 //--------------------------------------------------------------------------------
@@ -826,11 +850,15 @@ void DeviceDX12::BeginDraw()
 void DeviceDX12::EndDraw()
 {
 	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
-	TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+	if (!IsImGUIEnabled())
+		TransitionResource(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
 
 	GetDefaultQueue()->ExecuteCommandList([=]() {
-		m_SwapChain->Present();
+		if (!IsImGUIEnabled()) m_SwapChain->Present();
 		});
+
+	if (IsImGUIEnabled())
+		DrawImGui();
 	GetDefaultQueue()->Flush();
 }
 
@@ -843,9 +871,9 @@ void DeviceDX12::ReportLiveObjects()
 	dxgiDebug->Release();
 }
 
-shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t)
+shared_ptr<CommandQueue> DeviceDX12::MakeCommandQueue(QueueType t, u32 maxCmdListCount)
 {
-	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t));
+	return shared_ptr<CommandQueueDX12>(new CommandQueueDX12(*this, t, maxCmdListCount));
 }
 
 ID3D12GraphicsCommandList4* DeviceDX12::DeviceCommandList()
@@ -866,4 +894,30 @@ CommandQueueDX12* DeviceDX12::GetDefaultQueue()
 void DeviceDX12::FlushDefaultQueue()
 {
 	return GetDefaultQueue()->Flush();
+}
+
+void DeviceDX12::DrawImGui()
+{
+	static u64 lastGuiSignal = 0;
+	m_queue->WaitForGPU(lastGuiSignal);
+	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
+	m_guiCmdList->Reset();
+	m_guiCmdList->BindGPUVisibleHeaps();
+	auto guiCmdListDX12 = m_guiCmdList->GetDeviceCmdListPtr();
+	auto deviceDS = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentDS());
+	m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
+	guiCmdListDX12->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	guiCmdListDX12->RSSetViewports(1, &mScreenViewport);
+	guiCmdListDX12->RSSetScissorRects(1, &mScissorRect);
+
+	ImGui::Render();
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), guiCmdListDX12.Get());
+	m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+	m_queue->ExecuteCommandList(*m_guiCmdList);
+	m_SwapChain->Present();
+	lastGuiSignal = m_queue->Signal();
 }

@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
+#include <dear_imgui/imgui.h>
 #include "PCH.h"
 #include "dxCommon/d3dUtil.h"
 #include "Timer.h"
@@ -31,10 +32,6 @@
 #include "Device.h"
 #include "Utils.h"
 #include "FPCamera.h"
-
-#ifdef  USE_LEGACY_RENDERER
-#include "dx11_Hieroglyph/RendererDX11.h"
-#endif
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -92,6 +89,7 @@ namespace forward
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
 		virtual void OnChar(i8 /*key*/, bool pressed);
+		virtual void OnGUI();
 
 	protected:
 		bool InitMainWindow();

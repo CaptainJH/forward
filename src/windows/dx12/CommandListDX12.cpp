@@ -530,3 +530,14 @@ void CommandListDX12::ExecuteMipmapRenderPasses()
 	}
 	CommitStagedDescriptors();
 }
+
+void CommandListDX12::TransitionBarrier(shared_ptr<DeviceResourceDX12> resource, D3D12_RESOURCE_STATES stateAfter)
+{
+	if (resource->GetResourceState() != stateAfter)
+	{
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetDeviceResource().Get(),
+			resource->GetResourceState(), stateAfter);
+		m_CmdList->ResourceBarrier(1, &barrier);
+		resource->SetResourceState(stateAfter);
+	}
+}

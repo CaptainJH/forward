@@ -9,6 +9,7 @@
 namespace forward
 {
 	enum class QueueType;
+	class DeviceDX12;
 	class CommandQueueDX12;
 	class DeviceResourceDX12;
 	class DevicePipelineStateObjectDX12;
@@ -44,6 +45,8 @@ namespace forward
 
 		void SetDynamicConstantBuffer(ConstantBufferBase* cb);
 
+		void TransitionBarrier(shared_ptr<DeviceResourceDX12> resource, D3D12_RESOURCE_STATES stateAfter);
+
 		CommandListComPtr GetDeviceCmdListPtr() { return m_CmdList; }
 		DeviceDX12& GetDeviceDX12();
 
@@ -61,6 +64,7 @@ namespace forward
 		};
 
 		friend class CommandQueueDX12;
+		friend class DeviceDX12;
 
 		Vector<std::pair<u32, RenderPass>> m_mipmapGenerationPass;
 	};

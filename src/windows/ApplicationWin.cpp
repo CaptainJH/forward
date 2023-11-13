@@ -1,16 +1,13 @@
 #include <windowsx.h>
 #include <iostream>
 
+#include <dear_imgui/backends/imgui_impl_win32.h>
+#include <dear_imgui/backends/imgui_impl_dx12.h>
+
 #include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
 
-#ifdef USE_LEGACY_RENDERER
-#include "dx11_Hieroglyph/Pipeline/PipelineManagerDX11.h"
-#include "dx11_Hieroglyph/ResourceSystem/Texture/Texture2dConfigDX11.h"
-#else
-//#include "dx11/Renderer2DX11.h"
 #include "dx12/DeviceDX12.h"
-#endif
 #include "ProfilingHelper.h"
 
 //--------------------------------------------------------------------------------
@@ -25,9 +22,11 @@ namespace
 	ApplicationWin* gApplication = 0;
 }
 
-LRESULT CALLBACK
-MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		return true;
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
 	return gApplication->MsgProc(hwnd, msg, wParam, lParam);
@@ -579,6 +578,7 @@ void ApplicationWin::UpdateRender()
 		mFrameStatsText = CalculateFrameStats();
 		UpdateCameraMovement(mTimer.Elapsed());
 		UpdateScene(mTimer.Elapsed());
+		OnGUI();
 		DrawScene();
 	}
 	else
@@ -610,6 +610,11 @@ void ApplicationWin::OnChar(i8 key, bool pressed)
 	else if (key == /*'d'*/0x44)
 	{
 		m_cameraStrafeSpeed = pressed ? speed : 0.0f;
+	}
+	else if (key == /*'g'*/71)
+	{
+		if (pressed)
+			m_pDevice->EnableImGUI(!m_pDevice->IsImGUIEnabled());
 	}
 }
 
@@ -646,5 +651,17 @@ void ApplicationWin::UpdateCameraMovement(f32 dt)
 	{
 		mFPCamera.Walk(m_cameraWalkSpeed * dt);
 		mFPCamera.Strafe(m_cameraStrafeSpeed * dt);
+	}
+}
+
+void ApplicationWin::OnGUI()
+{
+	if (m_pDevice->IsImGUIEnabled())
+	{
+		// Start the Dear ImGui frame
+		ImGui_ImplDX12_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+		ImGui::ShowDemoWindow(); // Show demo window! :)
 	}
 }

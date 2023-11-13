@@ -34,11 +34,13 @@ namespace forward
 			return fenceValue;
 		}
 
+		void ExecuteCommandList(CommandListDX12& cmdList);
+
 	protected:
 		void ExecuteCommandList() override;
 
 	protected:
-		CommandQueueDX12(Device& d, QueueType t);
+		CommandQueueDX12(Device& d, QueueType t, u32 maxCmdListCount);
 		CommandQueueComPtr	m_CommandQueue;
 		FenceComPtr					m_Fence;
 		atomic_u64						m_FenceValue;
