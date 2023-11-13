@@ -265,6 +265,10 @@ void DeviceDX12::Shutdown()
 	SAFE_DELETE(m_textRenderPass);
 	SAFE_DELETE(m_textFont);
 
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	if (m_SwapChain && m_SwapChain->GetSwapChain())
 	{
 		m_SwapChain->GetSwapChain()->SetFullscreenState(false, NULL);
