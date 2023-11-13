@@ -63,7 +63,7 @@ void AOBaker::DrawScene()
 	fg.DrawRenderPass(m_renderPass.get());
 	m_rtaoRenderer->DrawEffect(&fg);
 	m_aoRenderer->DrawEffect(&fg);
-	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
+	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Red);
 	m_pDevice->EndDrawFrameGraph();
 }
 

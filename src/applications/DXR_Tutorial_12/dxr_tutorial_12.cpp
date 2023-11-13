@@ -19,22 +19,7 @@ protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
 	void OnSpace() override { m_useGI = !m_useGI; m_resetAccumulation = true; }
-	void OnEnter() override { m_useLocal = !m_useLocal; m_resetAccumulation = true; }
-	void OnChar(i8 key, bool pressed) override
-	{
-		Application::OnChar(key, pressed);
-
-		if (key == 'U' && pressed)
-		{
-			m_resetAccumulation = true;
-			m_lightPos.y += 0.2f;
-		}
-		else if (key == 'J' && pressed)
-		{
-			m_resetAccumulation = true;
-			m_lightPos.y -= 0.2f;
-		}
-	}
+	void OnGUI() override;
 
 private:
 	shared_ptr<RTLambertRenderer> m_lambertGIRender;
@@ -53,6 +38,30 @@ void DXR_Tutorial_12::UpdateScene(f32 dt)
 	if (m_accumulatedFrames == 0) m_resetAccumulation = false;
 	m_rasterGBufferRender->Update(dt);
 	m_lambertGIRender->Update(dt);
+}
+
+void DXR_Tutorial_12::OnGUI()
+{
+	Application::OnGUI();
+
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 20, main_viewport->WorkPos.y + 55), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("DXR_Tutorial_12 Settings:", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::End();
+		return;
+	}
+
+	ImGui::LabelText("", "Light Position:");
+	bool updated = false;
+	updated |= ImGui::SliderFloat3("", &m_lightPos.x, 0.0f, 10.0f);
+	updated |= ImGui::Checkbox("Use GI", &m_useGI);
+	updated |= ImGui::Checkbox("Direct Lighting", &m_useLocal);
+
+	if (updated) m_resetAccumulation = true;
+
+	ImGui::End();
 }
 
 void DXR_Tutorial_12::DrawScene()

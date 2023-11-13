@@ -630,7 +630,7 @@ void ApplicationWin::OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/)
 }
 void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
 {
-	if ((btnState & MK_LBUTTON) != 0)
+	if ((btnState & MK_RBUTTON) != 0)
 	{
 		// Make each pixel correspond to a quarter of a degree.
 		float dx = (0.25f * static_cast<f32>(x - mLastMousePos_x));
@@ -662,6 +662,6 @@ void ApplicationWin::OnGUI()
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-		ImGui::ShowDemoWindow(); // Show demo window! :)
+		//ImGui::ShowDemoWindow(); // Show demo window! :)
 	}
 }
