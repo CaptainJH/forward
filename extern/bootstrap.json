@@ -55,24 +55,6 @@
 },
 
 {
-    "name": "OpenVDB",
-    "source": {
-        "type": "git",
-        "url": "https://github.com/AcademySoftwareFoundation/openvdb.git",
-        "revision" : "v10.1.0"
-    }
-},
-
-{
-    "name": "c-blosc",
-    "source": {
-        "type": "git",
-        "url": "https://github.com/Blosc/c-blosc.git",
-        "revision" : "v1.21.5"
-    }
-},
-
-{
     "name": "google_benchmark",
     "source": {
         "type": "git",
