@@ -22,6 +22,15 @@ CommandQueueDX12::CommandQueueDX12(Device& d, QueueType t, u32 maxCmdListCount)
 	HR(device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 }
 
+CommandQueueDX12::CommandQueueDX12(Device& d, ID3D12CommandQueue* queue, QueueType t, u32 maxCmdListCount)
+	: CommandQueue(d, t, maxCmdListCount)
+	, m_FenceValue(0)
+{
+	m_CommandQueue = queue;
+	auto device = dynamic_cast<DeviceDX12*>(&m_device)->GetDevice();
+	HR(device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
+}
+
 CommandQueueDX12::~CommandQueueDX12()
 {}
 

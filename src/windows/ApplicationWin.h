@@ -35,6 +35,8 @@
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
+struct SDL_Window;
+struct SDL_Renderer;
 namespace forward
 {
 	enum ApplicationType
@@ -126,6 +128,9 @@ namespace forward
 		RendererDX11*	m_pRender;
 #endif
 		Device*		m_pDevice;
+
+		SDL_Window* m_sdlWnd = nullptr;
+		SDL_Renderer* m_sdlRenderer = nullptr;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;

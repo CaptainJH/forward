@@ -66,6 +66,7 @@ namespace forward
     public:
 		DeviceDX12();
 		DeviceDX12(u32 w, u32 h, HWND hwnd = 0);
+		DeviceDX12(SDL_Renderer* r);
         virtual ~DeviceDX12();
 
         // Access to the renderer.  There should only be a single instance

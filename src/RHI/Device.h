@@ -10,6 +10,7 @@
 #include "FrameGraph/PipelineStateObjects.h"
 #include "CommandQueue.h"
 
+struct SDL_Renderer;
 namespace forward
 {
 	enum class DeviceType
@@ -89,10 +90,12 @@ namespace forward
 
 	protected:
 		Device() = default;
+		Device(SDL_Renderer* r) : m_sdlRenderer(r) {}
 		virtual bool Initialize(SwapChainConfig&, bool bOffScreen=false) = 0;
 
 		FrameGraph* m_currentFrameGraph = nullptr;
 		bool		m_imguiEnabled = true;
+		SDL_Renderer* const m_sdlRenderer = nullptr;
 
 		std::map<std::string, void*> m_externalResourceContext;
 

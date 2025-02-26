@@ -1,6 +1,8 @@
 #include <windowsx.h>
 #include <iostream>
 
+#include <SDL3/SDL.h>
+
 #include <dear_imgui/backends/imgui_impl_win32.h>
 #include <dear_imgui/backends/imgui_impl_dx12.h>
 
@@ -174,19 +176,22 @@ i32 ApplicationWin::Run()
 		return 0;
 	}
 
-	MSG msg = { 0 };
-
-	while (msg.message != WM_QUIT)
-	{
-		// Process any messages in the queue.
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+	SDL_Event e;
+	bool quit = false;
+	while (quit == false) {
+		while (SDL_PollEvent(&e)) {
+			if (e.type == SDL_EVENT_QUIT)
+				quit = true;
 		}
+
+		UpdateRender();
 	}
 
-	return (i32)msg.wParam;
+	SDL_DestroyRenderer(m_sdlRenderer);
+	SDL_DestroyWindow(m_sdlWnd);
+	SDL_Quit();
+
+	return 0;
 }
 
 bool ApplicationWin::Init()
@@ -409,37 +414,57 @@ bool ApplicationWin::InitMainWindow()
 	// @see https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setthreaddpiawarenesscontext
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-	WNDCLASS wc;
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = MainWndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = mhAppInst;
-	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(0, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-	wc.lpszMenuName = 0;
-	wc.lpszClassName = L"D3DWndClassName";
+	//WNDCLASS wc;
+	//wc.style = CS_HREDRAW | CS_VREDRAW;
+	//wc.lpfnWndProc = MainWndProc;
+	//wc.cbClsExtra = 0;
+	//wc.cbWndExtra = 0;
+	//wc.hInstance = mhAppInst;
+	//wc.hIcon = LoadIcon(0, IDI_APPLICATION);
+	//wc.hCursor = LoadCursor(0, IDC_ARROW);
+	//wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
+	//wc.lpszMenuName = 0;
+	//wc.lpszClassName = L"D3DWndClassName";
 
-	if (!RegisterClass(&wc))
+	//if (!RegisterClass(&wc))
+	//{
+	//	MessageBox(0, L"RegisterClass Failed.", 0, 0);
+	//	return false;
+	//}
+
+	//// Compute window rectangle dimensions based on requested client area dimensions.
+	//::RECT R = { 0, 0, mClientWidth, mClientHeight };
+	//AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
+	//i32 width = R.right - R.left;
+	//i32 height = R.bottom - R.top;
+
+	//mhMainWnd = CreateWindow(L"D3DWndClassName", mMainWndCaption.c_str(),
+	//	WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mhAppInst, 0);
+	//if (!mhMainWnd)
+	//{
+	//	MessageBox(0, L"CreateWindow Failed.", 0, 0);
+	//	return false;
+	//}
+
+	//// Set the window icon
+	//const auto iconPathW = FileSystem::getSingleton().GetDataFolder() + L"DirectX12Ultimate.ico";
+	//const auto iconPath = TextHelper::ToAscii(iconPathW);
+	//HANDLE hIcon = LoadImageA(GetModuleHandle(NULL), iconPath.c_str(), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+	//SendMessage(mhMainWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+
+	//ShowWindow(mhMainWnd, SW_SHOW);
+	//UpdateWindow(mhMainWnd);
+
+	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
-		MessageBox(0, L"RegisterClass Failed.", 0, 0);
-		return false;
+		SDL_assert(false);
 	}
 
-	// Compute window rectangle dimensions based on requested client area dimensions.
-	::RECT R = { 0, 0, mClientWidth, mClientHeight };
-	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-	i32 width = R.right - R.left;
-	i32 height = R.bottom - R.top;
-
-	mhMainWnd = CreateWindow(L"D3DWndClassName", mMainWndCaption.c_str(),
-		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mhAppInst, 0);
-	if (!mhMainWnd)
-	{
-		MessageBox(0, L"CreateWindow Failed.", 0, 0);
-		return false;
-	}
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_HIGH_PIXEL_DENSITY);
+	m_sdlWnd = SDL_CreateWindow(TextHelper::ToAscii(mMainWndCaption).c_str(), mClientWidth, mClientHeight, window_flags);
+	SDL_SetWindowPosition(m_sdlWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	const auto wndProperty = SDL_GetWindowProperties(m_sdlWnd);
+	mhMainWnd = (HWND)SDL_GetPointerProperty(wndProperty, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 
 	// Set the window icon
 	const auto iconPathW = FileSystem::getSingleton().GetDataFolder() + L"DirectX12Ultimate.ico";
@@ -447,8 +472,15 @@ bool ApplicationWin::InitMainWindow()
 	HANDLE hIcon = LoadImageA(GetModuleHandle(NULL), iconPath.c_str(), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 	SendMessage(mhMainWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
-	ShowWindow(mhMainWnd, SW_SHOW);
-	UpdateWindow(mhMainWnd);
+	int driverIdx = -1;
+	for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
+		std::cout << i << " : " << SDL_GetRenderDriver(i) << std::endl;
+		if (!strcmp(SDL_GetRenderDriver(i), "direct3d12"))
+			driverIdx = i;
+	}
+	SDL_assert(driverIdx >= 0);
+	m_sdlRenderer = SDL_CreateRenderer(m_sdlWnd, SDL_GetRenderDriver(driverIdx));
+	//SDL_SetRenderVSync(gRenderer, 1);
 
 	return true;
 }
@@ -485,7 +517,8 @@ bool ApplicationWin::ConfigureRendererComponents()
 
 	case DeviceType::Device_Forward_DX12:
 	{
-		m_pDevice = new DeviceDX12(mClientWidth, mClientHeight, MainWnd());
+		//m_pDevice = new DeviceDX12(mClientWidth, mClientHeight, MainWnd());
+		m_pDevice = new DeviceDX12(m_sdlRenderer);
 		break;
 	}
 	default:

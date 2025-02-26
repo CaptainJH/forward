@@ -10,13 +10,14 @@
 #include "RHI/ResourceSystem/DeviceResource.h"
 #include "RHI/ResourceSystem/Texture.h"
 //--------------------------------------------------------------------------------
+struct SDL_Renderer;
 namespace forward
 {
 	class SwapChain
 	{
 	public:
 		// for DirectX12
-		SwapChain(Microsoft::WRL::ComPtr< IDXGISwapChain1> pSwapChain, Vector<shared_ptr<Texture2D>> rt, shared_ptr<Texture2D> ds);
+		SwapChain(Microsoft::WRL::ComPtr<IDXGISwapChain1> pSwapChain, Vector<shared_ptr<Texture2D>> rt, shared_ptr<Texture2D> ds, SDL_Renderer* r);
 		~SwapChain();
 
 		IDXGISwapChain* GetSwapChain();
@@ -31,6 +32,7 @@ namespace forward
 		ResourcePtr							m_Resource;
 		std::vector<shared_ptr<Texture2D>>			m_rts;
 		shared_ptr<Texture2D>			m_ds;
+		SDL_Renderer* const m_sdlRenderer = nullptr;
 
 		mutable u32	m_currentBackBufferIndex = 0;
 	};

@@ -41,6 +41,7 @@ namespace forward
 
 	protected:
 		CommandQueueDX12(Device& d, QueueType t, u32 maxCmdListCount);
+		CommandQueueDX12(Device& d, ID3D12CommandQueue* queue, QueueType t, u32 maxCmdListCount);
 		CommandQueueComPtr	m_CommandQueue;
 		FenceComPtr					m_Fence;
 		atomic_u64						m_FenceValue;

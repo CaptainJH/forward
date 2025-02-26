@@ -31,6 +31,8 @@
 #include <dxgidebug.h>
 #include <DirectXTex.h>
 
+#include <SDL3/SDL.h>
+
 #include "ProfilingHelper.h"
 
 using Microsoft::WRL::ComPtr;
@@ -105,6 +107,139 @@ DeviceDX12::DeviceDX12(u32 w, u32 h, HWND hwnd)
 		MessageBox(NULL, L"Could not create a hardware or software Direct3D device - the program will now abort!", L"Error",
 			MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
 	}
+}
+DeviceDX12::DeviceDX12(SDL_Renderer* r)
+	: Device(r) {
+
+	auto rendererProperty = SDL_GetRendererProperties(m_sdlRenderer);
+	Microsoft::WRL::ComPtr<ID3D12Device> devicePtr = (ID3D12Device*)SDL_GetPointerProperty(rendererProperty, SDL_PROP_RENDERER_D3D12_DEVICE_POINTER, nullptr);
+	devicePtr.As(&m_pDevice);
+
+	m_CbvSrvUavDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	// Check if the device supports ray tracing.
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 features = {};
+	auto hr = m_pDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &features, sizeof(features));
+	if (FAILED(hr) || features.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+	{
+		Log::Get().Write(L"Ray tracing not supported!");
+		SDL_assert(false);
+	}
+
+	// Check 4X MSAA quality support for our back buffer format.
+	// All Direct3D 11 capable devices support 4X MSAA for all render 
+	// target formats, so we only need to check quality support.
+
+	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
+	msQualityLevels.Format = static_cast<DXGI_FORMAT>(m_BackBufferFormat);
+	msQualityLevels.SampleCount = 4;
+	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+	msQualityLevels.NumQualityLevels = 0;
+	hr = m_pDevice->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+		&msQualityLevels, sizeof(msQualityLevels));
+
+	if (FAILED(hr))
+	{
+		Log::Get().Write(L"Check 4x MSAA failed!");
+	}
+
+	m_4xMsaaQuality = msQualityLevels.NumQualityLevels;
+	assert(m_4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
+
+	auto pSwapChain 
+		= (IDXGISwapChain1*)SDL_GetPointerProperty(rendererProperty, SDL_PROP_RENDERER_D3D12_SWAPCHAIN_POINTER, nullptr);
+	DXGI_SWAP_CHAIN_DESC s_desc = { 0 };
+	pSwapChain->GetDesc(&s_desc);
+
+	auto pGraphicsCommandQueue 
+		= (ID3D12CommandQueue*)SDL_GetPointerProperty(rendererProperty, SDL_PROP_RENDERER_D3D12_COMMAND_QUEUE_POINTER, nullptr);
+	SDL_assert(pGraphicsCommandQueue);
+	m_queue = new CommandQueueDX12(*this, pGraphicsCommandQueue, QueueType::Direct, s_desc.BufferCount);
+
+	m_width = s_desc.BufferDesc.Width;
+	m_height = s_desc.BufferDesc.Height;
+
+	{
+		Vector<DeviceTexture2DDX12*> deviceTexVector;
+		for (auto i = 0U; i < s_desc.BufferCount; ++i)
+		{
+			DeviceResCom12Ptr pSwapChainBuffer;
+			hr = pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pSwapChainBuffer));
+			if (FAILED(hr)) {
+				Log::Get().Write(L"Create Swap Chain failed!");
+			}
+
+			std::stringstream ss;
+			ss << "DefaultRT" << i;
+			auto rtPtr = DeviceTexture2DDX12::BuildDeviceTexture2DDX12(*this, ss.str().c_str(), pSwapChainBuffer.Get(), RU_CPU_GPU_BIDIRECTIONAL);
+			deviceTexVector.push_back(rtPtr);
+		}
+
+		// Create the depth/stencil buffer and view.
+		auto dsPtr = forward::make_shared<Texture2D>(std::string("DefaultDS"), DF_D24_UNORM_S8_UINT,
+			m_width, m_height, TextureBindPosition::TBP_DS);
+		DeviceTexture2DDX12* dsDevicePtr = new DeviceTexture2DDX12(dsPtr.get(), *this);
+		dsPtr->SetDeviceObject(dsDevicePtr);
+		assert(m_SwapChain == nullptr);
+		Vector<shared_ptr<Texture2D>> texVector;
+		for (auto tex : deviceTexVector)
+			texVector.push_back(tex->GetTexture2D());
+		m_SwapChain = new forward::SwapChain(pSwapChain, texVector, dsPtr, m_sdlRenderer);
+
+		// Transition the resource from its initial state to be used as a depth buffer.
+		TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		m_queue->ExecuteCommandList([=]() {});
+		m_queue->Flush();
+	}
+
+	// Update the viewport transform to cover the client area.
+	mScreenViewport.TopLeftX = 0;
+	mScreenViewport.TopLeftY = 0;
+	mScreenViewport.Width = static_cast<float>(m_width);
+	mScreenViewport.Height = static_cast<float>(m_height);
+	mScreenViewport.MinDepth = 0.0f;
+	mScreenViewport.MaxDepth = 1.0f;
+
+	mScissorRect = { 0, 0, static_cast<i32>(m_width), static_cast<i32>(m_height) };
+
+	/// initialize Dear ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
+	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
+	ImGui_ImplWin32_Init(s_desc.OutputWindow);
+	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
+	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
+	ImGui_ImplDX12_Init(m_pDevice.Get(), s_desc.BufferCount,
+		s_desc.BufferDesc.Format,
+		srvHeap.Get(),
+		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
+		srvHeap->GetCPUDescriptorHandleForHeapStart(),
+		srvHeap->GetGPUDescriptorHandleForHeapStart());
+
+	/// Font stuff
+	m_textFont = new FontSegoe_UIW50H12(64);
+	m_textRenderPass = new RenderPass(
+		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
+			builder << *m_textFont;
+			pso.m_RSState.m_rsState.frontCCW = true;
+
+			// setup render states
+			pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
+			pso.m_OMState.m_depthStencilResource = GetDefaultDS();
+
+			auto& target = pso.m_OMState.m_blendState.target[0];
+			target.enable = true;
+			target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
+			target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
+		},
+		[&](CommandList& cmdList) {
+			cmdList.DrawIndexed(m_textFont->GetIndexCount());
+		}, RenderPass::OF_NO_CLEAN);
+
+	m_currentFrameGraph = nullptr;
 }
 //--------------------------------------------------------------------------------
 DeviceDX12::~DeviceDX12()
@@ -339,7 +474,7 @@ i32 DeviceDX12::CreateSwapChain(SwapChainConfig* pConfig)
 	Vector<shared_ptr<Texture2D>> texVector;
 	for (auto tex : deviceTexVector)
 		texVector.push_back(tex->GetTexture2D());
-	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr);
+	m_SwapChain = new forward::SwapChain(SwapChain, texVector, dsPtr, nullptr);
 
 	// Transition the resource from its initial state to be used as a depth buffer.
 	TransitionResource(dsDevicePtr, D3D12_RESOURCE_STATE_DEPTH_WRITE);
