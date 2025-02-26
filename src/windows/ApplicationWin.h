@@ -84,9 +84,9 @@ namespace forward
 		virtual void PostDrawScene() {}
 
 		// Convenience overrides for handling mouse input.
-		virtual void OnMouseDown(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
-		virtual void OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
-		virtual void OnMouseMove(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/);
+		virtual void OnMouseDown(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
+		virtual void OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
+		virtual void OnMouseMove(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
@@ -117,8 +117,8 @@ namespace forward
 		bool      mMaximized;
 		bool      mResizing;
 		u32      m4xMsaaQuality;
-		i32		mLastMousePos_x;
-		i32		mLastMousePos_y;
+		f32		mLastMousePos_x;
+		f32		mLastMousePos_y;
 
 		Timer mTimer;
 		FileSystem mFileSystem;

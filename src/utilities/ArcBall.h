@@ -25,18 +25,18 @@ public:
         m_qdown = m_qnow = forward::Quaternion<float>::Identity();
     }
 
-    void OnBegin( int x, int y )
+    void OnBegin( float x, float y )
     {
         m_drag = true;
         m_qdown = m_qnow;
-        m_downPoint = ScreenToVector(float(x), float(y));
+        m_downPoint = ScreenToVector(x, y);
     }
 
-    void OnMove(int x, int y)
+    void OnMove(float x, float y)
     {
         if (m_drag)
         {
-            auto curr = ScreenToVector(float(x), float(y));
+            auto curr = ScreenToVector(x, y);
 
             m_qnow = m_qdown * QuatFromBallPoints(m_downPoint, curr);
             m_qnow.normalize();

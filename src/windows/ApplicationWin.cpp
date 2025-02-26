@@ -182,6 +182,23 @@ i32 Application::Run()
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_EVENT_QUIT)
 				quit = true;
+			else if (e.type == SDL_EVENT_KEY_DOWN) {
+				if (e.key.key == SDLK_ESCAPE) {
+					OnEsc();
+					quit = true;
+				}
+				else if (e.key.key == SDLK_SPACE)
+					OnSpace();
+			}
+			else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+				OnMouseDown(e.button.button, e.button.x, e.button.y);
+			}
+			else if (e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+				OnMouseUp(e.button.button, e.button.x, e.button.y);
+			}
+			else if (e.type == SDL_EVENT_MOUSE_MOTION) {
+				OnMouseMove(e.button.button, e.button.x, e.button.y);
+			}
 		}
 
 		UpdateRender();
@@ -357,15 +374,15 @@ LRESULT Application::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		//OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		//OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		//OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	case WM_SYSKEYDOWN:
@@ -651,23 +668,23 @@ void Application::OnChar(i8 key, bool pressed)
 	}
 }
 
-void Application::OnMouseDown(WPARAM /*btnState*/, i32 x, i32 y)
+void Application::OnMouseDown(WPARAM /*btnState*/, f32 x, f32 y)
 {
 	mLastMousePos_x = x;
 	mLastMousePos_y = y;
-	SetCapture(mhMainWnd);
+	//SetCapture(mhMainWnd);
 }
-void Application::OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/)
+void Application::OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/)
 {
-	ReleaseCapture();
+	//ReleaseCapture();
 }
-void Application::OnMouseMove(WPARAM btnState, i32 x, i32 y)
+void Application::OnMouseMove(WPARAM btnState, f32 x, f32 y)
 {
 	if ((btnState & MK_RBUTTON) != 0)
 	{
 		// Make each pixel correspond to a quarter of a degree.
-		float dx = (0.25f * static_cast<f32>(x - mLastMousePos_x));
-		float dy = (0.25f * static_cast<f32>(y - mLastMousePos_y));
+		float dx = (0.25f * (x - mLastMousePos_x));
+		float dy = (0.25f * (y - mLastMousePos_y));
 
 		mFPCamera.Pitch(dy);
 		mFPCamera.RotateY(dx);
