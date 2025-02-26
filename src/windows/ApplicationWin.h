@@ -47,14 +47,14 @@ namespace forward
 		AT_UnityPlugin
 	};
 
-	class ApplicationWin
+	class Application
 	{
 	public:
-		ApplicationWin(HINSTANCE hInstance, i32 width=800, i32 height=600);
-		ApplicationWin(HWND hwnd, i32 width, i32 height);  // called by PyQT5
-		ApplicationWin(i32 width = 800, i32 height = 600); // offscreen rendering
-		ApplicationWin(void* dxDevice, forward::DeviceType renderType, const char* forwardPath); // unity plugin
-		virtual ~ApplicationWin();
+		Application(HINSTANCE hInstance, i32 width=800, i32 height=600);
+		Application(HWND hwnd, i32 width, i32 height);  // called by PyQT5
+		Application(i32 width = 800, i32 height = 600); // offscreen rendering
+		Application(void* dxDevice, forward::DeviceType renderType, const char* forwardPath); // unity plugin
+		virtual ~Application();
 
 		static void JustEnteringMain();
 
@@ -144,6 +144,4 @@ namespace forward
 		f32 m_cameraWalkSpeed = 0.0f;
 		f32 m_cameraStrafeSpeed = 0.0f;
 	};
-
-	typedef ApplicationWin Application;
 };

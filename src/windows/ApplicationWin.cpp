@@ -21,7 +21,7 @@ namespace
 	// This is just used to forward Windows messages from a global window
 	// procedure to our member function window procedure because we cannot
 	// assign a member function to WNDCLASS::lpfnWndProc.
-	ApplicationWin* gApplication = 0;
+	Application* gApplication = 0;
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -34,7 +34,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 	return gApplication->MsgProc(hwnd, msg, wParam, lParam);
 }
 
-ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
+Application::Application(HINSTANCE hInstance, i32 width, i32 height)
 	: mhAppInst(hInstance),
 	mMainWndCaption(L"D3D11 Application"),
 	mClientWidth(width),
@@ -58,7 +58,7 @@ ApplicationWin::ApplicationWin(HINSTANCE hInstance, i32 width, i32 height)
 	gApplication = this;
 }
 
-ApplicationWin::ApplicationWin(i32 width, i32 height)
+Application::Application(i32 width, i32 height)
 	: mMainWndCaption(L"DirectX Application")
 	, mClientWidth(width)
 	, mClientHeight(height)
@@ -77,7 +77,7 @@ ApplicationWin::ApplicationWin(i32 width, i32 height)
 	mFPCamera.SetLens(f_PIDIV2, static_cast<f32>(width) / static_cast<f32>(height), 1.0f, 1000.0f);
 }
 
-ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
+Application::Application(HWND hwnd, i32 width, i32 height)
 	: mMainWndCaption(L"D3D12 Application")
 	, mClientWidth(width)
 	, mClientHeight(height)
@@ -95,7 +95,7 @@ ApplicationWin::ApplicationWin(HWND hwnd, i32 width, i32 height)
 	DeviceType = DeviceType::Device_Forward_DX12;
 }
 
-ApplicationWin::ApplicationWin(void* /*dxDevice*/, forward::DeviceType renderType, const char* forwardPath)
+Application::Application(void* /*dxDevice*/, forward::DeviceType renderType, const char* forwardPath)
 	: mMainWndCaption(L"UnityPlugin")
 	, mClientWidth(0)
 	, mClientHeight(0)
@@ -115,33 +115,33 @@ ApplicationWin::ApplicationWin(void* /*dxDevice*/, forward::DeviceType renderTyp
 	//m_pRender2 = new RendererDX12(dxDevice);
 }
 
-ApplicationWin::~ApplicationWin()
+Application::~Application()
 {
 	ShutdownRendererComponents();
 	Log::Get().Close();
 }
 
-void ApplicationWin::SetAppInst(HINSTANCE hInstance)
+void Application::SetAppInst(HINSTANCE hInstance)
 {
 	mhAppInst = hInstance;
 }
 
-HINSTANCE ApplicationWin::AppInst()const
+HINSTANCE Application::AppInst()const
 {
 	return mhAppInst;
 }
 
-HWND ApplicationWin::MainWnd()const
+HWND Application::MainWnd()const
 {
 	return mhMainWnd;
 }
 
-f32 ApplicationWin::AspectRatio()const
+f32 Application::AspectRatio()const
 {
 	return static_cast<f32>(mClientWidth) / mClientHeight;
 }
 
-i32 ApplicationWin::Run()
+i32 Application::Run()
 {
 	if (IsOffScreenRendering())
 	{
@@ -194,7 +194,7 @@ i32 ApplicationWin::Run()
 	return 0;
 }
 
-bool ApplicationWin::Init()
+bool Application::Init()
 {
 	if (IsOffScreenRendering())
 	{
@@ -239,12 +239,12 @@ bool ApplicationWin::Init()
 	return true;
 }
 
-void ApplicationWin::OnResize()
+void Application::OnResize()
 {
 	m_pDevice->OnResize(mClientWidth, mClientHeight);
 }
 
-LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
+LRESULT Application::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -405,7 +405,7 @@ LRESULT ApplicationWin::MsgProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam
 }
 
 
-bool ApplicationWin::InitMainWindow()
+bool Application::InitMainWindow()
 {
 	// Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
 	// Using this awareness context allows the client area of the window
@@ -485,7 +485,7 @@ bool ApplicationWin::InitMainWindow()
 	return true;
 }
 
-std::string ApplicationWin::CalculateFrameStats()
+std::string Application::CalculateFrameStats()
 {
 	auto fps = mTimer.Framerate();
 	f32 mspf = mTimer.Elapsed();
@@ -498,7 +498,7 @@ std::string ApplicationWin::CalculateFrameStats()
 	return outs.str();
 }
 
-bool ApplicationWin::ConfigureRendererComponents()
+bool Application::ConfigureRendererComponents()
 {
 	switch (DeviceType)
 	{
@@ -526,7 +526,7 @@ bool ApplicationWin::ConfigureRendererComponents()
 	}
 	return true;
 }
-void ApplicationWin::ShutdownRendererComponents()
+void Application::ShutdownRendererComponents()
 {
 	if (m_pDevice)
 	{
@@ -536,24 +536,24 @@ void ApplicationWin::ShutdownRendererComponents()
 	GraphicsObject::CheckMemoryLeak();
 }
 
-void ApplicationWin::RequestTermination()
+void Application::RequestTermination()
 {
 	if (m_pDevice) m_pDevice->FlushDefaultQueue();
 	// This triggers the termination of the application
 	PostQuitMessage(0);
 }
 
-bool ApplicationWin::IsOffScreenRendering() const
+bool Application::IsOffScreenRendering() const
 {
 	return mAppType == AT_OffScreen;
 }
 
-bool ApplicationWin::IsDll() const
+bool Application::IsDll() const
 {
 	return mAppType == AT_Dll;
 }
 
-void ApplicationWin::JustEnteringMain()
+void Application::JustEnteringMain()
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
@@ -562,7 +562,7 @@ void ApplicationWin::JustEnteringMain()
 #endif
 }
 
-void ApplicationWin::ParseCmdLine(const char* cmdLine)
+void Application::ParseCmdLine(const char* cmdLine)
 {
 	//MessageBoxA(NULL, "Boom", "Boom", MB_OK);
 	std::vector<std::string> args;
@@ -600,7 +600,7 @@ void ApplicationWin::ParseCmdLine(const char* cmdLine)
 	}
 }
 
-void ApplicationWin::UpdateRender()
+void Application::UpdateRender()
 {
 	if (!m_pDevice) return;
 
@@ -620,12 +620,12 @@ void ApplicationWin::UpdateRender()
 	}
 }
 
-void ApplicationWin::AddExternalResource(const char* name, void* res)
+void Application::AddExternalResource(const char* name, void* res)
 {
 	m_pDevice->AddExternalResource(name, res);
 }
 
-void ApplicationWin::OnChar(i8 key, bool pressed)
+void Application::OnChar(i8 key, bool pressed)
 {
 	auto speed = 0.002f;
 	if (key == /*'w'*/0x57)
@@ -651,17 +651,17 @@ void ApplicationWin::OnChar(i8 key, bool pressed)
 	}
 }
 
-void ApplicationWin::OnMouseDown(WPARAM /*btnState*/, i32 x, i32 y)
+void Application::OnMouseDown(WPARAM /*btnState*/, i32 x, i32 y)
 {
 	mLastMousePos_x = x;
 	mLastMousePos_y = y;
 	SetCapture(mhMainWnd);
 }
-void ApplicationWin::OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/)
+void Application::OnMouseUp(WPARAM /*btnState*/, i32 /*x*/, i32 /*y*/)
 {
 	ReleaseCapture();
 }
-void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
+void Application::OnMouseMove(WPARAM btnState, i32 x, i32 y)
 {
 	if ((btnState & MK_RBUTTON) != 0)
 	{
@@ -677,7 +677,7 @@ void ApplicationWin::OnMouseMove(WPARAM btnState, i32 x, i32 y)
 	mLastMousePos_y = y;
 }
 
-void ApplicationWin::UpdateCameraMovement(f32 dt)
+void Application::UpdateCameraMovement(f32 dt)
 {
 	if (std::abs(m_cameraStrafeSpeed) > std::numeric_limits<f32>::epsilon() ||
 		std::abs(m_cameraWalkSpeed) > std::numeric_limits<f32>::epsilon())
@@ -687,7 +687,7 @@ void ApplicationWin::UpdateCameraMovement(f32 dt)
 	}
 }
 
-void ApplicationWin::OnGUI()
+void Application::OnGUI()
 {
 	if (m_pDevice->IsImGUIEnabled())
 	{
