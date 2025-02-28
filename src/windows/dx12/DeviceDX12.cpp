@@ -1,9 +1,9 @@
 //***************************************************************************************
 // DeviceDX12.cpp by Heqi Ju (C) 2022 All Rights Reserved.
 //***************************************************************************************
-#include <dear_imgui/imgui.h>
-#include <dear_imgui/backends/imgui_impl_win32.h>
-#include <dear_imgui/backends/imgui_impl_dx12.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_sdl3.h>
+#include <imgui/backends/imgui_impl_dx12.h>
 
 #include "DeviceDX12.h"
 
@@ -209,7 +209,8 @@ DeviceDX12::DeviceDX12(SDL_Renderer* r)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
 	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
-	ImGui_ImplWin32_Init(s_desc.OutputWindow);
+	//ImGui_ImplWin32_Init(s_desc.OutputWindow);
+	ImGui_ImplSDL3_InitForD3D(SDL_GetRenderWindow(r));
 	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
 	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
 	ImGui_ImplDX12_Init(m_pDevice.Get(), s_desc.BufferCount,
@@ -401,7 +402,8 @@ void DeviceDX12::Shutdown()
 	SAFE_DELETE(m_textFont);
 
 	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
 	if (m_SwapChain && m_SwapChain->GetSwapChain())

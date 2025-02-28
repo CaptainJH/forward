@@ -11,7 +11,7 @@ include_directories("utilities/")
 include_directories("RHI/")
 include_directories("${forward_repository_root}/extern/src/")
 include_directories("${forward_repository_root}/extern/src/oneTBB/include/")
-include_directories("${forward_repository_root}/extern/src/dear_imgui")
+include_directories("${forward_repository_root}/extern/src/imgui")
 
 option(forward_CompileWithRenderDoc "RenderDoc integration")
 set(forward_RenderDocPath "" CACHE PATH "Specify the RenderDoc path")

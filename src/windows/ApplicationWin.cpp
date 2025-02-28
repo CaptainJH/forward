@@ -3,8 +3,8 @@
 
 #include <SDL3/SDL.h>
 
-#include <dear_imgui/backends/imgui_impl_win32.h>
-#include <dear_imgui/backends/imgui_impl_dx12.h>
+#include <imgui/backends/imgui_impl_sdl3.h>
+#include <imgui/backends/imgui_impl_dx12.h>
 
 #include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
@@ -24,11 +24,8 @@ namespace
 	Application* gApplication = 0;
 }
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
-		return true;
 	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
 	// before CreateWindow returns, and thus before mhMainWnd is valid.
 	return gApplication->MsgProc(hwnd, msg, wParam, lParam);
@@ -180,6 +177,7 @@ i32 Application::Run()
 	bool quit = false;
 	while (quit == false) {
 		while (SDL_PollEvent(&e)) {
+			ImGui_ImplSDL3_ProcessEvent(&e);
 			if (e.type == SDL_EVENT_QUIT)
 				quit = true;
 			else if (e.type == SDL_EVENT_KEY_DOWN) {
@@ -710,7 +708,8 @@ void Application::OnGUI()
 	{
 		// Start the Dear ImGui frame
 		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
+		//ImGui_ImplWin32_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 		//ImGui::ShowDemoWindow(); // Show demo window! :)
 	}

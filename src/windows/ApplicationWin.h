@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
-#include <dear_imgui/imgui.h>
+#include <imgui/imgui.h>
 #include "PCH.h"
 #include "dxCommon/d3dUtil.h"
 #include "Timer.h"
