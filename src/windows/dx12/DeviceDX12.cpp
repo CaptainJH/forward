@@ -95,8 +95,10 @@ DeviceDX12::DeviceDX12()
 			MB_ICONEXCLAMATION | MB_SYSTEMMODAL);
 	}
 }
-DeviceDX12::DeviceDX12(u32 w, u32 h, HWND hwnd)
+DeviceDX12::DeviceDX12(u32 w, u32 h, SDL_Window* pWin, HWND hwnd)
 {
+	m_sdlWnd = pWin;
+
 	SwapChainConfig Config;
 	Config.SetWidth(w);
 	Config.SetHeight(h);
@@ -790,7 +792,7 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
 	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
-	ImGui_ImplWin32_Init(config.GetSwapChainDesc().OutputWindow);
+	ImGui_ImplSDL3_InitForD3D(m_sdlWnd);
 	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
 	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
 	ImGui_ImplDX12_Init(m_pDevice.Get(), config.GetSwapChainDesc().BufferCount,

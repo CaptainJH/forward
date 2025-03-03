@@ -65,7 +65,7 @@ namespace forward
     {
     public:
 		DeviceDX12();
-		DeviceDX12(u32 w, u32 h, HWND hwnd = 0);
+		DeviceDX12(u32 w, u32 h, SDL_Window* pWin, HWND hwnd = 0);
 		DeviceDX12(SDL_Renderer* r);
         virtual ~DeviceDX12();
 

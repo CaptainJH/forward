@@ -25,9 +25,9 @@ protected:
 	void UpdateScene(f32 dt) override;
 	void DrawScene() override;
 
-	void OnMouseDown(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/) override;
-	void OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/) override;
-	void OnMouseMove(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/) override;
+	void OnMouseDown(u8 /*btnState*/, f32 /*x*/, f32 /*y*/) override;
+	void OnMouseUp(u8 /*btnState*/, f32 /*x*/, f32 /*y*/) override;
+	void OnMouseMove(u8 /*btnState*/, f32 /*x*/, f32 /*y*/) override;
 
 	Vector3f rotateVector(Quaternion<f32> q, Vector3f v);
 
@@ -127,20 +127,20 @@ bool ModelViewer::Init()
 	return true;
 }
 
-void ModelViewer::OnMouseDown(WPARAM btnState, f32 x, f32 y)
+void ModelViewer::OnMouseDown(u8 btnState, f32 x, f32 y)
 {
-	if (btnState == MK_LBUTTON)
+	if (btnState == 1)
 	{
 		m_arcCam.OnBegin(x, y);
 	}
 }
 
-void ModelViewer::OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/)
+void ModelViewer::OnMouseUp(u8 /*btnState*/, f32 /*x*/, f32 /*y*/)
 {
 	m_arcCam.OnEnd();
 }
 
-void ModelViewer::OnMouseMove(WPARAM /*btnState*/, f32 x, f32 y)
+void ModelViewer::OnMouseMove(u8 /*btnState*/, f32 x, f32 y)
 {
 	if (m_arcCam.IsDragging())
 	{

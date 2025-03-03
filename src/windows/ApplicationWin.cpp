@@ -187,6 +187,12 @@ i32 Application::Run()
 				}
 				else if (e.key.key == SDLK_SPACE)
 					OnSpace();
+				else {
+					OnSDLKey(e.key.key, true);
+				}
+			}
+			else if (e.type == SDL_EVENT_KEY_UP) {
+				OnSDLKey(e.key.key, false);
 			}
 			else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				OnMouseDown(e.button.button, e.button.x, e.button.y);
@@ -202,7 +208,6 @@ i32 Application::Run()
 		UpdateRender();
 	}
 
-	SDL_DestroyRenderer(m_sdlRenderer);
 	SDL_DestroyWindow(m_sdlWnd);
 	SDL_Quit();
 
@@ -487,16 +492,6 @@ bool Application::InitMainWindow()
 	HANDLE hIcon = LoadImageA(GetModuleHandle(NULL), iconPath.c_str(), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 	SendMessage(mhMainWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
-	int driverIdx = -1;
-	for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-		std::cout << i << " : " << SDL_GetRenderDriver(i) << std::endl;
-		if (!strcmp(SDL_GetRenderDriver(i), "direct3d12"))
-			driverIdx = i;
-	}
-	SDL_assert(driverIdx >= 0);
-	m_sdlRenderer = SDL_CreateRenderer(m_sdlWnd, SDL_GetRenderDriver(driverIdx));
-	//SDL_SetRenderVSync(gRenderer, 1);
-
 	return true;
 }
 
@@ -532,8 +527,7 @@ bool Application::ConfigureRendererComponents()
 
 	case DeviceType::Device_Forward_DX12:
 	{
-		//m_pDevice = new DeviceDX12(mClientWidth, mClientHeight, MainWnd());
-		m_pDevice = new DeviceDX12(m_sdlRenderer);
+		m_pDevice = new DeviceDX12(mClientWidth, mClientHeight, m_sdlWnd, MainWnd());
 		break;
 	}
 	default:
@@ -666,19 +660,44 @@ void Application::OnChar(i8 key, bool pressed)
 	}
 }
 
-void Application::OnMouseDown(WPARAM /*btnState*/, f32 x, f32 y)
+void Application::OnSDLKey(u32 key, bool pressed) {
+	auto speed = 0.002f;
+	if (key == SDLK_W)
+	{
+		m_cameraWalkSpeed = pressed ? speed : 0.0f;
+	}
+	else if (key == SDLK_A)
+	{
+		m_cameraStrafeSpeed = pressed ? -speed : 0.0f;
+	}
+	else if (key == SDLK_S)
+	{
+		m_cameraWalkSpeed = pressed ? -speed : 0.0f;
+	}
+	else if (key == SDLK_D)
+	{
+		m_cameraStrafeSpeed = pressed ? speed : 0.0f;
+	}
+	else if (key ==SDLK_G)
+	{
+		if (pressed)
+			m_pDevice->EnableImGUI(!m_pDevice->IsImGUIEnabled());
+	}
+}
+
+void Application::OnMouseDown(u8 /*btnState*/, f32 x, f32 y)
 {
 	mLastMousePos_x = x;
 	mLastMousePos_y = y;
 	//SetCapture(mhMainWnd);
 }
-void Application::OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/)
+void Application::OnMouseUp(u8 /*btnState*/, f32 /*x*/, f32 /*y*/)
 {
 	//ReleaseCapture();
 }
-void Application::OnMouseMove(WPARAM btnState, f32 x, f32 y)
+void Application::OnMouseMove(u8 btnState, f32 x, f32 y)
 {
-	if ((btnState & MK_RBUTTON) != 0)
+	if (btnState >= 3)
 	{
 		// Make each pixel correspond to a quarter of a degree.
 		float dx = (0.25f * (x - mLastMousePos_x));
@@ -708,7 +727,6 @@ void Application::OnGUI()
 	{
 		// Start the Dear ImGui frame
 		ImGui_ImplDX12_NewFrame();
-		//ImGui_ImplWin32_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 		//ImGui::ShowDemoWindow(); // Show demo window! :)

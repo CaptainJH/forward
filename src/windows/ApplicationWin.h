@@ -36,7 +36,6 @@
 
 //--------------------------------------------------------------------------------
 struct SDL_Window;
-struct SDL_Renderer;
 namespace forward
 {
 	enum ApplicationType
@@ -84,13 +83,14 @@ namespace forward
 		virtual void PostDrawScene() {}
 
 		// Convenience overrides for handling mouse input.
-		virtual void OnMouseDown(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
-		virtual void OnMouseUp(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
-		virtual void OnMouseMove(WPARAM /*btnState*/, f32 /*x*/, f32 /*y*/);
+		virtual void OnMouseDown(u8 /*btnState*/, f32 /*x*/, f32 /*y*/);
+		virtual void OnMouseUp(u8 /*btnState*/, f32 /*x*/, f32 /*y*/);
+		virtual void OnMouseMove(u8 /*btnState*/, f32 /*x*/, f32 /*y*/);
 		virtual void OnEsc() { RequestTermination(); }
 		virtual void OnEnter() {}
 		virtual void OnSpace() {}
 		virtual void OnChar(i8 /*key*/, bool pressed);
+		virtual void OnSDLKey(u32, bool pressed);
 		virtual void OnGUI();
 
 	protected:
@@ -130,7 +130,6 @@ namespace forward
 		Device*		m_pDevice;
 
 		SDL_Window* m_sdlWnd = nullptr;
-		SDL_Renderer* m_sdlRenderer = nullptr;
 
 		// Derived class should set these in derived constructor to customize starting values.
 		std::wstring mMainWndCaption;

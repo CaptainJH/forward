@@ -10,6 +10,7 @@
 #include "FrameGraph/PipelineStateObjects.h"
 #include "CommandQueue.h"
 
+struct SDL_Window;
 struct SDL_Renderer;
 namespace forward
 {
@@ -96,6 +97,7 @@ namespace forward
 		FrameGraph* m_currentFrameGraph = nullptr;
 		bool		m_imguiEnabled = true;
 		SDL_Renderer* const m_sdlRenderer = nullptr;
+		SDL_Window* m_sdlWnd = nullptr;
 
 		std::map<std::string, void*> m_externalResourceContext;
 
