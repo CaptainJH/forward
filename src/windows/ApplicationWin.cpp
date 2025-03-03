@@ -1,4 +1,3 @@
-#include <windowsx.h>
 #include <iostream>
 
 #include <SDL3/SDL.h>
