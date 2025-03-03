@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 
 #include <imgui/backends/imgui_impl_sdl3.h>
-#include <imgui/backends/imgui_impl_dx12.h>
+#include <imgui/backends/imgui_impl_sdlrenderer3.h>
 
 #include "ApplicationWin.h"
 #include "dxCommon/SwapChainConfig.h"
@@ -707,10 +707,22 @@ void Application::OnGUI()
 	if (m_pDevice->IsImGUIEnabled())
 	{
 		// Start the Dear ImGui frame
-		ImGui_ImplDX12_NewFrame();
+		//ImGui_ImplDX12_NewFrame();
+		ImGui_ImplSDLRenderer3_NewFrame();
 		//ImGui_ImplWin32_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
-		//ImGui::ShowDemoWindow(); // Show demo window! :)
+		ImGui::ShowDemoWindow(); // Show demo window! :)
 	}
+}
+
+void Application::OnSDLRendererPass() {
+	const SDL_FRect rect = {
+		.x = 400,
+		.y = 0,
+		.w = 400,
+		.h = 400
+	};
+	SDL_SetRenderDrawColor(m_sdlRenderer, 255, 0, 0, 255);
+	SDL_RenderFillRect(m_sdlRenderer, &rect);
 }

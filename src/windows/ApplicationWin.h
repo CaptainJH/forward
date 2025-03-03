@@ -107,6 +107,7 @@ namespace forward
 		bool IsDll() const;
 
 		void UpdateCameraMovement(f32 dt);
+		void OnSDLRendererPass();
 
 	protected:
 

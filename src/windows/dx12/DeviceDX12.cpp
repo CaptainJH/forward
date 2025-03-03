@@ -3,7 +3,7 @@
 //***************************************************************************************
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_sdl3.h>
-#include <imgui/backends/imgui_impl_dx12.h>
+#include <imgui/backends/imgui_impl_sdlrenderer3.h>
 
 #include "DeviceDX12.h"
 
@@ -209,16 +209,8 @@ DeviceDX12::DeviceDX12(SDL_Renderer* r)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
 	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
-	//ImGui_ImplWin32_Init(s_desc.OutputWindow);
 	ImGui_ImplSDL3_InitForD3D(SDL_GetRenderWindow(r));
-	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
-	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
-	ImGui_ImplDX12_Init(m_pDevice.Get(), s_desc.BufferCount,
-		s_desc.BufferDesc.Format,
-		srvHeap.Get(),
-		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
-		srvHeap->GetCPUDescriptorHandleForHeapStart(),
-		srvHeap->GetGPUDescriptorHandleForHeapStart());
+	ImGui_ImplSDLRenderer3_Init(r);
 
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(64);
@@ -401,8 +393,7 @@ void DeviceDX12::Shutdown()
 	SAFE_DELETE(m_textRenderPass);
 	SAFE_DELETE(m_textFont);
 
-	ImGui_ImplDX12_Shutdown();
-	//ImGui_ImplWin32_Shutdown();
+	ImGui_ImplSDLRenderer3_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
@@ -790,15 +781,7 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
 	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
-	ImGui_ImplWin32_Init(config.GetSwapChainDesc().OutputWindow);
-	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
-	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
-	ImGui_ImplDX12_Init(m_pDevice.Get(), config.GetSwapChainDesc().BufferCount,
-		config.GetSwapChainDesc().BufferDesc.Format,
-		srvHeap.Get(),
-		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
-		srvHeap->GetCPUDescriptorHandleForHeapStart(),
-		srvHeap->GetGPUDescriptorHandleForHeapStart());
+	ImGui_ImplSDLRenderer3_Init(m_sdlRenderer);
 
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(64);
@@ -1041,24 +1024,31 @@ void DeviceDX12::DrawImGui()
 {
 	static u64 lastGuiSignal = 0;
 	m_queue->WaitForGPU(lastGuiSignal);
-	auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
-	m_guiCmdList->Reset();
-	m_guiCmdList->BindGPUVisibleHeaps();
-	auto guiCmdListDX12 = m_guiCmdList->GetDeviceCmdListPtr();
-	auto deviceDS = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentDS());
-	m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	//auto deviceRT = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentRT());
+	//m_guiCmdList->Reset();
+	//m_guiCmdList->BindGPUVisibleHeaps();
+	//auto guiCmdListDX12 = m_guiCmdList->GetDeviceCmdListPtr();
+	//auto deviceDS = device_cast<DeviceTexture2DDX12*>(m_SwapChain->GetCurrentDS());
+	//m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	// Specify the buffers we are going to render to.
-	D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
-	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
-	guiCmdListDX12->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
-	guiCmdListDX12->RSSetViewports(1, &mScreenViewport);
-	guiCmdListDX12->RSSetScissorRects(1, &mScissorRect);
+	//// Specify the buffers we are going to render to.
+	//D3D12_CPU_DESCRIPTOR_HANDLE currentBackBufferView = deviceRT->GetRenderTargetViewHandle();
+	//D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = deviceDS->GetDepthStencilViewHandle();
+	//guiCmdListDX12->OMSetRenderTargets(1, &currentBackBufferView, true, &depthStencilView);
+	//guiCmdListDX12->RSSetViewports(1, &mScreenViewport);
+	//guiCmdListDX12->RSSetScissorRects(1, &mScissorRect);
 
+	//ImGui::Render();
+	//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), guiCmdListDX12.Get());
+	//m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
+	//m_queue->ExecuteCommandList(*m_guiCmdList);
+
+	// Rendering
 	ImGui::Render();
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), guiCmdListDX12.Get());
-	m_guiCmdList->TransitionBarrier(deviceRT, D3D12_RESOURCE_STATE_PRESENT);
-	m_queue->ExecuteCommandList(*m_guiCmdList);
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	SDL_SetRenderDrawColorFloat(m_sdlRenderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+	//SDL_RenderClear(m_sdlRenderer);
+	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_sdlRenderer);
 	m_SwapChain->Present();
 	lastGuiSignal = m_queue->Signal();
 }

@@ -102,6 +102,8 @@ void HelloDX12::DrawScene()
 
 	commandList->DrawInstanced(4, 1, 0, 0);
 
+	OnSDLRendererPass();
+
 	m_pRender->EndDraw();
 	ProfilingHelper::EndPixEvent();
 }
