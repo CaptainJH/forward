@@ -3,7 +3,7 @@ file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOUR
 
 add_executable(HelloRaytracing ${SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_link_libraries(HelloRaytracing forwardDX12)
+    target_link_libraries(HelloRaytracing libForward)
 endif()
 target_link_libraries(HelloRaytracing libForward)
 

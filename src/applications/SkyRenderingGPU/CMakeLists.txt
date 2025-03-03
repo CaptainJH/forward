@@ -3,7 +3,7 @@ file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_executable(SkyRenderingGPU ${SOURCE_FILES})
-    target_link_libraries(SkyRenderingGPU forwardDX12)
+    target_link_libraries(SkyRenderingGPU libForward)
 
     if(forward_CompileWithSuperluminalAPI AND SuperluminalAPI_FOUND)
         target_link_libraries(SkyRenderingGPU SuperluminalAPI)
