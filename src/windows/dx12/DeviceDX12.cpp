@@ -98,6 +98,8 @@ DeviceDX12::DeviceDX12()
 DeviceDX12::DeviceDX12(u32 w, u32 h, SDL_Window* pWin, HWND hwnd)
 {
 	m_sdlWnd = pWin;
+	if (!m_sdlWnd)
+		EnableImGUI(false);
 
 	SwapChainConfig Config;
 	Config.SetWidth(w);
@@ -403,10 +405,11 @@ void DeviceDX12::Shutdown()
 	SAFE_DELETE(m_textRenderPass);
 	SAFE_DELETE(m_textFont);
 
-	ImGui_ImplDX12_Shutdown();
-	//ImGui_ImplWin32_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
-	ImGui::DestroyContext();
+	if (m_sdlWnd) {
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplSDL3_Shutdown();
+		ImGui::DestroyContext();
+	}
 
 	if (m_SwapChain && m_SwapChain->GetSwapChain())
 	{
@@ -773,6 +776,23 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 		// demonstrates using a configuration object for fast and concise object
 		// creation.
 		CreateSwapChain(&config);
+
+		/// initialize Dear ImGui
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
+		io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
+		ImGui_ImplSDL3_InitForD3D(m_sdlWnd);
+		m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
+		auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
+		ImGui_ImplDX12_Init(m_pDevice.Get(), config.GetSwapChainDesc().BufferCount,
+			config.GetSwapChainDesc().BufferDesc.Format,
+			srvHeap.Get(),
+			// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
+			srvHeap->GetCPUDescriptorHandleForHeapStart(),
+			srvHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 
 	// Update the viewport transform to cover the client area.
@@ -785,22 +805,6 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 
 	mScissorRect = { 0, 0, static_cast<i32>(m_width), static_cast<i32>(m_height) };
 
-	/// initialize Dear ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	auto fontPathW = FileSystem::getSingleton().GetDataFolder() + L"NotoSans-Regular.ttf";
-	io.Fonts->AddFontFromFileTTF(TextHelper::ToAscii(fontPathW).c_str(), 30);
-	ImGui_ImplSDL3_InitForD3D(m_sdlWnd);
-	m_guiCmdList = new CommandListDX12(*this, QueueType::Direct);
-	auto srvHeap = m_guiCmdList->m_DynamicDescriptorHeaps[0].RequestDescriptorHeap(m_pDevice.Get());
-	ImGui_ImplDX12_Init(m_pDevice.Get(), config.GetSwapChainDesc().BufferCount,
-		config.GetSwapChainDesc().BufferDesc.Format,
-		srvHeap.Get(),
-		// You'll need to designate a descriptor from your descriptor heap for Dear ImGui to use internally for its font texture's SRV
-		srvHeap->GetCPUDescriptorHandleForHeapStart(),
-		srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	/// Font stuff
 	m_textFont = new FontSegoe_UIW50H12(64);
