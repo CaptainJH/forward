@@ -30,9 +30,8 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, u32 msg, WPARAM wParam, LPARAM lParam)
 	return gApplication->MsgProc(hwnd, msg, wParam, lParam);
 }
 
-Application::Application(HINSTANCE hInstance, i32 width, i32 height)
-	: mhAppInst(hInstance),
-	mMainWndCaption(L"D3D11 Application"),
+Application::Application(HINSTANCE , i32 width, i32 height)
+	: mMainWndCaption(L"D3D11 Application"),
 	mClientWidth(width),
 	mClientHeight(height),
 	mEnable4xMsaa(false),
@@ -115,16 +114,6 @@ Application::~Application()
 {
 	ShutdownRendererComponents();
 	Log::Get().Close();
-}
-
-void Application::SetAppInst(HINSTANCE hInstance)
-{
-	mhAppInst = hInstance;
-}
-
-HINSTANCE Application::AppInst()const
-{
-	return mhAppInst;
 }
 
 HWND Application::MainWnd()const
