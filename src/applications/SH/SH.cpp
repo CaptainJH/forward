@@ -254,8 +254,10 @@ bool SH_Demo::Init()
 			DrawSphericalFunction(exampleLight, 0, vertex, index);
 
 			// setup geometry
-			m_VB = forward::make_shared<VertexBuffer>("SH_VB", Vertex_POS_COLOR::GetVertexFormat(), vertex.size());
-			m_IB = forward::make_shared<IndexBuffer>("SH_IB", PrimitiveTopologyType::PT_TRIANGLELIST, index.size());
+			m_VB = forward::make_shared<VertexBuffer>("SH_VB", Vertex_POS_COLOR::GetVertexFormat(), 
+				static_cast<u32>(vertex.size()));
+			m_IB = forward::make_shared<IndexBuffer>("SH_IB", PrimitiveTopologyType::PT_TRIANGLELIST, 
+				static_cast<u32>(index.size()));
 			for (auto& v : vertex)
 				m_VB->AddVertex(v);
 			for (auto idx : index)

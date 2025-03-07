@@ -100,3 +100,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(libForward "CLANG_CXX_LIBRARY" "libc++")
 endif()
 target_link_libraries(libForward assimp DirectXTex OpenEXR TBB::tbb dear_imgui SDL3::SDL3)
+
+add_library(libForward_Shared SHARED ${forward_SOURCE_FILES})
+set_property(TARGET libForward_Shared PROPERTY CXX_STANDARD 20)
+target_link_libraries(libForward_Shared assimp DirectXTex OpenEXR TBB::tbb dear_imgui SDL3::SDL3)
