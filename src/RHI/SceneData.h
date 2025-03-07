@@ -1,11 +1,5 @@
 #pragma once
-#include <math.h>
 #include "FrameGraph/Geometry.h"
-#include "Vector2f.h"
-#include "Vector3f.h"
-#include "Matrix4f.h"
-#include "utilities/Utils.h"
-
 #include <ImathQuat.h>
 
 namespace forward
@@ -27,10 +21,10 @@ namespace forward
 
 		struct MaterialData
 		{
-			Color3	baseColor;
+			float3	baseColor;
 			i32		baseColorTexIdx = -1;
 
-			Color3	emissive;
+			float3	emissive;
 			i32		emissiveTexIdx = -1;
 
 			f32		metalness = -1.0f;

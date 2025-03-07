@@ -1,6 +1,7 @@
 #include "ApplicationWin.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
+#include "Log.h"
 
 using namespace forward;
 

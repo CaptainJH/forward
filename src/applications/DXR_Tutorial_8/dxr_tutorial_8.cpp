@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "renderers/RTGBufferRenderer.h"
 #include "renderers/RTAORenderer.h"
+#include "Log.h"
 #include <random>
 
 using namespace forward;

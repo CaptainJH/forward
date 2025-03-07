@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "renderers/SimpleAlbedo.h"
+#include "Log.h"
 
 using namespace forward;
 

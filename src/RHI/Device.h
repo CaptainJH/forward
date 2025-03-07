@@ -4,8 +4,6 @@
 #pragma once
 #include <map>
 #include "Types.h"
-#include "DataFormat.h"
-#include "Vector4f.h"
 #include "ResourceSystem/DeviceResource.h"
 #include "FrameGraph/PipelineStateObjects.h"
 #include "CommandQueue.h"
@@ -73,7 +71,7 @@ namespace forward
 		virtual void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) = 0;
 		virtual void SaveTexture(const std::wstring& filename, Texture2D* tex) = 0;
 
-		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) = 0;
+		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) = 0;
 
 		virtual shared_ptr<Texture2D> GetDefaultRT() const = 0;
 		virtual shared_ptr<Texture2D> GetDefaultDS() const = 0;

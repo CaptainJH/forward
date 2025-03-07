@@ -1,16 +1,13 @@
 #pragma once
-#include <math.h>
 #include "RenderPassHelper.h"
 #include "RHI/ResourceSystem/Buffer.h"
-#include "Vector2f.h"
-#include "Vector3f.h"
 #include "utilities/Utils.h"
 
 namespace forward
 {
 	struct Vertex_POS
 	{
-		Vector3f Pos;
+		float3 Pos;
 
 		static forward::VertexFormat GetVertexFormat()
 		{
@@ -22,8 +19,8 @@ namespace forward
 
 	struct Vertex_POS_N
 	{
-		Vector3f Pos;
-		Vector3f N;
+		float3 Pos;
+		float3 N;
 
 		static forward::VertexFormat GetVertexFormat()
 		{
@@ -36,8 +33,8 @@ namespace forward
 
 	struct Vertex_POS_COLOR
 	{
-		Vector3f Pos;
-		Vector4f Color;
+		float3 Pos;
+		float4 Color;
 
 		static forward::VertexFormat GetVertexFormat()
 		{
@@ -51,8 +48,8 @@ namespace forward
 
 	struct Vertex_POS_UV
 	{
-		Vector3f Pos;
-		Vector2f UV;
+		float3 Pos;
+		float2 UV;
 
 		static forward::VertexFormat GetVertexFormat()
 		{
@@ -67,10 +64,10 @@ namespace forward
 	/// Position_Normal_Tangent_TextureUV
 	struct Vertex_P_N_T_UV
 	{
-		Vector3f Pos;
-		Vector3f Normal;
-		Vector3f Tangent;
-		Vector2f UV;
+		float3 Pos;
+		float3 Normal;
+		float3 Tangent;
+		float2 UV;
 
 		static forward::VertexFormat GetVertexFormat()
 		{
@@ -200,10 +197,10 @@ namespace forward
 
 		void Initializer(forward::SimpleGeometry* geometry)
 		{
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Black });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Red });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Green });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, +1.0f, 0.0f), Colors::White });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, +1.0f, 0.0f), Colors::Black });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, -1.0f, 0.0f), Colors::Red });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, -1.0f, 0.0f), Colors::Green });
 		}
 	};
 
@@ -233,14 +230,14 @@ namespace forward
 
 		void Initializer(forward::SimpleGeometry* geometry)
 		{
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, -1.0f), Colors::White });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, -1.0f), Colors::Black });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, -1.0f), Colors::Red });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, -1.0f), Colors::Green });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, -1.0f, +1.0f), Colors::Blue });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(-1.0f, +1.0f, +1.0f), Colors::Yellow });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, +1.0f, +1.0f), Colors::Cyan });
-			geometry->AddVertex(Vertex_POS_COLOR{ Vector3f(+1.0f, -1.0f, +1.0f), Colors::Magenta });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, -1.0f, -1.0f), Colors::White });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, +1.0f, -1.0f), Colors::Black });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, +1.0f, -1.0f), Colors::Red });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, -1.0f, -1.0f), Colors::Green });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, -1.0f, +1.0f), Colors::Blue });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(-1.0f, +1.0f, +1.0f), Colors::Yellow });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, +1.0f, +1.0f), Colors::Cyan });
+			geometry->AddVertex(Vertex_POS_COLOR{ float3(+1.0f, -1.0f, +1.0f), Colors::Magenta });
 
 			geometry->AddFace(TriangleIndices(0, 1, 2));
 			geometry->AddFace(TriangleIndices(0, 2, 3));
@@ -318,10 +315,10 @@ namespace forward
 					v.Tangent.x = -radius * sinf(phi)*sinf(theta);
 					v.Tangent.y = 0.0f;
 					v.Tangent.z = +radius * sinf(phi)*cosf(theta);
-					v.Tangent.Normalize();
+					v.Tangent.normalize();
 
 					v.Normal = v.Pos;
-					v.Normal.Normalize();
+					v.Normal.normalize();
 
 					v.UV.x = theta / f_2PI;
 					v.UV.y = phi / f_PI;
@@ -596,12 +593,12 @@ namespace forward
 					vertex.Tangent = { -s, 0.0f, c };
 
 					f32 dr = bottomRadius - topRadius;
-					Vector3f bitangent(dr*c, -height, dr*s);
+					float3 bitangent(dr*c, -height, dr*s);
 
 					auto T = vertex.Tangent;
 					auto B = bitangent;
-					auto N = T.Cross(B);
-					N.Normalize();
+					auto N = T.cross(B);
+					N.normalize();
 					vertex.Normal = N;
 
 					meshData.Vertices.push_back(vertex);

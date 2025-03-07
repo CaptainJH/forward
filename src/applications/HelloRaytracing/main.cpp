@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "FrameGraph/Geometry.h"
 #include "FrameGraph/FrameGraph.h"
+#include "Log.h"
 
 using namespace forward;
 
@@ -57,9 +58,9 @@ public:
 			// The sample raytraces in screen space coordinates.
 			// Since DirectX screen space coordinates are right handed (i.e. Y axis points down).
 			// Define the vertices in counter clockwise order ~ clockwise in left handed.
-			Vector3f { 0, -offset, depthValue },
-			Vector3f { -offset, offset, depthValue },
-			Vector3f { offset, offset, depthValue }
+			float3 { 0, -offset, depthValue },
+			float3 { -offset, offset, depthValue },
+			float3 { offset, offset, depthValue }
 		};
 		m_vb = make_shared<VertexBuffer>("VertexBuffer", Vertex_POS::GetVertexFormat(), 3);
 		m_vb->AddVertex(vertices[0]);

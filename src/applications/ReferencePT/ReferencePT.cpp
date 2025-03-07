@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "FrameGraph/Geometry.h"
 #include "renderers/ReferencePTRenderer.h"
+#include "Log.h"
 
 using namespace forward;
 

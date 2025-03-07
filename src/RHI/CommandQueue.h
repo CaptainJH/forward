@@ -4,8 +4,6 @@
 #pragma once
 
 #include "Types.h"
-#include "DataFormat.h"
-#include "Vector4f.h"
 #include "ResourceSystem/DeviceResource.h"
 #include "CommandList.h"
 

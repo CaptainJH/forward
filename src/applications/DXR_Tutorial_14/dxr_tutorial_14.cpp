@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "renderers/RasterGBufferRenderer.h"
 #include "renderers/RTggxRenderer.h"
+#include "Log.h"
+#include <imgui/imgui.h>
 
 using namespace forward;
 

@@ -2,7 +2,7 @@
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 #include "ProfilingHelper.h"
-#include <iostream>
+#include "Log.h"
 
 using namespace forward;
 

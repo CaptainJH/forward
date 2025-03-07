@@ -64,10 +64,10 @@ SceneData SceneData::LoadFromFile(const std::wstring fileName, LoadedResourceMan
 				const aiVector3D t = mesh->mTangents ? mesh->mTangents[i] : zero;
 				const aiVector3D uv = mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][i] : zero;
 				sgeo.AddVertex<Vertex_P_N_T_UV>({
-					.Pos = Vector3f(v.x, v.y, v.z), 
-					.Normal = Vector3f(n.x, n.y, n.z),
-					.Tangent = Vector3f(t.x, t.y, t.z),
-					.UV = Vector2f(uv.x, 1.0f - uv.y) 
+					.Pos = float3(v.x, v.y, v.z), 
+					.Normal = float3(n.x, n.y, n.z),
+					.Tangent = float3(t.x, t.y, t.z),
+					.UV = float2(uv.x, 1.0f - uv.y) 
 					});
 			}
 
@@ -301,10 +301,10 @@ SceneData SceneData::LoadFromFileForStandSurface(const std::wstring fileName, Lo
 				const aiVector3D t = mesh->mTangents[i];
 				const aiVector3D uv = mesh->mTextureCoords[0][i];
 				sgeo.AddVertex<Vertex_P_N_T_UV>({
-					.Pos = Vector3f(v.x, v.y, v.z),
-					.Normal = Vector3f(n.x, n.y, n.z), 
-					.Tangent = Vector3f(t.x, t.y, t.z),
-					.UV = Vector2f(uv.x, uv.y)
+					.Pos = float3(v.x, v.y, v.z),
+					.Normal = float3(n.x, n.y, n.z), 
+					.Tangent = float3(t.x, t.y, t.z),
+					.UV = float2(uv.x, uv.y)
 					});
 			}
 

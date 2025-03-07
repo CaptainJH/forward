@@ -876,7 +876,7 @@ void DeviceDX12::SaveTexture(const std::wstring& filename, Texture2D* tex)
 	SAFE_DELETE_ARRAY(tempBuffer);
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
+void DeviceDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color)
 {
 	m_textFont->Typeset(m_width, m_height, x, y, color, msg);
 	if (m_currentFrameGraph)

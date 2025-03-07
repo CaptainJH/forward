@@ -83,7 +83,7 @@ namespace forward
 		void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 
-		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
+		void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) override;
 
 		void BeginDrawFrameGraph(FrameGraph* fg) override;
 		void EndDrawFrameGraph() override;
@@ -187,13 +187,4 @@ namespace forward
 		RenderPass* m_textRenderPass;
 	};
 
-	//class DeviceContext
-	//{
-	//public:
-	//	static DeviceDX12* GetCurrentDevice();
-	//	static void SetCurrentDevice(DeviceDX12* device);
-
-	//private:
-	//	static DeviceDX12* CurrentDevice;
-	//};
 };

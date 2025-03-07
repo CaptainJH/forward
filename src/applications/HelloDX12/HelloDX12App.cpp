@@ -14,7 +14,7 @@ using namespace forward;
 struct Vertex
 {
 	Vector3f Pos;
-	Vector4f Color;
+	float4 Color;
 };
 
 class HelloDX12 : public Application

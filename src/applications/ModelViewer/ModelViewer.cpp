@@ -4,6 +4,7 @@
 #include "ArcBall.h"
 #include "../MaterialXReader/MaterialXReader.h"
 #include "pystring.h"
+#include "Log.h"
 #include <filesystem>
 
 using namespace forward;

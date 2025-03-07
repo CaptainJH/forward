@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "FrameGraph/FrameGraph.h"
 #include "SceneData.h"
+#include "Log.h"
 
 using namespace forward;
 

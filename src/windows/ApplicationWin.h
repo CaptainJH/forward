@@ -17,20 +17,11 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
-#include <imgui/imgui.h>
 #include "PCH.h"
-#include "dxCommon/d3dUtil.h"
 #include "Timer.h"
 #include "FileSystem.h"
-#include "Log.h"
-
-#include "Vector2f.h"
-#include "Vector3f.h"
-#include "Vector4f.h"
-#include "Matrix4f.h"
 
 #include "Device.h"
-#include "Utils.h"
 #include "FPCamera.h"
 //--------------------------------------------------------------------------------
 

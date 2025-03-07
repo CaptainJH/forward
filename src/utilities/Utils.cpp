@@ -2,17 +2,16 @@
 
 using namespace forward;
 
-Vector4f Colors::White = { 1.0f, 1.0f, 1.0f, 1.0f };
-Vector4f Colors::Black = { 0.0f, 0.0f, 0.0f, 1.0f };
-Vector4f Colors::Red = { 1.0f, 0.0f, 0.0f, 1.0f };
-Vector4f Colors::Green = { 0.0f, 1.0f, 0.0f, 1.0f };
-Vector4f Colors::Blue = { 0.0f, 0.0f, 1.0f, 1.0f };
-Vector4f Colors::Yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
-Vector4f Colors::Cyan = { 0.0f, 1.0f, 1.0f, 1.0f };
-Vector4f Colors::Magenta = { 1.0f, 0.0f, 1.0f, 1.0f };
-
-Vector4f Colors::Silver = { 0.75f, 0.75f, 0.75f, 1.0f };
-Vector4f Colors::LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
+float4 Colors::White = { 1.0f, 1.0f, 1.0f, 1.0f };
+float4 Colors::Black = { 0.0f, 0.0f, 0.0f, 1.0f };
+float4 Colors::Red = { 1.0f, 0.0f, 0.0f, 1.0f };
+float4 Colors::Green = { 0.0f, 1.0f, 0.0f, 1.0f };
+float4 Colors::Blue = { 0.0f, 0.0f, 1.0f, 1.0f };
+float4 Colors::Yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
+float4 Colors::Cyan = { 0.0f, 1.0f, 1.0f, 1.0f };
+float4 Colors::Magenta = { 1.0f, 0.0f, 1.0f, 1.0f };
+float4 Colors::Silver = { 0.75f, 0.75f, 0.75f, 1.0f };
+float4 Colors::LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 
 float4x4 forward::ToFloat4x4(const Matrix4f& mat)
 {

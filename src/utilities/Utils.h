@@ -10,7 +10,6 @@
 #include <locale>
 #include <codecvt>
 
-#include "Vector4f.h"
 #include "Matrix4f.h"
 #include <ImathMatrix.h>
 
@@ -71,16 +70,16 @@ namespace forward
 
 	namespace Colors
 	{
-		extern Vector4f White;
-		extern Vector4f Black;
-		extern Vector4f Red;
-		extern Vector4f Green;
-		extern Vector4f Blue;
-		extern Vector4f Yellow;
-		extern Vector4f Cyan;
-		extern Vector4f Magenta;
-		extern Vector4f Silver;
-		extern Vector4f LightSteelBlue;
+		extern float4 White;
+		extern float4 Black;
+		extern float4 Red;
+		extern float4 Green;
+		extern float4 Blue;
+		extern float4 Yellow;
+		extern float4 Cyan;
+		extern float4 Magenta;
+		extern float4 Silver;
+		extern float4 LightSteelBlue;
 	}
 
 	// Description:

@@ -22,8 +22,8 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 	Vertex_Font_POS2_TEX2* vertices = mVertexBuffer->GetData<Vertex_Font_POS2_TEX2*>();
 	for (auto i = 0U; i < numVertices; ++i)
 	{
-		vertices[i].Pos = Vector2f::Zero();
-		vertices[i].TexCoord = Vector2f::Zero();
+		vertices[i].Pos = { 0.0f, 0.0f };
+		vertices[i].TexCoord = { 0.0f, 0.0f };
 	}
 	for (u32 i = 0U; i < mMaxMessageLength; ++i)
 	{
@@ -73,12 +73,12 @@ Font::Font(u32 width, u32 height, i8 const* texels,
 
 	mVertexShader = make_shared<VertexShader>("ArialVS", L"TextEffect", "VSMain");
 	mPixelShader = make_shared<PixelShader>("ArialPS", L"TextEffect", "PSMain");
-	mConstantBufferVS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_VS");
-	mConstantBufferPS = make_shared<ConstantBuffer<Vector4f>>("ArialCB_PS");
+	mConstantBufferVS = make_shared<ConstantBuffer<float4>>("ArialCB_VS");
+	mConstantBufferPS = make_shared<ConstantBuffer<float4>>("ArialCB_PS");
 	mSampler = make_shared<SamplerState>("ArialSamp");
 }
 
-void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f const& color, std::string const& message) const
+void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, float4 const& color, std::string const& message) const
 {
 	// Get texel translation units, depends on viewport width and height.
 	auto const vdx = 1.0f / static_cast<f32>(viewportWidth);
@@ -143,7 +143,7 @@ void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, Vector4f
 	// Set effect parameters.
 	auto trnX = vdx * static_cast<f32>(x);
 	auto trnY = 1.0f - vdy * static_cast<f32>(y);
-	mConstantBufferVS->SetTypedData(Vector4f(trnX, trnY, 0.0f, 0.0f));
+	mConstantBufferVS->SetTypedData(float4(trnX, trnY, 0.0f, 0.0f));
 	mConstantBufferPS->SetTypedData(color);
 }
 

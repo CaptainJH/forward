@@ -4,7 +4,6 @@
 #pragma once
 #include <array>
 #include <variant>
-#include "Vector4f.h"
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ResourceSystem/Texture.h"
 #include "RHI/ResourceSystem/ShaderTable.h"
@@ -101,7 +100,7 @@ namespace forward
 		bool enableAlphaToCoverage;     // default: false
 		bool enableIndependentBlend;    // default: false
 		Target target[NUM_TARGETS];
-		Vector4f blendColor;      // default: (0,0,0,0)
+		float4 blendColor;      // default: (0,0,0,0)
 		u32 sampleMask;        // default: 0xFFFFFFFF
 	};
 
@@ -258,7 +257,7 @@ namespace forward
 		f32			mipLODBias;
 		u32			maxAnisotropy;
 		Comparison	comparison;
-		Vector4f	borderColor;
+		float4	borderColor;
 		f32 minLOD;
 		f32 maxLOD;
 	};

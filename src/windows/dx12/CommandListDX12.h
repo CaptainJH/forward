@@ -22,7 +22,7 @@ namespace forward
 		void Reset() override;
 		void Close() override;
 
-		void DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color) override;
+		void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) override;
 		void Draw(u32 vertexNum, u32 startVertexLocation) override;
 		void DrawIndexed(u32 indexCount) override;
 		void Dispatch(u32 x, u32 y, u32 z) override;

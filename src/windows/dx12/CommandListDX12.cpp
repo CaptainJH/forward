@@ -55,7 +55,7 @@ CommandListDX12::CommandListDX12(Device& d, QueueType t)
 CommandListDX12::~CommandListDX12() 
 {}
 
-void CommandListDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const Vector4f& color)
+void CommandListDX12::DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color)
 {
 	msg; x; y; color;
 

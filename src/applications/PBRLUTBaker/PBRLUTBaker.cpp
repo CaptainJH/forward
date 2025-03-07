@@ -3,6 +3,7 @@
 #include "RHI/FrameGraph/Geometry.h"
 #include <iostream>
 #include "ProfilingHelper.h"
+#include "Log.h"
 
 using namespace forward;
 

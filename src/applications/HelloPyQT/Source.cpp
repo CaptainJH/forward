@@ -3,6 +3,7 @@
 #include "HelloPyQT.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
+#include "Log.h"
 
 using namespace forward;
 
@@ -51,10 +52,10 @@ bool HelloPyQTDll::Init()
 			/////////////
 			Vertex_POS_COLOR quadVertices[] =
 			{
-				{ Vector3f(-1.0f, +1.0f, 0.0f), Colors::White },
-				{ Vector3f(+1.0f, +1.0f, 0.0f), Colors::Red },
-				{ Vector3f(-1.0f, -1.0f, 0.0f), Colors::Green },
-				{ Vector3f(+1.0f, -1.0f, 0.0f), Colors::Blue }
+				{ float3(-1.0f, +1.0f, 0.0f), Colors::White },
+				{ float3(+1.0f, +1.0f, 0.0f), Colors::Red },
+				{ float3(-1.0f, -1.0f, 0.0f), Colors::Green },
+				{ float3(+1.0f, -1.0f, 0.0f), Colors::Blue }
 			};
 
 			auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, 4);
