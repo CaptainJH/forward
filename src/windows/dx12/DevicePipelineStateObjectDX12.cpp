@@ -2,14 +2,14 @@
 // DevicePipelineStateObjectDX12.cpp by Heqi Ju (C) 2019 All Rights Reserved.
 //***************************************************************************************
 #include "DevicePipelineStateObjectDX12.h"
-#include "dxCommon/ShaderDX.h"
-#include "dx12/ResourceSystem/DeviceBufferDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dx12/CommandListDX12.h"
-#include "dx12/DynamicDescriptorHeapDX12.h"
+#include "windows/dxCommon/ShaderDX.h"
+#include "windows/dx12/ResourceSystem/DeviceBufferDX12.h"
+#include "windows/dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "windows/dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
+#include "windows/dx12/DeviceDX12.h"
+#include "windows/dx12/CommandQueueDX12.h"
+#include "windows/dx12/CommandListDX12.h"
+#include "windows/dx12/DynamicDescriptorHeapDX12.h"
 
 #include <ranges>
 #include <regex>

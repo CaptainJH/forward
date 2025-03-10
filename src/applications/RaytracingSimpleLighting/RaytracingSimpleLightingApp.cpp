@@ -1,7 +1,7 @@
-#include "Application.h"
-#include "FrameGraph/FrameGraph.h"
-#include "SceneData.h"
-#include "Log.h"
+#include "utilities/Application.h"
+#include "RHI/FrameGraph/FrameGraph.h"
+#include "RHI/SceneData.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

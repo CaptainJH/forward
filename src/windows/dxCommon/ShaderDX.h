@@ -4,18 +4,18 @@
 #pragma once
 //--------------------------------------------------------------------------------
 #include "PCH.h"
-#include "dxCommon/d3dUtil.h"
+#include "windows/dxCommon/d3dUtil.h"
 #include <d3dCompiler.h>
 #include "RHI/ResourceSystem/DeviceObject.h"
-#include "dxCommon/ShaderReflection/HLSLParameter.h"
-#include "dxCommon/ShaderReflection/HLSLConstantBuffer.h"
-#include "dxCommon/ShaderReflection/HLSLResourceBindInfo.h"
-#include "dxCommon/ShaderReflection/HLSLTextureBuffer.h"
-#include "dxCommon/ShaderReflection/HLSLTexture.h"
-#include "dxCommon/ShaderReflection/HLSLTextureArray.h"
-#include "dxCommon/ShaderReflection/HLSLSamplerState.h"
-#include "dxCommon/ShaderReflection/HLSLByteAddressBuffer.h"
-#include "dxCommon/ShaderReflection/HLSLStructuredBuffer.h"
+#include "windows/dxCommon/ShaderReflection/HLSLParameter.h"
+#include "windows/dxCommon/ShaderReflection/HLSLConstantBuffer.h"
+#include "windows/dxCommon/ShaderReflection/HLSLResourceBindInfo.h"
+#include "windows/dxCommon/ShaderReflection/HLSLTextureBuffer.h"
+#include "windows/dxCommon/ShaderReflection/HLSLTexture.h"
+#include "windows/dxCommon/ShaderReflection/HLSLTextureArray.h"
+#include "windows/dxCommon/ShaderReflection/HLSLSamplerState.h"
+#include "windows/dxCommon/ShaderReflection/HLSLByteAddressBuffer.h"
+#include "windows/dxCommon/ShaderReflection/HLSLStructuredBuffer.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

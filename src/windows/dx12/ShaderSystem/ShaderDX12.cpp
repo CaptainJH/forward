@@ -1,7 +1,7 @@
 #include "ShaderDX12.h"
 #include "RHI/ShaderSystem/Shader.h"
-#include "dxCommon/ShaderFactoryDX.h"
-#include "FileSystem.h"
+#include "windows/dxCommon/ShaderFactoryDX.h"
+#include "utilities/FileSystem.h"
 #include <dxcapi.h>
 
 using namespace forward;

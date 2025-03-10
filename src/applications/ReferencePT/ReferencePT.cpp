@@ -1,7 +1,7 @@
-#include "Application.h"
-#include "FrameGraph/Geometry.h"
+#include "utilities/Application.h"
+#include "RHI/FrameGraph/Geometry.h"
 #include "renderers/ReferencePTRenderer.h"
-#include "Log.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

@@ -4,7 +4,7 @@
 #pragma once
 #include "Types.h"
 #include "RHI/ResourceSystem/DeviceResource.h"
-#include "dx12/dx12Util.h"
+#include "windows/dx12/dx12Util.h"
 
 namespace forward
 {

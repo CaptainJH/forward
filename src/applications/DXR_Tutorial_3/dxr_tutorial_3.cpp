@@ -1,6 +1,6 @@
-#include "Application.h"
+#include "utilities/Application.h"
 #include "renderers/RasterGBufferRenderer.h"
-#include "Log.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

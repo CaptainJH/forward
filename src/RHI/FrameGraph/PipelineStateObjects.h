@@ -9,8 +9,8 @@
 #include "RHI/ResourceSystem/ShaderTable.h"
 #include "RHI/ShaderSystem/Shader.h"
 #include "RHI/RendererCapability.h"
-#include "PrimitiveTopology.h"
-#include "VertexFormat.h"
+#include "RHI/PrimitiveTopology.h"
+#include "RHI/VertexFormat.h"
 
 namespace forward
 {

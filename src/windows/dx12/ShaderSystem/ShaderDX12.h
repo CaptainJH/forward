@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dxCommon/ShaderDX.h"
-#include "dx12/dx12Util.h"
+#include "windows/dxCommon/ShaderDX.h"
+#include "windows/dx12/dx12Util.h"
 
 namespace forward
 {

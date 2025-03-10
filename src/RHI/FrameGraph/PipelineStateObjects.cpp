@@ -2,10 +2,10 @@
 // PipelineStateObject.cpp by Heqi Ju (C) 2017 All Rights Reserved.
 //***************************************************************************************
 #include "PipelineStateObjects.h"
-#include "pystring.h"
-#include "Vector2f.h"
-#include "Vector3f.h"
-#include "SceneData.h"
+#include "utilities/pystring.h"
+#include "math/Vector2f.h"
+#include "math/Vector3f.h"
+#include "RHI/SceneData.h"
 
 using namespace forward;
 

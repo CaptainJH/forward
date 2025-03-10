@@ -5,8 +5,8 @@
 
 #include <d3d12.h>
 #include <wrl.h>
-#include "dx12/d3dx12.h"
-#include "dxCommon/d3dUtil.h"
+#include "windows/dx12/d3dx12.h"
+#include "windows/dxCommon/d3dUtil.h"
 #include "utilities/Log.h"
 #include "utilities/Utils.h"
 #include <unordered_map>

@@ -1,10 +1,10 @@
-#include "Application.h"
+#include "utilities/Application.h"
 #include "renderers/AutodeskStandardSurface.h"
 #include "renderers/MaterialXRenderer.h"
-#include "ArcBall.h"
+#include "utilities/ArcBall.h"
 #include "../MaterialXReader/MaterialXReader.h"
-#include "pystring.h"
-#include "Log.h"
+#include "utilities/pystring.h"
+#include "utilities/Log.h"
 #include <filesystem>
 
 using namespace forward;

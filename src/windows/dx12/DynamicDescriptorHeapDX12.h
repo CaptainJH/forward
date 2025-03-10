@@ -4,7 +4,7 @@
 #pragma once
 
 #include "PCH.h"
-#include "dx12/dx12Util.h"
+#include "windows/dx12/dx12Util.h"
 #include "RHI/FrameGraph/PipelineStateObjects.h"
 #include <queue>
 #include <functional>

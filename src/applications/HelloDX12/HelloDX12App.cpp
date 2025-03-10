@@ -1,11 +1,11 @@
-#include "Application.h"
-#include "Vector3f.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dxCommon/ShaderFactoryDX.h"
+#include "utilities/Application.h"
+#include "math/Vector3f.h"
+#include "windows/dx12/DeviceDX12.h"
+#include "windows/dx12/CommandQueueDX12.h"
+#include "windows/dxCommon/ShaderFactoryDX.h"
 #include "utilities/FileLoader.h"
 
-#include "ProfilingHelper.h"
+#include "utilities/ProfilingHelper.h"
 
 using namespace forward;
 

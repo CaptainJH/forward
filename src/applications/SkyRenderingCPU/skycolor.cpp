@@ -32,9 +32,9 @@
 //[/ignore]
 
 #include "PCH.h"
-#include "Utils.h"
-#include "FileSystem.h"
-#include "dxCommon/DirectXTexEXR.h"
+#include "utilities/Utils.h"
+#include "utilities/FileSystem.h"
+#include "windows/dxCommon/DirectXTexEXR.h"
 #include <random>
 
 using namespace forward;

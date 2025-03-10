@@ -5,7 +5,7 @@
 #include "RHI/CommandQueue.h"
 #include "ResourceSystem/DeviceBufferDX12.h"
 #include "ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DevicePipelineStateObjectDX12.h"
+#include "windows/dx12/DevicePipelineStateObjectDX12.h"
 #include "DeviceDX12.h"
 
 using namespace forward;

@@ -1,5 +1,5 @@
 #pragma once
-#include "dxCommon/ShaderReflection/HLSLBaseBuffer.h"
+#include "windows/dxCommon/ShaderReflection/HLSLBaseBuffer.h"
 
 namespace forward
 {

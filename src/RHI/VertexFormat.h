@@ -1,6 +1,6 @@
 #pragma once
-#include "PCH.h"
-#include "DataFormat.h"
+#include "pCH.h"
+#include "RHI/DataFormat.h"
 #include "RHI/ResourceSystem/GraphicsObject.h"
 
 namespace forward

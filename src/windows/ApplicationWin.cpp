@@ -9,7 +9,7 @@
 #include "dxCommon/SwapChainConfig.h"
 
 #include "dx12/DeviceDX12.h"
-#include "ProfilingHelper.h"
+#include "utilities/ProfilingHelper.h"
 
 //--------------------------------------------------------------------------------
 using namespace forward;

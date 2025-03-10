@@ -35,9 +35,9 @@
 #define _USE_MATH_DEFINES
 //#define RUN_BENCHMARK
 #include "PCH.h"
-#include "Utils.h"
-#include "FileSystem.h"
-#include "dxCommon/DirectXTexEXR.h"
+#include "utilities/Utils.h"
+#include "utilities/FileSystem.h"
+#include "windows/dxCommon/DirectXTexEXR.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -52,9 +52,9 @@
 #include "benchmark/benchmark.h"
 #endif
 
-#include "dx12/DeviceDX12.h"
-#include "FrameGraph/FrameGraph.h"
-#include "ProfilingHelper.h"
+#include "windows/dx12/DeviceDX12.h"
+#include "RHI/FrameGraph/FrameGraph.h"
+#include "utilities/ProfilingHelper.h"
 
 using namespace forward;
 

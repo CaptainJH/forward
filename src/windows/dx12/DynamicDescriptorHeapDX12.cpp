@@ -2,9 +2,9 @@
 // DynamicDescriptorHeapDX12.cpp by Heqi Ju (C) 2019 All Rights Reserved.
 //***************************************************************************************
 #include "DynamicDescriptorHeapDX12.h"
-#include "dx12/DeviceDX12.h"
-#include "dx12/CommandListDX12.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
+#include "windows/dx12/DeviceDX12.h"
+#include "windows/dx12/CommandListDX12.h"
+#include "windows/dx12/ShaderSystem/ShaderDX12.h"
 
 using namespace forward;
 

@@ -20,9 +20,9 @@
 //--------------------------------------------------------------------------------
 #include "Shape3D.h"
 #include "Plane3f.h"
-#include "Vector3f.h"
+#include "math/Vector3f.h"
 #include "Sphere3f.h"
-#include "Matrix4f.h"
+#include "math/Matrix4f.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

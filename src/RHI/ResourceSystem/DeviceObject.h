@@ -3,8 +3,8 @@
 //***************************************************************************************
 #pragma once
 
-#include "PCH.h"
-#include "SmartPtrs.h"
+#include "pCH.h"
+#include "smartPtrs.h"
 
 namespace forward
 {

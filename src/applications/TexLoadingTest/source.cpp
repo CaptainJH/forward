@@ -1,10 +1,10 @@
-#include "ApplicationWin.h"
+#include "utilities/Application.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 #include <iostream>
 #include <filesystem>
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DeviceDX12.h"
+#include "windows/dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "windows/dx12/DeviceDX12.h"
 
 using namespace forward;
 

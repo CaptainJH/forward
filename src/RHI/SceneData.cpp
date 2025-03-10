@@ -6,8 +6,8 @@
 #include <assimp/GltfMaterial.h>
 
 #include "SceneData.h"
-#include "FileSystem.h"
-#include "Log.h"
+#include "utilities/FileSystem.h"
+#include "utilities/Log.h"
 #include "RHI/Device.h"
 
 using namespace forward;

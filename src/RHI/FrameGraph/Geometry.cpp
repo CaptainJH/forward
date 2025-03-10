@@ -1,7 +1,7 @@
 #include "Geometry.h"
 #include "utilities/Log.h"
-#include "Vector2f.h"
-#include "Vector3f.h"
+#include "math/Vector2f.h"
+#include "math/Vector3f.h"
 
 using namespace forward;
 

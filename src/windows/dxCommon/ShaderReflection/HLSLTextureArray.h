@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dxCommon/ShaderReflection/HLSLResource.h"
+#include "windows/dxCommon/ShaderReflection/HLSLResource.h"
 
 namespace forward
 {

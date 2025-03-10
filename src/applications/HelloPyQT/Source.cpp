@@ -3,7 +3,7 @@
 #include "HelloPyQT.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
-#include "Log.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

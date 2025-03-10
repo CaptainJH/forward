@@ -7,24 +7,24 @@
 
 #include "DeviceDX12.h"
 
-#include "Log.h"
+#include "utilities/Log.h"
 
-#include "dxCommon/DXGIAdapter.h"
-#include "dxCommon/DXGIOutput.h"
+#include "windows/dxCommon/DXGIAdapter.h"
+#include "windows/dxCommon/DXGIOutput.h"
 
-#include "dxCommon/SwapChainConfig.h"
-#include "dxCommon/SwapChain.h"
+#include "windows/dxCommon/SwapChainConfig.h"
+#include "windows/dxCommon/SwapChain.h"
 
 #include "d3dx12.h"
 #include "utilities/Utils.h"
 
 #include "RHI/ResourceSystem/Texture.h"
 #include "RHI/FrameGraph/FrameGraph.h"
-#include "dx12/ResourceSystem/DeviceBufferDX12.h"
-#include "dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
-#include "dx12/DevicePipelineStateObjectDX12.h"
-#include "dx12/CommandQueueDX12.h"
-#include "dx12/CommandListDX12.h"
+#include "windows/dx12/ResourceSystem/DeviceBufferDX12.h"
+#include "windows/dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "windows/dx12/DevicePipelineStateObjectDX12.h"
+#include "windows/dx12/CommandQueueDX12.h"
+#include "windows/dx12/CommandListDX12.h"
 #include "utilities/FileSaver.h"
 #include "utilities/FileSystem.h"
 
@@ -33,7 +33,7 @@
 
 #include <SDL3/SDL.h>
 
-#include "ProfilingHelper.h"
+#include "utilities/ProfilingHelper.h"
 
 using Microsoft::WRL::ComPtr;
 

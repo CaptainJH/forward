@@ -1,7 +1,7 @@
-#include "Application.h"
+#include "utilities/Application.h"
 #include "renderers/RasterGBufferRenderer.h"
 #include "renderers/RTAORenderer.h"
-#include "Log.h"
+#include "utilities/Log.h"
 #include <random>
 
 using namespace forward;

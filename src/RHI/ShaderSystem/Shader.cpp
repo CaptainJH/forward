@@ -3,8 +3,8 @@
 //***************************************************************************************
 
 #include "Shader.h"
-#include "FileSystem.h"
-#include "FileLoader.h"
+#include "utilities/FileSystem.h"
+#include "utilities/FileLoader.h"
 
 using namespace forward;
 

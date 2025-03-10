@@ -1,7 +1,7 @@
-#include "Application.h"
+#include "utilities/Application.h"
 #include "renderers/RTAORenderer.h"
 #include "renderers/SimpleAlbedo.h"
-#include "Log.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

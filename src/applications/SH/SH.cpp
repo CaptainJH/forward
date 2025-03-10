@@ -1,8 +1,8 @@
-#include "Application.h"
+#include "utilities/Application.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
-#include "Log.h"
-#include "ArcBall.h"
+#include "utilities/Log.h"
+#include "utilities/ArcBall.h"
 
 #include "D:/Documents/GitHub/tech_notes/extern/glm/glm/glm.hpp"
 #include "D:/Documents/GitHub/tech_notes/extern/glm/glm/gtc/constants.hpp"

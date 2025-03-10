@@ -3,8 +3,8 @@
 //***************************************************************************************
 #pragma once
 
-#include "Types.h"
-#include "ResourceSystem/DeviceResource.h"
+#include "types.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
 
 namespace forward
 {

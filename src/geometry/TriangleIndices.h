@@ -15,7 +15,7 @@
 //--------------------------------------------------------------------------------
 #ifndef TriangleIndices_h
 #define TriangleIndices_h
-#include "Types.h"
+#include "types.h"
 //--------------------------------------------------------------------------------
 namespace forward
 {

@@ -2,9 +2,9 @@
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/Device.h"
-#include "Vector2f.h"
-#include "Vector3f.h"
-#include "Matrix4f.h"
+#include "math/Vector2f.h"
+#include "math/Vector3f.h"
+#include "math/Matrix4f.h"
 #include "utilities/Utils.h"
 
 namespace forward

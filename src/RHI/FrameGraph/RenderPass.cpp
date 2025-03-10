@@ -3,7 +3,7 @@
 //***************************************************************************************
 #include "RenderPass.h"
 #include "RenderPassHelper.h"
-#include "Device.h"
+#include "RHI/Device.h"
 
 using namespace forward;
 

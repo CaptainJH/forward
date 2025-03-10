@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "dx12/ResourceSystem/DeviceResourceDX12.h"
+#include "windows/dx12/ResourceSystem/DeviceResourceDX12.h"
 
 
 namespace forward

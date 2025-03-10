@@ -8,7 +8,7 @@
 #pragma once
 
 #ifdef WINDOWS
-#include "ApplicationWin.h"
+#include "windows/ApplicationWin.h"
 #elif MACOS
 #include "ApplicationMac.h"
 #endif

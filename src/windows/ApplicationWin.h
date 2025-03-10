@@ -17,12 +17,12 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
-#include "PCH.h"
-#include "Timer.h"
-#include "FileSystem.h"
+#include "pCH.h"
+#include "utilities/Timer.h"
+#include "utilities/FileSystem.h"
 
-#include "Device.h"
-#include "FPCamera.h"
+#include "RHI/Device.h"
+#include "utilities/FPCamera.h"
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------

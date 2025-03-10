@@ -3,10 +3,10 @@
 //***************************************************************************************
 #pragma once
 #include <map>
-#include "Types.h"
-#include "ResourceSystem/DeviceResource.h"
-#include "FrameGraph/PipelineStateObjects.h"
-#include "CommandQueue.h"
+#include "types.h"
+#include "RHI/ResourceSystem/DeviceResource.h"
+#include "RHI/FrameGraph/PipelineStateObjects.h"
+#include "RHI/CommandQueue.h"
 
 struct SDL_Window;
 struct SDL_Renderer;

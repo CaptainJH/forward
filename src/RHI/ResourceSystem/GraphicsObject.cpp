@@ -2,10 +2,10 @@
 // GraphicsObject.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 
-#include "PCH.h"
-#include "GraphicsObject.h"
-#include "Log.h"
+#include "pCH.h"
+#include "RHI/ResourceSystem/GraphicsObject.h"
 #include "RHI/ResourceSystem/DeviceObject.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

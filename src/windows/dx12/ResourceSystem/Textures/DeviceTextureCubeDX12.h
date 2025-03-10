@@ -5,7 +5,7 @@
 
 #include "RHI/ResourceSystem/Texture.h"
 #include "DeviceTextureDX12.h"
-#include "dx12/dx12Util.h"
+#include "windows/dx12/dx12Util.h"
 
 namespace forward
 {

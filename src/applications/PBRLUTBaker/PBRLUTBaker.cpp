@@ -1,9 +1,9 @@
-#include "ApplicationWin.h"
+#include "utilities/Application.h"
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "RHI/FrameGraph/Geometry.h"
 #include <iostream>
-#include "ProfilingHelper.h"
-#include "Log.h"
+#include "utilities/ProfilingHelper.h"
+#include "utilities/Log.h"
 
 using namespace forward;
 

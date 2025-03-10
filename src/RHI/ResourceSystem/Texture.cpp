@@ -3,10 +3,10 @@
 //***************************************************************************************
 #define TINYDDSLOADER_IMPLEMENTATION
 #include <filesystem>
-#include "Texture.h"
-#include "FileLoader.h"
-#include "FileSystem.h"
-#include "Log.h"
+#include "RHI/ResourceSystem/Texture.h"
+#include "utilities/FileLoader.h"
+#include "utilities/FileSystem.h"
+#include "utilities/Log.h"
 #include "stb/stb_image.h"
 
 #ifdef WINDOWS

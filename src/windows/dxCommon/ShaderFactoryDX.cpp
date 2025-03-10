@@ -3,11 +3,11 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 #include "ShaderFactoryDX.h"
-#include "Log.h"
+#include "utilities/Log.h"
 #include "utilities/Utils.h"
-#include "dxCommon/d3dUtil.h"
-#include "FileSystem.h"
-#include "FileLoader.h"
+#include "windows/dxCommon/d3dUtil.h"
+#include "utilities/FileSystem.h"
+#include "utilities/FileLoader.h"
 #include <dxcapi.h>
 #include <d3d12shader.h>
 //--------------------------------------------------------------------------------

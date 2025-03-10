@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "GraphicsObject.h"
+#include "RHI/ResourceSystem/GraphicsObject.h"
 #include "RHI/ResourceSystem/DeviceResource.h"
 
 namespace forward

@@ -6,9 +6,9 @@
 #include "RHI/ResourceSystem/DeviceObject.h"
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ShaderSystem/Shader.h"
-#include "FrameGraph/PipelineStateObjects.h"
-#include "dx12/dx12Util.h"
-#include "dx12/ShaderSystem/ShaderDX12.h"
+#include "RHI/FrameGraph/PipelineStateObjects.h"
+#include "windows/dx12/dx12Util.h"
+#include "windows/dx12/ShaderSystem/ShaderDX12.h"
 
 
 namespace forward

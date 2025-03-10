@@ -5,15 +5,15 @@
 //--------------------------------------------------------------------------------
 #include "PCH.h"
 
-#include "Vector2f.h"
-#include "Vector3f.h"
-#include "Vector4f.h"
-#include "Matrix4f.h"
+#include "math/Vector2f.h"
+#include "math/Vector3f.h"
+#include "math/Vector4f.h"
+#include "math/Matrix4f.h"
 
-#include "dx12Util.h"
+#include "windows/dx12/dx12Util.h"
 
-#include "Device.h"
-#include "dxCommon/SwapChain.h"
+#include "RHI/Device.h"
+#include "windows/dxCommon/SwapChain.h"
 #include "RHI/ResourceSystem/GraphicsObject.h"
 #include "DynamicDescriptorHeapDX12.h"
 #include "RHI/Text/FontSegoe_UIW50H12.h"
