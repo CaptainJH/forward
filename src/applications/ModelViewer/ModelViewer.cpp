@@ -30,8 +30,6 @@ protected:
 	void OnMouseUp(u8 /*btnState*/, f32 /*x*/, f32 /*y*/) override;
 	void OnMouseMove(u8 /*btnState*/, f32 /*x*/, f32 /*y*/) override;
 
-	Vector3f rotateVector(Quaternion<f32> q, Vector3f v);
-
 private:
 	shared_ptr<forward::MaterialXRenderer> m_material;
 	ArcBall m_arcCam;
@@ -87,10 +85,9 @@ bool ModelViewer::Init()
 
 		auto camRot = m_arcCam.GetQuat();
 		Vector3f target = Vector3f(0.0f, 1.0f, 0.0f);
-		Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-		Vector3f dir = rotateVector(camRot, Vector3f(0.0f, 0.0f, -1.0f));
+		Vector3f dir = ToVector3f(camRot.rotateVector(float3(0.0f, 0.0f, -1.0f)));
 		auto camPos = target + dir * 2.0f;
-		Vector3f newUp = rotateVector(camRot, up);
+		Vector3f newUp = ToVector3f(camRot.rotateVector(float3(0.0f, 1.0f, 0.0f)));
 	
 		auto viewMat = Matrix4f::LookAtLHMatrix(camPos, target, newUp);
 		auto projMat = Matrix4f::PerspectiveFovLHMatrix(0.5f * f_PI, AspectRatio(), 0.01f, 100.0f);
@@ -148,14 +145,6 @@ void ModelViewer::OnMouseMove(u8 /*btnState*/, f32 x, f32 y)
 		// Rotate camera
 		m_arcCam.OnMove(x, y);
 	}
-}
-
-Vector3f ModelViewer::rotateVector(Quaternion<f32> q, Vector3f v)
-{
-	Quaternion<f32> vec(0.0f, v.x, v.y, v.z);
-	Quaternion<f32> inv(q.w, -q.x, -q.y, -q.z);
-	auto result = q * vec * inv;
-	return Vector3f(result.x, result.y, result.z);
 }
 
 FORWARD_APPLICATION_MAIN(ModelViewer, 1920, 1080);

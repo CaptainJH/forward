@@ -29,23 +29,29 @@ FileSystem::FileSystem()
 
 	mLogFolder = L"Log/";
 
+	const std::string forward_dir = getenv("Forward_Dir");
+	if (forward_dir.length() == 0) {
 #ifdef WINDOWS
-    auto path = filesystem::current_path();
-    auto pathStr = path.generic_wstring();
+		auto path = filesystem::current_path();
+		auto pathStr = path.generic_wstring();
 #else
-    char cwdBuffer[128] = {0};
-    getcwd(cwdBuffer, 128);
-    os_log(OS_LOG_DEFAULT, "from os_log : %s", cwdBuffer);
-    auto pathStr = TextHelper::ToUnicode(std::string(cwdBuffer));
+		char cwdBuffer[128] = { 0 };
+		getcwd(cwdBuffer, 128);
+		os_log(OS_LOG_DEFAULT, "from os_log : %s", cwdBuffer);
+		auto pathStr = TextHelper::ToUnicode(std::string(cwdBuffer));
 #endif
-	auto index = pathStr.find(L"forward");
-	assert(index < pathStr.length());
-	auto indexEnd = pathStr.find_first_of(L'/', index);
-	mCWD = pathStr;
-	if(indexEnd < pathStr.length())
-		mCWD = pathStr.substr(0, indexEnd + 1);
-	else
-		mCWD += L'/';
+		auto index = pathStr.find(L"forward");
+		assert(index < pathStr.length());
+		auto indexEnd = pathStr.find_first_of(L'/', index);
+		mCWD = pathStr;
+		if (indexEnd < pathStr.length())
+			mCWD = pathStr.substr(0, indexEnd + 1);
+		else
+			mCWD += L'/';
+	}
+	else {
+		mCWD = TextHelper::ToUnicode(forward_dir + "/");
+	}
 	mDataFolder = mCWD + mDataFolder;
 	mLogFolder = mCWD + mLogFolder;
 	mSavedFolder = mCWD + mSavedFolder;

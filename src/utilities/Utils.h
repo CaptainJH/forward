@@ -146,4 +146,5 @@ namespace forward
 	}
 
 	float4x4 ToFloat4x4(const Matrix4f& mat);
+	Vector3f ToVector3f(const float3& v);
 }

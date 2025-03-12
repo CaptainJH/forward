@@ -21,3 +21,7 @@ float4x4 forward::ToFloat4x4(const Matrix4f& mat)
 		mat[12], mat[13], mat[14], mat[15]);
 	return ret;
 }
+
+Vector3f forward::ToVector3f(const float3& v) {
+	return Vector3f(v.x, v.y, v.z);
+}

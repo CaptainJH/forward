@@ -8,8 +8,7 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
-#include <math/Quaternion.h>
-#include <math/Vector3f.h>
+#include <ImathQuat.h>
 
 class ArcBall
 {
@@ -22,7 +21,7 @@ public:
 
     void Reset()
     {
-        m_qdown = m_qnow = forward::Quaternion<float>::Identity();
+        m_qdown = m_qnow = Imath::Quatf::identity();
     }
 
     void OnBegin( float x, float y )
@@ -59,7 +58,7 @@ public:
         m_radius = radius;
     }
 
-    forward::Quaternion<float> GetQuat() const { return m_qnow; }
+    Imath::Quatf GetQuat() const { return m_qnow; }
 
     bool IsDragging() const { return m_drag; }
 
@@ -67,12 +66,12 @@ private:
     float                           m_width;
     float                           m_height;
     float                           m_radius;
-    forward::Quaternion<float> m_qdown;
-    forward::Quaternion<float> m_qnow;
-    forward::Vector3f       m_downPoint;
+    Imath::Quatf m_qdown;
+    Imath::Quatf m_qnow;
+    forward::float3       m_downPoint;
     bool                            m_drag;
 
-    forward::Vector3f ScreenToVector(float screenx, float screeny)
+    forward::float3 ScreenToVector(float screenx, float screeny)
     {
         float x = -( screenx - m_width / 2.f ) / ( m_radius * m_width / 2.f );
         float y = ( screeny - m_height / 2.f ) / ( m_radius * m_height / 2.f );
@@ -89,13 +88,13 @@ private:
         else
             z = sqrtf( 1.0f - mag );
 
-        return forward::Vector3f( x, y, z);
+        return forward::float3( x, y, z);
     }
 
-    static forward::Quaternion<float> QuatFromBallPoints(forward::Vector3f vFrom, forward::Vector3f vTo )
+    static Imath::Quatf QuatFromBallPoints(forward::float3 vFrom, forward::float3 vTo )
     {
-        auto dot = vFrom.Dot(vTo);
-        auto vPart = vFrom.Cross(vTo);
-        return forward::Quaternion(dot, vPart.x, vPart.y, vPart.z);
+        auto dot = vFrom.dot(vTo);
+        auto vPart = vTo.cross(vFrom);
+        return Imath::Quatf(dot, vPart);
     }
 };
