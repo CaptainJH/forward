@@ -2,6 +2,7 @@
 // Texture.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 #define TINYDDSLOADER_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #include <filesystem>
 #include "RHI/ResourceSystem/Texture.h"
 #include "utilities/FileLoader.h"

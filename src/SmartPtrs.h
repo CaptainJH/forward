@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <type_traits>
 #include <unordered_map>
+#include <algorithm>
 #include "Types.h"
 
 namespace forward

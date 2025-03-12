@@ -31,6 +31,12 @@
 #define SAFE_DELETE_ARRAY( x ) {if(x){delete[] (x);(x)=NULL;}}
 #endif // !SAFE_DELETE_ARRAY
 
+#ifdef EXPORT_API
+#define FORWARD_API __declspec(dllexport)
+#else 
+#define FORWARD_API
+#endif
+
 namespace forward
 {
 	const i32 NUM_THREADS = 1;

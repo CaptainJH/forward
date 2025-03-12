@@ -13,6 +13,16 @@ list(APPEND dear_imgui_SOURCE_FILES "${forward_libs_root}/src/imgui/backends/img
 list(APPEND dear_imgui_SOURCE_FILES "${forward_libs_root}/src/imgui/backends/imgui_impl_sdl3.h")
 list(APPEND dear_imgui_SOURCE_FILES "${forward_libs_root}/src/imgui/backends/imgui_impl_dx12.h")
 add_library(dear_imgui STATIC ${dear_imgui_SOURCE_FILES})
-target_link_libraries(dear_imgui PRIVATE SDL3::SDL3)
+target_link_libraries(dear_imgui PUBLIC SDL3::SDL3)
 set_property(TARGET dear_imgui PROPERTY FOLDER "ThirdPartyLibraries")
 set_property(TARGET dear_imgui PROPERTY CXX_STANDARD 20)
+
+install(
+  TARGETS dear_imgui
+  EXPORT ${PROJECT_NAME}-config
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(
+  EXPORT ${PROJECT_NAME}-config
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)

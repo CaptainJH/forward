@@ -1,8 +1,9 @@
 #include <string>
 #include <vector>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/concurrent_queue.h>
+//#include <tbb/concurrent_vector.h>
+//#include <tbb/concurrent_queue.h>
+#include <concurrent_queue.h>
 
 #include <ImathVec.h>
 #include <ImathMatrix.h>
@@ -35,7 +36,7 @@ namespace forward
 	typedef Imath::Matrix44<forward::f32> float4x4;
 
 
-	template<class T> using Concurrent_Vector = tbb::concurrent_vector<T>;
-	template<class T> using Concurrent_Queue = tbb::concurrent_queue<T>;
+	//template<class T> using Concurrent_Vector = tbb::concurrent_vector<T>;
+	template<class T> using Concurrent_Queue = concurrency::concurrent_queue<T>;
 
 }

@@ -90,8 +90,23 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set_xcode_property(libForward "CLANG_CXX_LANGUAGE_STANDARD" "c++17")
     set_xcode_property(libForward "CLANG_CXX_LIBRARY" "libc++")
 endif()
-target_link_libraries(libForward assimp DirectXTex OpenEXR TBB::tbb dear_imgui SDL3::SDL3)
+target_link_libraries(libForward PUBLIC assimp DirectXTex OpenEXR dear_imgui)
+target_include_directories(libForward INTERFACE $<INSTALL_INTERFACE:../src>)
 
-add_library(libForward_Shared SHARED ${forward_SOURCE_FILES})
-set_property(TARGET libForward_Shared PROPERTY CXX_STANDARD 20)
-target_link_libraries(libForward_Shared assimp DirectXTex OpenEXR TBB::tbb dear_imgui SDL3::SDL3)
+install(
+  TARGETS libForward
+  EXPORT libForward-config
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(
+  EXPORT libForward-config
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  FILE libForward-targets.cmake
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  libForward-config.cmake.in libForward-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libForward-config.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})

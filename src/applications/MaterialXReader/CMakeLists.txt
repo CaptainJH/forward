@@ -8,4 +8,3 @@ target_link_libraries(MaterialXReader MaterialXFormat MaterialXGenGlsl MaterialX
 set_target_properties(MaterialXReader PROPERTIES FOLDER Application)
 set_target_properties(MaterialXReader PROPERTIES CXX_STANDARD 20)
 add_definitions(-DWIN32_LEAN_AND_MEAN)
-add_definitions(-DFORWARD_EXPORTS)
