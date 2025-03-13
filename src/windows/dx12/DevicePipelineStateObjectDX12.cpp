@@ -750,9 +750,9 @@ void DeviceRTPipelineStateObjectDX12::BuildAccelerationStructures(DeviceDX12* d)
 	for (auto& ins : m_rtPSO.m_instances)
 		instances.emplace_back(D3D12_RAYTRACING_INSTANCE_DESC{
 			.Transform = {
-				ins.object2WorldMat.x[0][0], ins.object2WorldMat.x[1][0], ins.object2WorldMat[2][0], ins.object2WorldMat[3][0],
-				ins.object2WorldMat.x[0][1], ins.object2WorldMat.x[1][1], ins.object2WorldMat[2][1], ins.object2WorldMat[3][1],
-				ins.object2WorldMat.x[0][2], ins.object2WorldMat.x[1][2], ins.object2WorldMat[2][2], ins.object2WorldMat[3][2],
+				ins.object2WorldMat[0][0], ins.object2WorldMat[1][0], ins.object2WorldMat[2][0], ins.object2WorldMat[3][0],
+				ins.object2WorldMat[0][1], ins.object2WorldMat[1][1], ins.object2WorldMat[2][1], ins.object2WorldMat[3][1],
+				ins.object2WorldMat[0][2], ins.object2WorldMat[1][2], ins.object2WorldMat[2][2], ins.object2WorldMat[3][2],
 			},
 			.InstanceID = packInstanceID(ins.materialId, ins.meshId),
 			.InstanceMask = 0xFF,
