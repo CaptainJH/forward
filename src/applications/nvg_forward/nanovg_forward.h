@@ -1,4 +1,32 @@
 #pragma once
+#include <vector>
+#include <functional>
+
+struct nvg_vertex {
+	forward::float3 position;
+	forward::float4 color;
+	forward::float2 tex_coord;
+};
+
+struct D3DNVGfragUniforms {
+	float scissorMat[16];
+	forward::float4 scissorExt;
+	forward::float4 scissorScale;
+	float paintMat[16];
+	forward::float4 extent;
+	forward::float4 radius;
+	forward::float4 feather;
+	struct NVGcolor innerCol;
+	struct NVGcolor outerCol;
+	forward::float4 strokeMult;
+	int texType;
+	int type;
+};
+
+struct VS_CONSTANTS {
+	float dummy[16];
+	float viewSize[2];
+};
 
 enum NVGcreateFlags {
 	// Flag indicating if geometry based anti-aliasing is used (may not be needed when using MSAA).
@@ -12,6 +40,8 @@ enum NVGcreateFlags {
 
 NVGcontext* nvgCreateForward(int flags);
 void nvgDeleteForward(NVGcontext* ctx);
+
+std::function<void(std::vector<nvg_vertex>& v, std::vector<int>& idx, D3DNVGfragUniforms& fragUniform)> forward_nvg_fill_callback = nullptr;
 
 #if defined NANOVG_FORWARD_IMPLEMENTATION
 
@@ -28,6 +58,139 @@ struct ForwardNVGcontext {
 	};
 	std::vector<TextureInfo> textures;
 };
+
+enum D3DNVGshaderType {
+	NSVG_SHADER_FILLGRAD,
+	NSVG_SHADER_FILLIMG,
+	NSVG_SHADER_SIMPLE,
+	NSVG_SHADER_IMG
+};
+
+static void D3Dnvg_copyMatrix3to4(float* pDest, const float* pSource)
+{
+	unsigned int i;
+	for (i = 0; i < 4; i++)
+	{
+		memcpy(&pDest[i * 4], &pSource[i * 3], sizeof(float) * 3);
+	}
+}
+
+static void D3Dnvg__xformToMat3x3(float* m3, float* t)
+{
+	m3[0] = t[0];
+	m3[1] = t[1];
+	m3[2] = 0.0f;
+	m3[3] = t[2];
+	m3[4] = t[3];
+	m3[5] = 0.0f;
+	m3[6] = t[4];
+	m3[7] = t[5];
+	m3[8] = 1.0f;
+}
+
+static struct NVGcolor D3Dnvg__premulColor(struct NVGcolor c)
+{
+	c.r *= c.a;
+	c.g *= c.a;
+	c.b *= c.a;
+	return c;
+}
+
+static int D3Dnvg__convertPaint(struct D3DNVGcontext* D3D, struct D3DNVGfragUniforms* frag,
+	struct NVGpaint* paint, struct NVGscissor* scissor,
+	float width, float fringe, float strokeThr)
+{
+	struct D3DNVGtexture* tex = NULL;
+	float invxform[6], paintMat[9], scissorMat[9];
+
+	memset(frag, 0, sizeof(*frag));
+
+	frag->innerCol = D3Dnvg__premulColor(paint->innerColor);
+	frag->outerCol = D3Dnvg__premulColor(paint->outerColor);
+
+	if (scissor->extent[0] < -0.5f || scissor->extent[1] < -0.5f)
+	{
+		memset(scissorMat, 0, sizeof(scissorMat));
+		frag->scissorExt[0] = 1.0f;
+		frag->scissorExt[1] = 1.0f;
+		frag->scissorScale[0] = 1.0f;
+		frag->scissorScale[1] = 1.0f;
+	}
+	else
+	{
+		nvgTransformInverse(invxform, scissor->xform);
+		D3Dnvg__xformToMat3x3(scissorMat, invxform);
+		frag->scissorExt[0] = scissor->extent[0];
+		frag->scissorExt[1] = scissor->extent[1];
+		frag->scissorScale[0] = sqrtf(scissor->xform[0] * scissor->xform[0] + scissor->xform[2] * scissor->xform[2]) / fringe;
+		frag->scissorScale[1] = sqrtf(scissor->xform[1] * scissor->xform[1] + scissor->xform[3] * scissor->xform[3]) / fringe;
+	}
+	D3Dnvg_copyMatrix3to4(frag->scissorMat, scissorMat);
+
+
+	frag->extent[0] = paint->extent[0];
+	frag->extent[1] = paint->extent[1];
+
+	frag->strokeMult[0] = (width * 0.5f + fringe * 0.5f) / fringe;
+	frag->strokeMult[1] = strokeThr;
+
+	assert(paint->image == 0);
+//	if (paint->image != 0)
+//	{
+//		tex = D3Dnvg__findTexture(D3D, paint->image);
+//		if (tex == NULL)
+//		{
+//			return 0;
+//		}
+//
+//		if ((tex->flags & NVG_IMAGE_FLIPY) != 0)
+//		{
+//			float m1[6], m2[6];
+//			nvgTransformTranslate(m1, 0.0f, frag->extent[1] * 0.5f);
+//			nvgTransformMultiply(m1, paint->xform);
+//			nvgTransformScale(m2, 1.0f, -1.0f);
+//			nvgTransformMultiply(m2, m1);
+//			nvgTransformTranslate(m1, 0.0f, -frag->extent[1] * 0.5f);
+//			nvgTransformMultiply(m1, m2);
+//			nvgTransformInverse(invxform, m1);
+//		}
+//		else
+//		{
+//			nvgTransformInverse(invxform, paint->xform);
+//		}
+//		frag->type = NSVG_SHADER_FILLIMG;
+//
+//#if NANOVG_GL_USE_UNIFORMBUFFER
+//		if (tex->type == NVG_TEXTURE_RGBA)
+//		{
+//			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0 : 1;
+//		}
+//		else
+//		{
+//			frag->texType = 2;
+//		}
+//#else
+//		if (tex->type == NVG_TEXTURE_RGBA)
+//			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0.0f : 1.0f;
+//		else
+//			frag->texType = 2.0f;
+//#endif
+//	}
+//	else
+	{
+		frag->type = NSVG_SHADER_FILLGRAD;
+		frag->radius[0] = paint->radius;
+		frag->feather[0] = paint->feather;
+		nvgTransformInverse(invxform, paint->xform);
+	}
+
+	D3Dnvg__xformToMat3x3(paintMat, invxform);
+	D3Dnvg_copyMatrix3to4(frag->paintMat, paintMat);
+
+	//D3Dnvg_updateShaders(D3D);
+
+	return 1;
+}
 
 static int forwardnvg_renderCreate(void* uptr) {
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
@@ -86,47 +249,56 @@ static void forwardnvg_renderFlush(void* uptr) {
 static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor, float fringe,
 	const float* bounds, const NVGpath* paths, int npaths) {
 
-	//ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
+	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
 
-	//auto fromFan2List = [](std::vector<int>& vIndex, int i) {
-	//	if (i < 2)
-	//		return;
-	//	vIndex.push_back(0);
-	//	vIndex.push_back(i - 1);
-	//	vIndex.push_back(i);
-	//	};
-	//auto fromStrip2List = [](std::vector<int>& vIndex, int i) {
-	//	if (i < 2)
-	//		return;
-	//	vIndex.push_back(i - 2);
-	//	vIndex.push_back(i - 1);
-	//	vIndex.push_back(i);
-	//	};
+	auto fromFan2List = [](std::vector<int>& vIndex, int i) {
+		if (i < 2)
+			return;
+		vIndex.push_back(0);
+		vIndex.push_back(i - 1);
+		vIndex.push_back(i);
+		};
+	auto fromStrip2List = [](std::vector<int>& vIndex, int i) {
+		if (i < 2)
+			return;
+		vIndex.push_back(i - 2);
+		vIndex.push_back(i - 1);
+		vIndex.push_back(i);
+		};
 
-	//auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc) {
-	//	if (fillCount > 0) {
-	//		if (fillCount >= 3) {
-	//			std::vector<SDL_Vertex> vertex(fillCount);
-	//			std::vector<int> vIndex;
-	//			for (int i = 0; i < fillCount; ++i) {
-	//				vertex[i].position = { fills[i].x, fills[i].y };
-	//				vertex[i].color = FromFloatColor2IntColor<SDL_Color>(paint->innerColor);
-	//				vertex[i].tex_coord = { fills[i].u, fills[i].v };
-	//				toListFunc(vIndex, i);
-	//			}
-	//			SDL_RenderGeometry(gl->render, NULL, vertex.data(), vertex.size(), vIndex.data(), vIndex.size());
-	//		}
-	//		else {
-	//			assert(false);
-	//		}
-	//	}
-	//	};
+	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc) {
+		if (fillCount > 0) {
+			if (fillCount >= 3) {
+				std::vector<nvg_vertex> vertex(fillCount);
+				std::vector<int> vIndex;
+				for (int i = 0; i < fillCount; ++i) {
+					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
+					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g, 
+						paint->innerColor.b, paint->innerColor.a);
+					vertex[i].tex_coord = { fills[i].u, fills[i].v };
+					toListFunc(vIndex, i);
+				}
 
-	//for (int i = 0; i < npaths; ++i) {
-	//	auto& path = paths[i];
-	//	drawFills(path.fill, path.nfill, fromFan2List);
-	//	drawFills(path.stroke, path.nstroke, fromStrip2List);
-	//}
+				D3DNVGfragUniforms fragUniform;
+				memset(&fragUniform, 0, sizeof(fragUniform));
+				fragUniform.strokeMult[1] = -1.0f;
+				fragUniform.type = NSVG_SHADER_SIMPLE;
+				// Fill shader
+				D3Dnvg__convertPaint(nullptr, &fragUniform, paint, scissor, fringe, fringe, -1.0f);
+				if (forward_nvg_fill_callback)
+					forward_nvg_fill_callback(vertex, vIndex, fragUniform);
+			}
+			else {
+				assert(false);
+			}
+		}
+		};
+
+	for (int i = 0; i < npaths; ++i) {
+		auto& path = paths[i];
+		drawFills(path.fill, path.nfill, fromFan2List);
+		drawFills(path.stroke, path.nstroke, fromStrip2List);
+	}
 }
 
 static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor, float fringe,
