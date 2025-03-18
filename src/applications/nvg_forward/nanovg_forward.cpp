@@ -146,12 +146,12 @@ bool nanovg_forward_demo::Init()
 			cmdList.Draw(4);
 	});
 
-	forward_nvg_fill_callback = [&](std::vector<nvg_vertex>& v, std::vector<int>& idx, D3DNVGfragUniforms& uniform) {
-		if (m_nvg_fill_pass.size() >= 8) {
+	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
+		if (m_nvg_fill_pass.size() >= 18) {
 			return;
 		}
 
-		const auto c = static_cast<u32>(idx.size());
+		const auto c = static_cast<u32>(renderItem.index_buffer.size());
 
 		m_nvg_fill_pass.push_back(new RenderPass(
 			[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
@@ -167,10 +167,10 @@ bool nanovg_forward_demo::Init()
 
 				pso.m_IAState.m_topologyType = PT_TRIANGLELIST;
 
-				auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, static_cast<u32>(v.size()));
-				for (auto i = 0; i < v.size(); ++i)
+				auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, static_cast<u32>(renderItem.vertex_buffer.size()));
+				for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
 				{
-					vb->AddVertex(v[i]);
+					vb->AddVertex(renderItem.vertex_buffer[i]);
 				}
 				vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
 				pso.m_IAState.m_vertexBuffers[0] = vb;
@@ -183,12 +183,12 @@ bool nanovg_forward_demo::Init()
 				pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
 				pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 				
-				auto ib = forward::make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, static_cast<u32>(idx.size()));
-				for (auto i : idx)
+				auto ib = forward::make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, c);
+				for (auto i : renderItem.index_buffer)
 					ib->AddIndex(i);
 				pso.m_IAState.m_indexBuffer = ib;
 
-				pso.m_RSState.m_rsState.cullMode = forward::RasterizerState::CULL_NONE;
+				pso.m_RSState.m_rsState.cullMode = renderItem.cull_mode;
 
 				// setup render states
 				auto dsPtr = m_pDevice->GetDefaultDS();
@@ -197,13 +197,8 @@ bool nanovg_forward_demo::Init()
 				auto rsPtr = m_pDevice->GetDefaultRT();
 				pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 
-				pso.m_OMState.m_blendState.target[0].mask = 0;
-
-				auto& dsState = pso.m_OMState.m_dsState;
-				dsState.depthEnable = false;
-				dsState.stencilEnable = true;
-				dsState.frontFace.pass = forward::DepthStencilState::OP_INCR;
-				dsState.backFace.pass = forward::DepthStencilState::OP_DECR;
+				pso.m_OMState.m_blendState = renderItem.om_state.m_blendState;
+				pso.m_OMState.m_dsState = renderItem.om_state.m_dsState;
 			},
 			[=](CommandList& cmdList) {
 				cmdList.DrawIndexed(c);
@@ -211,7 +206,7 @@ bool nanovg_forward_demo::Init()
 
 		m_nvg_vs_cb->GetTypedData()->viewSize[0] = mClientWidth;
 		m_nvg_vs_cb->GetTypedData()->viewSize[1] = mClientHeight;
-		(*m_nvg_ps_cb.back()->GetTypedData()) = uniform;
+		(*m_nvg_ps_cb.back()->GetTypedData()) = renderItem.constant_buffer;
 		};
 
 	return true;
