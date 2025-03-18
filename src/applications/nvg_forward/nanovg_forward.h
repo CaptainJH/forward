@@ -38,7 +38,6 @@ struct RenderItem {
 
 	void SetupBlenderStateNoWrite() {
 		om_state.m_blendState = forward::BlendState();
-		om_state.m_blendState.blendColor = forward::float4(1.0f, 1.0f, 1.0f, 1.0f);
 		om_state.m_blendState.target[0].mask = 0;
 	}
 
@@ -47,7 +46,6 @@ struct RenderItem {
 		om_state.m_blendState.target[0].enable = true;
 		om_state.m_blendState.target[0].dstColor = forward::BlendState::BM_INV_SRC_ALPHA;
 		om_state.m_blendState.target[0].dstAlpha = forward::BlendState::BM_INV_SRC_ALPHA;
-		om_state.m_blendState.blendColor = forward::float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	void SetupDepthStencilDrawShapes() {
