@@ -82,7 +82,10 @@ struct RenderItem {
 	}
 
 	void SetupDepthStencilDefault() {
-
+		auto& dsState = om_state.m_dsState;
+		dsState = forward::DepthStencilState();
+		dsState.depthEnable = false;
+		dsState.stencilEnable = false;
 	}
 };
 
@@ -357,64 +360,166 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		}
 		};
 
-	for (int i = 0; i < npaths; ++i) {
-		auto& path = paths[i];
+	if (npaths == 1 && paths[0].convex) {
+		for (int i = 0; i < npaths; ++i) {
+			auto& path = paths[i];
+			RenderItem renderItem;
+			drawFills(path.fill, path.nfill, fromFan2List, renderItem);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilDefault();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+
+		for (int i = 0; i < npaths; ++i) {
+			auto& path = paths[i];
+			RenderItem renderItem;
+			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilDefault();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+	}
+	else {
+
+		for (int i = 0; i < npaths; ++i) {
+			auto& path = paths[i];
+			RenderItem renderItem;
+			drawFills(path.fill, path.nfill, fromFan2List, renderItem);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateNoWrite();
+			renderItem.SetupDepthStencilDrawShapes();
+			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			renderItem.constant_buffer.strokeMult[1] = -1.0f;
+			renderItem.constant_buffer.type = NSVG_SHADER_SIMPLE;
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+
+		for (int i = 0; i < npaths; ++i) {
+			auto& path = paths[i];
+			RenderItem renderItem;
+			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilDrawAA();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+
+		NVGvertex quad[4];
+		D3Dnvg__vset(&quad[0], bounds[2], bounds[3], 0.5f, 1.0f);
+		D3Dnvg__vset(&quad[1], bounds[2], bounds[1], 0.5f, 1.0f);
+		D3Dnvg__vset(&quad[2], bounds[0], bounds[3], 0.5f, 1.0f);
+		D3Dnvg__vset(&quad[3], bounds[0], bounds[1], 0.5f, 1.0f);
+		std::vector<int> vIndex = { 0, 1, 2, 2, 1, 3 };
 		RenderItem renderItem;
-		drawFills(path.fill, path.nfill, fromFan2List, renderItem);
-		renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-		renderItem.SetupBlenderStateNoWrite();
-		renderItem.SetupDepthStencilDrawShapes();
+		std::vector<nvg_vertex> vertex(4);
+		for (int i = 0; i < 4; ++i) {
+			vertex[i].position = { quad[i].x, quad[i].y, 0.0f };
+			vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
+				paint->innerColor.b, paint->innerColor.a);
+			vertex[i].tex_coord = { quad[i].u, quad[i].v };
+		}
+
 		memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
-		renderItem.constant_buffer.strokeMult[1] = -1.0f;
-		renderItem.constant_buffer.type = NSVG_SHADER_SIMPLE;
-		if (forward_nvg_fill_callback) {
-			forward_nvg_fill_callback(renderItem);
-		}
-	}
-
-	for (int i = 0; i < npaths; ++i) {
-		auto& path = paths[i];
-		RenderItem renderItem;
-		drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
-		renderItem.cull_mode = forward::RasterizerState::CULL_BACK;
+		// Fill shader
+		D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+		renderItem.vertex_buffer = vertex;
+		renderItem.index_buffer = vIndex;
+		renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
 		renderItem.SetupBlenderStateBlend();
-		renderItem.SetupDepthStencilDrawAA();
-		if (forward_nvg_fill_callback) {
+		renderItem.SetupDepthStencilFill();
+		if (forward_nvg_fill_callback)
 			forward_nvg_fill_callback(renderItem);
-		}
 	}
-
-	NVGvertex quad[4];
-	D3Dnvg__vset(&quad[0], bounds[2], bounds[3], 0.5f, 1.0f);
-	D3Dnvg__vset(&quad[1], bounds[2], bounds[1], 0.5f, 1.0f);
-	D3Dnvg__vset(&quad[2], bounds[0], bounds[3], 0.5f, 1.0f);
-	D3Dnvg__vset(&quad[3], bounds[0], bounds[1], 0.5f, 1.0f);
-	std::vector<int> vIndex = { 0, 1, 2, 2, 1, 3 };
-	RenderItem renderItem;
-	std::vector<nvg_vertex> vertex(4);
-	for (int i = 0; i < 4; ++i) {
-		vertex[i].position = { quad[i].x, quad[i].y, 0.0f };
-		vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
-			paint->innerColor.b, paint->innerColor.a);
-		vertex[i].tex_coord = { quad[i].u, quad[i].v };
-	}
-
-	memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
-	// Fill shader
-	D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
-	renderItem.vertex_buffer = vertex;
-	renderItem.index_buffer = vIndex;
-	renderItem.cull_mode = forward::RasterizerState::CULL_BACK;
-	renderItem.SetupBlenderStateBlend();
-	renderItem.SetupDepthStencilFill();
-	if (forward_nvg_fill_callback)
-		forward_nvg_fill_callback(renderItem);
 }
 
 static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor, float fringe,
 	float strokeWidth, const NVGpath* paths, int npaths) {
 
-	//std::cout << "forwardnvg_renderStroke" << std::endl;
+	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
+
+	auto fromStrip2List = [](std::vector<int>& vIndex, int i) {
+		if (i < 2)
+			return;
+		vIndex.push_back(i - 2);
+		vIndex.push_back(i - 1);
+		vIndex.push_back(i);
+		};
+
+	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
+		if (fillCount > 0) {
+			if (fillCount >= 3) {
+				std::vector<nvg_vertex> vertex(fillCount);
+				std::vector<int> vIndex;
+				for (int i = 0; i < fillCount; ++i) {
+					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
+					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
+						paint->innerColor.b, paint->innerColor.a);
+					vertex[i].tex_coord = { fills[i].u, fills[i].v };
+					toListFunc(vIndex, i);
+				}
+
+				renderItem.vertex_buffer = vertex;
+				renderItem.index_buffer = vIndex;
+			}
+			else {
+				assert(false);
+			}
+		}
+		};
+
+
+	for (int i = 0; i < npaths; ++i) {
+		auto& path = paths[i];
+		{
+			RenderItem renderItem;
+			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			// Fill shader
+			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilDefault();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+
+		{
+			RenderItem renderItem;
+			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilDrawAA();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+
+		{
+			RenderItem renderItem;
+			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+			renderItem.SetupBlenderStateBlend();
+			renderItem.SetupDepthStencilFill();
+			if (forward_nvg_fill_callback) {
+				forward_nvg_fill_callback(renderItem);
+			}
+		}
+	}
 }
 
 static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor,

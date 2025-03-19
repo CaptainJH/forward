@@ -1,4 +1,4 @@
-//#define EDGE_AA
+#define EDGE_AA
 
 Texture2D    g_texture                    : register(t0);
 SamplerState g_sampler                 : register(s0);
@@ -65,8 +65,8 @@ float4 D3D11PixelShader_Main(PS_INPUT input) : SV_TARGET
         discard;
 #else
     float strokeAlpha = 1.0f;
-    float4x4 transposedPaintMat = transpose(paintMat);
 #endif
+    float4x4 transposedPaintMat = transpose(paintMat);
     if (type == 0) 
     {
         // Calculate gradient color using box gradient

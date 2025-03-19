@@ -49,6 +49,7 @@ protected:
 	//void OnSpace() override;
 
 	void DrawNVG();
+	bool bAcceptRenderItem = true;
 
 private:
 	RenderPass* m_renderPass;
@@ -69,6 +70,8 @@ void nanovg_forward_demo::DrawNVG() {
 	renderDemo(vg, xm, ym, (float)xWin, (float)yWin, 1.0f, 0, &data);
 
 	nvgEndFrame(vg);
+
+	bAcceptRenderItem = false;
 }
 
 void nanovg_forward_demo::DrawScene()
@@ -147,7 +150,7 @@ bool nanovg_forward_demo::Init()
 	});
 
 	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
-		if (m_nvg_fill_pass.size() >= 18) {
+		if (!bAcceptRenderItem) {
 			return;
 		}
 
