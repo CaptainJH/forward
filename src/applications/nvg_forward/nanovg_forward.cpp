@@ -227,7 +227,10 @@ bool nanovg_forward_demo::Init()
 				m_nvg_ps_cb.push_back(nvg_ps_cb);
 				pso.m_VSState.m_constantBuffers[0] = m_nvg_vs_cb;
 				pso.m_PSState.m_constantBuffers[1] = nvg_ps_cb;
-				pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
+				if (renderItem.tex)
+					pso.m_PSState.m_shaderResources[0] = renderItem.tex;
+				else
+					pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
 				pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
 				
 				auto ib = forward::make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, c);

@@ -36,6 +36,8 @@ struct RenderItem {
 	forward::RasterizerState::CullMode cull_mode = forward::RasterizerState::CULL_NONE;
 	forward::OutputMergerStageState om_state;
 
+	forward::shared_ptr<forward::Texture2D> tex = nullptr;
+
 	void SetupBlenderStateNoWrite() {
 		om_state.m_blendState = forward::BlendState();
 		om_state.m_blendState.target[0].mask = 0;
@@ -306,6 +308,22 @@ static int forwardnvg_renderDeleteTexture(void* uptr, int image) {
 
 static int forwardnvg_renderUpdateTexture(void* uptr, int image, int x, int y, int w, int h, const unsigned char* data) {
 
+	const auto idx = image - 1;
+	assert(idx >= 0);
+	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
+	const auto& tex = gl->textures[idx];
+
+	const auto left = x;
+	const auto right = (x + w);
+	const auto top = y;
+	const auto bottom = (y + h);
+
+	const unsigned int pixelWidthBytes = tex.nvgType == NVG_TEXTURE_RGBA ? 4 : 1;
+	const auto offset = y * (tex.w * pixelWidthBytes) + x * pixelWidthBytes;
+	auto pData = (unsigned char*)data + offset;
+	auto pDst = tex.tex->GetData() + offset;
+
+	forward::Resource::CopyPitched2(h, tex.w * pixelWidthBytes, pData, tex.tex->GetWidth() * pixelWidthBytes, pDst);
 
 	return 1;
 }
@@ -571,6 +589,8 @@ static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcomposite
 	renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
 	renderItem.SetupBlenderStateBlend();
 	renderItem.SetupDepthStencilDefault();
+	assert(paint->image == 1);
+	renderItem.tex = gl->textures[paint->image - 1].tex;
 	if (forward_nvg_fill_callback) {
 		forward_nvg_fill_callback(renderItem);
 	}
