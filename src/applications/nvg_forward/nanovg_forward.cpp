@@ -101,8 +101,52 @@ bool nanovg_forward_demo::Init()
 		return false;
 	}
 
-	//if (loadDemoData(vg, &data) == -1)
-	//	return false;
+	// load demo data
+	{
+		auto getNVGFileFullPath = [](const char* file)->std::string {
+			const auto dataPath = TextHelper::ToAscii(FileSystem::getSingleton().GetDataFolder());
+			return dataPath + file;
+			};
+		
+		for (int i = 0; i < 12; i++) {
+			std::stringstream ss;
+			ss << "/nvg_data/images/image" << (i + 1) << ".jpg";
+			const std::string fileStr = getNVGFileFullPath(ss.str().c_str());
+			const auto file = fileStr.c_str();
+			data.images[i] = nvgCreateImage_Forward(vg, file);
+			if (data.images[i] == 0) {
+				printf("Could not load %s.\n", file);
+				return false;
+			}
+		}
+
+		std::string fontFileStr = getNVGFileFullPath("/nvg_data/entypo.ttf");
+		data.fontIcons = nvgCreateFont(vg, "icons", fontFileStr.c_str());
+		if (data.fontIcons == -1) {
+			printf("Could not add font icons.\n");
+			return false;
+		}
+		fontFileStr = getNVGFileFullPath("/nvg_data/Roboto-Regular.ttf");
+		data.fontNormal = nvgCreateFont(vg, "sans", fontFileStr.c_str());
+		if (data.fontNormal == -1) {
+			printf("Could not add font italic.\n");
+			return false;
+		}
+		fontFileStr = getNVGFileFullPath("/nvg_data/Roboto-Bold.ttf");
+		data.fontBold = nvgCreateFont(vg, "sans-bold", fontFileStr.c_str());
+		if (data.fontBold == -1) {
+			printf("Could not add font bold.\n");
+			return false;
+		}
+		fontFileStr = getNVGFileFullPath("/nvg_data/NotoEmoji-Regular.ttf");
+		data.fontEmoji = nvgCreateFont(vg, "emoji", fontFileStr.c_str());
+		if (data.fontEmoji == -1) {
+			printf("Could not add font emoji.\n");
+			return false;
+		}
+		nvgAddFallbackFontId(vg, data.fontNormal, data.fontEmoji);
+		nvgAddFallbackFontId(vg, data.fontBold, data.fontEmoji);
+	}
 
 	m_renderPass = new RenderPass(
 	[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {

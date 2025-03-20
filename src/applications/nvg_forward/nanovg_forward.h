@@ -74,11 +74,9 @@ struct RenderItem {
 		dsState.frontFace.comparison = forward::DepthStencilState::NOT_EQUAL;
 		dsState.frontFace.fail = forward::DepthStencilState::OP_ZERO;
 		dsState.frontFace.pass = forward::DepthStencilState::OP_ZERO;
-		//dsState.frontFace.depthFail = forward::DepthStencilState::OP_ZERO;
 		dsState.backFace.comparison = forward::DepthStencilState::NOT_EQUAL;
 		dsState.backFace.fail = forward::DepthStencilState::OP_ZERO;
 		dsState.backFace.pass = forward::DepthStencilState::OP_ZERO;
-		//dsState.backFace.depthFail = forward::DepthStencilState::OP_ZERO;
 	}
 
 	void SetupDepthStencilDefault() {
@@ -111,8 +109,10 @@ struct ForwardNVGcontext {
 	float viewport[2];
 
 	struct TextureInfo {
-
-		int nvgFormat;
+		forward::shared_ptr<forward::Texture2D> tex;
+		int nvgId;
+		int nvgType;
+		int nvgFlags;
 		int w;
 		int h;
 
@@ -165,11 +165,10 @@ static struct NVGcolor D3Dnvg__premulColor(struct NVGcolor c)
 	return c;
 }
 
-static int D3Dnvg__convertPaint(struct D3DNVGcontext* D3D, struct D3DNVGfragUniforms* frag,
+static int D3Dnvg__convertPaint(ForwardNVGcontext* ctx, struct D3DNVGfragUniforms* frag,
 	struct NVGpaint* paint, struct NVGscissor* scissor,
 	float width, float fringe, float strokeThr)
 {
-	struct D3DNVGtexture* tex = NULL;
 	float invxform[6], paintMat[9], scissorMat[9];
 
 	memset(frag, 0, sizeof(*frag));
@@ -203,49 +202,50 @@ static int D3Dnvg__convertPaint(struct D3DNVGcontext* D3D, struct D3DNVGfragUnif
 	frag->strokeMult[0] = (width * 0.5f + fringe * 0.5f) / fringe;
 	frag->strokeMult[1] = strokeThr;
 
-	assert(paint->image == 0);
-//	if (paint->image != 0)
-//	{
-//		tex = D3Dnvg__findTexture(D3D, paint->image);
-//		if (tex == NULL)
-//		{
-//			return 0;
-//		}
-//
-//		if ((tex->flags & NVG_IMAGE_FLIPY) != 0)
-//		{
-//			float m1[6], m2[6];
-//			nvgTransformTranslate(m1, 0.0f, frag->extent[1] * 0.5f);
-//			nvgTransformMultiply(m1, paint->xform);
-//			nvgTransformScale(m2, 1.0f, -1.0f);
-//			nvgTransformMultiply(m2, m1);
-//			nvgTransformTranslate(m1, 0.0f, -frag->extent[1] * 0.5f);
-//			nvgTransformMultiply(m1, m2);
-//			nvgTransformInverse(invxform, m1);
-//		}
-//		else
-//		{
-//			nvgTransformInverse(invxform, paint->xform);
-//		}
-//		frag->type = NSVG_SHADER_FILLIMG;
-//
-//#if NANOVG_GL_USE_UNIFORMBUFFER
-//		if (tex->type == NVG_TEXTURE_RGBA)
-//		{
-//			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0 : 1;
-//		}
-//		else
-//		{
-//			frag->texType = 2;
-//		}
-//#else
-//		if (tex->type == NVG_TEXTURE_RGBA)
-//			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0.0f : 1.0f;
-//		else
-//			frag->texType = 2.0f;
-//#endif
-//	}
-//	else
+	if (paint->image != 0)
+	{
+		const auto& tex = *std::find_if(ctx->textures.begin(), ctx->textures.end(), [&](auto& t)->bool {
+			return paint->image == t.nvgId;
+			});
+		if (!tex.tex)
+		{
+			return 0;
+		}
+
+		if ((tex.nvgFlags & NVG_IMAGE_FLIPY) != 0)
+		{
+			float m1[6], m2[6];
+			nvgTransformTranslate(m1, 0.0f, frag->extent[1] * 0.5f);
+			nvgTransformMultiply(m1, paint->xform);
+			nvgTransformScale(m2, 1.0f, -1.0f);
+			nvgTransformMultiply(m2, m1);
+			nvgTransformTranslate(m1, 0.0f, -frag->extent[1] * 0.5f);
+			nvgTransformMultiply(m1, m2);
+			nvgTransformInverse(invxform, m1);
+		}
+		else
+		{
+			nvgTransformInverse(invxform, paint->xform);
+		}
+		frag->type = NSVG_SHADER_FILLIMG;
+
+#if NANOVG_GL_USE_UNIFORMBUFFER
+		if (tex->type == NVG_TEXTURE_RGBA)
+		{
+			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0 : 1;
+		}
+		else
+		{
+			frag->texType = 2;
+		}
+#else
+		if (tex.nvgType == NVG_TEXTURE_RGBA)
+			frag->texType = (tex.nvgFlags & NVG_IMAGE_PREMULTIPLIED) ? 0.0f : 1.0f;
+		else
+			frag->texType = 2.0f;
+#endif
+	}
+	else
 	{
 		frag->type = NSVG_SHADER_FILLGRAD;
 		frag->radius[0] = paint->radius;
@@ -270,8 +270,31 @@ static int forwardnvg_renderCreate(void* uptr) {
 }
 
 static int forwardnvg_renderCreateTexture(void* uptr, int type, int w, int h, int imageFlags, const unsigned char* data) {
-	static int c = 1;
-	return c++;
+
+	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
+	const auto retID = static_cast<int>(gl->textures.size()) + 1;
+	std::stringstream ss;
+	ss << "nvg_tex_" << retID;
+	forward::shared_ptr<forward::Texture2D> t;
+	if (data) {
+		std::string filePath = (const char*)data;
+		auto filePathW = forward::TextHelper::ToUnicode(filePath);
+		t = forward::make_shared<forward::Texture2D>(ss.str(), filePathW);
+	}
+	else {
+		t = forward::make_shared<forward::Texture2D>(ss.str(), 
+			type == 1 ? forward::DF_R8_UNORM : forward::DF_R8G8B8A8_UNORM, w, h, forward::TBP_Shader);
+	}
+	ForwardNVGcontext::TextureInfo tex = {
+		.tex = t,
+		.nvgId = retID,
+		.nvgType = type,
+		.nvgFlags = imageFlags,
+		.w = w,
+		.h = h
+	};
+	gl->textures.push_back(tex);
+	return retID;
 }
 
 static int forwardnvg_renderDeleteTexture(void* uptr, int image) {
@@ -350,7 +373,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 
 				memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 				// Fill shader
-				D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+				D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
 				renderItem.vertex_buffer = vertex;
 				renderItem.index_buffer = vIndex;
 			}
@@ -431,7 +454,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 
 		memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 		// Fill shader
-		D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+		D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
 		renderItem.vertex_buffer = vertex;
 		renderItem.index_buffer = vIndex;
 		renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
@@ -485,7 +508,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			// Fill shader
-			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
+			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
 			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
 			renderItem.SetupBlenderStateBlend();
 			renderItem.SetupDepthStencilDefault();
@@ -498,7 +521,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			RenderItem renderItem;
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
-			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
 			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
 			renderItem.SetupBlenderStateBlend();
 			renderItem.SetupDepthStencilDrawAA();
@@ -511,7 +534,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			RenderItem renderItem;
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
-			D3Dnvg__convertPaint(nullptr, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
 			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
 			renderItem.SetupBlenderStateBlend();
 			renderItem.SetupDepthStencilFill();
@@ -525,7 +548,32 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor,
 	const NVGvertex* verts, int nverts, float fringe) {
 
-	//std::cout << "forwardnvg_renderTriangles" << std::endl;
+	if (nverts == 0)
+		return;
+
+	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
+
+	RenderItem renderItem;
+	std::vector<nvg_vertex> vertex(nverts);
+	std::vector<int> vIndex(nverts);
+	for (int i = 0; i < nverts; ++i) {
+		vertex[i].position = { verts[i].x, verts[i].y, 0.0f };
+		vertex[i].color = forward::float4(0, 0, 0, 0);
+		vertex[i].tex_coord = { verts[i].u, verts[i].v };
+		vIndex[i] = i;
+	}
+	renderItem.vertex_buffer = vertex;
+	renderItem.index_buffer = vIndex;
+
+	memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+	D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, 1.0f, fringe, -1.0f);
+	renderItem.constant_buffer.type = NSVG_SHADER_IMG;
+	renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
+	renderItem.SetupBlenderStateBlend();
+	renderItem.SetupDepthStencilDefault();
+	if (forward_nvg_fill_callback) {
+		forward_nvg_fill_callback(renderItem);
+	}
 }
 
 static void forwardnvg_renderDelete(void* uptr) {
