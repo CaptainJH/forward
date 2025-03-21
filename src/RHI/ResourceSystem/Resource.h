@@ -55,6 +55,7 @@ namespace forward
 		void DestroyStorage();
 
 		u32 GetNumElements() const;
+		u32 GetActiveNumElements() const;
 		u32 GetElementSize() const;
 		u32 GetNumBytes() const;
 

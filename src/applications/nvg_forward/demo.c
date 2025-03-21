@@ -1086,11 +1086,11 @@ void renderDemo(NVGcontext* vg, float mx, float my, float width, float height,
 
 	drawScissor(vg, 50, height-80, t);
 
-	//nvgSave(vg);
-	//if (blowup) {
-	//	nvgRotate(vg, sinf(t*0.3f)*5.0f/180.0f*NVG_PI);
-	//	nvgScale(vg, 2.0f, 2.0f);
-	//}
+	nvgSave(vg);
+	if (blowup) {
+		nvgRotate(vg, sinf(t*0.3f)*5.0f/180.0f*NVG_PI);
+		nvgScale(vg, 2.0f, 2.0f);
+	}
 
 	// Widgets
 	drawWindow(vg, "Widgets `n Stuff", 50, 50, 300, 400);
@@ -1122,8 +1122,8 @@ void renderDemo(NVGcontext* vg, float mx, float my, float width, float height,
 	drawButton(vg, ICON_TRASH, "Delete", x, y, 160, 28, nvgRGBA(128,16,8,255));
 	drawButton(vg, 0, "Cancel", x+170, y, 110, 28, nvgRGBA(0,0,0,0));
 
-	//// Thumbnails box
-	//drawThumbnails(vg, 365, popy-30, 160, 300, data->images, 12, t);
+	// Thumbnails box
+	drawThumbnails(vg, 365, popy-30, 160, 300, data->images, 12, t);
 
 	nvgRestore(vg);
 }

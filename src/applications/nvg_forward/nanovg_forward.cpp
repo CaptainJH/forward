@@ -55,9 +55,16 @@ private:
 	RenderPass* m_renderPass;
 	NVGcontext* vg = nullptr;
 	DemoData data;
+	u32 m_currentPass_index = 0;
 	std::vector<RenderPass*> m_nvg_fill_pass;
 	shared_ptr<ConstantBuffer<VS_CONSTANTS>> m_nvg_vs_cb;
 	std::vector<shared_ptr<ConstantBuffer<D3DNVGfragUniforms>>> m_nvg_ps_cb;
+	shared_ptr<VertexShader> m_nvg_vs;
+	shared_ptr<PixelShader> m_nvg_ps;
+	shared_ptr<VertexBuffer> m_nvg_vb;
+	shared_ptr<IndexBuffer> m_nvg_ib;
+	shared_ptr<Texture2D> m_default_tex;
+	VertexFormat m_nvg_vf;
 };
 
 void nanovg_forward_demo::DrawNVG() {
@@ -193,70 +200,87 @@ bool nanovg_forward_demo::Init()
 			cmdList.Draw(4);
 	});
 
+	m_nvg_vs = make_shared<VertexShader>("nanovg_forward_demoVS", L"D3D11VertexShader", "D3D11VertexShader_Main");
+	m_nvg_ps = make_shared<PixelShader>("nanovg_forward_demoPS", L"D3D11PixelShader", "D3D11PixelShader_Main");
+	m_nvg_vs_cb = make_shared<ConstantBuffer<VS_CONSTANTS>>("nvg_vs_cb");
+
+	m_nvg_vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
+	m_nvg_vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
+	m_nvg_vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
+
+	constexpr u32 MaxBufferSize = 60000;
+	m_nvg_vb = make_shared<VertexBuffer>("VertexBuffer", m_nvg_vf, MaxBufferSize);
+	m_nvg_vb->SetUsage(ResourceUsage::RU_DYNAMIC_UPDATE);
+	m_nvg_ib = make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, MaxBufferSize);
+	m_nvg_ib->SetUsage(ResourceUsage::RU_DYNAMIC_UPDATE);
+
+	m_default_tex = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
+
 	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
 		if (!bAcceptRenderItem) {
 			return;
 		}
 
 		const auto c = static_cast<u32>(renderItem.index_buffer.size());
+		const auto vb_base = m_nvg_vb->GetActiveNumElements();
+		const auto ib_base = m_nvg_ib->GetActiveNumElements();
 
-		m_nvg_fill_pass.push_back(new RenderPass(
-			[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
-				// setup shaders
-				pso.m_VSState.m_shader = make_shared<VertexShader>("nanovg_forward_demoVS", L"D3D11VertexShader", "D3D11VertexShader_Main");
-				pso.m_PSState.m_shader = make_shared<PixelShader>("nanovg_forward_demoPS", L"D3D11PixelShader", "D3D11PixelShader_Main");
+		if (m_currentPass_index >= m_nvg_fill_pass.size()) {
+			m_nvg_fill_pass.push_back(new RenderPass(
+				[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+					// setup shaders
+					pso.m_VSState.m_shader = m_nvg_vs;
+					pso.m_PSState.m_shader = m_nvg_ps;
 
-				// setup geometry
-				auto& vf = pso.m_IAState.m_vertexLayout;
-				vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
-				vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
-				vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
+					pso.m_IAState.m_topologyType = PT_TRIANGLELIST;
 
-				pso.m_IAState.m_topologyType = PT_TRIANGLELIST;
+					for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
+					{
+						m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
+					}
+					pso.m_IAState.m_vertexBuffers[0] = m_nvg_vb;
 
-				auto vb = forward::make_shared<VertexBuffer>("VertexBuffer", vf, static_cast<u32>(renderItem.vertex_buffer.size()));
-				for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
-				{
-					vb->AddVertex(renderItem.vertex_buffer[i]);
-				}
-				vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
-				pso.m_IAState.m_vertexBuffers[0] = vb;
+					for (auto i : renderItem.index_buffer)
+						m_nvg_ib->AddIndex(i);
+					pso.m_IAState.m_indexBuffer = m_nvg_ib;
 
-				m_nvg_vs_cb = make_shared<ConstantBuffer<VS_CONSTANTS>>("nvg_vs_cb");
-				auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
-				m_nvg_ps_cb.push_back(nvg_ps_cb);
-				pso.m_VSState.m_constantBuffers[0] = m_nvg_vs_cb;
-				pso.m_PSState.m_constantBuffers[1] = nvg_ps_cb;
-				if (renderItem.tex)
-					pso.m_PSState.m_shaderResources[0] = renderItem.tex;
-				else
-					pso.m_PSState.m_shaderResources[0] = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
-				pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("SimpleAlbedo_Samp");
-				
-				auto ib = forward::make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, c);
-				for (auto i : renderItem.index_buffer)
-					ib->AddIndex(i);
-				pso.m_IAState.m_indexBuffer = ib;
+					auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
+					m_nvg_ps_cb.push_back(nvg_ps_cb);
+					*nvg_ps_cb->GetTypedData() = renderItem.constant_buffer;
+					pso.m_VSState.m_constantBuffers[0] = m_nvg_vs_cb;
+					pso.m_PSState.m_constantBuffers[1] = nvg_ps_cb;
+					if (renderItem.tex)
+						pso.m_PSState.m_shaderResources[0] = renderItem.tex;
+					else
+						pso.m_PSState.m_shaderResources[0] = m_default_tex;
+					pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
 
-				pso.m_RSState.m_rsState.cullMode = renderItem.cull_mode;
+					pso.m_RSState.m_rsState.cullMode = renderItem.cull_mode;
 
-				// setup render states
-				auto dsPtr = m_pDevice->GetDefaultDS();
-				pso.m_OMState.m_depthStencilResource = dsPtr;
+					// setup render states
+					auto dsPtr = m_pDevice->GetDefaultDS();
+					pso.m_OMState.m_depthStencilResource = dsPtr;
 
-				auto rsPtr = m_pDevice->GetDefaultRT();
-				pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+					auto rsPtr = m_pDevice->GetDefaultRT();
+					pso.m_OMState.m_renderTargetResources[0] = rsPtr;
 
-				pso.m_OMState.m_blendState = renderItem.om_state.m_blendState;
-				pso.m_OMState.m_dsState = renderItem.om_state.m_dsState;
-			},
-			[=](CommandList& cmdList) {
-				cmdList.DrawIndexed(c);
-			}, forward::RenderPass::OF_NO_CLEAN));
+					pso.m_OMState.m_blendState = renderItem.om_state.m_blendState;
+					pso.m_OMState.m_dsState = renderItem.om_state.m_dsState;
+				},
+				[=](CommandList& cmdList) {
+					cmdList.DrawIndexed(c, vb_base, ib_base);
+				}, forward::RenderPass::OF_NO_CLEAN));
+
+			m_currentPass_index = static_cast<u32>(m_nvg_fill_pass.size());
+		}
+		else {
+			assert(false);
+
+			++m_currentPass_index;
+		}
 
 		m_nvg_vs_cb->GetTypedData()->viewSize[0] = mClientWidth;
 		m_nvg_vs_cb->GetTypedData()->viewSize[1] = mClientHeight;
-		(*m_nvg_ps_cb.back()->GetTypedData()) = renderItem.constant_buffer;
 		};
 
 	return true;

@@ -26,7 +26,7 @@ namespace forward
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) = 0;
 		virtual void Draw(u32 vertexNum, u32 startVertexLocation = 0) = 0;
-		virtual void DrawIndexed(u32 indexCount) = 0;
+		virtual void DrawIndexed(u32 indexCount, u32 baseVertex=0, u32 baseIndex=0) = 0;
 		virtual void Dispatch(u32 x, u32 y, u32 z) = 0;
 		virtual void DispatchRays(RTPipelineStateObject& pso) = 0;
 		virtual void CopyResource(Resource& dst, Resource& src) = 0;

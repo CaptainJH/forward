@@ -66,9 +66,9 @@ void CommandListDX12::Draw(u32 vertexNum, u32 startVertexLocation)
 	m_CmdList->DrawInstanced(vertexNum, 1, startVertexLocation, 0);
 }
 
-void CommandListDX12::DrawIndexed(u32 indexCount)
+void CommandListDX12::DrawIndexed(u32 indexCount, u32 baseVertex, u32 baseIndex)
 {
-	m_CmdList->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
+	m_CmdList->DrawIndexedInstanced(indexCount, 1, baseIndex, baseVertex, 0);
 }
 
 void CommandListDX12::Dispatch(u32 x, u32 y, u32 z)

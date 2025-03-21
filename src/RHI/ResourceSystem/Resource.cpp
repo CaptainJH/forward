@@ -31,6 +31,10 @@ u32 Resource::GetNumElements() const
 	return m_numElements;
 }
 
+u32 Resource::GetActiveNumElements() const {
+	return m_numActiveElements;
+}
+
 u32 Resource::GetElementSize() const
 {
 	return m_elementSize;
