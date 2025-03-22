@@ -3,7 +3,6 @@
 //***************************************************************************************
 #pragma once
 #include <array>
-#include <variant>
 #include "RHI/ResourceSystem/Buffer.h"
 #include "RHI/ResourceSystem/Texture.h"
 #include "RHI/ResourceSystem/ShaderTable.h"
@@ -30,10 +29,13 @@ namespace forward
 		bool AddRange(BindingRange range);
 	};
 
-	class DrawingState : public GraphicsObject
+	struct DrawingState
 	{
-	public:
 		DrawingState(const std::string& name, GraphicsObjectType type);
+
+	protected:
+		GraphicsObjectType m_type;
+		std::string m_name;
 	};
 
 	class BlendState : public DrawingState
@@ -198,7 +200,7 @@ namespace forward
 		bool enableAntialiasedLine;     // default: false
 	};
 
-	class SamplerState : public DrawingState
+	class SamplerState : public GraphicsObject
 	{
 	public:
 		// The encoding involves minification (MIN), magnification (MAG), and
@@ -373,12 +375,12 @@ namespace forward
 		shared_ptr<ShaderTable> m_missShaderTable;
 	};
 
-	struct PipelineStateObjectBase
+	struct PipelineStateObjectBase : public GraphicsObject
 	{
 		u32 m_usedCBV_SRV_UAV_Count = 0;
 		u32 m_usedSampler_Count = 0;
 
-		shared_ptr<DeviceObject>	m_devicePSO;
+		//shared_ptr<DeviceObject>	m_devicePSO;
 	};
 
 	struct RasterPipelineStateObject : public PipelineStateObjectBase
@@ -390,11 +392,19 @@ namespace forward
 		VertexShaderStageState		m_VSState;
 		GeometryShaderStageState	m_GSState;
 		PixelShaderStageState			m_PSState;
+
+		RasterPipelineStateObject() {
+			m_type = FGOT_RASTER_PSO;
+		}
 	};
 
 	struct ComputePipelineStateObject : public PipelineStateObjectBase
 	{
 		ComputeShaderStageState	m_CSState;
+
+		ComputePipelineStateObject() {
+			m_type = FGOT_COMPUTE_PSO;
+		}
 	};
 	
 	struct SceneData;
@@ -412,11 +422,11 @@ namespace forward
 		RaytracingShaderStageState m_rtState;
 		u32 m_maxPayloadSizeInByte = 32;
 
-		RTPipelineStateObject() = default;
+		RTPipelineStateObject() { m_type = FGOT_RT_PSO; }
 		RTPipelineStateObject(const SceneData& scene);
 		void FeedWithSceneData(const SceneData& scene);
 	};
 
-	typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;
-	typedef std::variant<RasterPipelineStateObject*, ComputePipelineStateObject*, RTPipelineStateObject*> PSOPtrUnion;
+	//typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;
+	//typedef std::variant<RasterPipelineStateObject*, ComputePipelineStateObject*, RTPipelineStateObject*> PSOPtrUnion;
 }

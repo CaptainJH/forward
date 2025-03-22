@@ -89,8 +89,8 @@ void RasterizerStageState::AddScissorRect(forward::RECT rect)
 }
 
 SamplerState::SamplerState(const std::string& name)
-	: DrawingState(name, FGOT_SAMPLER_STATE)
-	, filter(ANISOTROPIC)
+	: 
+	filter(ANISOTROPIC)
 	, mipLODBias(0.0f)
 	, maxAnisotropy(1)
 	, comparison(NEVER)
@@ -98,6 +98,8 @@ SamplerState::SamplerState(const std::string& name)
 	, minLOD(-1024)
 	, maxLOD(1024)
 {
+	SetName(name);
+	m_type = FGOT_SAMPLER_STATE;
 	mode[0] = WRAP;
 	mode[1] = WRAP;
 	mode[2] = WRAP;
@@ -194,6 +196,7 @@ bool BindingRanges::AddRange(BindingRange range)
 
 RTPipelineStateObject::RTPipelineStateObject(const SceneData& scene)
 {
+	m_type = FGOT_RT_PSO;
 	FeedWithSceneData(scene);
 }
 

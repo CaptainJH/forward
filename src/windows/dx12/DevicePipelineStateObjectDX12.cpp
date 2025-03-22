@@ -17,14 +17,12 @@
 using namespace forward;
 
 DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso)
-	: DeviceObject(nullptr)
+	: DeviceObject(&pso)
 	, m_numElements(0)
-	, m_psoPtr(&pso)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = d->GetDevice();
 	auto commandList = d->DeviceCommandList();
-	assert(std::holds_alternative<RasterPipelineStateObject*>(m_psoPtr));
 
 	// setup graphic pipeline
 	VertexBuffer* vbuffer = pso.m_IAState.m_vertexBuffers[0].get();
@@ -227,14 +225,13 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Rast
 }
 
 DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, ComputePipelineStateObject& pso)
-	: DeviceObject(nullptr)
+	: DeviceObject(&pso)
 	, m_numElements(0)
-	, m_psoPtr(&pso)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = d->GetDevice();
 	auto commandList = d->DeviceCommandList();
-	assert(std::holds_alternative<ComputePipelineStateObject*>(m_psoPtr));
+	assert(GraphicsObject()->GetType() == FGOT_COMPUTE_PSO);
 
 	// setup compute pipeline
 	ComputeShader* csshader = pso.m_CSState.m_shader.get();
@@ -340,9 +337,9 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 			IID_PPV_ARGS(&m_rootSignature)));
 		};
 
-	if (std::holds_alternative<RasterPipelineStateObject*>(m_psoPtr))
+	if (GraphicsObject()->GetType() == FGOT_RASTER_PSO)
 	{
-		auto& rpso = *std::get<RasterPipelineStateObject*>(m_psoPtr);
+		auto& rpso = *dynamic_cast<RasterPipelineStateObject*>(GraphicsObject().get());
 		if (rpso.m_VSState.m_shader)
 		{
 			auto deviceVS = device_cast<ShaderDX12*>(rpso.m_VSState.m_shader);
@@ -382,16 +379,16 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 
 		// A root signature is an array of root parameters.
 		const u32 numParameters = rpso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
-		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(m_psoPtr);
+		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(dynamic_cast<PipelineStateObjectBase*>(GraphicsObject().get()));
 		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter,
 			static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		CreateDeviceRootSignature(rootSigDesc);
 	}
-	else if (std::holds_alternative<ComputePipelineStateObject*>(m_psoPtr))
+	else if (GraphicsObject()->GetType() == FGOT_COMPUTE_PSO)
 	{
-		auto& cpso = *std::get<ComputePipelineStateObject*>(m_psoPtr);
+		auto& cpso = *dynamic_cast<ComputePipelineStateObject*>(GraphicsObject().get());
 		if (cpso.m_CSState.m_shader)
 		{
 			auto deviceCS = device_cast<ShaderDX12*>(cpso.m_CSState.m_shader);
@@ -425,7 +422,7 @@ void DevicePipelineStateObjectDX12::BuildRootSignature(ID3D12Device* device)
 
 		// A root signature is an array of root parameters.
 		const u32 numParameters = cpso.m_usedCBV_SRV_UAV_Count == 0 ? 0 : 1;
-		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(m_psoPtr);
+		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(dynamic_cast<PipelineStateObjectBase*>(GraphicsObject().get()));
 		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(numParameters, &slotRootParameter,
 			static_cast<u32>(samplers.size()), samplers.empty() ? nullptr : samplers.data(),
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -458,28 +455,26 @@ D3D12_PRIMITIVE_TOPOLOGY_TYPE DevicePipelineStateObjectHelper::Convert2DX12Topol
 	return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 }
 
-std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(PSOPtrUnion psoPtr)
+std::vector<CD3DX12_STATIC_SAMPLER_DESC> DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(PipelineStateObjectBase* psoPtr)
 {
-	return std::visit([](auto&& pso) {
-		using T = std::decay_t<decltype(pso)>;
-		if constexpr (std::is_same_v<T, RasterPipelineStateObject*>)
-		{
-			return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(pso->m_PSState.m_samplers);
-		}
-		else if constexpr (std::is_same_v<T, ComputePipelineStateObject*>)
-		{
-			return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(pso->m_CSState.m_samplers);
-		}
-		else if constexpr (std::is_same_v<T, RTPipelineStateObject*>)
-		{
-			return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(pso->m_rtState.m_samplers);
-		}
-		}, psoPtr);
+	if (psoPtr->GetType() == FGOT_COMPUTE_PSO) {
+		auto ptr = dynamic_cast<ComputePipelineStateObject*>(psoPtr);
+		return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(ptr->m_CSState.m_samplers);
+	}
+	else if (psoPtr->GetType() == FGOT_RT_PSO) {
+		auto ptr = dynamic_cast<RTPipelineStateObject*>(psoPtr);
+		return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(ptr->m_rtState.m_samplers);
+	}
+	else {
+		assert(psoPtr->GetType() == FGOT_RASTER_PSO);
+		auto ptr = dynamic_cast<RasterPipelineStateObject*>(psoPtr);
+		return DevicePipelineStateObjectHelper::ConfigStaticSamplerDescs(ptr->m_PSState.m_samplers);
+	}
 }
 
-void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const
+void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc)
 {
-	auto& pso = *std::get<RasterPipelineStateObject*>(m_psoPtr);
+	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(GraphicsObject().get());
 	desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	auto& rsState = pso.m_RSState.m_rsState;
 	desc.FillMode = DevicePipelineStateObjectHelper::msFillMode[rsState.fillMode];
@@ -493,9 +488,9 @@ void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC&
 	desc.AntialiasedLineEnable = rsState.enableAntialiasedLine ? TRUE : FALSE;
 }
 
-void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) const
+void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc)
 {
-	auto& pso = *std::get<RasterPipelineStateObject*>(m_psoPtr);
+	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(GraphicsObject().get());
 	desc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	auto& blendState = pso.m_OMState.m_blendState;
 	desc.AlphaToCoverageEnable = blendState.enableAlphaToCoverage ? TRUE : FALSE;
@@ -515,9 +510,9 @@ void DevicePipelineStateObjectDX12::ConfigBlendState(D3D12_BLEND_DESC& desc) con
 	}
 }
 
-void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const
+void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc)
 {
-	auto& pso = *std::get<RasterPipelineStateObject*>(m_psoPtr);
+	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(GraphicsObject().get());
 	desc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	auto& dsState = pso.m_OMState.m_dsState;
 	desc.DepthEnable = dsState.depthEnable ? TRUE : FALSE;
@@ -538,11 +533,10 @@ void DevicePipelineStateObjectDX12::ConfigDepthStencilState(D3D12_DEPTH_STENCIL_
 	desc.BackFace.StencilFunc = DevicePipelineStateObjectHelper::msComparison[back.comparison];
 }
 
-bool DevicePipelineStateObjectDX12::IsEmptyRootParams() const
+bool DevicePipelineStateObjectDX12::IsEmptyRootParams()
 {
-	return std::visit([](auto&& pso) {
-		return pso->m_usedCBV_SRV_UAV_Count;
-		}, m_psoPtr) == 0;
+	auto ptr = dynamic_cast<PipelineStateObjectBase*>(GraphicsObject().get());
+	return ptr->m_usedCBV_SRV_UAV_Count == 0;
 }
 
 D3D12_FILL_MODE const DevicePipelineStateObjectHelper::msFillMode[] =
@@ -650,7 +644,7 @@ D3D12_TEXTURE_ADDRESS_MODE const DevicePipelineStateObjectHelper::msAddressMode[
 };
 
 DeviceRTPipelineStateObjectDX12::DeviceRTPipelineStateObjectDX12(DeviceDX12* d, RTPipelineStateObject& rtPSO)
-	: DeviceObject(nullptr)
+	: DeviceObject(&rtPSO)
 	, m_rtPSO(rtPSO)
 {
 	PrepareDeviceResources(d);
@@ -883,7 +877,7 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 		BindingRanges samplerRange;
 		DevicePipelineStateObjectHelper::CollectSamplerInfo(deviceShader, samplerRange);
 		DevicePipelineStateObjectHelper::CheckBindingResources(m_rtPSO.m_rtState.m_samplers, samplerRange, "Sampler");
-		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(PSOPtrUnion(&m_rtPSO));
+		auto samplers = DevicePipelineStateObjectHelper::ConfigStaticSamplerStates(dynamic_cast<PipelineStateObjectBase*>(GraphicsObject().get()));
 
 		// A root signature is an array of root parameters.
 		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(

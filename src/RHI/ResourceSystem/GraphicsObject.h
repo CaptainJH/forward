@@ -31,7 +31,10 @@ namespace forward
 				FGOT_PIXEL_SHADER,
 				FGOT_COMPUTE_SHADER,
 				FGOT_RT_SHADER,
-			FGOT_DRAWING_STATE,  // abstract
+			FGOT_PIPELINE_STATE,  // abstract
+				FGOT_RASTER_PSO,
+				FGOT_RT_PSO,
+				FGOT_COMPUTE_PSO,
 				FGOT_SAMPLER_STATE,
 				FGOT_BLEND_STATE,
 				FGOT_DEPTH_STENCIL_STATE,
@@ -106,12 +109,12 @@ namespace forward
 
 	bool GraphicsObject::IsShader() const
 	{
-		return m_type > FGOT_SHADER && m_type < FGOT_DRAWING_STATE;
+		return m_type > FGOT_SHADER && m_type < FGOT_PIPELINE_STATE;
 	}
 
 	bool GraphicsObject::IsDrawingState() const
 	{
-		return m_type > FGOT_DRAWING_STATE && m_type < FGOT_NUM_TYPES;
+		return m_type > FGOT_PIPELINE_STATE && m_type < FGOT_NUM_TYPES;
 	}
 
 	DeviceObjPtr GraphicsObject::DeviceObject()

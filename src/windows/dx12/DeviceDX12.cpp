@@ -561,13 +561,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(RasterPipelineStateObje
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 {
-	if (pass.IsPSO<RasterPipelineStateObject>())
+	if (pass.IsRasterPSO())
 	{
 		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
-		if (!pso.m_devicePSO)
+		if (!pso.DeviceObject())
 		{
-			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
+			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso));
 		}
 
 		auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
@@ -626,13 +626,13 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			deviceIB->SyncCPUToGPU();
 		}
 	}
-	else if (pass.IsPSO<ComputePipelineStateObject>())
+	else if (pass.IsComputePSO())
 	{
 		auto& pso = pass.GetPSO<ComputePipelineStateObject>();
 
-		if (!pso.m_devicePSO)
+		if (!pso.DeviceObject())
 		{
-			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(this, pso);
+			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso));
 		}
 
 		// create & update device constant buffers
@@ -643,12 +643,12 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 		}
 	}
-	else if (pass.IsPSO<RTPipelineStateObject>())
+	else if (pass.IsRTPSO())
 	{
 		auto& pso = pass.GetPSO<RTPipelineStateObject>();
 
-		if (!pso.m_devicePSO)
-			pso.m_devicePSO = make_shared<DeviceRTPipelineStateObjectDX12>(this, pso);
+		if (!pso.DeviceObject())
+			pso.SetDeviceObject(make_shared<DeviceRTPipelineStateObjectDX12>(this, pso));
 		else
 		{
 			for (auto& pCB : pso.m_rtState.m_constantBuffers)
@@ -662,7 +662,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 //--------------------------------------------------------------------------------
 void DeviceDX12::DrawRenderPass(RenderPass& pass)
 {
-	if (pass.IsPSO<RasterPipelineStateObject>())
+	if (pass.IsRasterPSO())
 	{
 		auto& rpso = pass.GetPSO<RasterPipelineStateObject>();
 		// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
@@ -719,7 +719,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
-		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.m_devicePSO.get());
+		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.DeviceObject().get());
 		m_queue->GetCommandListDX12()->BindRasterPSO(devicePSO);
 		pass.Execute(*m_queue->GetCommandList());
 	
@@ -727,17 +727,17 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		if (rpso.m_OMState.m_renderTargetResources[0]->Name() == "DefaultRT")
 			TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
 	}
-	else if (pass.IsPSO<ComputePipelineStateObject>())
+	else if (pass.IsComputePSO())
 	{
 		auto& cpso = pass.GetPSO<ComputePipelineStateObject>();
-		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(cpso.m_devicePSO.get());
+		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(cpso.DeviceObject().get());
 		m_queue->GetCommandListDX12()->BindComputePSO(devicePSO);
 		pass.Execute(*m_queue->GetCommandList());
 	}
-	else if (pass.IsPSO<RTPipelineStateObject>())
+	else if (pass.IsRTPSO())
 	{
 		auto& pso = pass.GetPSO<RTPipelineStateObject>();
-		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
+		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.DeviceObject().get());
 		m_queue->GetCommandListDX12()->BindRTPSO(devicePSO);
 		pass.Execute(*m_queue->GetCommandList());
 	}

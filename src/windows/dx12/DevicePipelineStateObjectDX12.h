@@ -93,7 +93,7 @@ namespace forward
 			return samplerDescs;
 		}
 
-		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates(PSOPtrUnion psoPtr);
+		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> ConfigStaticSamplerStates(PipelineStateObjectBase* psoPtr);
 
 		// Conversions from FrameGraph values to DX12 values.
 		static D3D12_FILL_MODE const msFillMode[];
@@ -118,7 +118,7 @@ namespace forward
 		~DevicePipelineStateObjectDX12() override;
 
 		ID3D12PipelineState* GetDevicePSO();
-		bool IsEmptyRootParams() const;
+		bool IsEmptyRootParams();
 
 	private:
 		u32							m_numElements;
@@ -126,13 +126,12 @@ namespace forward
 
 		PipelineStateComPtr			m_devicePSO;
 		RootSignatureComPtr			m_rootSignature;
-		PSOPtrUnion			m_psoPtr;
 
 	private:
 		void BuildRootSignature(ID3D12Device* device);
-		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc) const;
-		void ConfigBlendState(D3D12_BLEND_DESC& desc) const;
-		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc) const;
+		void ConfigRasterizerState(D3D12_RASTERIZER_DESC& desc);
+		void ConfigBlendState(D3D12_BLEND_DESC& desc);
+		void ConfigDepthStencilState(D3D12_DEPTH_STENCIL_DESC& desc);
 	};
 
 	class DeviceRTPipelineStateObjectDX12 : public DeviceObject

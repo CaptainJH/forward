@@ -10,7 +10,7 @@ using namespace forward;
 RenderPass::RenderPass(RasterSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)
-	, m_pso(RasterPipelineStateObject())
+	, m_pso(new RasterPipelineStateObject())
 {
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<RasterPipelineStateObject>());
@@ -18,7 +18,7 @@ RenderPass::RenderPass(RasterSetupFuncType setupFunc, ExecuteFuncType execute, O
 RenderPass::RenderPass(ComputeSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)
-	, m_pso(ComputePipelineStateObject())
+	, m_pso(new ComputePipelineStateObject())
 {
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<ComputePipelineStateObject>());
@@ -26,7 +26,7 @@ RenderPass::RenderPass(ComputeSetupFuncType setupFunc, ExecuteFuncType execute, 
 RenderPass::RenderPass(RTSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)
-	, m_pso(RTPipelineStateObject())
+	, m_pso(new RTPipelineStateObject())
 {
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<RTPipelineStateObject>());
@@ -34,7 +34,7 @@ RenderPass::RenderPass(RTSetupFuncType setupFunc, ExecuteFuncType execute, Opera
 RenderPass::RenderPass(SceneData& sceneData, RTSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)
-	, m_pso(RTPipelineStateObject(sceneData))
+	, m_pso(new RTPipelineStateObject(sceneData))
 {
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<RTPipelineStateObject>());

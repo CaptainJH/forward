@@ -65,29 +65,32 @@ FrameGraphObjectInfo* FrameGraph::registerShader(Shader* shader, RenderPass* pas
 
 FrameGraphObjectInfo* FrameGraph::registerDrawingState(DrawingState* state, RenderPass* pass)
 {
-	auto it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [state](FrameGraphObjectInfo& obj)->bool {
-		return obj.m_object == state;
-	});
+	//auto it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [state](FrameGraphObjectInfo& obj)->bool {
+	//	return obj.m_object == state;
+	//});
 
-	if (it == m_allUsedDrawingStates.end())
-	{
-		m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(state));
-		it = m_allUsedVertexFormats.end() - 1;
-	}
+	//if (it == m_allUsedDrawingStates.end())
+	//{
+	//	m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(state));
+	//	it = m_allUsedVertexFormats.end() - 1;
+	//}
 
-	auto itPass = std::find_if(it->m_readerPassList.begin(), it->m_readerPassList.end(), [pass](RenderPassInfo* passInfo)->bool {
-		return passInfo->m_renderPass == pass;
-	});
-	if (itPass == it->m_readerPassList.end())
-	{
-		auto itPassInfo = std::find_if(m_passDB.begin(), m_passDB.end(), [pass](RenderPassInfo& info)->bool {
-			return info.m_renderPass == pass;
-		});
-		assert(itPassInfo != m_passDB.end());
-		it->m_readerPassList.push_back(&*itPassInfo);
-	}
+	//auto itPass = std::find_if(it->m_readerPassList.begin(), it->m_readerPassList.end(), [pass](RenderPassInfo* passInfo)->bool {
+	//	return passInfo->m_renderPass == pass;
+	//});
+	//if (itPass == it->m_readerPassList.end())
+	//{
+	//	auto itPassInfo = std::find_if(m_passDB.begin(), m_passDB.end(), [pass](RenderPassInfo& info)->bool {
+	//		return info.m_renderPass == pass;
+	//	});
+	//	assert(itPassInfo != m_passDB.end());
+	//	it->m_readerPassList.push_back(&*itPassInfo);
+	//}
 
-	return &*it;
+	//return &*it;
+	state;
+	pass;
+	return nullptr;
 }
 
 FrameGraphObjectInfo* FrameGraph::registerVertexFormat(VertexFormat* vformat, RenderPass* pass)
@@ -184,7 +187,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 		it_pass = m_passDB.end() - 1;
 	}
 
-	if (!pass->IsPSO<RasterPipelineStateObject>())
+	if (!pass->IsRasterPSO())
 		return;
 	auto& pso = pass->GetPSO<RasterPipelineStateObject>();
 
@@ -348,14 +351,14 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	}
 
 	// rasterizor stage
-	auto rs_ptr = &pso.m_RSState.m_rsState;
-	auto it_rs = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [rs_ptr](FrameGraphObjectInfo& info)->bool {
-		return info.m_object == rs_ptr;
-	});
-	if (it_rs == m_allUsedDrawingStates.end())
-	{
-		m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(rs_ptr));
-	}
+	//auto rs_ptr = &pso.m_RSState.m_rsState;
+	//auto it_rs = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [rs_ptr](FrameGraphObjectInfo& info)->bool {
+	//	return info.m_object == rs_ptr;
+	//});
+	//if (it_rs == m_allUsedDrawingStates.end())
+	//{
+	//	m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(rs_ptr));
+	//}
 
 
 	// pixel shader
@@ -418,24 +421,24 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 		}
 	}
 
-	// output merger
-	auto blendState_ptr = &pso.m_OMState.m_blendState;
-	auto it_blendState = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [blendState_ptr](FrameGraphObjectInfo& info)->bool {
-		return info.m_object == blendState_ptr;
-	});
-	if (it_blendState == m_allUsedDrawingStates.end())
-	{
-		m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(blendState_ptr));
-	}
+	//// output merger
+	//auto blendState_ptr = &pso.m_OMState.m_blendState;
+	//auto it_blendState = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [blendState_ptr](FrameGraphObjectInfo& info)->bool {
+	//	return info.m_object == blendState_ptr;
+	//});
+	//if (it_blendState == m_allUsedDrawingStates.end())
+	//{
+	//	m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(blendState_ptr));
+	//}
 
-	auto ds_ptr = &pso.m_OMState.m_dsState;
-	auto it_ds = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [ds_ptr](FrameGraphObjectInfo& info)->bool{
-		return info.m_object == ds_ptr;
-	});
-	if (it_ds == m_allUsedDrawingStates.end())
-	{
-		m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(ds_ptr));
-	}
+	//auto ds_ptr = &pso.m_OMState.m_dsState;
+	//auto it_ds = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [ds_ptr](FrameGraphObjectInfo& info)->bool{
+	//	return info.m_object == ds_ptr;
+	//});
+	//if (it_ds == m_allUsedDrawingStates.end())
+	//{
+	//	m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(ds_ptr));
+	//}
 
 	auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
 	auto it_DSRes = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [dsRes_ptr](FrameGraphResourceInfo& info)->bool {
@@ -468,7 +471,7 @@ void FrameGraph::LinkInfo()
 	{
 		auto pass_ptr = passInfo.m_renderPass;
 
-		if (!pass_ptr->IsPSO<RasterPipelineStateObject>())
+		if (!pass_ptr->IsRasterPSO())
 			continue;
 		auto& pso = pass_ptr->GetPSO<RasterPipelineStateObject>();
 
@@ -612,14 +615,14 @@ void FrameGraph::LinkInfo()
 			}
 		}
 
-		// rasterizor stage
-		auto rs_ptr = &pso.m_RSState.m_rsState;
-		auto it_rs = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [rs_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == rs_ptr;
-		});
-		assert(it_rs != m_allUsedDrawingStates.end());
-		passInfo.m_drawingStates.push_back(&*it_rs);
-		registerDrawingState(it_rs->GetFrameGraphDrawingState(), pass_ptr);
+		//// rasterizor stage
+		//auto rs_ptr = &pso.m_RSState.m_rsState;
+		//auto it_rs = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [rs_ptr](FrameGraphObjectInfo& info)->bool {
+		//	return info.m_object == rs_ptr;
+		//});
+		//assert(it_rs != m_allUsedDrawingStates.end());
+		//passInfo.m_drawingStates.push_back(&*it_rs);
+		//registerDrawingState(it_rs->GetFrameGraphDrawingState(), pass_ptr);
 
 
 		// pixel shader
@@ -675,22 +678,22 @@ void FrameGraph::LinkInfo()
 			}
 		}
 
-		// output merger
-		auto blendState_ptr = &pso.m_OMState.m_blendState;
-		auto it_blendState = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [blendState_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == blendState_ptr;
-		});
-		assert(it_blendState != m_allUsedDrawingStates.end());
-		passInfo.m_drawingStates.push_back(&*it_blendState);
-		registerDrawingState(it_blendState->GetFrameGraphDrawingState(), pass_ptr);
+		//// output merger
+		//auto blendState_ptr = &pso.m_OMState.m_blendState;
+		//auto it_blendState = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [blendState_ptr](FrameGraphObjectInfo& info)->bool {
+		//	return info.m_object == blendState_ptr;
+		//});
+		//assert(it_blendState != m_allUsedDrawingStates.end());
+		//passInfo.m_drawingStates.push_back(&*it_blendState);
+		//registerDrawingState(it_blendState->GetFrameGraphDrawingState(), pass_ptr);
 
-		auto ds_ptr = &pso.m_OMState.m_dsState;
-		auto it_ds = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [ds_ptr](FrameGraphObjectInfo& info)->bool {
-			return info.m_object == ds_ptr;
-		});
-		assert(it_ds != m_allUsedDrawingStates.end());
-		passInfo.m_drawingStates.push_back(&*it_ds);
-		registerDrawingState(it_ds->GetFrameGraphDrawingState(), pass_ptr);
+		//auto ds_ptr = &pso.m_OMState.m_dsState;
+		//auto it_ds = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [ds_ptr](FrameGraphObjectInfo& info)->bool {
+		//	return info.m_object == ds_ptr;
+		//});
+		//assert(it_ds != m_allUsedDrawingStates.end());
+		//passInfo.m_drawingStates.push_back(&*it_ds);
+		//registerDrawingState(it_ds->GetFrameGraphDrawingState(), pass_ptr);
 
 		auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
 		if (dsRes_ptr)

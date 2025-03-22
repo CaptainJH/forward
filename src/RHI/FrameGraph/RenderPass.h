@@ -44,16 +44,22 @@ namespace forward
 
 		template<class T> T& GetPSO()
 		{
-			return std::get<T>(m_pso);
+			auto ret = dynamic_cast<T*>(m_pso.get());
+			return *ret;
 		}
 
-		template<class T> bool IsPSO()
-		{
-			return std::holds_alternative<T>(m_pso);
+		bool IsRasterPSO() const {
+			return FGOT_RASTER_PSO == m_pso->GetType();
+		}
+		bool IsRTPSO() const {
+			return FGOT_RT_PSO == m_pso->GetType();
+		}
+		bool IsComputePSO() const {
+			return FGOT_COMPUTE_PSO == m_pso->GetType();
 		}
 
 	protected:
-		PSOUnion				m_pso;
+		shared_ptr<PipelineStateObjectBase> m_pso;
 
 		const ExecuteFuncType			m_executeCallback;
 		const OperationFlags			m_opFlags;

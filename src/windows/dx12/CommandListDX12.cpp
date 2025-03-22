@@ -154,7 +154,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 		*(baseDescriptorHandleAddr + stagedCBVs + stagedSRVs + stagedUAVs++) = deviceTex->GetUnorderedAccessViewHandle();
 		};
 
-	if (pass.IsPSO<RasterPipelineStateObject>())
+	if (pass.IsRasterPSO())
 	{
 		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
@@ -219,7 +219,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			// TODO: stage Samplers
 		}
 	}
-	else if (pass.IsPSO<ComputePipelineStateObject>())
+	else if (pass.IsComputePSO())
 	{
 		auto& pso = pass.GetPSO<ComputePipelineStateObject>();
 
@@ -270,11 +270,11 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			// TODO: stage Samplers
 		}
 	}
-	else if (pass.IsPSO<RTPipelineStateObject>())
+	else if (pass.IsRTPSO())
 	{
 		auto& heap = m_DynamicDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 		auto& pso = pass.GetPSO<RTPipelineStateObject>();
-		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.m_devicePSO.get());
+		auto& devicePSO = *dynamic_cast<DeviceRTPipelineStateObjectDX12*>(pso.DeviceObject().get());
 		if (devicePSO.m_bindlessDescriptorHeap)
 			heap.CommitStagedDescriptorsFrom(GetDeviceDX12(), *devicePSO.m_bindlessDescriptorHeap.get(), Shader::BindlessHeapStartOffset);
 		else 	if (auto baseDescriptorHandleAddr = heap.PrepareDescriptorHandleCache(pso.m_usedCBV_SRV_UAV_Count))
@@ -390,9 +390,9 @@ void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO)
 {
 	m_CmdList->SetGraphicsRootSignature(devicePSO.m_rootSignature.Get());
 	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
-	assert(std::holds_alternative<RasterPipelineStateObject*>(devicePSO.m_psoPtr));
+	assert(devicePSO.GraphicsObject()->GetType() == FGOT_RASTER_PSO);
 
-	auto& pso = *std::get<RasterPipelineStateObject*>(devicePSO.m_psoPtr);
+	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(devicePSO.GraphicsObject().get());
 	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
 	{
 		if (pso.m_IAState.m_vertexBuffers[i])
@@ -519,8 +519,8 @@ void CommandListDX12::ExecuteMipmapRenderPasses()
 		auto& r = r_pair.second;
 		auto& d = GetDeviceDX12();
 		auto& pso = r.GetPSO<ComputePipelineStateObject>();
-		if (!pso.m_devicePSO)
-			pso.m_devicePSO = forward::make_shared<DevicePipelineStateObjectDX12>(&d, pso);
+		if (!pso.DeviceObject())
+			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(&d, pso));
 
 		PrepareGPUVisibleHeapForMipmap(r, r_pair.first);
 		auto tex2D = device_cast<DeviceTexture2DDX12*>(pso.m_CSState.m_uavShaderRes[0]);
