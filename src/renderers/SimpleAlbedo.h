@@ -60,24 +60,24 @@ namespace forward
 				auto& albedoTex = mAlbedoTexs[idx];
 				auto& cb = mCBs[idx];
 				m_renderPassVec.push_back(RenderPass(
-					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+					[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
 
-						pso.m_PSState.m_shaderResources[0] = albedoTex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[0] = albedoTex;
 						pso.m_PSState.m_samplers[0] = mSamp;
 
 						// setup geometry
 						if (p.second && p.second->GetNumElements())
-							pso.m_IAState.m_indexBuffer = p.second;
+							builder.GetRenderPass()->m_ia_params.m_indexBuffer = p.second;
 						pso.m_IAState.m_topologyType = p.second->GetPrimitiveType();
 
-						pso.m_IAState.m_vertexBuffers[0] = p.first;
+						builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
 
 						// setup constant buffer
-						pso.m_VSState.m_constantBuffers[0] = cb;
+						builder.GetRenderPass()->m_vs.m_constantBuffers[0] = cb;
 
 						// setup render states
 						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();

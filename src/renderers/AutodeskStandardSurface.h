@@ -126,28 +126,28 @@ namespace forward
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
-					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+					[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
 
-						pso.m_PSState.m_shaderResources[0] = envRadianceTex;
-						pso.m_PSState.m_shaderResources[1] = envIrradianceTex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[0] = envRadianceTex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[1] = envIrradianceTex;
 						pso.m_PSState.m_samplers[0] = mSamp;
 
 						// setup geometry
 						if (p.second && p.second->GetNumElements())
-							pso.m_IAState.m_indexBuffer = p.second;
+							builder.GetRenderPass()->m_ia_params.m_indexBuffer = p.second;
 						pso.m_IAState.m_topologyType = p.second->GetPrimitiveType();
 
-						pso.m_IAState.m_vertexBuffers[0] = p.first;
+						builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
 
 						// setup constant buffer
-						pso.m_VSState.m_constantBuffers[0] = mCB0;
-						pso.m_PSState.m_constantBuffers[1] = mCB1;
-						pso.m_PSState.m_constantBuffers[2] = mCB2;
-						pso.m_PSState.m_constantBuffers[3] = mCB3;
+						builder.GetRenderPass()->m_vs.m_constantBuffers[0] = mCB0;
+						builder.GetRenderPass()->m_ps.m_constantBuffers[1] = mCB1;
+						builder.GetRenderPass()->m_ps.m_constantBuffers[2] = mCB2;
+						builder.GetRenderPass()->m_ps.m_constantBuffers[3] = mCB3;
 
 						auto& lightData0 = mCB3->GetTypedData()->u_lightData[0];
 						lightData0.color = Vector3f(1.0f, 0.89447f, 0.56723f);

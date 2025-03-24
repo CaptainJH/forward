@@ -36,25 +36,25 @@ namespace forward
 		{
 			for (auto& p : mMeshBuffers)
 				m_renderPassVec.push_back(RenderPass(
-					[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+					[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 						// setup shaders
 						pso.m_VSState.m_shader = mVS;
 						pso.m_PSState.m_shader = mPS;
 
-						pso.m_PSState.m_shaderResources[0] = envRadianceTex;
-						pso.m_PSState.m_shaderResources[1] = envIrradianceTex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[0] = envRadianceTex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[1] = envIrradianceTex;
 						pso.m_PSState.m_samplers[0] = mSamp;
 
 						u32 index = 2;
 						for (auto tex : mTextures)
-							pso.m_PSState.m_shaderResources[index++] = tex;
+							builder.GetRenderPass()->m_ps.m_shaderResources[index++] = tex;
 
 						// setup geometry
 						if (p.second && p.second->GetNumElements())
-							pso.m_IAState.m_indexBuffer = p.second;
+							builder.GetRenderPass()->m_ia_params.m_indexBuffer = p.second;
 						pso.m_IAState.m_topologyType = p.second->GetPrimitiveType();
 
-						pso.m_IAState.m_vertexBuffers[0] = p.first;
+						builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
 
 						pso.m_RSState.m_rsState.frontCCW = true;

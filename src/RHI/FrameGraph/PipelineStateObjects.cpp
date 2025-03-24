@@ -105,7 +105,7 @@ SamplerState::SamplerState(const std::string& name)
 	mode[2] = WRAP;
 }
 
-void ShaderStageState::SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params)
+void ShaderStageParameters::SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params)
 {
 	auto dst = m_constantBuffers[index]->GetData();
 

@@ -202,7 +202,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	}
 
 	// vertex buffers
-	for (auto& vb : pso.m_IAState.m_vertexBuffers)
+	for (auto& vb : pass->m_ia_params.m_vertexBuffers)
 	{
 		if (vb)
 		{
@@ -218,7 +218,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	}
 
 	// index buffer
-	auto ibuffer_ptr = pso.m_IAState.m_indexBuffer.get();
+	auto ibuffer_ptr = pass->m_ia_params.m_indexBuffer.get();
 	if (ibuffer_ptr)
 	{
 		auto it_ibuffer = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [ibuffer_ptr](FrameGraphResourceInfo& info)->bool {
@@ -243,7 +243,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				m_allUsedShaders.push_back(FrameGraphObjectInfo(vs_ptr));
 			}
 
-			for (auto& cb : pso.m_VSState.m_constantBuffers)
+			for (auto& cb : pass->m_vs.m_constantBuffers)
 			{
 				if (cb)
 				{
@@ -258,22 +258,22 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				}
 			}
 
-			for (auto& samp : pso.m_VSState.m_samplers)
-			{
-				if (samp)
-				{
-					auto samp_ptr = samp.get();
-					auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-						return info.m_object == samp_ptr;
-					});
-					if (samp_it == m_allUsedDrawingStates.end())
-					{
-						m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
-					}
-				}
-			}
+			//for (auto& samp : pso.m_VSState.m_samplers)
+			//{
+			//	if (samp)
+			//	{
+			//		auto samp_ptr = samp.get();
+			//		auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+			//			return info.m_object == samp_ptr;
+			//		});
+			//		if (samp_it == m_allUsedDrawingStates.end())
+			//		{
+			//			m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+			//		}
+			//	}
+			//}
 
-			for (auto& shaderRes : pso.m_VSState.m_shaderResources)
+			for (auto& shaderRes : pass->m_vs.m_shaderResources)
 			{
 				if (shaderRes)
 				{
@@ -303,7 +303,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				m_allUsedShaders.push_back(FrameGraphObjectInfo(gs_ptr));
 			}
 
-			for (auto& cb : pso.m_GSState.m_constantBuffers)
+			for (auto& cb : pass->m_gs.m_constantBuffers)
 			{
 				if (cb)
 				{
@@ -318,22 +318,22 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				}
 			}
 
-			for (auto& samp : pso.m_GSState.m_samplers)
-			{
-				if (samp)
-				{
-					auto samp_ptr = samp.get();
-					auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-						return info.m_object == samp_ptr;
-					});
-					if (samp_it == m_allUsedDrawingStates.end())
-					{
-						m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
-					}
-				}
-			}
+			//for (auto& samp : pass->m_gs.m_samplers)
+			//{
+			//	if (samp)
+			//	{
+			//		auto samp_ptr = samp.get();
+			//		auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+			//			return info.m_object == samp_ptr;
+			//		});
+			//		if (samp_it == m_allUsedDrawingStates.end())
+			//		{
+			//			m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(samp_ptr));
+			//		}
+			//	}
+			//}
 
-			for (auto& shaderRes : pso.m_GSState.m_shaderResources)
+			for (auto& shaderRes : pass->m_gs.m_shaderResources)
 			{
 				if (shaderRes)
 				{
@@ -374,7 +374,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				m_allUsedShaders.push_back(FrameGraphObjectInfo(ps_ptr));
 			}
 
-			for (auto& cb : pso.m_PSState.m_constantBuffers)
+			for (auto& cb : pass->m_ps.m_constantBuffers)
 			{
 				if (cb)
 				{
@@ -404,7 +404,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 				}
 			}
 
-			for (auto& shaderRes : pso.m_PSState.m_shaderResources)
+			for (auto& shaderRes : pass->m_ps.m_shaderResources)
 			{
 				if (shaderRes)
 				{
@@ -485,7 +485,7 @@ void FrameGraph::LinkInfo()
 		registerVertexFormat(it_vformat->GetVertexFormat(), pass_ptr);
 
 		// vertex buffers
-		for (auto& vb : pso.m_IAState.m_vertexBuffers)
+		for (auto& vb : pass_ptr->m_ia_params.m_vertexBuffers)
 		{
 			if (vb)
 			{
@@ -499,7 +499,7 @@ void FrameGraph::LinkInfo()
 		}
 
 		// index buffer
-		auto ibuffer_ptr = pso.m_IAState.m_indexBuffer.get();
+		auto ibuffer_ptr = pass_ptr->m_ia_params.m_indexBuffer.get();
 		if (ibuffer_ptr)
 		{
 			auto it_ibuffer = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [ibuffer_ptr](FrameGraphResourceInfo& info)->bool {
@@ -521,7 +521,7 @@ void FrameGraph::LinkInfo()
 				passInfo.m_shaders.push_back(&*it_vshader);
 				registerShader(it_vshader->GetFrameGraphShader(), pass_ptr);
 
-				for (auto& cb : pso.m_VSState.m_constantBuffers)
+				for (auto& cb : pass_ptr->m_vs.m_constantBuffers)
 				{
 					if (cb)
 					{
@@ -534,20 +534,20 @@ void FrameGraph::LinkInfo()
 					}
 				}
 
-				for (auto& samp : pso.m_VSState.m_samplers)
-				{
-					if (samp)
-					{
-						auto samp_ptr = samp.get();
-						auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-							return info.m_object == samp_ptr;
-						});
-						assert(samp_it != m_allUsedDrawingStates.end());
-						Add_DrawingState_To_RenderPassInfo(samp_it);
-					}
-				}
+				//for (auto& samp : pass_ptr->m_vs.m_samplers)
+				//{
+				//	if (samp)
+				//	{
+				//		auto samp_ptr = samp.get();
+				//		auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+				//			return info.m_object == samp_ptr;
+				//		});
+				//		assert(samp_it != m_allUsedDrawingStates.end());
+				//		Add_DrawingState_To_RenderPassInfo(samp_it);
+				//	}
+				//}
 
-				for (auto& shaderRes : pso.m_VSState.m_shaderResources)
+				for (auto& shaderRes : pass_ptr->m_vs.m_shaderResources)
 				{
 					if (shaderRes)
 					{
@@ -574,7 +574,7 @@ void FrameGraph::LinkInfo()
 				passInfo.m_shaders.push_back(&*it_gshader);
 				registerShader(it_gshader->GetFrameGraphShader(), pass_ptr);
 
-				for (auto& cb : pso.m_GSState.m_constantBuffers)
+				for (auto& cb : pass_ptr->m_gs.m_constantBuffers)
 				{
 					if (cb)
 					{
@@ -587,20 +587,20 @@ void FrameGraph::LinkInfo()
 					}
 				}
 
-				for (auto& samp : pso.m_GSState.m_samplers)
-				{
-					if (samp)
-					{
-						auto samp_ptr = samp.get();
-						auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
-							return info.m_object == samp_ptr;
-						});
-						assert(samp_it != m_allUsedDrawingStates.end());
-						Add_DrawingState_To_RenderPassInfo(samp_it);
-					}
-				}
+				//for (auto& samp : pass_ptr->m_gs.m_samplers)
+				//{
+				//	if (samp)
+				//	{
+				//		auto samp_ptr = samp.get();
+				//		auto samp_it = std::find_if(m_allUsedDrawingStates.begin(), m_allUsedDrawingStates.end(), [samp_ptr](FrameGraphObjectInfo& info)->bool {
+				//			return info.m_object == samp_ptr;
+				//		});
+				//		assert(samp_it != m_allUsedDrawingStates.end());
+				//		Add_DrawingState_To_RenderPassInfo(samp_it);
+				//	}
+				//}
 
-				for (auto& shaderRes : pso.m_GSState.m_shaderResources)
+				for (auto& shaderRes : pass_ptr->m_gs.m_shaderResources)
 				{
 					if (shaderRes)
 					{
@@ -637,7 +637,7 @@ void FrameGraph::LinkInfo()
 				passInfo.m_shaders.push_back(&*it_pshader);
 				registerShader(it_pshader->GetFrameGraphShader(), pass_ptr);
 
-				for (auto& cb : pso.m_PSState.m_constantBuffers)
+				for (auto& cb : pass_ptr->m_ps.m_constantBuffers)
 				{
 					if (cb)
 					{
@@ -663,7 +663,7 @@ void FrameGraph::LinkInfo()
 					}
 				}
 
-				for (auto& shaderRes : pso.m_PSState.m_shaderResources)
+				for (auto& shaderRes : pass_ptr->m_ps.m_shaderResources)
 				{
 					if (shaderRes)
 					{

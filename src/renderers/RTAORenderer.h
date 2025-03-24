@@ -63,16 +63,16 @@ namespace forward
 			if (useAccumulation)
 			{
 				m_renderPassVec.emplace_back(RenderPass(
-					[&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+					[&](RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
 
 						m_cb_accumulation = make_shared<ConstantBuffer<u32>>("RTAO_ACCUMULATION_CB");
-						pso.m_CSState.m_constantBuffers[0] = m_cb_accumulation;
+						builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb_accumulation;
 
-						pso.m_CSState.m_uavShaderRes[0] = m_uavRT;
+						builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavRT;
 						auto rt = d.GetDefaultRT();
 						m_accumulationTex = make_shared<Texture2D>("RTAO_ACCUMULATION_UAV_OUTPUT", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 						m_accumulationTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-						pso.m_CSState.m_uavShaderRes[1] = m_accumulationTex;
+						builder.GetRenderPass()->m_cs.m_uavShaderRes[1] = m_accumulationTex;
 
 						// setup shaders
 						pso.m_CSState.m_shader = make_shared<ComputeShader>("RTAO_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain");

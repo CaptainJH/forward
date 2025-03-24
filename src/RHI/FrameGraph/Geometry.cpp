@@ -22,13 +22,13 @@ void SimpleGeometry::OnRenderPassBuilding(RenderPass& pass)
 	auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 	if (m_IB->GetNumElements())
 	{
-		pso.m_IAState.m_indexBuffer = m_IB;
+		pass.m_ia_params.m_indexBuffer = m_IB;
 	}
 	pso.m_IAState.m_topologyType = m_IB->GetPrimitiveType();
 
 	// TODO: should automatically bind to the first available binding point, 
 	// and modify VertexFormat's unit accordingly.
-	pso.m_IAState.m_vertexBuffers[0] = m_VB;
+	pass.m_ia_params.m_vertexBuffers[0] = m_VB;
 	pso.m_IAState.m_vertexLayout = m_VB->GetVertexFormat();
 }
 

@@ -343,8 +343,8 @@ struct DeviceContext
             [&]([[maybe_unused]] RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
                 // setup shaders
                 pso.m_CSState.m_shader = make_shared<ComputeShader>("DrawVolumeShader", L"HelloVolume", "DrawVolume");
-                pso.m_CSState.m_uavShaderRes[0] = m_uavTex;
-                pso.m_CSState.m_constantBuffers[0] = m_cb;
+                builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavTex;
+                builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb;
             },
             [=](CommandList& cmdList) {
                 cmdList.Dispatch(m_size / 8, m_size / 8, 1);

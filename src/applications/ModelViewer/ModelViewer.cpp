@@ -112,13 +112,13 @@ bool ModelViewer::Init()
 		for (auto& rp : m_material->m_renderPassVec)
 		{
 			auto& pso = rp.GetPSO<RasterPipelineStateObject>();
-			if (!pso.m_VSState.m_constantBuffers[0])
+			if (!rp.m_vs.m_constantBuffers[0])
 				break;
 
-			pso.m_VSState.SetConstantBufferDataFromPtr(0, &cb0);
-			pso.m_PSState.SetConstantBufferDataFromPtr(1, &cb1);
-			pso.m_PSState.SetConstantBufferDataFromStr(2, m_paramsPS);
-			pso.m_PSState.SetConstantBufferDataFromPtr(3, &cb3);
+			rp.m_vs.SetConstantBufferDataFromPtr(0, &cb0);
+			rp.m_ps.SetConstantBufferDataFromPtr(1, &cb1);
+			rp.m_ps.SetConstantBufferDataFromStr(*pso.m_PSState.m_shader, 2, m_paramsPS);
+			rp.m_ps.SetConstantBufferDataFromPtr(3, &cb3);
 		}
 	};
 

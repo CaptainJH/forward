@@ -64,7 +64,7 @@ bool HelloPyQTDll::Init()
 				vb->AddVertex(quadVertices[i]);
 			}
 			vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
-			pso.m_IAState.m_vertexBuffers[0] = vb;
+			builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = vb;
 
 			// setup render states
 			auto dsPtr = m_pDevice->GetDefaultDS();

@@ -113,7 +113,7 @@ namespace forward
 	{
 		friend class CommandListDX12;
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso, VertexBuffer&);
 		DevicePipelineStateObjectDX12(DeviceDX12* d, ComputePipelineStateObject& pso);
 		~DevicePipelineStateObjectDX12() override;
 

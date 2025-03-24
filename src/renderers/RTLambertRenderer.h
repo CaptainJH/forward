@@ -75,16 +75,16 @@ namespace forward
 			));
 
 			m_renderPassVec.emplace_back(RenderPass(
-				[&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+				[&](RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
 
 					m_cb_accumulation = make_shared<ConstantBuffer<u32>>("RTLambert_ACCUMULATION_CB");
-					pso.m_CSState.m_constantBuffers[0] = m_cb_accumulation;
+					builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb_accumulation;
 
-					pso.m_CSState.m_uavShaderRes[0] = m_uavRT;
+					builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavRT;
 					auto rt = d.GetDefaultRT();
 					m_accumulationTex = make_shared<Texture2D>("RTLambert_ACCUMULATION_UAV_OUTPUT", DF_R32G32B32A32_FLOAT, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 					m_accumulationTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_CSState.m_uavShaderRes[1] = m_accumulationTex;
+					builder.GetRenderPass()->m_cs.m_uavShaderRes[1] = m_accumulationTex;
 
 					// setup shaders
 					pso.m_CSState.m_shader = make_shared<ComputeShader>("RTLambert_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain");
@@ -163,20 +163,20 @@ namespace forward
 			));
 
 			m_renderPassVec.emplace_back(RenderPass(
-				[&, w, h](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+				[&, w, h](RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
 
 					m_cb_accumulation = make_shared<ConstantBuffer<u32>>("RTLambert_ACCUMULATION_CB");
-					pso.m_CSState.m_constantBuffers[0] = m_cb_accumulation;
+					builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb_accumulation;
 
 					m_uavRT2 = make_shared<Texture2D>("RTLambert_UAV_RT2", DF_R8G8B8A8_UNORM, w, h, TextureBindPosition::TBP_Shader);
 					m_uavRT2->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_CSState.m_uavShaderRes[0] = m_uavRT2;
+					builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavRT2;
 
 					m_accumulationTex = make_shared<Texture2D>("RTLambert_ACCUMULATION_UAV_OUTPUT", DF_R32G32B32A32_FLOAT, w, h, TextureBindPosition::TBP_Shader);
 					m_accumulationTex->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-					pso.m_CSState.m_uavShaderRes[1] = m_accumulationTex;
+					builder.GetRenderPass()->m_cs.m_uavShaderRes[1] = m_accumulationTex;
 
-					pso.m_CSState.m_shaderResources[0] = m_lastFrameTex;
+					builder.GetRenderPass()->m_cs.m_shaderResources[0] = m_lastFrameTex;
 
 					// setup shaders
 					pso.m_CSState.m_shader = make_shared<ComputeShader>("RTLambert_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain_WAR");

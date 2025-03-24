@@ -166,17 +166,17 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage CBVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
 				{
-					if (auto cb_vs = pso.m_VSState.m_constantBuffers[i])
+					if (auto cb_vs = pass.m_vs.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_vs);
 						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
-					else if (auto cb_gs = pso.m_GSState.m_constantBuffers[i])
+					else if (auto cb_gs = pass.m_gs.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_gs);
 						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 					}
-					else if (auto cb_ps = pso.m_PSState.m_constantBuffers[i])
+					else if (auto cb_ps = pass.m_ps.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_ps);
 						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
@@ -188,17 +188,17 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage SRVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
 				{
-					if (auto res_vs = pso.m_VSState.m_shaderResources[i])
+					if (auto res_vs = pass.m_vs.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceResourceDX12*>(res_vs);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
-					else if (auto res_gs = pso.m_GSState.m_shaderResources[i])
+					else if (auto res_gs = pass.m_gs.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceResourceDX12*>(res_gs);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
 					}
-					else if (auto res_ps = pso.m_PSState.m_shaderResources[i])
+					else if (auto res_ps = pass.m_ps.m_shaderResources[i])
 					{
 						auto deviceTex = device_cast<DeviceResourceDX12*>(res_ps);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
@@ -231,7 +231,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage CBVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; ++i)
 				{
-					if (auto cb_cs = pso.m_CSState.m_constantBuffers[i])
+					if (auto cb_cs = pass.m_cs.m_constantBuffers[i])
 					{
 						auto deviceCB = device_cast<DeviceBufferDX12*>(cb_cs);
 						stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
@@ -241,7 +241,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage SRVs
 				for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
 				{
-					if (auto res_cs = pso.m_CSState.m_shaderResources[i])
+					if (auto res_cs = pass.m_cs.m_shaderResources[i])
 					{
 						auto deviceRes = device_cast<DeviceResourceDX12*>(res_cs);
 						stageSRVFunc(baseDescriptorHandleAddr, deviceRes);
@@ -251,7 +251,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 				// stage UAVs
 				for (auto i = 0; i < 8; ++i)
 				{
-					if (auto res_cs = pso.m_CSState.m_uavShaderRes[i])
+					if (auto res_cs = pass.m_cs.m_uavShaderRes[i])
 					{
 						auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
 						stageUAVFunc(baseDescriptorHandleAddr, deviceTex);
@@ -342,7 +342,7 @@ void CommandListDX12::PrepareGPUVisibleHeapForMipmap(RenderPass& pass, u32 targe
 			// stage SRVs
 			for (auto i = 0; i < FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++i)
 			{
-				if (auto res_cs = pso.m_CSState.m_shaderResources[i])
+				if (auto res_cs = pass.m_cs.m_shaderResources[i])
 				{
 					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
 					stageSRVFunc(baseDescriptorHandleAddr, deviceTex);
@@ -352,7 +352,7 @@ void CommandListDX12::PrepareGPUVisibleHeapForMipmap(RenderPass& pass, u32 targe
 			// stage UAVs
 			for (auto i = 0; i < 8; ++i)
 			{
-				if (auto res_cs = pso.m_CSState.m_uavShaderRes[i])
+				if (auto res_cs = pass.m_cs.m_uavShaderRes[i])
 				{
 					auto deviceTex = device_cast<DeviceTexture2DDX12*>(res_cs);
 					stageUAVFunc(baseDescriptorHandleAddr, deviceTex);
@@ -386,24 +386,24 @@ void CommandListDX12::SetDynamicConstantBuffer(ConstantBufferBase* cb)
 		})->SyncCPUToGPU();
 }
 
-void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO)
+void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO, RenderPass& rp)
 {
 	m_CmdList->SetGraphicsRootSignature(devicePSO.m_rootSignature.Get());
 	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
 	assert(devicePSO.GraphicsObject()->GetType() == FGOT_RASTER_PSO);
 
 	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(devicePSO.GraphicsObject().get());
-	for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+	for (auto i = 0U; i < rp.m_ia_params.m_vertexBuffers.size(); ++i)
 	{
-		if (pso.m_IAState.m_vertexBuffers[i])
+		if (rp.m_ia_params.m_vertexBuffers[i])
 		{
-			auto vbv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_vertexBuffers[i])->VertexBufferView();
+			auto vbv = device_cast<DeviceBufferDX12*>(rp.m_ia_params.m_vertexBuffers[i])->VertexBufferView();
 			m_CmdList->IASetVertexBuffers(i, 1, &vbv);
 		}
 	}
-	if (pso.m_IAState.m_indexBuffer)
+	if (rp.m_ia_params.m_indexBuffer)
 	{
-		auto ibv = device_cast<DeviceBufferDX12*>(pso.m_IAState.m_indexBuffer)->IndexBufferView();
+		auto ibv = device_cast<DeviceBufferDX12*>(rp.m_ia_params.m_indexBuffer)->IndexBufferView();
 		m_CmdList->IASetIndexBuffer(&ibv);
 	}
 	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(pso.m_IAState.m_topologyType));
@@ -495,11 +495,11 @@ void CommandListDX12::GenerateMipmaps(Texture2D* tex)
 	while (w)
 	{
 		m_mipmapGenerationPass.emplace_back(std::make_pair(mipLevel++, RenderPass(
-			[&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+			[&](RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
 				// setup shaders
 				pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("MipmapGenerator", L"MipmapGenerator", "MipmapGenerator");
-				pso.m_CSState.m_uavShaderRes[0] = tex;
-				pso.m_CSState.m_shaderResources[0] = tex;
+				builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = tex;
+				builder.GetRenderPass()->m_cs.m_shaderResources[0] = tex;
 			},
 			[=](CommandList& cmdList) {
 				cmdList.Dispatch(w, w, 1);
@@ -523,7 +523,7 @@ void CommandListDX12::ExecuteMipmapRenderPasses()
 			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(&d, pso));
 
 		PrepareGPUVisibleHeapForMipmap(r, r_pair.first);
-		auto tex2D = device_cast<DeviceTexture2DDX12*>(pso.m_CSState.m_uavShaderRes[0]);
+		auto tex2D = device_cast<DeviceTexture2DDX12*>(r.m_cs.m_uavShaderRes[0]);
 		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(tex2D->GetDeviceResource().Get());
 		GetDeviceCmdListPtr()->ResourceBarrier(1, &barrier);
 		d.DrawRenderPass(r);

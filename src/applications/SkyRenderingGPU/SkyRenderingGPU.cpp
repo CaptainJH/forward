@@ -51,15 +51,15 @@ bool SkyRenderingGPU::Init()
 	if (!Application::Init())
 		return false;
 
-	m_skyPass = std::make_unique<RenderPass>([&](RenderPassBuilder& /*builder*/, ComputePipelineStateObject& pso) {
+	m_skyPass = std::make_unique<RenderPass>([&](RenderPassBuilder& builder, ComputePipelineStateObject& pso) {
 
 		m_cb = make_shared<ConstantBuffer<f32>>("SKY_CB");
-		pso.m_CSState.m_constantBuffers[0] = m_cb;
+		builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb;
 
 		auto rt = m_pDevice->GetDefaultRT();
 		m_uavRT = make_shared<Texture2D>("SKY_UAV_OUTPUT", DF_R8G8B8A8_UNORM, rt->GetWidth(), rt->GetHeight(), TextureBindPosition::TBP_Shader);
 		m_uavRT->SetUsage(RU_CPU_GPU_BIDIRECTIONAL);
-		pso.m_CSState.m_uavShaderRes[0] = m_uavRT;
+		builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavRT;
 
 		// setup shaders
 		pso.m_CSState.m_shader = make_shared<ComputeShader>("SKY_Shader", L"SkyRendering", "SkyMain");

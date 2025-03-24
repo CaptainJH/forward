@@ -120,8 +120,8 @@ bool MSAA_Demo::Init()
 			// setup constant buffer
 			m_constantBufferVS = make_shared<ConstantBuffer<CBufferTypeVS>>("CB0");
 			m_constantBufferPS = make_shared<ConstantBuffer<CBufferTypePS>>("CB1");
-			pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
-			pso.m_PSState.m_constantBuffers[1] = m_constantBufferPS;
+			builder.GetRenderPass()->m_vs.m_constantBuffers[0] = m_constantBufferVS;
+			builder.GetRenderPass()->m_ps.m_constantBuffers[1] = m_constantBufferPS;
 
 			// setup render targets
 			auto dsPtr = m_pDevice->GetDefaultDS();
@@ -154,8 +154,8 @@ bool MSAA_Demo::Init()
 			builder << *m_geometry;
 
 			// setup constant buffer
-			pso.m_VSState.m_constantBuffers[0] = m_constantBufferVS;
-			pso.m_PSState.m_constantBuffers[1] = m_constantBufferPS;
+			builder.GetRenderPass()->m_vs.m_constantBuffers[0] = m_constantBufferVS;
+			builder.GetRenderPass()->m_ps.m_constantBuffers[1] = m_constantBufferPS;
 
 			// setup render targets
 			m_msaa_rt = make_shared<Texture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
@@ -177,8 +177,8 @@ bool MSAA_Demo::Init()
 			// setup shaders
 			pso.m_VSState.m_shader = forward::make_shared<VertexShader>("Pass3VS", L"MSAA_Shader", "VSMainQuad");
 			pso.m_PSState.m_shader = forward::make_shared<PixelShader>("Pass3PS", L"MSAA_Shader", "PSMainQuad");
-			pso.m_PSState.m_shaderResources[0] = m_msaa_resolved;
 			pso.m_PSState.m_samplers[0] = forward::make_shared<SamplerState>("QuadSampler");
+			builder.GetRenderPass()->m_ps.m_shaderResources[0] = m_msaa_resolved;
 
 			// setup geometry
 			m_quad = std::make_unique<SimpleGeometry>("Quad", forward::GeometryBuilder<forward::GP_SCREEN_QUAD>());

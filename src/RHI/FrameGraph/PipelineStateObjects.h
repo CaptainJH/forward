@@ -264,20 +264,18 @@ namespace forward
 		f32 maxLOD;
 	};
 
-	struct PipelineStageState
-	{
-		PipelineStageState() = default;
-	};
-
-	struct InputAssemblerStageState : public PipelineStageState
-	{
-		PrimitiveTopologyType	m_topologyType;
+	struct InputAssemblerStageParameters {
 		shared_ptr<IndexBuffer>	m_indexBuffer = nullptr;
 		std::array<shared_ptr<VertexBuffer>, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };
+	};
+
+	struct InputAssemblerStageState
+	{
+		PrimitiveTopologyType	m_topologyType;
 		VertexFormat			m_vertexLayout;
 	};
 
-	struct OutputMergerStageState : public PipelineStageState
+	struct OutputMergerStageState
 	{
 		BlendState			m_blendState;
 		DepthStencilState	m_dsState;
@@ -304,7 +302,7 @@ namespace forward
 		f32 MaxDepth = 1.0f;
 	};
 
-	struct RasterizerStageState : public PipelineStageState
+	struct RasterizerStageState
 	{
 		RasterizerState	m_rsState;
 
@@ -316,43 +314,41 @@ namespace forward
 		std::array<forward::RECT, FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> m_scissorRects;
 	};
 
-	struct ShaderStageState : public PipelineStageState
-	{
+	struct ShaderStageParameters {
 		std::array<shared_ptr<ConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
 		std::array<shared_ptr<Resource>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
-		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
-
+		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 		void SetConstantBufferData(Shader& shader, u32 index, std::unordered_map<String, String>& params);
 		void SetConstantBufferDataFromPtr(u32 index, void* data)
 		{
 			memcpy(m_constantBuffers[index]->GetData(), data, m_constantBuffers[index]->GetNumBytes());
 		}
+		void SetConstantBufferDataFromStr(Shader& shader, u32 index, std::unordered_map<String, String>& params)
+		{
+			SetConstantBufferData(shader, index, params);
+		}
 	};
 
-	struct VertexShaderStageState : public ShaderStageState
+	struct VertexShaderStageState
 	{
 		shared_ptr<VertexShader> m_shader;
 	};
 
-	struct PixelShaderStageState : public ShaderStageState
+	struct PixelShaderStageState
 	{
 		shared_ptr<PixelShader> m_shader;
-
-		void SetConstantBufferDataFromStr(u32 index, std::unordered_map<String, String>& params)
-		{
-			ShaderStageState::SetConstantBufferData(*m_shader, index, params);
-		}
+		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 	};
 
-	struct GeometryShaderStageState : public ShaderStageState
+	struct GeometryShaderStageState
 	{
 		shared_ptr<GeometryShader> m_shader;
 	};
 
-	struct ComputeShaderStageState : public ShaderStageState
+	struct ComputeShaderStageState
 	{
 		shared_ptr<ComputeShader> m_shader;
-		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
+		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 	};
 
 	struct BindlessShaderStage
@@ -363,10 +359,13 @@ namespace forward
 		Vector<shared_ptr<Texture>> m_uavShaderRes;
 	};
 
-	struct RaytracingShaderStageState : public ShaderStageState
+	struct RaytracingShaderStageState
 	{
 		shared_ptr<RaytracingShaders> m_shader;
+		std::array<shared_ptr<ConstantBufferBase>, FORWARD_RENDERER_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT> m_constantBuffers = { nullptr };
+		std::array<shared_ptr<Resource>, FORWARD_RENDERER_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT> m_shaderResources = { nullptr };
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
+		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 
 		Vector<BindlessShaderStage> m_bindlessShaderStageStates;
 

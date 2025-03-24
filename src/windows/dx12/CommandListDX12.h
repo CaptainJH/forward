@@ -30,7 +30,7 @@ namespace forward
 		void CopyResource(Resource& dst, Resource& src) override;
 		void ResolveResource(Texture2D* dst, Texture2D* src) override;
 
-		void BindRasterPSO(DevicePipelineStateObjectDX12&);
+		void BindRasterPSO(DevicePipelineStateObjectDX12&, RenderPass& rp);
 		void BindComputePSO(DevicePipelineStateObjectDX12&);
 		void BindRTPSO(DeviceRTPipelineStateObjectDX12&);
 		void BindGPUVisibleHeaps();

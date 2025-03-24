@@ -21,9 +21,9 @@ namespace forward
 		virtual ~RenderPassBuilder() = default;
 
 		virtual RenderPassBuilder & operator<<(IRenderPassGenerator&);
+		virtual RenderPass* GetRenderPass();
 
 	protected:
 		RenderPass * m_renderPass;
-		virtual RenderPass* GetRenderPass();
 	};
 }

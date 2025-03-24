@@ -151,19 +151,19 @@ void Font::OnRenderPassBuilding(RenderPass& pass)
 {
 	auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
-	pso.m_IAState.m_indexBuffer = mIndexBuffer;
+	pass.m_ia_params.m_indexBuffer = mIndexBuffer;
 	pso.m_IAState.m_topologyType = mIndexBuffer->GetPrimitiveType();
 
-	pso.m_IAState.m_vertexBuffers[0] = mVertexBuffer;
+	pass.m_ia_params.m_vertexBuffers[0] = mVertexBuffer;
 	pso.m_IAState.m_vertexLayout = mVertexBuffer->GetVertexFormat();
 
-	pso.m_VSState.m_constantBuffers[0] = mConstantBufferVS;
+	pass.m_vs.m_constantBuffers[0] = mConstantBufferVS;
 	pso.m_VSState.m_shader = mVertexShader;
 
-	pso.m_PSState.m_constantBuffers[1] = mConstantBufferPS;
-	pso.m_PSState.m_shader = mPixelShader;
+	pass.m_ps.m_constantBuffers[1] = mConstantBufferPS;
+	pass.m_ps.m_shaderResources[0] = mTexture;
 	pso.m_PSState.m_samplers[0] = mSampler;
-	pso.m_PSState.m_shaderResources[0] = mTexture;
+	pso.m_PSState.m_shader = mPixelShader;
 }
 
 u32 Font::GetIndexCount() const

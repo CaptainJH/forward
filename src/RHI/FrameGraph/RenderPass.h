@@ -58,6 +58,12 @@ namespace forward
 			return FGOT_COMPUTE_PSO == m_pso->GetType();
 		}
 
+		InputAssemblerStageParameters m_ia_params;
+		ShaderStageParameters m_vs;;
+		ShaderStageParameters m_ps;
+		ShaderStageParameters m_gs;
+		ShaderStageParameters m_cs;
+
 	protected:
 		shared_ptr<PipelineStateObjectBase> m_pso;
 

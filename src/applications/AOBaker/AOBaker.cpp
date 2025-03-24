@@ -81,23 +81,23 @@ bool AOBaker::Init()
 	auto albedoTex = m_sceneData.mTextures[1];
 	//auto normalTex = m_sceneData.mTextures[2];
 	m_renderPass = std::make_unique<RenderPass>(
-		[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 
 			m_cb = make_shared<ConstantBuffer<CB>>("AOBaker_CB");
-			pso.m_VSState.m_constantBuffers[0] = m_cb;
+			builder.GetRenderPass()->m_vs.m_constantBuffers[0] = m_cb;
 
 			// setup shaders
 			pso.m_VSState.m_shader = make_shared<VertexShader>("AOBaker_VS", L"AOBaker", "VSMain");
 			pso.m_PSState.m_shader = make_shared<PixelShader>("AOBaker_PS", L"AOBaker", "PSMain");
 
-			pso.m_PSState.m_shaderResources[0] = albedoTex;
+			builder.GetRenderPass()->m_ps.m_shaderResources[0] = albedoTex;
 			//pso.m_PSState.m_shaderResources[1] = normalTex;
 			pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("AOBaker_Samp");
 
 			// setup geometry
-			pso.m_IAState.m_indexBuffer = geo.m_IB;
+			builder.GetRenderPass()->m_ia_params.m_indexBuffer = geo.m_IB;
 			pso.m_IAState.m_topologyType = geo.m_IB->GetPrimitiveType();
-			pso.m_IAState.m_vertexBuffers[0] = geo.m_VB;
+			builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = geo.m_VB;
 			pso.m_IAState.m_vertexLayout = geo.m_VB->GetVertexFormat();
 
 			const u32 size = 1024;
@@ -138,7 +138,7 @@ bool AOBaker::Init()
 
 	m_aoRenderer = make_shared<SimpleAlbedoRenderer>(m_sceneData);
 	m_aoRenderer->SetupRenderPass(*m_pDevice);
-	m_aoRenderer->m_renderPassVec.front().GetPSO<RasterPipelineStateObject>().m_PSState.m_shaderResources[0] = m_rtaoRenderer->m_uavRT;
+	m_aoRenderer->m_renderPassVec.front().m_ps.m_shaderResources[0] = m_rtaoRenderer->m_uavRT;
 
 	m_aoRenderer->mUpdateFunc = [&](f32 dt) {
 		auto object2WorldMatrix = m_sceneData.mInstances.front().mat;

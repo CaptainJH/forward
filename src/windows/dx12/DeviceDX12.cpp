@@ -22,6 +22,7 @@
 #include "RHI/FrameGraph/FrameGraph.h"
 #include "windows/dx12/ResourceSystem/DeviceBufferDX12.h"
 #include "windows/dx12/ResourceSystem/Textures/DeviceTexture2DDX12.h"
+#include "windows/dx12/ResourceSystem/Textures/DeviceTextureCubeDX12.h"
 #include "windows/dx12/DevicePipelineStateObjectDX12.h"
 #include "windows/dx12/CommandQueueDX12.h"
 #include "windows/dx12/CommandListDX12.h"
@@ -567,59 +568,101 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 
 		if (!pso.DeviceObject())
 		{
-			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso));
+			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso, *pass.m_ia_params.m_vertexBuffers[0]));
 		}
 
 		auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
-		const auto cbCounts = std::ranges::count_if(pso.m_VSState.m_constantBuffers, pred)
-			+ std::ranges::count_if(pso.m_PSState.m_constantBuffers, pred);
+		const auto cbCounts = std::ranges::count_if(pass.m_vs.m_constantBuffers, pred)
+			+ std::ranges::count_if(pass.m_ps.m_constantBuffers, pred);
 
 		if (cbCounts == 0 && pso.m_VSState.m_shader && pso.m_PSState.m_shader)
 		{
 			auto deviceVS = device_cast<ShaderDX12*>(pso.m_VSState.m_shader);
 			for (auto& cb : deviceVS->GetCBuffers())
-				pso.m_VSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+				pass.m_vs.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
 
 			auto devicePS = device_cast<ShaderDX12*>(pso.m_PSState.m_shader);
 			for (auto& cb : devicePS->GetCBuffers())
-				pso.m_PSState.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
+				pass.m_ps.m_constantBuffers[cb.GetBindPoint()] = make_shared<ConstantBufferBase>(cb.GetName().c_str(), cb.GetNumBytes());
 		}
 
 		// create & update device constant buffers
-		for (auto i = 0U; i < pso.m_VSState.m_constantBuffers.size(); ++i)
+		for (auto i = 0U; i < pass.m_vs.m_constantBuffers.size(); ++i)
 		{
-			auto cb = pso.m_VSState.m_constantBuffers[i];
+			auto cb = pass.m_vs.m_constantBuffers[i];
 			if (cb)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 		}
 
-		for (auto i = 0U; i < pso.m_GSState.m_constantBuffers.size(); ++i)
+		for (auto i = 0U; i < pass.m_gs.m_constantBuffers.size(); ++i)
 		{
-			auto cb = pso.m_GSState.m_constantBuffers[i];
+			auto cb = pass.m_gs.m_constantBuffers[i];
 			if (cb)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
 		}
 
-		for (auto i = 0U; i < pso.m_PSState.m_constantBuffers.size(); ++i)
+		for (auto i = 0U; i < pass.m_ps.m_constantBuffers.size(); ++i)
 		{
-			auto cb = pso.m_PSState.m_constantBuffers[i];
+			auto cb = pass.m_ps.m_constantBuffers[i];
 			if (cb)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
+
+		// setup shader resources
+		if (pso.m_PSState.m_shader)
+		{
+			//const auto& allTextures = devicePS->GetTextures();
+			//std::sort(pso.m_PSState.m_shaderResources.begin(), pso.m_PSState.m_shaderResources.begin() + allTextures.size(),
+			//	[&](auto& lhs, auto& rhs)->bool {
+			//		return std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
+			//			return p.GetName() == lhs->Name();
+			//			}) <
+			//			std::find_if(allTextures.begin(), allTextures.end(), [&](auto p)->bool {
+			//				return p.GetName() == rhs->Name();
+			//				});
+			//	});
+			for (auto i = 0U; i < pass.m_ps.m_shaderResources.size(); ++i)
+			{
+				auto res = pass.m_ps.m_shaderResources[i];
+				if (res && !res->DeviceObject())
+				{
+					if (dynamic_cast<Texture2D*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *this);
+						res->SetDeviceObject(deviceTex);
+					}
+					else if (dynamic_cast<TextureCube*>(res.get()))
+					{
+						auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *this);
+						res->SetDeviceObject(deviceTex);
+					}
+				}
+			}
 		}
 
 		// create & update device vertex buffer
-		for (auto i = 0U; i < pso.m_IAState.m_vertexBuffers.size(); ++i)
+		for (auto i = 0U; i < pass.m_ia_params.m_vertexBuffers.size(); ++i)
 		{
-			auto vb = pso.m_IAState.m_vertexBuffers[i];
+			auto vb = pass.m_ia_params.m_vertexBuffers[i];
 			if (vb)
 			{
+				if (!vb->DeviceObject())
+				{
+					auto deviceVB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), vb.get(), *this);
+					vb->SetDeviceObject(deviceVB);
+				}
 				auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
 				deviceVB->SyncCPUToGPU();
 			}
 		}
 
 		// create & update device index buffer
-		auto ib = pso.m_IAState.m_indexBuffer;
+		auto ib = pass.m_ia_params.m_indexBuffer;
+		if (ib && !ib->DeviceObject())
+		{
+			auto deviceIB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), ib.get(), *this);
+			ib->SetDeviceObject(deviceIB);
+		}
 		if (ib)
 		{
 			auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
@@ -636,11 +679,48 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		}
 
 		// create & update device constant buffers
-		for (auto i = 0U; i < pso.m_CSState.m_constantBuffers.size(); ++i)
+		for (auto i = 0U; i < pass.m_cs.m_constantBuffers.size(); ++i)
 		{
-			auto cb = pso.m_CSState.m_constantBuffers[i];
+			auto cb = pass.m_cs.m_constantBuffers[i];
 			if (cb)
 				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+		}
+
+		// setup shader resources
+		if (pso.m_CSState.m_shader)
+		{
+			for (auto i = 0U; i < pass.m_cs.m_shaderResources.size(); ++i)
+			{
+				auto res = pass.m_cs.m_shaderResources[i];
+				if (res)
+				{
+					if (dynamic_cast<Texture2D*>(res.get()) && !res->DeviceObject())
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *this);
+						res->SetDeviceObject(deviceTex);
+					}
+					else if (dynamic_cast<TextureCube*>(res.get()) && !res->DeviceObject())
+					{
+						auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *this);
+						res->SetDeviceObject(deviceTex);
+					}
+					else if (res->GetType() == FGOT_STRUCTURED_BUFFER
+						|| res->GetType() == FGOT_VERTEX_BUFFER || res->GetType() == FGOT_INDEX_BUFFER)
+						res->SetDeviceObject(make_shared<DeviceBufferDX12>(DeviceCommandList(), res.get(), *this));
+				}
+			}
+			for (auto i = 0U; i < pass.m_cs.m_uavShaderRes.size(); ++i)
+			{
+				auto res = pass.m_cs.m_uavShaderRes[i];
+				if (res)
+				{
+					if (dynamic_cast<Texture2D*>(res.get()) && !res->DeviceObject())
+					{
+						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *this);
+						res->SetDeviceObject(deviceTex);
+					}
+				}
+			}
 		}
 	}
 	else if (pass.IsRTPSO())
@@ -720,7 +800,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		}
 
 		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.DeviceObject().get());
-		m_queue->GetCommandListDX12()->BindRasterPSO(devicePSO);
+		m_queue->GetCommandListDX12()->BindRasterPSO(devicePSO, pass);
 		pass.Execute(*m_queue->GetCommandList());
 	
 		// Indicate a state transition on the resource usage.

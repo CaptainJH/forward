@@ -156,7 +156,7 @@ bool nanovg_forward_demo::Init()
 	}
 
 	m_renderPass = new RenderPass(
-	[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+	[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 		// setup shaders
         pso.m_VSState.m_shader = make_shared<VertexShader>("nanovg_forward_demoVS", L"BasicShader", "VSMainQuad");
         pso.m_PSState.m_shader = make_shared<PixelShader>("nanovg_forward_demoPS", L"BasicShader", "PSMainQuad");
@@ -185,7 +185,7 @@ bool nanovg_forward_demo::Init()
 			vb->AddVertex(quadVertices[i]);
 		}
 		vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
-		pso.m_IAState.m_vertexBuffers[0] = vb;
+		builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = vb;
 
 		// setup render states
 		auto dsPtr = m_pDevice->GetDefaultDS();
@@ -227,7 +227,7 @@ bool nanovg_forward_demo::Init()
 
 		if (m_currentPass_index >= m_nvg_fill_pass.size()) {
 			m_nvg_fill_pass.push_back(new RenderPass(
-				[&](RenderPassBuilder& /*builder*/, RasterPipelineStateObject& pso) {
+				[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 					// setup shaders
 					pso.m_VSState.m_shader = m_nvg_vs;
 					pso.m_PSState.m_shader = m_nvg_ps;
@@ -238,21 +238,21 @@ bool nanovg_forward_demo::Init()
 					{
 						m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
 					}
-					pso.m_IAState.m_vertexBuffers[0] = m_nvg_vb;
+					builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
 
 					for (auto i : renderItem.index_buffer)
 						m_nvg_ib->AddIndex(i);
-					pso.m_IAState.m_indexBuffer = m_nvg_ib;
+					builder.GetRenderPass()->m_ia_params.m_indexBuffer = m_nvg_ib;
 
 					auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
 					m_nvg_ps_cb.push_back(nvg_ps_cb);
 					*nvg_ps_cb->GetTypedData() = renderItem.constant_buffer;
-					pso.m_VSState.m_constantBuffers[0] = m_nvg_vs_cb;
-					pso.m_PSState.m_constantBuffers[1] = nvg_ps_cb;
+					builder.GetRenderPass()->m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
+					builder.GetRenderPass()->m_ps.m_constantBuffers[1] = nvg_ps_cb;
 					if (renderItem.tex)
-						pso.m_PSState.m_shaderResources[0] = renderItem.tex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[0] = renderItem.tex;
 					else
-						pso.m_PSState.m_shaderResources[0] = m_default_tex;
+						builder.GetRenderPass()->m_ps.m_shaderResources[0] = m_default_tex;
 					pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
 
 					pso.m_RSState.m_rsState.cullMode = renderItem.cull_mode;
