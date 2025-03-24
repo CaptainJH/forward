@@ -440,7 +440,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 	//	m_allUsedDrawingStates.push_back(FrameGraphObjectInfo(ds_ptr));
 	//}
 
-	auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
+	auto dsRes_ptr = pass->m_om_params.m_depthStencilResource.get();
 	auto it_DSRes = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [dsRes_ptr](FrameGraphResourceInfo& info)->bool {
 		return info.m_object == dsRes_ptr;
 	});
@@ -449,7 +449,7 @@ void FrameGraph::registerRenderPass(RenderPass* pass)
 		m_allUsedResources.push_back(FrameGraphResourceInfo(dsRes_ptr));
 	}
 
-	for (auto rt : pso.m_OMState.m_renderTargetResources)
+	for (auto rt : pass->m_om_params.m_renderTargetResources)
 	{
 		if (rt)
 		{
@@ -695,30 +695,30 @@ void FrameGraph::LinkInfo()
 		//passInfo.m_drawingStates.push_back(&*it_ds);
 		//registerDrawingState(it_ds->GetFrameGraphDrawingState(), pass_ptr);
 
-		auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
-		if (dsRes_ptr)
-		{
-			auto it_DSRes = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [dsRes_ptr](FrameGraphResourceInfo& info)->bool {
-				return info.m_object == dsRes_ptr;
-			});
-			assert(it_DSRes != m_allUsedResources.end());
-			passInfo.m_outputResources.push_back(&*it_DSRes);
-			registerWriteFrameGraphResource(it_DSRes->GetFrameGraphResource(), pass_ptr);
-		}
+		//auto dsRes_ptr = pso.m_OMState.m_depthStencilResource.get();
+		//if (dsRes_ptr)
+		//{
+		//	auto it_DSRes = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [dsRes_ptr](FrameGraphResourceInfo& info)->bool {
+		//		return info.m_object == dsRes_ptr;
+		//	});
+		//	assert(it_DSRes != m_allUsedResources.end());
+		//	passInfo.m_outputResources.push_back(&*it_DSRes);
+		//	registerWriteFrameGraphResource(it_DSRes->GetFrameGraphResource(), pass_ptr);
+		//}
 
-		for (auto rt : pso.m_OMState.m_renderTargetResources)
-		{
-			if (rt)
-			{
-				auto rt_ptr = rt.get();
-				auto it_rt = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [rt_ptr](FrameGraphResourceInfo& info)->bool {
-					return info.m_object == rt_ptr;
-				});
-				assert(it_rt != m_allUsedResources.end());
-				passInfo.m_outputResources.push_back(&*it_rt);
-				registerWriteFrameGraphResource(it_rt->GetFrameGraphResource(), pass_ptr);
-			}
-		}
+		//for (auto rt : pso.m_OMState.m_renderTargetResources)
+		//{
+		//	if (rt)
+		//	{
+		//		auto rt_ptr = rt.get();
+		//		auto it_rt = std::find_if(m_allUsedResources.begin(), m_allUsedResources.end(), [rt_ptr](FrameGraphResourceInfo& info)->bool {
+		//			return info.m_object == rt_ptr;
+		//		});
+		//		assert(it_rt != m_allUsedResources.end());
+		//		passInfo.m_outputResources.push_back(&*it_rt);
+		//		registerWriteFrameGraphResource(it_rt->GetFrameGraphResource(), pass_ptr);
+		//	}
+		//}
 	}
 }
 

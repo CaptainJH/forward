@@ -9,20 +9,19 @@
 #include "windows/dx12/CommandQueueDX12.h"
 #include "windows/dx12/CommandListDX12.h"
 #include "windows/dx12/DynamicDescriptorHeapDX12.h"
+#include "RHI/FrameGraph/RenderPass.h"
 
 #include <ranges>
 #include <regex>
 
 using namespace forward;
 
-DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso, VertexBuffer& vbuffer)
+DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso, RenderPass& rp)
 	: DeviceObject(&pso)
 	, m_numElements(0)
 {
 	ZeroMemory(&m_elements[0], VA_MAX_ATTRIBUTES * sizeof(m_elements[0]));
 	auto device = d->GetDevice();
-	auto commandList = d->DeviceCommandList();
-	commandList;
 
 	// setup graphic pipeline
 	VertexShader* vsshader = pso.m_VSState.m_shader.get();
@@ -46,7 +45,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Rast
 
 	if (vsshader)
 	{
-		const auto& vertexFormat = vbuffer.GetVertexFormat();
+		const auto& vertexFormat = rp.m_ia_params.m_vertexBuffers[0]->GetVertexFormat();
 		m_numElements = vertexFormat.GetNumAttributes();
 		for (auto i = 0U; i < m_numElements; ++i)
 		{
@@ -122,9 +121,9 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Rast
 		psoDesc.SampleMask = UINT_MAX;
 		psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
 		psoDesc.NumRenderTargets = 0;
-		for (auto i = 0U; i < pso.m_OMState.m_renderTargetResources.size(); ++i)
+		for (auto i = 0U; i < rp.m_om_params.m_renderTargetResources.size(); ++i)
 		{
-			auto rt = pso.m_OMState.m_renderTargetResources[i];
+			auto rt = rp.m_om_params.m_renderTargetResources[i];
 			if (rt)
 			{
 				++psoDesc.NumRenderTargets;
@@ -138,34 +137,15 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Rast
 		}
 		else
 		{
-			psoDesc.SampleDesc.Count = pso.m_OMState.m_renderTargetResources[0]->GetSampCount();
+			psoDesc.SampleDesc.Count = rp.m_om_params.m_renderTargetResources[0]->GetSampCount();
 			psoDesc.SampleDesc.Quality = 0;
 		}
-		if (pso.m_OMState.m_depthStencilResource)
+		if (rp.m_om_params.m_depthStencilResource)
 		{
-			psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(pso.m_OMState.m_depthStencilResource->GetFormat());
+			psoDesc.DSVFormat = static_cast<DXGI_FORMAT>(rp.m_om_params.m_depthStencilResource->GetFormat());
 		}
 		HR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_devicePSO)));
 	}
-
-	// setup render targets
-	std::for_each(pso.m_OMState.m_renderTargetResources.begin(), pso.m_OMState.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
-		if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
-		{
-			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *d);
-			ptr->SetDeviceObject(deviceTex);
-		}
-		});
-	// setup depth stencil buffer
-	if (pso.m_OMState.m_depthStencilResource && !pso.m_OMState.m_depthStencilResource->DeviceObject())
-	{
-		auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pso.m_OMState.m_depthStencilResource.get(), *d);
-		pso.m_OMState.m_depthStencilResource->SetDeviceObject(deviceTex);
-	}
-
-	// Execute the initialization commands
-	d->GetDefaultQueue()->ExecuteCommandList([]() {});
-	d->GetDefaultQueue()->Flush();
 }
 
 DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, ComputePipelineStateObject& pso)

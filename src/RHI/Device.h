@@ -68,7 +68,7 @@ namespace forward
 		virtual void BeginDrawFrameGraph(FrameGraph* fg);
 		virtual void EndDrawFrameGraph() = 0;
 
-		virtual void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) = 0;
+		virtual void SaveRenderTarget(const std::wstring& filename, RenderPass*) = 0;
 		virtual void SaveTexture(const std::wstring& filename, Texture2D* tex) = 0;
 
 		virtual void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) = 0;

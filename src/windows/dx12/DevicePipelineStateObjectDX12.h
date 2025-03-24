@@ -15,6 +15,7 @@ namespace forward
 {
 	struct BindingRanges;
 	class DeviceDX12;
+	class RenderPass;
 	class DynamicDescriptorHeapDX12;
 
 	struct DevicePipelineStateObjectHelper
@@ -113,7 +114,7 @@ namespace forward
 	{
 		friend class CommandListDX12;
 	public:
-		DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso, VertexBuffer&);
+		DevicePipelineStateObjectDX12(DeviceDX12* d, RasterPipelineStateObject& pso, RenderPass&);
 		DevicePipelineStateObjectDX12(DeviceDX12* d, ComputePipelineStateObject& pso);
 		~DevicePipelineStateObjectDX12() override;
 

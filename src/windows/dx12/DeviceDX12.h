@@ -80,7 +80,7 @@ namespace forward
 
 		void OnResize(u32 width, u32 height) override;
 
-		void SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso) override;
+		void SaveRenderTarget(const std::wstring& filename, RenderPass* rp) override;
 		void SaveTexture(const std::wstring& filename, Texture2D* tex) override;
 
 		void DrawScreenText(const std::string& msg, i32 x, i32 y, const float4& color) override;
@@ -139,9 +139,9 @@ namespace forward
 		void DrawImGui();
 
 		//--------------------------------------------------------
-		DeviceTexture2DDX12* CurrentBackBuffer(RasterPipelineStateObject* pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(RasterPipelineStateObject* pso) const;
-		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(RasterPipelineStateObject* pso) const;
+		DeviceTexture2DDX12* CurrentBackBuffer(RenderPass* rp) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(RenderPass* rp) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView(RenderPass* rp) const;
 		D3D12_VIEWPORT	mScreenViewport;
 		D3D12_RECT		mScissorRect;
 		//--------------------------------------------------------

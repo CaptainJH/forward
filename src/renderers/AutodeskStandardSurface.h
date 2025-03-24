@@ -158,8 +158,8 @@ namespace forward
 						pso.m_RSState.m_rsState.frontCCW = true;
 						
 						// setup render states
-						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
-						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = r.GetDefaultRT();
+						builder.GetRenderPass()->m_om_params.m_depthStencilResource = r.GetDefaultDS();
 					},
 					[&](CommandList& cmdList) {
 						cmdList.DrawIndexed(p.second->GetNumElements());

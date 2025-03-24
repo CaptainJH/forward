@@ -108,10 +108,10 @@ bool AOBaker::Init()
 			m_normalTex = make_shared<Texture2D>("Normal_OUTPUT", DF_R32G32B32A32_FLOAT, size, size,
 				TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 			// setup render states
-			pso.m_OMState.m_renderTargetResources[0] = m_colorTex;
-			pso.m_OMState.m_renderTargetResources[1] = m_posTex;
-			pso.m_OMState.m_renderTargetResources[2] = m_normalTex;
-			pso.m_OMState.m_depthStencilResource = m_pDevice->GetDefaultDS();
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = m_colorTex;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[1] = m_posTex;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[2] = m_normalTex;
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_pDevice->GetDefaultDS();
 
 			pso.m_RSState.m_rsState.cullMode = RasterizerState::CULL_NONE;
 		},

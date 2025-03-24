@@ -80,8 +80,8 @@ namespace forward
 						builder.GetRenderPass()->m_vs.m_constantBuffers[0] = cb;
 
 						// setup render states
-						pso.m_OMState.m_renderTargetResources[0] = r.GetDefaultRT();
-						pso.m_OMState.m_depthStencilResource = r.GetDefaultDS();
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = r.GetDefaultRT();
+						builder.GetRenderPass()->m_om_params.m_depthStencilResource = r.GetDefaultDS();
 					},
 					[&p](CommandList& cmdList) {
 						cmdList.DrawIndexed(p.second->GetNumElements());

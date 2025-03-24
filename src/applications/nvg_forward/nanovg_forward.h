@@ -38,6 +38,7 @@ struct RenderItem {
 
 	forward::shared_ptr<forward::Texture2D> tex = nullptr;
 
+//private:
 	void SetupBlenderStateNoWrite() {
 		om_state.m_blendState = forward::BlendState();
 		om_state.m_blendState.target[0].mask = 0;

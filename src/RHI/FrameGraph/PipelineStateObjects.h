@@ -275,13 +275,15 @@ namespace forward
 		VertexFormat			m_vertexLayout;
 	};
 
+	struct OutputMergerStageParameter {
+		shared_ptr<Texture2D>	m_depthStencilResource;
+		std::array<shared_ptr<Texture2D>, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources = { nullptr };
+	};
+
 	struct OutputMergerStageState
 	{
 		BlendState			m_blendState;
 		DepthStencilState	m_dsState;
-
-		shared_ptr<Texture2D>	m_depthStencilResource;
-		std::array<shared_ptr<Texture2D>, FORWARD_RENDERER_SIMULTANEOUS_RENDER_TARGET_COUNT> m_renderTargetResources = { nullptr };
 	};
 
 	struct RECT

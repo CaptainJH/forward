@@ -89,11 +89,11 @@ bool OffScreenRenderingDemo::Init()
 			auto rtPtr = forward::make_shared<Texture2D>(std::string("RT"), DF_R8G8B8A8_UNORM,
 				mClientWidth, mClientHeight, TextureBindPosition::TBP_RT);
 			rtPtr->SetUsage(ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL);
-			pso.m_OMState.m_renderTargetResources[0] = rtPtr;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rtPtr;
 
 			auto dsPtr = forward::make_shared<Texture2D>(std::string("DS"), DF_D32_FLOAT,
 				mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
-			pso.m_OMState.m_depthStencilResource = dsPtr;
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = dsPtr;
 
 			pso.m_RSState.m_rsState.frontCCW = false;
 			},
@@ -107,5 +107,5 @@ bool OffScreenRenderingDemo::Init()
 
 void OffScreenRenderingDemo::SaveRT()
 {
-	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", &m_renderPass->GetPSO<RasterPipelineStateObject>());
+	m_pDevice->SaveRenderTarget(L"OffScreenRenderingResultDX12.bmp", m_renderPass.get());
 }

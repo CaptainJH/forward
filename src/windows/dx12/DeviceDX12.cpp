@@ -233,8 +233,8 @@ DeviceDX12::DeviceDX12(SDL_Renderer* r)
 			pso.m_RSState.m_rsState.frontCCW = true;
 
 			// setup render states
-			pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
-			pso.m_OMState.m_depthStencilResource = GetDefaultDS();
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = GetDefaultRT();
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = GetDefaultDS();
 
 			auto& target = pso.m_OMState.m_blendState.target[0];
 			target.enable = true;
@@ -512,12 +512,12 @@ void DeviceDX12::OnResize()
 
 }
 //--------------------------------------------------------------------------------
-DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(RasterPipelineStateObject* pso) const
+DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(RenderPass* rp) const
 {
-	if (pso)
+	if (rp)
 	{
-		if (pso->m_OMState.m_renderTargetResources[0] && pso->m_OMState.m_renderTargetResources[0]->DeviceObject())
-			return device_cast<DeviceTexture2DDX12*>(pso->m_OMState.m_renderTargetResources[0]);
+		if (rp->m_om_params.m_renderTargetResources[0] && rp->m_om_params.m_renderTargetResources[0]->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(rp->m_om_params.m_renderTargetResources[0]);
 	}
 
 	if (m_SwapChain)
@@ -532,19 +532,19 @@ DeviceTexture2DDX12* DeviceDX12::CurrentBackBuffer(RasterPipelineStateObject* ps
 	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(RasterPipelineStateObject* pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::CurrentBackBufferView(RenderPass* rp) const
 {
-	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(pso);
+	DeviceTexture2DDX12* tex12 = CurrentBackBuffer(rp);
 	assert(tex12);
 	return tex12->GetRenderTargetViewHandle();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(RasterPipelineStateObject* pso) const
+D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(RenderPass* rp) const
 {
-	if (pso)
+	if (rp)
 	{
-		if (pso->m_OMState.m_depthStencilResource && pso->m_OMState.m_depthStencilResource->DeviceObject())
-			return device_cast<DeviceTexture2DDX12*>(pso->m_OMState.m_depthStencilResource)->GetDepthStencilViewHandle();
+		if (rp->m_om_params.m_depthStencilResource && rp->m_om_params.m_depthStencilResource->DeviceObject())
+			return device_cast<DeviceTexture2DDX12*>(rp->m_om_params.m_depthStencilResource)->GetDepthStencilViewHandle();
 	}
 	else if (m_SwapChain)
 	{
@@ -568,7 +568,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 
 		if (!pso.DeviceObject())
 		{
-			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso, *pass.m_ia_params.m_vertexBuffers[0]));
+			pso.SetDeviceObject(forward::make_shared<DevicePipelineStateObjectDX12>(this, pso, pass));
 		}
 
 		auto pred = [](auto& ptr) { return static_cast<bool>(ptr); };
@@ -667,6 +667,21 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
 			deviceIB->SyncCPUToGPU();
+		}
+
+		// setup render targets
+		std::for_each(pass.m_om_params.m_renderTargetResources.begin(), pass.m_om_params.m_renderTargetResources.end(), [&](forward::shared_ptr< Texture2D> ptr) {
+			if (ptr && !ptr->DeviceObject() && ptr->Name() != "DefaultRT")
+			{
+				auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(ptr.get(), *this);
+				ptr->SetDeviceObject(deviceTex);
+			}
+			});
+		// setup depth stencil buffer
+		if (pass.m_om_params.m_depthStencilResource && !pass.m_om_params.m_depthStencilResource->DeviceObject())
+		{
+			auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(pass.m_om_params.m_depthStencilResource.get(), *this);
+			pass.m_om_params.m_depthStencilResource->SetDeviceObject(deviceTex);
 		}
 	}
 	else if (pass.IsComputePSO())
@@ -768,7 +783,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 
 		// Specify the buffers we are going to render to.
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rt = {};
-		for (auto& r : rpso.m_OMState.m_renderTargetResources)
+		for (auto& r : pass.m_om_params.m_renderTargetResources)
 		{
 			if (!r) break;
 			if (r->DeviceObject())
@@ -779,11 +794,11 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			}
 			else if (r->Name() == "DefaultRT")
 			{
-				rt.emplace_back(CurrentBackBufferView(&rpso));
-				TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				rt.emplace_back(CurrentBackBufferView(&pass));
+				TransitionResource(CurrentBackBuffer(&pass), D3D12_RESOURCE_STATE_RENDER_TARGET);
 			}
 		}
-		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&rpso);
+		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&pass);
 		DeviceCommandList()->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);
 		// Clear the back buffer and depth buffer.
 		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, 0.0f };
@@ -794,7 +809,7 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		}
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 		{
-			auto rtD = device_cast<DeviceTexture2DDX12*>(rpso.m_OMState.m_depthStencilResource);
+			auto rtD = device_cast<DeviceTexture2DDX12*>(pass.m_om_params.m_depthStencilResource);
 			TransitionResource(rtD, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
@@ -804,8 +819,8 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		pass.Execute(*m_queue->GetCommandList());
 	
 		// Indicate a state transition on the resource usage.
-		if (rpso.m_OMState.m_renderTargetResources[0]->Name() == "DefaultRT")
-			TransitionResource(CurrentBackBuffer(&rpso), D3D12_RESOURCE_STATE_PRESENT);
+		if (pass.m_om_params.m_renderTargetResources[0]->Name() == "DefaultRT")
+			TransitionResource(CurrentBackBuffer(&pass), D3D12_RESOURCE_STATE_PRESENT);
 	}
 	else if (pass.IsComputePSO())
 	{
@@ -894,8 +909,8 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 			pso.m_RSState.m_rsState.frontCCW = true;
 
 			// setup render states
-			pso.m_OMState.m_renderTargetResources[0] = GetDefaultRT();
-			pso.m_OMState.m_depthStencilResource = GetDefaultDS();
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = GetDefaultRT();
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = GetDefaultDS();
 
 			auto& target = pso.m_OMState.m_blendState.target[0];
 			target.enable = true;
@@ -911,9 +926,9 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	return true;
 }
 //--------------------------------------------------------------------------------
-void DeviceDX12::SaveRenderTarget(const std::wstring& filename, RasterPipelineStateObject* pso)
+void DeviceDX12::SaveRenderTarget(const std::wstring& filename, RenderPass* rp)
 {
-	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(pso);
+	DeviceTexture2DDX12* deviceRT = CurrentBackBuffer(rp);
 	auto rtPtr = deviceRT->GetTexture2D();
 	SaveTexture(filename, rtPtr.get());
 }

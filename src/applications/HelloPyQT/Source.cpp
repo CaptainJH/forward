@@ -68,10 +68,10 @@ bool HelloPyQTDll::Init()
 
 			// setup render states
 			auto dsPtr = m_pDevice->GetDefaultDS();
-			pso.m_OMState.m_depthStencilResource = dsPtr;
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = dsPtr;
 
 			auto rsPtr = m_pDevice->GetDefaultRT();
-			pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
 		},
 		[](CommandList& cmdList) {
 			cmdList.Draw(4);

@@ -125,10 +125,10 @@ bool MSAA_Demo::Init()
 
 			// setup render targets
 			auto dsPtr = m_pDevice->GetDefaultDS();
-			pso.m_OMState.m_depthStencilResource = dsPtr;
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = dsPtr;
 
 			auto rsPtr = m_pDevice->GetDefaultRT();
-			pso.m_OMState.m_renderTargetResources[0] = rsPtr;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
 
 			// setup rasterizer
 			forward::RECT scissorRect = { 0, 0, mClientWidth / 2, mClientHeight };
@@ -160,8 +160,8 @@ bool MSAA_Demo::Init()
 			// setup render targets
 			m_msaa_rt = make_shared<Texture2D>("MSAA_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT, true);
 			m_msaa_ds = make_shared<Texture2D>("MSAA_DS", DF_D24_UNORM_S8_UINT, mClientWidth, mClientHeight, TextureBindPosition::TBP_DS, true);
-			pso.m_OMState.m_renderTargetResources[0] = m_msaa_rt;
-			pso.m_OMState.m_depthStencilResource = m_msaa_ds;
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = m_msaa_rt;
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_msaa_ds;
 			m_msaa_resolved = make_shared<Texture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 
 			pso.m_RSState.m_rsState.frontCCW = false;
@@ -185,8 +185,8 @@ bool MSAA_Demo::Init()
 			builder << *m_quad;
 
 			// setup render targets
-			pso.m_OMState.m_renderTargetResources[0] = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
-			pso.m_OMState.m_depthStencilResource = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
+			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
+			builder.GetRenderPass()->m_om_params.m_depthStencilResource = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultDS");
 
 			// setup rasterizer
 			auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");

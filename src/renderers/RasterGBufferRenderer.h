@@ -112,11 +112,11 @@ namespace forward
 						builder.GetRenderPass()->m_ps.m_constantBuffers[1] = mCB1;
 
 						// setup render states
-						pso.m_OMState.m_renderTargetResources[0] = m_rt_color;
-						pso.m_OMState.m_renderTargetResources[1] = m_gBuffer_Pos;
-						pso.m_OMState.m_renderTargetResources[2] = m_gBuffer_Normal;
-						pso.m_OMState.m_renderTargetResources[3] = m_gBuffer_RoughnessMetalness;
-						pso.m_OMState.m_depthStencilResource = m_depth;
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = m_rt_color;
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[1] = m_gBuffer_Pos;
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[2] = m_gBuffer_Normal;
+						builder.GetRenderPass()->m_om_params.m_renderTargetResources[3] = m_gBuffer_RoughnessMetalness;
+						builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_depth;
 					},
 					[&, isLast](CommandList& cmdList) {
 						cmdList.DrawIndexed(p.second->GetNumElements());
