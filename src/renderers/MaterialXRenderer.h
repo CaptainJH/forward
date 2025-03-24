@@ -57,7 +57,7 @@ namespace forward
 						builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
 
-						pso.m_RSState.m_rsState.frontCCW = true;
+						pso.m_rsState.frontCCW = true;
 
 						// setup render states
 						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = r.GetDefaultRT();

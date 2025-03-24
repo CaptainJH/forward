@@ -304,10 +304,8 @@ namespace forward
 		f32 MaxDepth = 1.0f;
 	};
 
-	struct RasterizerStageState
+	struct RasterizerStageParameters
 	{
-		RasterizerState	m_rsState;
-
 		void AddViewport(ViewPort vp);
 		void AddScissorRect(RECT rect);
 		u32 m_activeViewportsNum = 0;
@@ -380,14 +378,12 @@ namespace forward
 	{
 		u32 m_usedCBV_SRV_UAV_Count = 0;
 		u32 m_usedSampler_Count = 0;
-
-		//shared_ptr<DeviceObject>	m_devicePSO;
 	};
 
 	struct RasterPipelineStateObject : public PipelineStateObjectBase
 	{
 		InputAssemblerStageState	m_IAState;
-		RasterizerStageState			m_RSState;
+		RasterizerState						m_rsState;
 		OutputMergerStageState		m_OMState;
 
 		VertexShaderStageState		m_VSState;
@@ -428,6 +424,4 @@ namespace forward
 		void FeedWithSceneData(const SceneData& scene);
 	};
 
-	//typedef std::variant<RasterPipelineStateObject, ComputePipelineStateObject, RTPipelineStateObject> PSOUnion;
-	//typedef std::variant<RasterPipelineStateObject*, ComputePipelineStateObject*, RTPipelineStateObject*> PSOPtrUnion;
 }

@@ -230,7 +230,7 @@ DeviceDX12::DeviceDX12(SDL_Renderer* r)
 	m_textRenderPass = new RenderPass(
 		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 			builder << *m_textFont;
-			pso.m_RSState.m_rsState.frontCCW = true;
+			pso.m_rsState.frontCCW = true;
 
 			// setup render states
 			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = GetDefaultRT();
@@ -764,17 +764,17 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 		DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
 		D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 		memset(aRects, 0, sizeof(aRects));
-		if (rpso.m_RSState.m_rsState.enableScissor)
+		if (rpso.m_rsState.enableScissor)
 		{
-			for (auto i = 0U; i < rpso.m_RSState.m_activeScissorRectNum; ++i)
+			for (auto i = 0U; i < pass.m_raster_params.m_activeScissorRectNum; ++i)
 			{
-				auto rect = rpso.m_RSState.m_scissorRects[i];
+				auto rect = pass.m_raster_params.m_scissorRects[i];
 				aRects[i].left = rect.left;
 				aRects[i].bottom = rect.height;
 				aRects[i].right = rect.width;
 				aRects[i].top = rect.top;
 			}
-			DeviceCommandList()->RSSetScissorRects(rpso.m_RSState.m_rsState.enableScissor, aRects);
+			DeviceCommandList()->RSSetScissorRects(rpso.m_rsState.enableScissor, aRects);
 		}
 		else
 		{
@@ -906,7 +906,7 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 	m_textRenderPass = new RenderPass(
 		[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
 			builder << *m_textFont;
-			pso.m_RSState.m_rsState.frontCCW = true;
+			pso.m_rsState.frontCCW = true;
 
 			// setup render states
 			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = GetDefaultRT();

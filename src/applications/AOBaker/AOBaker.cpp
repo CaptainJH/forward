@@ -113,7 +113,7 @@ bool AOBaker::Init()
 			builder.GetRenderPass()->m_om_params.m_renderTargetResources[2] = m_normalTex;
 			builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_pDevice->GetDefaultDS();
 
-			pso.m_RSState.m_rsState.cullMode = RasterizerState::CULL_NONE;
+			pso.m_rsState.cullMode = RasterizerState::CULL_NONE;
 		},
 		[&](CommandList& cmdList) {
 			cmdList.DrawIndexed(geo.m_IB->GetNumElements());

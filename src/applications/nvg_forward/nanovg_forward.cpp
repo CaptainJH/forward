@@ -194,7 +194,7 @@ bool nanovg_forward_demo::Init()
 		auto rsPtr = m_pDevice->GetDefaultRT();
 		builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
 
-		pso.m_RSState.m_rsState.frontCCW = false;
+		pso.m_rsState.frontCCW = false;
 		},
 		[](CommandList& cmdList) {
 			cmdList.Draw(4);
@@ -255,7 +255,7 @@ bool nanovg_forward_demo::Init()
 						builder.GetRenderPass()->m_ps.m_shaderResources[0] = m_default_tex;
 					pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
 
-					pso.m_RSState.m_rsState.cullMode = renderItem.cull_mode;
+					pso.m_rsState.cullMode = renderItem.cull_mode;
 
 					// setup render states
 					auto dsPtr = m_pDevice->GetDefaultDS();

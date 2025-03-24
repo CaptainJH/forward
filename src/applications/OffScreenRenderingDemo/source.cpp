@@ -95,7 +95,7 @@ bool OffScreenRenderingDemo::Init()
 				mClientWidth, mClientHeight, TextureBindPosition::TBP_DS);
 			builder.GetRenderPass()->m_om_params.m_depthStencilResource = dsPtr;
 
-			pso.m_RSState.m_rsState.frontCCW = false;
+			pso.m_rsState.frontCCW = false;
 			},
 			[](CommandList& cmdList) {
 				cmdList.Draw(4);

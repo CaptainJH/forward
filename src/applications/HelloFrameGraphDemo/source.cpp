@@ -97,7 +97,7 @@ bool HelloFrameGraph::Init()
 		auto rsPtr = m_pDevice->GetDefaultRT();
 		builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
 
-		pso.m_RSState.m_rsState.frontCCW = false;
+		pso.m_rsState.frontCCW = false;
 		},
 		[](CommandList& cmdList) {
 			cmdList.Draw(4);

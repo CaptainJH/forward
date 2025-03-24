@@ -59,7 +59,8 @@ namespace forward
 		}
 
 		InputAssemblerStageParameters m_ia_params;
-		OutputMergerStageParameter m_om_params;
+		RasterizerStageParameters			m_raster_params;
+		OutputMergerStageParameter		m_om_params;
 		ShaderStageParameters m_vs;;
 		ShaderStageParameters m_ps;
 		ShaderStageParameters m_gs;

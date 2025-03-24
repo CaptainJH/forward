@@ -362,7 +362,7 @@ void DevicePipelineStateObjectDX12::ConfigRasterizerState(D3D12_RASTERIZER_DESC&
 {
 	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(GraphicsObject().get());
 	desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	auto& rsState = pso.m_RSState.m_rsState;
+	auto& rsState = pso.m_rsState;
 	desc.FillMode = DevicePipelineStateObjectHelper::msFillMode[rsState.fillMode];
 	desc.CullMode = DevicePipelineStateObjectHelper::msCullMode[rsState.cullMode];
 	desc.FrontCounterClockwise = rsState.frontCCW ? TRUE : FALSE;

@@ -76,13 +76,13 @@ RasterizerState::RasterizerState()
 
 }
 
-void RasterizerStageState::AddViewport(ViewPort vp)
+void RasterizerStageParameters::AddViewport(ViewPort vp)
 {
 	assert(m_activeViewportsNum < FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
 	m_viewports[m_activeViewportsNum++] = vp;
 }
 
-void RasterizerStageState::AddScissorRect(forward::RECT rect)
+void RasterizerStageParameters::AddScissorRect(forward::RECT rect)
 {
 	assert(m_activeScissorRectNum < FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
 	m_scissorRects[m_activeScissorRectNum++] = rect;

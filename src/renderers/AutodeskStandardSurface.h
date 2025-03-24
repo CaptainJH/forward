@@ -155,7 +155,7 @@ namespace forward
 						lightData0.intensity = 2.52776f;
 						lightData0.type = 1;
 
-						pso.m_RSState.m_rsState.frontCCW = true;
+						pso.m_rsState.frontCCW = true;
 						
 						// setup render states
 						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = r.GetDefaultRT();

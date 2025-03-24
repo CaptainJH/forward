@@ -132,9 +132,9 @@ bool MSAA_Demo::Init()
 
 			// setup rasterizer
 			forward::RECT scissorRect = { 0, 0, mClientWidth / 2, mClientHeight };
-			pso.m_RSState.AddScissorRect(scissorRect);
-			pso.m_RSState.m_rsState.enableScissor = true;
-			pso.m_RSState.m_rsState.frontCCW = false;
+			builder.GetRenderPass()->m_raster_params.AddScissorRect(scissorRect);
+			pso.m_rsState.enableScissor = true;
+			pso.m_rsState.frontCCW = false;
 		},
 		[&](CommandList& cmdList) {
 			cmdList.DrawIndexed(m_geometry->GetIndexCount());
@@ -164,7 +164,7 @@ bool MSAA_Demo::Init()
 			builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_msaa_ds;
 			m_msaa_resolved = make_shared<Texture2D>("Final_RT", DF_R8G8B8A8_UNORM, mClientWidth, mClientHeight, TextureBindPosition::TBP_RT | TextureBindPosition::TBP_Shader);
 
-			pso.m_RSState.m_rsState.frontCCW = false;
+			pso.m_rsState.frontCCW = false;
 		},
 			[&](CommandList& cmdList) {
 			cmdList.DrawIndexed(m_geometry->GetIndexCount());
@@ -191,9 +191,9 @@ bool MSAA_Demo::Init()
 			// setup rasterizer
 			auto rsPtr = GraphicsObject::FindFrameGraphObject<Texture2D>("DefaultRT");
 			forward::RECT scissorRect = { mClientWidth / 2, 0, mClientWidth, mClientHeight };
-			pso.m_RSState.AddScissorRect(scissorRect);
-			pso.m_RSState.m_rsState.enableScissor = true;
-			pso.m_RSState.m_rsState.frontCCW = false;
+			builder.GetRenderPass()->m_raster_params.AddScissorRect(scissorRect);
+			pso.m_rsState.enableScissor = true;
+			pso.m_rsState.frontCCW = false;
 			},
 			[&](CommandList& cmdList) {
 				cmdList.Draw(m_quad->GetVertexCount());
