@@ -279,6 +279,7 @@ static int forwardnvg_renderUpdateTexture(void* uptr, int image, int x, int y, i
 	auto pDst = tex.tex->GetData() + offset;
 
 	forward::Resource::CopyPitched2(h, tex.w * pixelWidthBytes, pData, tex.tex->GetWidth() * pixelWidthBytes, pDst);
+	tex.tex->SetDirty();
 
 	return 1;
 }

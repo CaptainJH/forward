@@ -637,6 +637,12 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 						res->SetDeviceObject(deviceTex);
 					}
 				}
+
+				if (res && res->IsDirty()) {
+					auto deviceTex = device_cast<DeviceResource*>(res);
+					deviceTex->SyncCPUToGPU();
+					res->CleanDirty();
+				}
 			}
 		}
 
