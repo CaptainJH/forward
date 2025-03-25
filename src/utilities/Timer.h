@@ -17,7 +17,7 @@ namespace forward
 
 		void Tick();
 		void Reset();
-		i64 Runtime();  // in second
+		f32 Runtime();  // in second
 		f32 Elapsed(); // in ms
 		i32 Framerate();
 		i32 MaxFramerate();

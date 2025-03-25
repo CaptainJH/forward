@@ -44,6 +44,7 @@ void IndexBuffer::AddFace(const TriangleIndices& face)
 	src = face.P3();
 	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
+	SetDirty();
 }
 
 void IndexBuffer::AddLine(const LineIndices& line)
@@ -59,6 +60,7 @@ void IndexBuffer::AddLine(const LineIndices& line)
 	src = line.P2();
 	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
+	SetDirty();
 }
 
 void IndexBuffer::AddPoint(const PointIndices& point)
@@ -68,6 +70,7 @@ void IndexBuffer::AddPoint(const PointIndices& point)
 	u32 src = point.P1();
 	memcpy(m_data + m_numActiveElements * sizeof(u32), &src, sizeof(u32));
 	++m_numActiveElements;
+	SetDirty();
 }
 
 void IndexBuffer::AddIndex(u32 index)
@@ -76,6 +79,7 @@ void IndexBuffer::AddIndex(u32 index)
 
 	memcpy(m_data + m_numActiveElements * sizeof(u32), &index, sizeof(u32));
 	++m_numActiveElements;
+	SetDirty();
 }
 
 u32 IndexBuffer::operator[](u32 index)

@@ -62,10 +62,10 @@ void Timer::Reset()
 	m_oneSecondTimePoint = m_startTimePoint;
 }
 
-i64 Timer::Runtime()
+f32 Timer::Runtime()
 {
 	auto length = m_currentTimePoint - m_startTimePoint;
-	return chrono::duration_cast<chrono::seconds>(length).count();
+	return chrono::duration_cast<chrono::milliseconds>(length).count() / 1000.0f;
 }
 
 f32 Timer::Elapsed()

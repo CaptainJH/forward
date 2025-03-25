@@ -148,11 +148,14 @@ DeviceBufferDX12::~DeviceBufferDX12()
 void DeviceBufferDX12::SyncCPUToGPU()
 {
 	auto res = m_frameGraphObjPtr.lock_down<Resource>();
+	if (!res->IsDirty())
+		return;
 	ResourceUsage usage = res->GetUsage();
 	if (usage == ResourceUsage::RU_DYNAMIC_UPDATE)
 	{
 		memcpy(m_mappedData, res->GetData(), res->GetNumBytes());
 	}
+	res->CleanDirty();
 }
 
 void DeviceBufferDX12::SyncCPUToGPU(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES endState)

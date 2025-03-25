@@ -61,6 +61,7 @@ namespace forward
 
 		memcpy(m_data + m_numActiveElements * sizeof(T), &vertex, sizeof(T));
 		++m_numActiveElements;
+		SetDirty();
 	}
 
 	class ConstantBufferBase : public Buffer
@@ -83,6 +84,7 @@ namespace forward
 		{
 			assert(GetNumBytes() == sizeof(rhs));
 			memcpy(GetData(), &rhs, sizeof(rhs));
+			SetDirty();
 			return *this;
 		}
 	};
@@ -100,6 +102,7 @@ namespace forward
 	template<class T>
 	T* ConstantBuffer<T>::GetTypedData()
 	{
+		SetDirty();
 		return reinterpret_cast<T*>(m_data);
 	}
 
@@ -113,6 +116,7 @@ namespace forward
 		{
 			++m_numActiveElements;
 		}
+		SetDirty();
 	}
 
 	template<class T>

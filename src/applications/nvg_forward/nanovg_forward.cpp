@@ -343,11 +343,11 @@ bool nanovg_forward_demo::Init()
 				if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
 					auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
 					m_nvg_ps_cb.push_back(nvg_ps_cb);
-					*nvg_ps_cb->GetTypedData() = renderItem.constant_buffer;
+					*nvg_ps_cb = renderItem.constant_buffer;
 					thisPass.m_ps.m_constantBuffers[1] = nvg_ps_cb;
 				}
 				else {
-					*(m_nvg_ps_cb[m_current_ps_cb_index]->GetTypedData()) = renderItem.constant_buffer;
+					*m_nvg_ps_cb[m_current_ps_cb_index] = renderItem.constant_buffer;
 					thisPass.m_ps.m_constantBuffers[1] = m_nvg_ps_cb[m_current_ps_cb_index];
 				}
 				++m_current_ps_cb_index;

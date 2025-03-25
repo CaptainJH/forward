@@ -80,6 +80,10 @@ namespace forward
 				return nullptr;
 		}
 
+		bool IsDirty() const { return m_dirty; }
+		void CleanDirty() { m_dirty = false; }
+		void SetDirty() { m_dirty = true; }
+
 		static void CopyPitched2(u32 numRows, u32 srcRowPitch, const u8* srcData, u32 dstRowPitch, u8* dstData);
 		static void CopyPitched3(u32 numRows, u32 numSlices, u32 srcRowPitch, u32 srcSlicePitch, const u8* srcData,
 			u32 dstRowPitch, u32 dstSlicePitch, u8* dstData);
@@ -93,6 +97,7 @@ namespace forward
 		std::vector<u8> m_storage;
 		u8*		m_data;
 		ResourceUsage	m_usage;
+		bool		m_dirty = false;
 
 		RWResourcePool m_dynamicResPool;
 	};

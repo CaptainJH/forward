@@ -136,6 +136,8 @@ void Font::Typeset(i32 viewportWidth, i32 viewportHeight, i32 x, i32 y, float4 c
 		x0 = x1;
 	}
 
+	mVertexBuffer->SetDirty();
+
 	//// Update the number of triangles that should be drawn.
 	//mVertexBuffer->SetNumActiveElements(4 * length);
 	//mIndexBuffer->SetNumActivePrimitives(2 * length);
