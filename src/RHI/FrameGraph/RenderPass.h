@@ -24,12 +24,14 @@ namespace forward
 		};
 
 		typedef std::function<void(RenderPassBuilder&, RasterPipelineStateObject&)> RasterSetupFuncType;
+		typedef std::function<void(RenderPassBuilder&)> RasterSetupFuncType2;
 		typedef std::function<void(RenderPassBuilder&, ComputePipelineStateObject&)> ComputeSetupFuncType;
 		typedef std::function<void(RenderPassBuilder&, RTPipelineStateObject&)> RTSetupFuncType;
 		typedef std::function<void(CommandList&)> ExecuteFuncType;
 
 	public:
 		RenderPass(RasterSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
+		RenderPass(RasterSetupFuncType2 setup, ExecuteFuncType execute, OperationFlags operationType = OF_DEFAULT);
 		RenderPass(ComputeSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
 		RenderPass(RTSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);
 		RenderPass(SceneData& sceneData, RTSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType = OF_DEFAULT);
@@ -47,6 +49,8 @@ namespace forward
 			auto ret = dynamic_cast<T*>(m_pso.get());
 			return *ret;
 		}
+
+		template<class T> void SetPSO(T t) { m_pso = t; }
 
 		bool IsRasterPSO() const {
 			return FGOT_RASTER_PSO == m_pso->GetType();

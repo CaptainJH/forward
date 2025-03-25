@@ -15,6 +15,13 @@ RenderPass::RenderPass(RasterSetupFuncType setupFunc, ExecuteFuncType execute, O
 	RenderPassBuilder builder(this);
 	setupFunc(builder, GetPSO<RasterPipelineStateObject>());
 }
+RenderPass::RenderPass(RasterSetupFuncType2 setupFunc, ExecuteFuncType execute, OperationFlags operationType)
+	: m_executeCallback(execute)
+	, m_opFlags(operationType)
+{
+	RenderPassBuilder builder(this);
+	setupFunc(builder);
+}
 RenderPass::RenderPass(ComputeSetupFuncType setupFunc, ExecuteFuncType execute, OperationFlags operationType)
 	: m_executeCallback(execute)
 	, m_opFlags(operationType)

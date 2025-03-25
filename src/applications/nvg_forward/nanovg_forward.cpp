@@ -24,6 +24,56 @@
 
 using namespace forward;
 
+void SetupBlenderStateNoWrite(OutputMergerStageState& om_state) {
+	om_state.m_blendState = forward::BlendState();
+	om_state.m_blendState.target[0].mask = 0;
+}
+
+void SetupBlenderStateBlend(OutputMergerStageState& om_state) {
+	om_state.m_blendState = forward::BlendState();
+	om_state.m_blendState.target[0].enable = true;
+	om_state.m_blendState.target[0].dstColor = forward::BlendState::BM_INV_SRC_ALPHA;
+	om_state.m_blendState.target[0].dstAlpha = forward::BlendState::BM_INV_SRC_ALPHA;
+}
+
+void SetupDepthStencilDrawShapes(OutputMergerStageState& om_state) {
+	auto& dsState = om_state.m_dsState;
+	dsState = forward::DepthStencilState();
+	dsState.depthEnable = false;
+	dsState.stencilEnable = true;
+	dsState.frontFace.pass = forward::DepthStencilState::OP_INCR;
+	dsState.backFace.pass = forward::DepthStencilState::OP_DECR;
+}
+
+void SetupDepthStencilDrawAA(OutputMergerStageState& om_state) {
+	auto& dsState = om_state.m_dsState;
+	dsState = forward::DepthStencilState();
+	dsState.depthEnable = false;
+	dsState.stencilEnable = true;
+	dsState.frontFace.comparison = forward::DepthStencilState::EQUAL;
+	dsState.backFace.comparison = forward::DepthStencilState::EQUAL;
+}
+
+void SetupDepthStencilFill(OutputMergerStageState& om_state) {
+	auto& dsState = om_state.m_dsState;
+	dsState = forward::DepthStencilState();
+	dsState.depthEnable = false;
+	dsState.stencilEnable = true;
+	dsState.frontFace.comparison = forward::DepthStencilState::NOT_EQUAL;
+	dsState.frontFace.fail = forward::DepthStencilState::OP_ZERO;
+	dsState.frontFace.pass = forward::DepthStencilState::OP_ZERO;
+	dsState.backFace.comparison = forward::DepthStencilState::NOT_EQUAL;
+	dsState.backFace.fail = forward::DepthStencilState::OP_ZERO;
+	dsState.backFace.pass = forward::DepthStencilState::OP_ZERO;
+}
+
+void SetupDepthStencilDefault(OutputMergerStageState& om_state) {
+	auto& dsState = om_state.m_dsState;
+	dsState = forward::DepthStencilState();
+	dsState.depthEnable = false;
+	dsState.stencilEnable = false;
+}
+
 class nanovg_forward_demo : public Application
 {
 public:
@@ -39,6 +89,7 @@ public:
 	~nanovg_forward_demo()
 	{
 		SAFE_DELETE(m_renderPass);
+		nvgDeleteForward(vg);
 	}
 
     bool Init() override;
@@ -49,14 +100,13 @@ protected:
 	//void OnSpace() override;
 
 	void DrawNVG();
-	bool bAcceptRenderItem = true;
 
 private:
 	RenderPass* m_renderPass;
 	NVGcontext* vg = nullptr;
 	DemoData data;
-	u32 m_currentPass_index = 0;
-	std::vector<RenderPass*> m_nvg_fill_pass;
+	u32 m_current_ps_cb_index = 0;
+	std::vector<RenderPass> m_nvg_fill_pass;
 	shared_ptr<ConstantBuffer<VS_CONSTANTS>> m_nvg_vs_cb;
 	std::vector<shared_ptr<ConstantBuffer<D3DNVGfragUniforms>>> m_nvg_ps_cb;
 	shared_ptr<VertexShader> m_nvg_vs;
@@ -65,6 +115,11 @@ private:
 	shared_ptr<IndexBuffer> m_nvg_ib;
 	shared_ptr<Texture2D> m_default_tex;
 	VertexFormat m_nvg_vf;
+
+	shared_ptr<Texture2D> m_depthStencil;
+	shared_ptr<Texture2D> m_rt;
+
+	std::vector<shared_ptr<RasterPipelineStateObject>> m_pso;
 };
 
 void nanovg_forward_demo::DrawNVG() {
@@ -74,11 +129,9 @@ void nanovg_forward_demo::DrawNVG() {
 	SDL_GetMouseState(&xm, &ym);
 	nvgBeginFrame(vg, xWin, yWin, 1.0f);
 
-	renderDemo(vg, xm, ym, (float)xWin, (float)yWin, 1.0f, 0, &data);
+	renderDemo(vg, xm, ym, (float)xWin, (float)yWin, mTimer.Runtime(), 0, &data);
 
 	nvgEndFrame(vg);
-
-	bAcceptRenderItem = false;
 }
 
 void nanovg_forward_demo::DrawScene()
@@ -89,11 +142,16 @@ void nanovg_forward_demo::DrawScene()
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
-	for (auto rpass : m_nvg_fill_pass)
-		fg.DrawRenderPass(rpass);
+	for (auto& rpass : m_nvg_fill_pass)
+		fg.DrawRenderPass(&rpass);
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
 	m_pDevice->EndDrawFrameGraph();
 	ProfilingHelper::EndPixEvent();
+
+	m_nvg_fill_pass.clear();
+	m_nvg_vb->ResetActiveNumElements();
+	m_nvg_ib->ResetActiveNumElements();
+	m_current_ps_cb_index = 0;
 }
 
 bool nanovg_forward_demo::Init()
@@ -200,6 +258,8 @@ bool nanovg_forward_demo::Init()
 			cmdList.Draw(4);
 	});
 
+	m_nvg_fill_pass.reserve(1000);
+
 	m_nvg_vs = make_shared<VertexShader>("nanovg_forward_demoVS", L"D3D11VertexShader", "D3D11VertexShader_Main");
 	m_nvg_ps = make_shared<PixelShader>("nanovg_forward_demoPS", L"D3D11PixelShader", "D3D11PixelShader_Main");
 	m_nvg_vs_cb = make_shared<ConstantBuffer<VS_CONSTANTS>>("nvg_vs_cb");
@@ -216,68 +276,94 @@ bool nanovg_forward_demo::Init()
 
 	m_default_tex = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
 
+	m_pso.push_back(new RasterPipelineStateObject);
+	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
+	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
+	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
+	m_pso.back()->m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
+	m_pso.back()->m_rsState.cullMode = RasterizerState::CULL_NONE;
+	SetupBlenderStateBlend(m_pso.back()->m_OMState);
+	SetupDepthStencilDefault(m_pso.back()->m_OMState);
+
+	m_pso.push_back(new RasterPipelineStateObject);
+	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
+	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
+	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
+	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];
+	m_pso.back()->m_rsState.cullMode = RasterizerState::CULL_NONE;
+	SetupBlenderStateNoWrite(m_pso.back()->m_OMState);
+	SetupDepthStencilDrawShapes(m_pso.back()->m_OMState);
+
+	m_pso.push_back(new RasterPipelineStateObject);
+	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
+	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
+	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
+	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];
+	m_pso.back()->m_rsState.cullMode = RasterizerState::CULL_NONE;
+	SetupBlenderStateBlend(m_pso.back()->m_OMState);
+	SetupDepthStencilDrawAA(m_pso.back()->m_OMState);
+
+	m_pso.push_back(new RasterPipelineStateObject);
+	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
+	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
+	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
+	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];
+	m_pso.back()->m_rsState.cullMode = RasterizerState::CULL_NONE;
+	SetupBlenderStateBlend(m_pso.back()->m_OMState);
+	SetupDepthStencilFill(m_pso.back()->m_OMState);
+
+	m_depthStencil = m_pDevice->GetDefaultDS();
+	m_rt = m_pDevice->GetDefaultRT();
+
 	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
-		if (!bAcceptRenderItem) {
-			return;
-		}
 
 		const auto c = static_cast<u32>(renderItem.index_buffer.size());
 		const auto vb_base = m_nvg_vb->GetActiveNumElements();
 		const auto ib_base = m_nvg_ib->GetActiveNumElements();
 
-		if (m_currentPass_index >= m_nvg_fill_pass.size()) {
-			m_nvg_fill_pass.push_back(new RenderPass(
-				[&](RenderPassBuilder& builder, RasterPipelineStateObject& pso) {
-					// setup shaders
-					pso.m_VSState.m_shader = m_nvg_vs;
-					pso.m_PSState.m_shader = m_nvg_ps;
+		m_nvg_fill_pass.emplace_back(RenderPass(
+			[&](RenderPassBuilder& builder) {
+				RenderPass& thisPass = *builder.GetRenderPass();
 
-					pso.m_IAState.m_topologyType = PT_TRIANGLELIST;
+				const auto pso_idx = static_cast<u32>(renderItem.pso_type);
+				assert(pso_idx >= 0 && pso_idx <= 3);
+				thisPass.SetPSO(m_pso[pso_idx]);
 
-					for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
-					{
-						m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
-					}
-					builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
+				for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
+				{
+					m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
+				}
+				thisPass.m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
 
-					for (auto i : renderItem.index_buffer)
-						m_nvg_ib->AddIndex(i);
-					builder.GetRenderPass()->m_ia_params.m_indexBuffer = m_nvg_ib;
+				for (auto i : renderItem.index_buffer)
+					m_nvg_ib->AddIndex(i);
+				thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
 
+				thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
+				if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
 					auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
 					m_nvg_ps_cb.push_back(nvg_ps_cb);
 					*nvg_ps_cb->GetTypedData() = renderItem.constant_buffer;
-					builder.GetRenderPass()->m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
-					builder.GetRenderPass()->m_ps.m_constantBuffers[1] = nvg_ps_cb;
-					if (renderItem.tex)
-						builder.GetRenderPass()->m_ps.m_shaderResources[0] = renderItem.tex;
-					else
-						builder.GetRenderPass()->m_ps.m_shaderResources[0] = m_default_tex;
-					pso.m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
+					thisPass.m_ps.m_constantBuffers[1] = nvg_ps_cb;
+				}
+				else {
+					*(m_nvg_ps_cb[m_current_ps_cb_index]->GetTypedData()) = renderItem.constant_buffer;
+					thisPass.m_ps.m_constantBuffers[1] = m_nvg_ps_cb[m_current_ps_cb_index];
+				}
+				++m_current_ps_cb_index;
+				if (renderItem.tex)
+					thisPass.m_ps.m_shaderResources[0] = renderItem.tex;
+				else
+					thisPass.m_ps.m_shaderResources[0] = m_default_tex;
 
-					pso.m_rsState.cullMode = renderItem.cull_mode;
+				// setup render states
+				thisPass.m_om_params.m_depthStencilResource = m_depthStencil;
+				thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
 
-					// setup render states
-					auto dsPtr = m_pDevice->GetDefaultDS();
-					builder.GetRenderPass()->m_om_params.m_depthStencilResource = dsPtr;
-
-					auto rsPtr = m_pDevice->GetDefaultRT();
-					builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
-
-					pso.m_OMState.m_blendState = renderItem.om_state.m_blendState;
-					pso.m_OMState.m_dsState = renderItem.om_state.m_dsState;
-				},
-				[=](CommandList& cmdList) {
-					cmdList.DrawIndexed(c, vb_base, ib_base);
-				}, forward::RenderPass::OF_NO_CLEAN));
-
-			m_currentPass_index = static_cast<u32>(m_nvg_fill_pass.size());
-		}
-		else {
-			assert(false);
-
-			++m_currentPass_index;
-		}
+			},
+			[=](CommandList& cmdList) {
+				cmdList.DrawIndexed(c, vb_base, ib_base);
+			}, forward::RenderPass::OF_NO_CLEAN));
 
 		m_nvg_vs_cb->GetTypedData()->viewSize[0] = mClientWidth;
 		m_nvg_vs_cb->GetTypedData()->viewSize[1] = mClientHeight;

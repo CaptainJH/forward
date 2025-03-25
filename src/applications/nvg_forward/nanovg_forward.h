@@ -29,65 +29,19 @@ struct VS_CONSTANTS {
 };
 
 struct RenderItem {
+	enum PSO_TYPE {
+		BLEND_DEFAULT,
+		NoWrite_DrawShape,
+		BLEND_DrawAA,
+		BLEND_FILL
+	};
+
 	std::vector<nvg_vertex> vertex_buffer;
 	std::vector<int> index_buffer;
 	D3DNVGfragUniforms constant_buffer;
-
-	forward::RasterizerState::CullMode cull_mode = forward::RasterizerState::CULL_NONE;
-	forward::OutputMergerStageState om_state;
-
 	forward::shared_ptr<forward::Texture2D> tex = nullptr;
 
-//private:
-	void SetupBlenderStateNoWrite() {
-		om_state.m_blendState = forward::BlendState();
-		om_state.m_blendState.target[0].mask = 0;
-	}
-
-	void SetupBlenderStateBlend() {
-		om_state.m_blendState = forward::BlendState();
-		om_state.m_blendState.target[0].enable = true;
-		om_state.m_blendState.target[0].dstColor = forward::BlendState::BM_INV_SRC_ALPHA;
-		om_state.m_blendState.target[0].dstAlpha = forward::BlendState::BM_INV_SRC_ALPHA;
-	}
-
-	void SetupDepthStencilDrawShapes() {
-		auto& dsState = om_state.m_dsState;
-		dsState = forward::DepthStencilState();
-		dsState.depthEnable = false;
-		dsState.stencilEnable = true;
-		dsState.frontFace.pass = forward::DepthStencilState::OP_INCR;
-		dsState.backFace.pass = forward::DepthStencilState::OP_DECR;
-	}
-
-	void SetupDepthStencilDrawAA() {
-		auto& dsState = om_state.m_dsState;
-		dsState = forward::DepthStencilState();
-		dsState.depthEnable = false;
-		dsState.stencilEnable = true;
-		dsState.frontFace.comparison = forward::DepthStencilState::EQUAL;
-		dsState.backFace.comparison = forward::DepthStencilState::EQUAL;
-	}
-
-	void SetupDepthStencilFill() {
-		auto& dsState = om_state.m_dsState;
-		dsState = forward::DepthStencilState();
-		dsState.depthEnable = false;
-		dsState.stencilEnable = true;
-		dsState.frontFace.comparison = forward::DepthStencilState::NOT_EQUAL;
-		dsState.frontFace.fail = forward::DepthStencilState::OP_ZERO;
-		dsState.frontFace.pass = forward::DepthStencilState::OP_ZERO;
-		dsState.backFace.comparison = forward::DepthStencilState::NOT_EQUAL;
-		dsState.backFace.fail = forward::DepthStencilState::OP_ZERO;
-		dsState.backFace.pass = forward::DepthStencilState::OP_ZERO;
-	}
-
-	void SetupDepthStencilDefault() {
-		auto& dsState = om_state.m_dsState;
-		dsState = forward::DepthStencilState();
-		dsState.depthEnable = false;
-		dsState.stencilEnable = false;
-	}
+	PSO_TYPE pso_type = BLEND_DEFAULT;
 };
 
 enum NVGcreateFlags {
@@ -407,9 +361,6 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 			auto& path = paths[i];
 			RenderItem renderItem;
 			drawFills(path.fill, path.nfill, fromFan2List, renderItem);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilDefault();
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -419,9 +370,6 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 			auto& path = paths[i];
 			RenderItem renderItem;
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilDefault();
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -433,9 +381,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 			auto& path = paths[i];
 			RenderItem renderItem;
 			drawFills(path.fill, path.nfill, fromFan2List, renderItem);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateNoWrite();
-			renderItem.SetupDepthStencilDrawShapes();
+			renderItem.pso_type = RenderItem::NoWrite_DrawShape;
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			renderItem.constant_buffer.strokeMult[1] = -1.0f;
 			renderItem.constant_buffer.type = NSVG_SHADER_SIMPLE;
@@ -448,9 +394,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 			auto& path = paths[i];
 			RenderItem renderItem;
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilDrawAA();
+			renderItem.pso_type = RenderItem::BLEND_DrawAA;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -476,9 +420,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
 		renderItem.vertex_buffer = vertex;
 		renderItem.index_buffer = vIndex;
-		renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-		renderItem.SetupBlenderStateBlend();
-		renderItem.SetupDepthStencilFill();
+		renderItem.pso_type = RenderItem::BLEND_FILL;
 		if (forward_nvg_fill_callback)
 			forward_nvg_fill_callback(renderItem);
 	}
@@ -528,9 +470,6 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			// Fill shader
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilDefault();
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -541,9 +480,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilDrawAA();
+			renderItem.pso_type = RenderItem::BLEND_DrawAA;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -554,9 +491,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
-			renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-			renderItem.SetupBlenderStateBlend();
-			renderItem.SetupDepthStencilFill();
+			renderItem.pso_type = RenderItem::BLEND_FILL;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -587,9 +522,6 @@ static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcomposite
 	memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 	D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, 1.0f, fringe, -1.0f);
 	renderItem.constant_buffer.type = NSVG_SHADER_IMG;
-	renderItem.cull_mode = forward::RasterizerState::CULL_NONE;
-	renderItem.SetupBlenderStateBlend();
-	renderItem.SetupDepthStencilDefault();
 	assert(paint->image == 1);
 	renderItem.tex = gl->textures[paint->image - 1].tex;
 	if (forward_nvg_fill_callback) {
@@ -638,6 +570,8 @@ error:
 
 void nvgDeleteForward(NVGcontext* ctx)
 {
+	auto gl = (ForwardNVGcontext*)nvgInternalParams(ctx)->userPtr;
+	delete gl;
 	nvgDeleteInternal(ctx);
 }
 

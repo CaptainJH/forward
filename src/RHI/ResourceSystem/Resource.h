@@ -56,6 +56,7 @@ namespace forward
 
 		u32 GetNumElements() const;
 		u32 GetActiveNumElements() const;
+		void ResetActiveNumElements();
 		u32 GetElementSize() const;
 		u32 GetNumBytes() const;
 
