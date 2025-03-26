@@ -40,6 +40,7 @@ struct RenderItem {
 	std::vector<int> index_buffer;
 	D3DNVGfragUniforms constant_buffer;
 	forward::shared_ptr<forward::Texture2D> tex = nullptr;
+	forward::PrimitiveTopologyType	topologyType  = forward::PrimitiveTopologyType::PT_TRIANGLELIST;
 
 	PSO_TYPE pso_type = BLEND_DEFAULT;
 };
@@ -328,13 +329,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		vIndex.push_back(i - 1);
 		vIndex.push_back(i);
 		};
-	auto fromStrip2List = [](std::vector<int>& vIndex, int i) {
-		if (i < 2)
-			return;
-		vIndex.push_back(i - 2);
-		vIndex.push_back(i - 1);
-		vIndex.push_back(i);
-		};
+	auto dummy = [](std::vector<int>&, int) {};
 
 	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
 		if (fillCount > 0) {
@@ -379,7 +374,8 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		for (int i = 0; i < npaths; ++i) {
 			auto& path = paths[i];
 			RenderItem renderItem;
-			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			drawFills(path.stroke, path.nstroke, dummy, renderItem);
+			renderItem.topologyType = forward::PrimitiveTopologyType::PT_TRIANGLESTRIP;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -403,7 +399,8 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		for (int i = 0; i < npaths; ++i) {
 			auto& path = paths[i];
 			RenderItem renderItem;
-			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			drawFills(path.stroke, path.nstroke, dummy, renderItem);
+			renderItem.topologyType = forward::PrimitiveTopologyType::PT_TRIANGLESTRIP;
 			renderItem.pso_type = RenderItem::BLEND_DrawAA;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
@@ -442,29 +439,18 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
 
-	auto fromStrip2List = [](std::vector<int>& vIndex, int i) {
-		if (i < 2)
-			return;
-		vIndex.push_back(i - 2);
-		vIndex.push_back(i - 1);
-		vIndex.push_back(i);
-		};
-
-	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
+	auto drawFills = [&](NVGvertex* fills, int fillCount, RenderItem& renderItem) {
 		if (fillCount > 0) {
 			if (fillCount >= 3) {
 				std::vector<nvg_vertex> vertex(fillCount);
-				std::vector<int> vIndex;
 				for (int i = 0; i < fillCount; ++i) {
 					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
 					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
 						paint->innerColor.b, paint->innerColor.a);
 					vertex[i].tex_coord = { fills[i].u, fills[i].v };
-					toListFunc(vIndex, i);
 				}
 
 				renderItem.vertex_buffer = vertex;
-				renderItem.index_buffer = vIndex;
 			}
 			else {
 				assert(false);
@@ -477,8 +463,9 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 		auto& path = paths[i];
 		{
 			RenderItem renderItem;
-			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			drawFills(path.stroke, path.nstroke, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			renderItem.topologyType = forward::PrimitiveTopologyType::PT_TRIANGLESTRIP;
 			// Fill shader
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
 			assert(paint->image == 0);
@@ -489,8 +476,9 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 
 		{
 			RenderItem renderItem;
-			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			drawFills(path.stroke, path.nstroke, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			renderItem.topologyType = forward::PrimitiveTopologyType::PT_TRIANGLESTRIP;
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
 			assert(paint->image == 0);
 			renderItem.pso_type = RenderItem::BLEND_DrawAA;
@@ -501,8 +489,9 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 
 		{
 			RenderItem renderItem;
-			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
+			drawFills(path.stroke, path.nstroke, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			renderItem.topologyType = forward::PrimitiveTopologyType::PT_TRIANGLESTRIP;
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
 			assert(paint->image == 0);
 			renderItem.pso_type = RenderItem::BLEND_FILL;

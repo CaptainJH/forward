@@ -244,6 +244,7 @@ bool nanovg_forward_demo::Init()
 		}
 		vb->SetUsage(ResourceUsage::RU_IMMUTABLE);
 		builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = vb;
+		builder.GetRenderPass()->m_ia_params.m_topologyType = PT_TRIANGLESTRIP;
 
 		// setup render states
 		auto dsPtr = m_pDevice->GetDefaultDS();
@@ -318,6 +319,7 @@ bool nanovg_forward_demo::Init()
 	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
 
 		const auto c = static_cast<u32>(renderItem.index_buffer.size());
+		const auto vc = static_cast<u32>(renderItem.vertex_buffer.size());
 		const auto vb_base = m_nvg_vb->GetActiveNumElements();
 		const auto ib_base = m_nvg_ib->GetActiveNumElements();
 
@@ -335,9 +337,12 @@ bool nanovg_forward_demo::Init()
 				}
 				thisPass.m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
 
-				for (auto i : renderItem.index_buffer)
-					m_nvg_ib->AddIndex(i);
-				thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
+				if (c > 0) {
+					for (auto i : renderItem.index_buffer)
+						m_nvg_ib->AddIndex(i);
+					thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
+				}
+				thisPass.m_ia_params.m_topologyType = renderItem.topologyType;
 
 				thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
 				if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
@@ -362,7 +367,10 @@ bool nanovg_forward_demo::Init()
 
 			},
 			[=](CommandList& cmdList) {
-				cmdList.DrawIndexed(c, vb_base, ib_base);
+				if (c == 0)
+					cmdList.Draw(vc, vb_base);
+				else
+					cmdList.DrawIndexed(c, vb_base, ib_base);
 			}, forward::RenderPass::OF_NO_CLEAN));
 
 		m_nvg_vs_cb->GetTypedData()->viewSize[0] = mClientWidth;

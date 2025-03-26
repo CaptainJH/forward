@@ -392,7 +392,6 @@ void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO, Re
 	m_CmdList->SetPipelineState(devicePSO.GetDevicePSO());
 	assert(devicePSO.GraphicsObject()->GetType() == FGOT_RASTER_PSO);
 
-	auto& pso = *dynamic_cast<RasterPipelineStateObject*>(devicePSO.GraphicsObject().get());
 	for (auto i = 0U; i < rp.m_ia_params.m_vertexBuffers.size(); ++i)
 	{
 		if (rp.m_ia_params.m_vertexBuffers[i])
@@ -406,7 +405,7 @@ void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO, Re
 		auto ibv = device_cast<DeviceBufferDX12*>(rp.m_ia_params.m_indexBuffer)->IndexBufferView();
 		m_CmdList->IASetIndexBuffer(&ibv);
 	}
-	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(pso.m_IAState.m_topologyType));
+	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(rp.m_ia_params.m_topologyType));
 
 	if (!devicePSO.IsEmptyRootParams())
 		for (auto& heap : m_DynamicDescriptorHeaps)
