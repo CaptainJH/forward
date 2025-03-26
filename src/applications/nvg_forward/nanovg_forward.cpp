@@ -253,7 +253,7 @@ bool nanovg_forward_demo::Init()
 
 		pso.m_rsState.frontCCW = false;
 		},
-		[](CommandList& cmdList) {
+		[](CommandList& cmdList, RenderPass&) {
 			cmdList.Draw(4);
 	});
 
@@ -360,7 +360,7 @@ bool nanovg_forward_demo::Init()
 				thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
 
 			},
-			[=](CommandList& cmdList) {
+			[=](CommandList& cmdList, RenderPass&) {
 				if (c == 0)
 					cmdList.Draw(vc, vb_base);
 				else
