@@ -52,7 +52,7 @@ namespace forward
 					pso.m_rtState.m_hitShaderTable = forward::make_shared<ShaderTable>("RTAO_HitGroupShaderTable", L"HitGroup_AoAnyHit");
 					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RTAO_MissShaderTable", L"AoMiss");
 				},
-				[&, useAccumulation](CommandList& cmdList) {
+				[&, useAccumulation](CommandList& cmdList, RenderPass&) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
 					cmdList.DispatchRays(rtPSO);
 					if (!useAccumulation)
@@ -77,7 +77,7 @@ namespace forward
 						// setup shaders
 						pso.m_CSState.m_shader = make_shared<ComputeShader>("RTAO_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain");
 					},
-					[&](CommandList& cmdList) {
+					[&](CommandList& cmdList, RenderPass&) {
 						u32 x = m_uavRT->GetWidth() / 8;
 						u32 y = m_uavRT->GetHeight() / 8;
 						cmdList.Dispatch(x, y, 1);

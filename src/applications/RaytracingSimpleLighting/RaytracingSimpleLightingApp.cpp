@@ -72,7 +72,7 @@ public:
 				pso.m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
 
 			},
-			[&](CommandList& cmdList) {
+			[&](CommandList& cmdList, RenderPass&) {
 				cmdList.DispatchRays(m_rtPass->GetPSO<RTPipelineStateObject>());
 				cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_uavTex);
 			}

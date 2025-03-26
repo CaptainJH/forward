@@ -118,7 +118,7 @@ namespace forward
 						builder.GetRenderPass()->m_om_params.m_renderTargetResources[3] = m_gBuffer_RoughnessMetalness;
 						builder.GetRenderPass()->m_om_params.m_depthStencilResource = m_depth;
 					},
-					[&, isLast](CommandList& cmdList) {
+					[&, isLast](CommandList& cmdList, RenderPass&) {
 						cmdList.DrawIndexed(p.second->GetNumElements());
 						if (isLast)
 							cmdList.CopyResource(*r.GetCurrentSwapChainRT(), *m_rt_color);

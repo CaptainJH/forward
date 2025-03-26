@@ -97,7 +97,7 @@ bool OffScreenRenderingDemo::Init()
 
 			pso.m_rsState.frontCCW = false;
 			},
-			[](CommandList& cmdList) {
+			[](CommandList& cmdList, RenderPass&) {
 				cmdList.Draw(4);
 		});
 

@@ -64,7 +64,7 @@ bool SkyRenderingGPU::Init()
 		// setup shaders
 		pso.m_CSState.m_shader = make_shared<ComputeShader>("SKY_Shader", L"SkyRendering", "SkyMain");
 		},
-		[&](CommandList& cmdList) {
+		[&](CommandList& cmdList, RenderPass&) {
 			constexpr u32 x = 1024 / 8;
 			constexpr u32 y = 1024 / 8;
 			cmdList.Dispatch(x, y, 1);

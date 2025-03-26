@@ -161,7 +161,7 @@ namespace forward
 						builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = r.GetDefaultRT();
 						builder.GetRenderPass()->m_om_params.m_depthStencilResource = r.GetDefaultDS();
 					},
-					[&](CommandList& cmdList) {
+					[&](CommandList& cmdList, RenderPass&) {
 						cmdList.DrawIndexed(p.second->GetNumElements());
 					}, m_renderPassVec.empty() ? RenderPass::OF_DEFAULT : RenderPass::OF_NO_CLEAN
 					));

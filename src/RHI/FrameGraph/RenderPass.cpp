@@ -54,7 +54,7 @@ RenderPass::OperationFlags RenderPass::GetRenderPassFlags() const
 
 void RenderPass::Execute(CommandList& cmdList)
 {
-	m_executeCallback(cmdList);
+	m_executeCallback(cmdList, *this);
 }
 
 void RenderPass::AttachRenderPass(RenderPass* ptr)

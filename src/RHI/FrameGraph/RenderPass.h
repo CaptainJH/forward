@@ -27,7 +27,7 @@ namespace forward
 		typedef std::function<void(RenderPassBuilder&)> RasterSetupFuncType2;
 		typedef std::function<void(RenderPassBuilder&, ComputePipelineStateObject&)> ComputeSetupFuncType;
 		typedef std::function<void(RenderPassBuilder&, RTPipelineStateObject&)> RTSetupFuncType;
-		typedef std::function<void(CommandList&)> ExecuteFuncType;
+		typedef std::function<void(CommandList&, RenderPass&)> ExecuteFuncType;
 
 	public:
 		RenderPass(RasterSetupFuncType setup, ExecuteFuncType execute, OperationFlags operationType=OF_DEFAULT);

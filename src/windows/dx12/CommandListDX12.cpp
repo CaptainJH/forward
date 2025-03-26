@@ -503,7 +503,7 @@ void CommandListDX12::GenerateMipmaps(Texture2D* tex)
 				builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = tex;
 				builder.GetRenderPass()->m_cs.m_shaderResources[0] = tex;
 			},
-			[=](CommandList& cmdList) {
+			[=](CommandList& cmdList, RenderPass&) {
 				cmdList.Dispatch(w, w, 1);
 			})));
 		w /= 2;

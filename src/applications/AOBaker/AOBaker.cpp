@@ -115,7 +115,7 @@ bool AOBaker::Init()
 
 			pso.m_rsState.cullMode = RasterizerState::CULL_NONE;
 		},
-		[&](CommandList& cmdList) {
+		[&](CommandList& cmdList, RenderPass&) {
 			cmdList.DrawIndexed(geo.m_IB->GetNumElements());
 			cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_colorTex);
 	});

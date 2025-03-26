@@ -265,6 +265,10 @@ namespace forward
 	};
 
 	struct InputAssemblerStageParameters {
+		u32 m_vertex_start_idx = 0U;
+		u32 m_vertex_count = 0U;
+		u32 m_index_start_idx = 0U;
+		u32 m_index_count = 0U;
 		PrimitiveTopologyType	m_topologyType = PrimitiveTopologyType::PT_TRIANGLELIST;
 		shared_ptr<IndexBuffer>	m_indexBuffer = nullptr;
 		std::array<shared_ptr<VertexBuffer>, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };

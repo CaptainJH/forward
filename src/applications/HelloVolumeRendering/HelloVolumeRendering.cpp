@@ -346,7 +346,7 @@ struct DeviceContext
                 builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavTex;
                 builder.GetRenderPass()->m_cs.m_constantBuffers[0] = m_cb;
             },
-            [=](CommandList& cmdList) {
+            [=](CommandList& cmdList, RenderPass&) {
                 cmdList.Dispatch(m_size / 8, m_size / 8, 1);
             });
     }

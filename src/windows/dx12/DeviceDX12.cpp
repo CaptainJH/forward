@@ -241,7 +241,7 @@ DeviceDX12::DeviceDX12(SDL_Renderer* r)
 			target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
 			target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
 		},
-		[&](CommandList& cmdList) {
+		[&](CommandList& cmdList, RenderPass&) {
 			cmdList.DrawIndexed(m_textFont->GetIndexCount());
 		}, RenderPass::OF_NO_CLEAN);
 
@@ -923,7 +923,7 @@ bool DeviceDX12::Initialize(SwapChainConfig& config, bool bOffScreen)
 			target.srcColor = BlendState::Mode::BM_SRC_ALPHA;
 			target.dstColor = BlendState::Mode::BM_INV_SRC_ALPHA;
 		},
-		[&](CommandList& cmdList) {
+		[&](CommandList& cmdList, RenderPass&) {
 			cmdList.DrawIndexed(m_textFont->GetIndexCount());
 		}, RenderPass::OF_NO_CLEAN);
 

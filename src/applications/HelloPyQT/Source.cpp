@@ -73,7 +73,7 @@ bool HelloPyQTDll::Init()
 			auto rsPtr = m_pDevice->GetDefaultRT();
 			builder.GetRenderPass()->m_om_params.m_renderTargetResources[0] = rsPtr;
 		},
-		[](CommandList& cmdList) {
+		[](CommandList& cmdList, RenderPass&) {
 			cmdList.Draw(4);
 	});
 

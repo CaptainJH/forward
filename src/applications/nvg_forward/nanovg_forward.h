@@ -334,8 +334,9 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
 		if (fillCount > 0) {
 			if (fillCount >= 3) {
-				std::vector<nvg_vertex> vertex(fillCount);
-				std::vector<int> vIndex;
+				std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
+				vertex.resize(fillCount);
+				std::vector<int>& vIndex = renderItem.index_buffer;
 				for (int i = 0; i < fillCount; ++i) {
 					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
 					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g, 
@@ -352,8 +353,8 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 					assert(texInfo);
 					renderItem.tex = texInfo->tex;
 				}
-				renderItem.vertex_buffer = vertex;
-				renderItem.index_buffer = vIndex;
+				//renderItem.vertex_buffer = vertex;
+				//renderItem.index_buffer = vIndex;
 			}
 			else {
 				assert(false);

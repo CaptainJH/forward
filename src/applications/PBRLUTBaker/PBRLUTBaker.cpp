@@ -74,7 +74,7 @@ bool PBRLUTBaker::Init()
 			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 			builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavTex;
 		},
-		[](CommandList& cmdList) {
+		[](CommandList& cmdList, RenderPass&) {
 			cmdList.Dispatch(32, 32, 1);
 		});
 

@@ -85,7 +85,7 @@ public:
 				pso.m_rtState.m_hitShaderTable = make_shared<ShaderTable>("HitGroupShaderTable", L"HitGroup_MyClosestHitShader");
 				pso.m_rtState.m_missShaderTable = make_shared<ShaderTable>("MissShaderTable", L"MyMissShader");
 			},
-			[&](CommandList& cmdList) {
+			[&](CommandList& cmdList, RenderPass&) {
 				auto& rtPSO = m_rtPass->GetPSO<RTPipelineStateObject>();
 				cmdList.DispatchRays(rtPSO);
 				cmdList.CopyResource(*m_pDevice->GetCurrentSwapChainRT(), *m_uavTex);

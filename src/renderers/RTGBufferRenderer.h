@@ -75,7 +75,7 @@ namespace forward
 					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RefPT_MissShaderTable",
 						Vector<WString>{ L"Miss" });
 				},
-				[&](CommandList& cmdList) {
+				[&](CommandList& cmdList, RenderPass&) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
 					cmdList.DispatchRays(rtPSO);
 					cmdList.CopyResource(*d.GetCurrentSwapChainRT(), *m_uavRT);

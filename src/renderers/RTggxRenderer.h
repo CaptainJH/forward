@@ -101,7 +101,7 @@ namespace forward
 					pso.m_rtState.m_missShaderTable = forward::make_shared<ShaderTable>("RTggx_MissShaderTable",
 						Vector<WString>{ L"IndirectMiss", L"ShadowMiss" });
 				},
-				[&](CommandList& cmdList) {
+				[&](CommandList& cmdList, RenderPass&) {
 					auto& rtPSO = m_renderPassVec.front().GetPSO<RTPipelineStateObject>();
 					cmdList.DispatchRays(rtPSO);
 					cmdList.CopyResource(*m_lastFrameTex, *m_uavRT);
@@ -127,7 +127,7 @@ namespace forward
 					// setup shaders
 					pso.m_CSState.m_shader = make_shared<ComputeShader>("RTggx_ACCUMULATION_Shader", L"SimpleAccumulation", "AccumulationMain_WAR");
 				},
-				[&, w, h](CommandList& cmdList) {
+				[&, w, h](CommandList& cmdList, RenderPass&) {
 					const u32 x = w / 8;
 					const u32 y = h / 8;
 					cmdList.Dispatch(x, y, 1);

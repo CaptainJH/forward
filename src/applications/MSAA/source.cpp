@@ -136,7 +136,7 @@ bool MSAA_Demo::Init()
 			pso.m_rsState.enableScissor = true;
 			pso.m_rsState.frontCCW = false;
 		},
-		[&](CommandList& cmdList) {
+		[&](CommandList& cmdList, RenderPass&) {
 			cmdList.DrawIndexed(m_geometry->GetIndexCount());
 
 			// update constant buffer for next pass
@@ -166,7 +166,7 @@ bool MSAA_Demo::Init()
 
 			pso.m_rsState.frontCCW = false;
 		},
-			[&](CommandList& cmdList) {
+			[&](CommandList& cmdList, RenderPass&) {
 			cmdList.DrawIndexed(m_geometry->GetIndexCount());
 			cmdList.ResolveResource(m_msaa_resolved.get(), m_msaa_rt.get());
 		});
@@ -195,7 +195,7 @@ bool MSAA_Demo::Init()
 			pso.m_rsState.enableScissor = true;
 			pso.m_rsState.frontCCW = false;
 			},
-			[&](CommandList& cmdList) {
+			[&](CommandList& cmdList, RenderPass&) {
 				cmdList.Draw(m_quad->GetVertexCount());
 		}, RenderPass::OF_NO_CLEAN);
 	//m_renderPassMSAA->AttachRenderPass(m_renderPassResolve.get());

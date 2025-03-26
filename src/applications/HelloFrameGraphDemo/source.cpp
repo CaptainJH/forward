@@ -99,7 +99,7 @@ bool HelloFrameGraph::Init()
 
 		pso.m_rsState.frontCCW = false;
 		},
-		[](CommandList& cmdList) {
+		[](CommandList& cmdList, RenderPass&) {
 			cmdList.Draw(4);
 	});
 
@@ -112,7 +112,7 @@ bool HelloFrameGraph::Init()
 			pso.m_CSState.m_shader = forward::make_shared<ComputeShader>("PBR_Baker", L"PBRShader", "BakerMain");
 			builder.GetRenderPass()->m_cs.m_uavShaderRes[0] = m_uavTex;
 		},
-		[](CommandList& cmdList) {
+		[](CommandList& cmdList, RenderPass&) {
 			cmdList.Dispatch(64, 64, 1);
 		});
 
