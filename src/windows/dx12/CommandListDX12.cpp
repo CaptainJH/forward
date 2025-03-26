@@ -405,7 +405,10 @@ void CommandListDX12::BindRasterPSO(DevicePipelineStateObjectDX12& devicePSO, Re
 		auto ibv = device_cast<DeviceBufferDX12*>(rp.m_ia_params.m_indexBuffer)->IndexBufferView();
 		m_CmdList->IASetIndexBuffer(&ibv);
 	}
-	m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(rp.m_ia_params.m_topologyType));
+	if (rp.m_ia_params.m_indexBuffer)
+		m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(rp.m_ia_params.m_indexBuffer->GetPrimitiveType()));
+	else
+		m_CmdList->IASetPrimitiveTopology(Convert2D3DTopology(rp.m_ia_params.m_topologyType));
 
 	if (!devicePSO.IsEmptyRootParams())
 		for (auto& heap : m_DynamicDescriptorHeaps)

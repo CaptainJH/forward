@@ -69,7 +69,7 @@ bool HelloFrameGraph::Init()
 		vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
 		vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 
-		pso.m_IAState.m_topologyType = PT_TRIANGLESTRIP;
+		builder.GetRenderPass()->m_ia_params.m_topologyType = PT_TRIANGLESTRIP;
 
 		/////////////
 		///build quad

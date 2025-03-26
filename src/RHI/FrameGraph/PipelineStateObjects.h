@@ -270,9 +270,7 @@ namespace forward
 		std::array<shared_ptr<VertexBuffer>, FORWARD_RENDERER_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT> m_vertexBuffers = { nullptr };
 	};
 
-	struct InputAssemblerStageState
-	{
-		PrimitiveTopologyType	m_topologyType;
+	struct InputAssemblerStageState {
 		VertexFormat			m_vertexLayout;
 	};
 

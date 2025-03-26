@@ -24,7 +24,7 @@ void SimpleGeometry::OnRenderPassBuilding(RenderPass& pass)
 	{
 		pass.m_ia_params.m_indexBuffer = m_IB;
 	}
-	pso.m_IAState.m_topologyType = m_IB->GetPrimitiveType();
+	pass.m_ia_params.m_topologyType = m_IB->GetPrimitiveType();
 
 	// TODO: should automatically bind to the first available binding point, 
 	// and modify VertexFormat's unit accordingly.

@@ -224,8 +224,6 @@ bool nanovg_forward_demo::Init()
 		vf.Bind(VASemantic::VA_POSITION, DataFormatType::DF_R32G32B32_FLOAT, 0);
 		vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 
-		pso.m_IAState.m_topologyType = PT_TRIANGLESTRIP;
-
 		/////////////
 		///build quad
 		/////////////
@@ -278,7 +276,6 @@ bool nanovg_forward_demo::Init()
 	m_default_tex = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
 
 	m_pso.push_back(new RasterPipelineStateObject);
-	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
 	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
 	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
 	m_pso.back()->m_PSState.m_samplers[0] = make_shared<SamplerState>("SimpleAlbedo_Samp");
@@ -287,7 +284,6 @@ bool nanovg_forward_demo::Init()
 	SetupDepthStencilDefault(m_pso.back()->m_OMState);
 
 	m_pso.push_back(new RasterPipelineStateObject);
-	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
 	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
 	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
 	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];
@@ -296,7 +292,6 @@ bool nanovg_forward_demo::Init()
 	SetupDepthStencilDrawShapes(m_pso.back()->m_OMState);
 
 	m_pso.push_back(new RasterPipelineStateObject);
-	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
 	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
 	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
 	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];
@@ -305,7 +300,6 @@ bool nanovg_forward_demo::Init()
 	SetupDepthStencilDrawAA(m_pso.back()->m_OMState);
 
 	m_pso.push_back(new RasterPipelineStateObject);
-	m_pso.back()->m_IAState.m_topologyType = PT_TRIANGLELIST;
 	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
 	m_pso.back()->m_PSState.m_shader = m_nvg_ps;
 	m_pso.back()->m_PSState.m_samplers[0] = m_pso.front()->m_PSState.m_samplers[0];

@@ -154,7 +154,7 @@ void Font::OnRenderPassBuilding(RenderPass& pass)
 	auto& pso = pass.GetPSO<RasterPipelineStateObject>();
 
 	pass.m_ia_params.m_indexBuffer = mIndexBuffer;
-	pso.m_IAState.m_topologyType = mIndexBuffer->GetPrimitiveType();
+	pass.m_ia_params.m_topologyType = mIndexBuffer->GetPrimitiveType();
 
 	pass.m_ia_params.m_vertexBuffers[0] = mVertexBuffer;
 	pso.m_IAState.m_vertexLayout = mVertexBuffer->GetVertexFormat();

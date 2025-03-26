@@ -96,7 +96,7 @@ bool AOBaker::Init()
 
 			// setup geometry
 			builder.GetRenderPass()->m_ia_params.m_indexBuffer = geo.m_IB;
-			pso.m_IAState.m_topologyType = geo.m_IB->GetPrimitiveType();
+			builder.GetRenderPass()->m_ia_params.m_topologyType = geo.m_IB->GetPrimitiveType();
 			builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = geo.m_VB;
 			pso.m_IAState.m_vertexLayout = geo.m_VB->GetVertexFormat();
 

@@ -119,7 +119,7 @@ DevicePipelineStateObjectDX12::DevicePipelineStateObjectDX12(DeviceDX12* d, Rast
 		ConfigBlendState(psoDesc.BlendState);
 		ConfigDepthStencilState(psoDesc.DepthStencilState);
 		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(pso.m_IAState.m_topologyType);
+		psoDesc.PrimitiveTopologyType = DevicePipelineStateObjectHelper::Convert2DX12TopologyType(PT_TRIANGLELIST);
 		psoDesc.NumRenderTargets = 0;
 		for (auto i = 0U; i < rp.m_om_params.m_renderTargetResources.size(); ++i)
 		{

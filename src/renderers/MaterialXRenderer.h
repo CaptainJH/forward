@@ -52,7 +52,7 @@ namespace forward
 						// setup geometry
 						if (p.second && p.second->GetNumElements())
 							builder.GetRenderPass()->m_ia_params.m_indexBuffer = p.second;
-						pso.m_IAState.m_topologyType = p.second->GetPrimitiveType();
+						builder.GetRenderPass()->m_ia_params.m_topologyType = p.second->GetPrimitiveType();
 
 						builder.GetRenderPass()->m_ia_params.m_vertexBuffers[0] = p.first;
 						pso.m_IAState.m_vertexLayout = p.first->GetVertexFormat();
