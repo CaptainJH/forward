@@ -160,6 +160,7 @@ void ShaderStageParameters::SetConstantBufferData(Shader& shader, u32 index, std
 			memcpy(dst + offset, dataPtr, size);
 		}
 	}
+	m_constantBuffers[index]->SetDirty();
 }
 
 bool BindingRanges::AddRange(BindingRange range)

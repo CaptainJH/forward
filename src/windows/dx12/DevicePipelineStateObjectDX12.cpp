@@ -973,6 +973,7 @@ void DeviceRTPipelineStateObjectDX12::BuildShaderTables(DeviceDX12* d)
 		if (st && !st->DeviceObject())
 		{
 			st->SetupShaderRecords(shaderName2ShaderIdentifierTable);
+			st->SetDirty();
 			auto deviceShaderTable = make_shared<DeviceBufferDX12>(nullptr, st.get(), *d);
 			deviceShaderTable->SyncCPUToGPU();
 			st->SetDeviceObject(deviceShaderTable);

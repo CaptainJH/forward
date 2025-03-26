@@ -323,6 +323,7 @@ namespace forward
 		void SetConstantBufferDataFromPtr(u32 index, void* data)
 		{
 			memcpy(m_constantBuffers[index]->GetData(), data, m_constantBuffers[index]->GetNumBytes());
+			m_constantBuffers[index]->SetDirty();
 		}
 		void SetConstantBufferDataFromStr(Shader& shader, u32 index, std::unordered_map<String, String>& params)
 		{
