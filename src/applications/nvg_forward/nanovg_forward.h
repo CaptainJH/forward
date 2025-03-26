@@ -67,7 +67,7 @@ struct ForwardNVGcontext {
 
 	struct TextureInfo {
 		forward::shared_ptr<forward::Texture2D> tex;
-		int nvgId;
+		int nvgTexId;
 		int nvgType;
 		int nvgFlags;
 		int w;
@@ -75,6 +75,13 @@ struct ForwardNVGcontext {
 
 	};
 	std::vector<TextureInfo> textures;
+
+	TextureInfo* FindTextureById(int id) {
+		auto it = std::find_if(textures.begin(), textures.end(), [&](auto& t)->bool {
+			return id == t.nvgTexId;
+			});
+		return it == textures.end() ? nullptr : &*it;
+	}
 };
 
 enum D3DNVGshaderType {
@@ -162,7 +169,7 @@ static int D3Dnvg__convertPaint(ForwardNVGcontext* ctx, struct D3DNVGfragUniform
 	if (paint->image != 0)
 	{
 		const auto& tex = *std::find_if(ctx->textures.begin(), ctx->textures.end(), [&](auto& t)->bool {
-			return paint->image == t.nvgId;
+			return paint->image == t.nvgTexId;
 			});
 		if (!tex.tex)
 		{
@@ -197,9 +204,9 @@ static int D3Dnvg__convertPaint(ForwardNVGcontext* ctx, struct D3DNVGfragUniform
 		}
 #else
 		if (tex.nvgType == NVG_TEXTURE_RGBA)
-			frag->texType = (tex.nvgFlags & NVG_IMAGE_PREMULTIPLIED) ? 0.0f : 1.0f;
+			frag->texType = (tex.nvgFlags & NVG_IMAGE_PREMULTIPLIED) ? 0 : 1;
 		else
-			frag->texType = 2.0f;
+			frag->texType = 2;
 #endif
 	}
 	else
@@ -244,7 +251,7 @@ static int forwardnvg_renderCreateTexture(void* uptr, int type, int w, int h, in
 	}
 	ForwardNVGcontext::TextureInfo tex = {
 		.tex = t,
-		.nvgId = retID,
+		.nvgTexId = retID,
 		.nvgType = type,
 		.nvgFlags = imageFlags,
 		.w = w,
@@ -263,10 +270,8 @@ static int forwardnvg_renderDeleteTexture(void* uptr, int image) {
 
 static int forwardnvg_renderUpdateTexture(void* uptr, int image, int x, int y, int w, int h, const unsigned char* data) {
 
-	const auto idx = image - 1;
-	assert(idx >= 0);
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
-	const auto& tex = gl->textures[idx];
+	const auto& tex = *gl->FindTextureById(image);
 
 	const auto left = x;
 	const auto right = (x + w);
@@ -285,12 +290,11 @@ static int forwardnvg_renderUpdateTexture(void* uptr, int image, int x, int y, i
 }
 
 static int forwardnvg_renderGetTextureSize(void* uptr, int image, int* w, int* h) {
-	const auto idx = image - 1;
-	assert(idx >= 0);
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
-	const auto& tex = gl->textures[idx];
-	*w = tex.w;
-	*h = tex.h;
+	const auto tex = gl->FindTextureById(image);
+	assert(tex);
+	*w = tex->w;
+	*h = tex->h;
 	return 1;
 }
 
@@ -348,6 +352,11 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 				memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 				// Fill shader
 				D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+				if (paint->image != 0) {
+					auto texInfo = gl->FindTextureById(paint->image);
+					assert(texInfo);
+					renderItem.tex = texInfo->tex;
+				}
 				renderItem.vertex_buffer = vertex;
 				renderItem.index_buffer = vIndex;
 			}
@@ -419,6 +428,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 		// Fill shader
 		D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+		assert(paint->image == 0);
 		renderItem.vertex_buffer = vertex;
 		renderItem.index_buffer = vIndex;
 		renderItem.pso_type = RenderItem::BLEND_FILL;
@@ -471,6 +481,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			// Fill shader
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, 1.0f - 0.5f / 255.0f);
+			assert(paint->image == 0);
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
 			}
@@ -481,6 +492,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			assert(paint->image == 0);
 			renderItem.pso_type = RenderItem::BLEND_DrawAA;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
@@ -492,6 +504,7 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 			drawFills(path.stroke, path.nstroke, fromStrip2List, renderItem);
 			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, strokeWidth, fringe, -1.0f);
+			assert(paint->image == 0);
 			renderItem.pso_type = RenderItem::BLEND_FILL;
 			if (forward_nvg_fill_callback) {
 				forward_nvg_fill_callback(renderItem);
@@ -524,7 +537,9 @@ static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcomposite
 	D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, 1.0f, fringe, -1.0f);
 	renderItem.constant_buffer.type = NSVG_SHADER_IMG;
 	assert(paint->image == 1);
-	renderItem.tex = gl->textures[paint->image - 1].tex;
+	auto texInfo = gl->FindTextureById(paint->image);
+	assert(texInfo);
+	renderItem.tex = texInfo->tex;
 	if (forward_nvg_fill_callback) {
 		forward_nvg_fill_callback(renderItem);
 	}
