@@ -97,7 +97,7 @@ public:
 protected:
 	void UpdateScene(f32) override {}
 	void DrawScene() override;
-	//void OnSpace() override;
+	void OnSpace() override;
 
 	void DrawNVG();
 	void SetupRenderPass(RenderPass&, RenderItem&);
@@ -122,6 +122,7 @@ private:
 	shared_ptr<Texture2D> m_rt;
 
 	std::vector<shared_ptr<RasterPipelineStateObject>> m_pso;
+	int m_blowup = 0;
 };
 
 void nanovg_forward_demo::DrawNVG() {
@@ -131,7 +132,7 @@ void nanovg_forward_demo::DrawNVG() {
 	SDL_GetMouseState(&xm, &ym);
 	nvgBeginFrame(vg, xWin, yWin, 1.0f);
 
-	renderDemo(vg, xm, ym, (float)xWin, (float)yWin, mTimer.Runtime(), 0, &data);
+	renderDemo(vg, xm, ym, (float)xWin, (float)yWin, mTimer.Runtime(), m_blowup, &data);
 
 	nvgEndFrame(vg);
 }
@@ -384,11 +385,10 @@ void nanovg_forward_demo::SetupRenderPass(RenderPass& thisPass, RenderItem& rend
 	thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
 	};
 
-//void nanovg_forward_demo::OnSpace()
-//{
-//    mAppPaused = !mAppPaused;
-//    m_pRender2->SaveRenderTarget(L"FirstRenderTargetOut.bmp", m_renderPass->GetPSO());
-//}
+void nanovg_forward_demo::OnSpace()
+{
+	m_blowup = m_blowup ? 0 : 1;
+}
 
 
 FORWARD_APPLICATION_MAIN(nanovg_forward_demo, 1000, 600);
