@@ -353,8 +353,6 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 					assert(texInfo);
 					renderItem.tex = texInfo->tex;
 				}
-				//renderItem.vertex_buffer = vertex;
-				//renderItem.index_buffer = vIndex;
 			}
 			else {
 				assert(false);
@@ -413,9 +411,10 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		D3Dnvg__vset(&quad[1], bounds[2], bounds[1], 0.5f, 1.0f);
 		D3Dnvg__vset(&quad[2], bounds[0], bounds[3], 0.5f, 1.0f);
 		D3Dnvg__vset(&quad[3], bounds[0], bounds[1], 0.5f, 1.0f);
-		std::vector<int> vIndex = { 0, 1, 2, 2, 1, 3 };
+
 		RenderItem renderItem;
-		std::vector<nvg_vertex> vertex(4);
+		std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
+		vertex.resize(4);
 		for (int i = 0; i < 4; ++i) {
 			vertex[i].position = { quad[i].x, quad[i].y, 0.0f };
 			vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
@@ -427,8 +426,7 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		// Fill shader
 		D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
 		assert(paint->image == 0);
-		renderItem.vertex_buffer = vertex;
-		renderItem.index_buffer = vIndex;
+		renderItem.index_buffer = { 0, 1, 2, 2, 1, 3 };
 		renderItem.pso_type = RenderItem::BLEND_FILL;
 		if (forward_nvg_fill_callback)
 			forward_nvg_fill_callback(renderItem);
@@ -443,15 +441,14 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 	auto drawFills = [&](NVGvertex* fills, int fillCount, RenderItem& renderItem) {
 		if (fillCount > 0) {
 			if (fillCount >= 3) {
-				std::vector<nvg_vertex> vertex(fillCount);
+				std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
+				vertex.resize(fillCount);
 				for (int i = 0; i < fillCount; ++i) {
 					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
 					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
 						paint->innerColor.b, paint->innerColor.a);
 					vertex[i].tex_coord = { fills[i].u, fills[i].v };
 				}
-
-				renderItem.vertex_buffer = vertex;
 			}
 			else {
 				assert(false);
@@ -512,16 +509,16 @@ static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcomposite
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
 
 	RenderItem renderItem;
-	std::vector<nvg_vertex> vertex(nverts);
-	std::vector<int> vIndex(nverts);
+	std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
+	std::vector<int>& vIndex = renderItem.index_buffer;
+	vertex.resize(nverts);
+	vIndex.resize(nverts);
 	for (int i = 0; i < nverts; ++i) {
 		vertex[i].position = { verts[i].x, verts[i].y, 0.0f };
 		vertex[i].color = forward::float4(0, 0, 0, 0);
 		vertex[i].tex_coord = { verts[i].u, verts[i].v };
 		vIndex[i] = i;
 	}
-	renderItem.vertex_buffer = vertex;
-	renderItem.index_buffer = vIndex;
 
 	memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 	D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, 1.0f, fringe, -1.0f);

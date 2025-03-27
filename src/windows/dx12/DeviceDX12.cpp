@@ -625,24 +625,25 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			for (auto i = 0U; i < pass.m_ps.m_shaderResources.size(); ++i)
 			{
 				auto& res = pass.m_ps.m_shaderResources[i];
-				if (res && !res->DeviceObject())
+				if (res)
 				{
-					if (dynamic_cast<Texture2D*>(res.get()))
-					{
-						auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *this);
-						res->SetDeviceObject(deviceTex);
+					if (!res->DeviceObject()) {
+						if (dynamic_cast<Texture2D*>(res.get()))
+						{
+							auto deviceTex = forward::make_shared<DeviceTexture2DDX12>(dynamic_cast<Texture2D*>(res.get()), *this);
+							res->SetDeviceObject(deviceTex);
+						}
+						else if (dynamic_cast<TextureCube*>(res.get()))
+						{
+							auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *this);
+							res->SetDeviceObject(deviceTex);
+						}
 					}
-					else if (dynamic_cast<TextureCube*>(res.get()))
-					{
-						auto deviceTex = forward::make_shared<DeviceTextureCubeDX12>(dynamic_cast<TextureCube*>(res.get()), *this);
-						res->SetDeviceObject(deviceTex);
+					if (res->IsDirty()) {
+						auto deviceTex = device_cast<DeviceResource*>(res);
+						deviceTex->SyncCPUToGPU();
+						res->CleanDirty();
 					}
-				}
-
-				if (res && res->IsDirty()) {
-					auto deviceTex = device_cast<DeviceResource*>(res);
-					deviceTex->SyncCPUToGPU();
-					res->CleanDirty();
 				}
 			}
 		}

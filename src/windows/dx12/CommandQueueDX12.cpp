@@ -65,7 +65,6 @@ shared_ptr<CommandListDX12> CommandQueueDX12::GetCommandListDX12()
 
 void CommandQueueDX12::ExecuteCommandList()
 {
-	assert(m_CurrentCmdList);
 	ExecuteCommandList(*GetCommandListDX12());
 }
 
