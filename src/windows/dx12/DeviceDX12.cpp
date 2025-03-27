@@ -624,7 +624,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			//	});
 			for (auto i = 0U; i < pass.m_ps.m_shaderResources.size(); ++i)
 			{
-				auto res = pass.m_ps.m_shaderResources[i];
+				auto& res = pass.m_ps.m_shaderResources[i];
 				if (res && !res->DeviceObject())
 				{
 					if (dynamic_cast<Texture2D*>(res.get()))

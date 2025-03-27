@@ -261,6 +261,8 @@ bool nanovg_forward_demo::Init()
 			cmdList.Draw(4);
 	});
 
+	m_pDevice->EnableImGUI(false);
+
 	m_nvg_fill_pass.reserve(1000);
 
 	m_nvg_vs = make_shared<VertexShader>("nanovg_forward_demoVS", L"D3D11VertexShader", "D3D11VertexShader_Main");
