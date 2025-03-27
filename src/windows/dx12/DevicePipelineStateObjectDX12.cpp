@@ -1005,7 +1005,7 @@ void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
 	for (auto& pCB : m_rtPSO.m_rtState.m_constantBuffers)
 	{
 		if (pCB && !pCB->DeviceObject())
-			cmdList->SetDynamicConstantBuffer(pCB.get());
+			cmdList->SetDynamicResource(pCB.get());
 	}
 
 	for (auto& pSRV : m_rtPSO.m_rtState.m_shaderResources)
@@ -1047,7 +1047,7 @@ void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
 		for (auto& pCB : bindlessStage.m_constantBuffers)
 		{
 			if (pCB && !pCB->DeviceObject())
-				cmdList->SetDynamicConstantBuffer(pCB.get());
+				cmdList->SetDynamicResource(pCB.get());
 		}
 
 		for (auto& pSRV : bindlessStage.m_shaderResources)

@@ -100,12 +100,14 @@ protected:
 	//void OnSpace() override;
 
 	void DrawNVG();
+	void SetupRenderPass(RenderPass&, RenderItem&);
 
 private:
 	RenderPass* m_renderPass;
 	NVGcontext* vg = nullptr;
 	DemoData data;
 	u32 m_current_ps_cb_index = 0;
+	u32 m_next_available_pass_index = 0U;
 	std::vector<RenderPass> m_nvg_fill_pass;
 	shared_ptr<ConstantBuffer<VS_CONSTANTS>> m_nvg_vs_cb;
 	std::vector<shared_ptr<ConstantBuffer<D3DNVGfragUniforms>>> m_nvg_ps_cb;
@@ -142,16 +144,18 @@ void nanovg_forward_demo::DrawScene()
 	FrameGraph fg;
 	m_pDevice->BeginDrawFrameGraph(&fg);
 	fg.DrawRenderPass(m_renderPass);
-	for (auto& rpass : m_nvg_fill_pass)
-		fg.DrawRenderPass(&rpass);
+	for (auto i = 0U; i < m_next_available_pass_index; ++i) {
+		auto& pass = m_nvg_fill_pass[i];
+		fg.DrawRenderPass(&pass);
+	}
 	m_pDevice->DrawScreenText(GetFrameStats(), 10, 50, Colors::Blue);
 	m_pDevice->EndDrawFrameGraph();
 	ProfilingHelper::EndPixEvent();
 
-	m_nvg_fill_pass.clear();
 	m_nvg_vb->ResetActiveNumElements();
 	m_nvg_ib->ResetActiveNumElements();
 	m_current_ps_cb_index = 0;
+	m_next_available_pass_index = 0;
 }
 
 bool nanovg_forward_demo::Init()
@@ -311,61 +315,26 @@ bool nanovg_forward_demo::Init()
 	m_rt = m_pDevice->GetDefaultRT();
 
 	forward_nvg_fill_callback = [&](RenderItem& renderItem) {
+		if (m_next_available_pass_index >= m_nvg_fill_pass.size()) {
+			m_nvg_fill_pass.emplace_back(RenderPass(
+				[&](RenderPassBuilder& builder) {
+					RenderPass& thisPass = *builder.GetRenderPass();
+					SetupRenderPass(thisPass, renderItem);
+				},
+				[](CommandList& cmdList, RenderPass& pass) {
+					if (pass.m_ia_params.m_index_count == 0)
+						cmdList.Draw(pass.m_ia_params.m_vertex_count, pass.m_ia_params.m_vertex_start_idx);
+					else
+						cmdList.DrawIndexed(pass.m_ia_params.m_index_count,
+							pass.m_ia_params.m_vertex_start_idx, pass.m_ia_params.m_index_start_idx);
+				}, forward::RenderPass::OF_NO_CLEAN));
 
-		const auto c = static_cast<u32>(renderItem.index_buffer.size());
-		const auto vc = static_cast<u32>(renderItem.vertex_buffer.size());
-		const auto vb_base = m_nvg_vb->GetActiveNumElements();
-		const auto ib_base = m_nvg_ib->GetActiveNumElements();
-
-		m_nvg_fill_pass.emplace_back(RenderPass(
-			[&](RenderPassBuilder& builder) {
-				RenderPass& thisPass = *builder.GetRenderPass();
-
-				const auto pso_idx = static_cast<u32>(renderItem.pso_type);
-				assert(pso_idx >= 0 && pso_idx <= 3);
-				thisPass.SetPSO(m_pso[pso_idx]);
-
-				for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
-				{
-					m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
-				}
-				thisPass.m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
-
-				if (c > 0) {
-					for (auto i : renderItem.index_buffer)
-						m_nvg_ib->AddIndex(i);
-					thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
-				}
-				thisPass.m_ia_params.m_topologyType = renderItem.topologyType;
-
-				thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
-				if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
-					auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
-					m_nvg_ps_cb.push_back(nvg_ps_cb);
-					*nvg_ps_cb = renderItem.constant_buffer;
-					thisPass.m_ps.m_constantBuffers[1] = nvg_ps_cb;
-				}
-				else {
-					*m_nvg_ps_cb[m_current_ps_cb_index] = renderItem.constant_buffer;
-					thisPass.m_ps.m_constantBuffers[1] = m_nvg_ps_cb[m_current_ps_cb_index];
-				}
-				++m_current_ps_cb_index;
-				if (renderItem.tex)
-					thisPass.m_ps.m_shaderResources[0] = renderItem.tex;
-				else
-					thisPass.m_ps.m_shaderResources[0] = m_default_tex;
-
-				// setup render states
-				thisPass.m_om_params.m_depthStencilResource = m_depthStencil;
-				thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
-
-			},
-			[=](CommandList& cmdList, RenderPass&) {
-				if (c == 0)
-					cmdList.Draw(vc, vb_base);
-				else
-					cmdList.DrawIndexed(c, vb_base, ib_base);
-			}, forward::RenderPass::OF_NO_CLEAN));
+			m_next_available_pass_index = static_cast<u32>(m_nvg_fill_pass.size());
+		}
+		else {
+			RenderPass& pass = m_nvg_fill_pass[m_next_available_pass_index++];
+			SetupRenderPass(pass, renderItem);
+		}
 
 		m_nvg_vs_cb->GetTypedData()->viewSize[0] = mClientWidth;
 		m_nvg_vs_cb->GetTypedData()->viewSize[1] = mClientHeight;
@@ -373,6 +342,59 @@ bool nanovg_forward_demo::Init()
 
 	return true;
 }
+
+void nanovg_forward_demo::SetupRenderPass(RenderPass& thisPass, RenderItem& renderItem) {
+
+	const auto c = static_cast<u32>(renderItem.index_buffer.size());
+	const auto vc = static_cast<u32>(renderItem.vertex_buffer.size());
+	const auto vb_base = m_nvg_vb->GetActiveNumElements();
+	const auto ib_base = m_nvg_ib->GetActiveNumElements();
+
+	const auto pso_idx = static_cast<u32>(renderItem.pso_type);
+	assert(pso_idx >= 0 && pso_idx <= 3);
+	thisPass.SetPSO(m_pso[pso_idx]);
+
+	for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
+	{
+		m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
+	}
+	thisPass.m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
+
+	if (c > 0) {
+		for (auto i : renderItem.index_buffer)
+			m_nvg_ib->AddIndex(i);
+		thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
+	}
+	else {
+		thisPass.m_ia_params.m_indexBuffer = nullptr;
+	}
+	thisPass.m_ia_params.m_topologyType = renderItem.topologyType;
+	thisPass.m_ia_params.m_vertex_count = vc;
+	thisPass.m_ia_params.m_vertex_start_idx = vb_base;
+	thisPass.m_ia_params.m_index_count = c;
+	thisPass.m_ia_params.m_index_start_idx = ib_base;
+
+	thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
+	if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
+		auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
+		m_nvg_ps_cb.push_back(nvg_ps_cb);
+		*nvg_ps_cb = renderItem.constant_buffer;
+		thisPass.m_ps.m_constantBuffers[1] = nvg_ps_cb;
+	}
+	else {
+		*m_nvg_ps_cb[m_current_ps_cb_index] = renderItem.constant_buffer;
+		thisPass.m_ps.m_constantBuffers[1] = m_nvg_ps_cb[m_current_ps_cb_index];
+	}
+	++m_current_ps_cb_index;
+	if (renderItem.tex)
+		thisPass.m_ps.m_shaderResources[0] = renderItem.tex;
+	else
+		thisPass.m_ps.m_shaderResources[0] = m_default_tex;
+
+	// setup render states
+	thisPass.m_om_params.m_depthStencilResource = m_depthStencil;
+	thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
+	};
 
 //void nanovg_forward_demo::OnSpace()
 //{

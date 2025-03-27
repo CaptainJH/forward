@@ -43,7 +43,7 @@ namespace forward
 		void DrawRenderPass(RenderPass& pass) override;
 		void PopulateCmdsFrom(FrameGraph* fg) override;
 
-		void SetDynamicConstantBuffer(ConstantBufferBase* cb);
+		void SetDynamicResource(Resource*);
 
 		void TransitionBarrier(shared_ptr<DeviceResourceDX12> resource, D3D12_RESOURCE_STATES stateAfter);
 

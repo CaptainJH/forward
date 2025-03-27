@@ -562,6 +562,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceDX12::DepthStencilView(RenderPass* rp) const
 //--------------------------------------------------------------------------------
 void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 {
+	auto cmdList = m_queue->GetCommandListDX12().get();
 	if (pass.IsRasterPSO())
 	{
 		auto& pso = pass.GetPSO<RasterPipelineStateObject>();
@@ -591,21 +592,21 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			auto cb = pass.m_vs.m_constantBuffers[i];
 			if (cb)
-				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+				cmdList->SetDynamicResource(cb.get());
 		}
 
 		for (auto i = 0U; i < pass.m_gs.m_constantBuffers.size(); ++i)
 		{
 			auto cb = pass.m_gs.m_constantBuffers[i];
 			if (cb)
-				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+				cmdList->SetDynamicResource(cb.get());
 		}
 
 		for (auto i = 0U; i < pass.m_ps.m_constantBuffers.size(); ++i)
 		{
 			auto cb = pass.m_ps.m_constantBuffers[i];
 			if (cb)
-				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+				cmdList->SetDynamicResource(cb.get());
 		}
 
 		// setup shader resources
@@ -652,27 +653,35 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			auto vb = pass.m_ia_params.m_vertexBuffers[i];
 			if (vb)
 			{
-				if (!vb->DeviceObject())
-				{
+				if (!vb->DeviceObject()) {
 					auto deviceVB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), vb.get(), *this);
 					vb->SetDeviceObject(deviceVB);
 				}
-				auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
-				deviceVB->SyncCPUToGPU();
+				if (vb->GetUsage() == RU_IMMUTABLE) {
+					auto deviceVB = device_cast<DeviceBufferDX12*>(vb);
+					deviceVB->SyncCPUToGPU();
+				}
+				else {
+					cmdList->SetDynamicResource(vb.get());
+				}
 			}
 		}
 
 		// create & update device index buffer
 		auto ib = pass.m_ia_params.m_indexBuffer;
-		if (ib && !ib->DeviceObject())
-		{
-			auto deviceIB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), ib.get(), *this);
-			ib->SetDeviceObject(deviceIB);
-		}
-		if (ib)
-		{
-			auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
-			deviceIB->SyncCPUToGPU();
+		if (ib) {
+			if (!ib->DeviceObject())
+			{
+				auto deviceIB = forward::make_shared<DeviceBufferDX12>(DeviceCommandList(), ib.get(), *this);
+				ib->SetDeviceObject(deviceIB);
+			}
+			if (ib->GetUsage() == RU_IMMUTABLE) {
+				auto deviceIB = device_cast<DeviceBufferDX12*>(ib);
+				deviceIB->SyncCPUToGPU();
+			}
+			else {
+				cmdList->SetDynamicResource(ib.get());
+			}
 		}
 
 		// setup render targets
@@ -704,7 +713,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 		{
 			auto cb = pass.m_cs.m_constantBuffers[i];
 			if (cb)
-				m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(cb.get());
+				m_queue->GetCommandListDX12()->SetDynamicResource(cb.get());
 		}
 
 		// setup shader resources
@@ -755,7 +764,7 @@ void DeviceDX12::PrepareRenderPass(RenderPass& pass)
 			for (auto& pCB : pso.m_rtState.m_constantBuffers)
 			{
 				if (pCB)
-					m_queue->GetCommandListDX12()->SetDynamicConstantBuffer(pCB.get());
+					m_queue->GetCommandListDX12()->SetDynamicResource(pCB.get());
 			}
 		}
 	}
@@ -766,8 +775,9 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 	if (pass.IsRasterPSO())
 	{
 		auto& rpso = pass.GetPSO<RasterPipelineStateObject>();
+		auto cmdList = DeviceCommandList();
 		// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
-		DeviceCommandList()->RSSetViewports(1, &mScreenViewport);
+		cmdList->RSSetViewports(1, &mScreenViewport);
 		D3D12_RECT aRects[FORWARD_RENDERER_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 		memset(aRects, 0, sizeof(aRects));
 		if (rpso.m_rsState.enableScissor)
@@ -780,11 +790,11 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 				aRects[i].right = rect.width;
 				aRects[i].top = rect.top;
 			}
-			DeviceCommandList()->RSSetScissorRects(rpso.m_rsState.enableScissor, aRects);
+			cmdList->RSSetScissorRects(rpso.m_rsState.enableScissor, aRects);
 		}
 		else
 		{
-			DeviceCommandList()->RSSetScissorRects(1, &mScissorRect);
+			cmdList->RSSetScissorRects(1, &mScissorRect);
 		}
 
 		// Specify the buffers we are going to render to.
@@ -805,19 +815,19 @@ void DeviceDX12::DrawRenderPass(RenderPass& pass)
 			}
 		}
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = DepthStencilView(&pass);
-		DeviceCommandList()->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);
+		cmdList->OMSetRenderTargets(static_cast<u32>(rt.size()), rt.data(), true, &depthStencilView);
 		// Clear the back buffer and depth buffer.
 		f32 clearColours[] = { Colors::Black.x, Colors::Black.y, Colors::Black.z, 0.0f };
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_RT)
 		{
 			for (auto& r : rt)
-				DeviceCommandList()->ClearRenderTargetView(r, clearColours, 0, nullptr);
+				cmdList->ClearRenderTargetView(r, clearColours, 0, nullptr);
 		}
 		if (pass.GetRenderPassFlags() & RenderPass::OF_CLEAN_DS)
 		{
 			auto rtD = device_cast<DeviceTexture2DDX12*>(pass.m_om_params.m_depthStencilResource);
 			TransitionResource(rtD, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-			DeviceCommandList()->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+			cmdList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		}
 
 		auto& devicePSO = *dynamic_cast<DevicePipelineStateObjectDX12*>(rpso.DeviceObject().get());
@@ -993,17 +1003,17 @@ void DeviceDX12::BeginDrawFrameGraph(FrameGraph* fg)
 //--------------------------------------------------------------------------------
 void DeviceDX12::EndDrawFrameGraph()
 {
-	m_currentFrameGraph->LinkInfo();
+	//m_currentFrameGraph->LinkInfo();
 	//CompileCurrentFrameGraph();
 
-	auto renderPassDB = m_currentFrameGraph->GetRenderPassDB();
-	for (auto renderPass : renderPassDB)
+	auto& renderPassDB = m_currentFrameGraph->GetRenderPassDB();
+	for (auto& renderPass : renderPassDB)
 	{
 		PrepareRenderPass(*renderPass.m_renderPass);
 	}
 
 	m_queue->GetCommandListDX12()->BindGPUVisibleHeaps();
-	for (auto renderPass : renderPassDB)
+	for (auto& renderPass : renderPassDB)
 	{
 		m_queue->GetCommandListDX12()->PrepareGPUVisibleHeaps(*renderPass.m_renderPass);
 		DrawRenderPass(*renderPass.m_renderPass);

@@ -71,13 +71,14 @@ namespace forward
 		template<class F> ResourcePtr UpdateDynamicResource(u64 u, F&& failFunc)
 		{
 			if (GetUsage() == ResourceUsage::RU_CPU_GPU_BIDIRECTIONAL ||
-				GetUsage() == ResourceUsage::RU_DYNAMIC_UPDATE)
-			{
+				GetUsage() == ResourceUsage::RU_DYNAMIC_UPDATE) {
 				m_dynamicResPool.ResetDeviceResource(u);
 				return m_dynamicResPool.FetchDeviceResource(u, failFunc);
 			}
-			else
+			else {
+				assert(false);
 				return nullptr;
+			}
 		}
 
 		bool IsDirty() const { return m_dirty; }

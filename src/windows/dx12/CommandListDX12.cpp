@@ -284,7 +284,7 @@ void CommandListDX12::PrepareGPUVisibleHeaps(RenderPass& pass)
 			{
 				if (auto cb = pso.m_rtState.m_constantBuffers[i])
 				{
-					SetDynamicConstantBuffer(cb.get());
+					SetDynamicResource(cb.get());
 					auto deviceCB = device_cast<DeviceBufferDX12*>(cb);
 					stageCBVFunc(baseDescriptorHandleAddr, deviceCB);
 				}
@@ -377,11 +377,11 @@ DeviceDX12& CommandListDX12::GetDeviceDX12()
 	return static_cast<DeviceDX12&>(m_device);
 }
 
-void CommandListDX12::SetDynamicConstantBuffer(ConstantBufferBase* cb)
+void CommandListDX12::SetDynamicResource(Resource* res)
 {
 	const auto u = reinterpret_cast<uintptr_t>(this);
-	cb->UpdateDynamicResource(u, [&]()->ResourcePtr {
-		auto deviceCB = make_shared<DeviceBufferDX12>(m_CmdList.Get(), cb, GetDeviceDX12());
+	res->UpdateDynamicResource(u, [&]()->ResourcePtr {
+		auto deviceCB = make_shared<DeviceBufferDX12>(m_CmdList.Get(), res, GetDeviceDX12());
 		return deviceCB;
 		})->SyncCPUToGPU();
 }
