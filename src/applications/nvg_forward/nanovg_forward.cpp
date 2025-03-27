@@ -97,7 +97,7 @@ public:
 protected:
 	void UpdateScene(f32) override {}
 	void DrawScene() override;
-	void OnSpace() override;
+	void OnSpace() override { m_blowup = m_blowup ? 0 : 1; }
 
 	void DrawNVG();
 	void SetupRenderPass(RenderPass&, RenderItem&);
@@ -383,12 +383,6 @@ void nanovg_forward_demo::SetupRenderPass(RenderPass& thisPass, RenderItem& rend
 	// setup render states
 	thisPass.m_om_params.m_depthStencilResource = m_depthStencil;
 	thisPass.m_om_params.m_renderTargetResources[0] = m_rt;
-	};
-
-void nanovg_forward_demo::OnSpace()
-{
-	m_blowup = m_blowup ? 0 : 1;
 }
-
 
 FORWARD_APPLICATION_MAIN(nanovg_forward_demo, 1000, 600);
