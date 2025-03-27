@@ -28,6 +28,8 @@ struct VS_CONSTANTS {
 	float viewSize[2];
 };
 
+constexpr int NVG_MaxBufferSize = 60000;
+
 struct RenderItem {
 	enum PSO_TYPE {
 		BLEND_DEFAULT,
@@ -36,13 +38,35 @@ struct RenderItem {
 		BLEND_FILL
 	};
 
-	std::vector<nvg_vertex> vertex_buffer;
-	std::vector<int> index_buffer;
+	forward::u32 vb_count = 0;
+	forward::u32 vb_start_idx = 0;
+	forward::u32 ib_count = 0;
+	forward::u32 ib_start_idx = 0;
 	D3DNVGfragUniforms constant_buffer;
 	forward::shared_ptr<forward::Texture2D> tex = nullptr;
 	forward::PrimitiveTopologyType	topologyType  = forward::PrimitiveTopologyType::PT_TRIANGLELIST;
 
 	PSO_TYPE pso_type = BLEND_DEFAULT;
+
+	RenderItem() {
+		vb_start_idx = GetCurrentVBActive();
+		ib_start_idx = GetCurrentIBActive();
+	}
+
+	void AddVertex(const nvg_vertex& v) {
+		AddVertexFunc(v);
+		++vb_count;
+	}
+
+	void AddIndex(int idx) {
+		AddIndexFunc(idx);
+		++ib_count;
+	}
+
+	static std::function<void(const nvg_vertex&)> AddVertexFunc;
+	static std::function<void(int)> AddIndexFunc;
+	static std::function<forward::u32()> GetCurrentVBActive;
+	static std::function<forward::u32()> GetCurrentIBActive;
 };
 
 enum NVGcreateFlags {
@@ -322,27 +346,25 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
 
-	auto fromFan2List = [](std::vector<int>& vIndex, int i) {
+	auto fromFan2List = [](RenderItem& ri, int i) {
 		if (i < 2)
 			return;
-		vIndex.push_back(0);
-		vIndex.push_back(i - 1);
-		vIndex.push_back(i);
+		ri.AddIndex(0);
+		ri.AddIndex(i - 1);
+		ri.AddIndex(i);
 		};
-	auto dummy = [](std::vector<int>&, int) {};
+	auto dummy = [](RenderItem&, int) {};
 
 	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
 		if (fillCount > 0) {
 			if (fillCount >= 3) {
-				std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
-				vertex.resize(fillCount);
-				std::vector<int>& vIndex = renderItem.index_buffer;
 				for (int i = 0; i < fillCount; ++i) {
-					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
-					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g, 
-						paint->innerColor.b, paint->innerColor.a);
-					vertex[i].tex_coord = { fills[i].u, fills[i].v };
-					toListFunc(vIndex, i);
+					renderItem.AddVertex({
+						.position		= { fills[i].x, fills[i].y, 0.0f },
+						.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+						.tex_coord	= { fills[i].u, fills[i].v }
+						});
+					toListFunc(renderItem, i);
 				}
 
 				memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
@@ -413,20 +435,24 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 		D3Dnvg__vset(&quad[3], bounds[0], bounds[1], 0.5f, 1.0f);
 
 		RenderItem renderItem;
-		std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
-		vertex.resize(4);
 		for (int i = 0; i < 4; ++i) {
-			vertex[i].position = { quad[i].x, quad[i].y, 0.0f };
-			vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
-				paint->innerColor.b, paint->innerColor.a);
-			vertex[i].tex_coord = { quad[i].u, quad[i].v };
+			renderItem.AddVertex({
+				.position		= { quad[i].x, quad[i].y, 0.0f },
+				.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+				.tex_coord	= { quad[i].u, quad[i].v }
+				});
 		}
 
 		memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
 		// Fill shader
 		D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
 		assert(paint->image == 0);
-		renderItem.index_buffer = { 0, 1, 2, 2, 1, 3 };
+		renderItem.AddIndex(0);
+		renderItem.AddIndex(1);
+		renderItem.AddIndex(2);
+		renderItem.AddIndex(2);
+		renderItem.AddIndex(1);
+		renderItem.AddIndex(3);
 		renderItem.pso_type = RenderItem::BLEND_FILL;
 		if (forward_nvg_fill_callback)
 			forward_nvg_fill_callback(renderItem);
@@ -441,13 +467,12 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 	auto drawFills = [&](NVGvertex* fills, int fillCount, RenderItem& renderItem) {
 		if (fillCount > 0) {
 			if (fillCount >= 3) {
-				std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
-				vertex.resize(fillCount);
 				for (int i = 0; i < fillCount; ++i) {
-					vertex[i].position = { fills[i].x, fills[i].y, 0.0f };
-					vertex[i].color = forward::float4(paint->innerColor.r, paint->innerColor.g,
-						paint->innerColor.b, paint->innerColor.a);
-					vertex[i].tex_coord = { fills[i].u, fills[i].v };
+					renderItem.AddVertex({
+						.position		= { fills[i].x, fills[i].y, 0.0f },
+						.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+						.tex_coord	= { fills[i].u, fills[i].v }
+						});
 				}
 			}
 			else {
@@ -509,15 +534,13 @@ static void forwardnvg_renderTriangles(void* uptr, NVGpaint* paint, NVGcomposite
 	ForwardNVGcontext* gl = (ForwardNVGcontext*)uptr;
 
 	RenderItem renderItem;
-	std::vector<nvg_vertex>& vertex = renderItem.vertex_buffer;
-	std::vector<int>& vIndex = renderItem.index_buffer;
-	vertex.resize(nverts);
-	vIndex.resize(nverts);
 	for (int i = 0; i < nverts; ++i) {
-		vertex[i].position = { verts[i].x, verts[i].y, 0.0f };
-		vertex[i].color = forward::float4(0, 0, 0, 0);
-		vertex[i].tex_coord = { verts[i].u, verts[i].v };
-		vIndex[i] = i;
+		renderItem.AddVertex({
+			.position		= { verts[i].x, verts[i].y, 0.0f },
+			.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+			.tex_coord	= { verts[i].u, verts[i].v }
+			});
+		renderItem.AddIndex(i);
 	}
 
 	memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
@@ -578,4 +601,8 @@ void nvgDeleteForward(NVGcontext* ctx)
 	nvgDeleteInternal(ctx);
 }
 
+std::function<void(const nvg_vertex&)> RenderItem::AddVertexFunc;
+std::function<void(int)> RenderItem::AddIndexFunc;
+std::function<forward::u32()> RenderItem::GetCurrentVBActive;
+std::function<forward::u32()> RenderItem::GetCurrentIBActive;
 #endif

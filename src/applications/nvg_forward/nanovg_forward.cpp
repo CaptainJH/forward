@@ -264,6 +264,10 @@ bool nanovg_forward_demo::Init()
 	m_pDevice->EnableImGUI(false);
 
 	m_nvg_fill_pass.reserve(1000);
+	RenderItem::AddVertexFunc = [&](const nvg_vertex& v) { m_nvg_vb->AddVertex(v); };
+	RenderItem::AddIndexFunc = [&](const u32& idx) { m_nvg_ib->AddIndex(idx); };
+	RenderItem::GetCurrentVBActive = [&]() { return m_nvg_vb->GetActiveNumElements(); };
+	RenderItem::GetCurrentIBActive = [&]() { return m_nvg_ib->GetActiveNumElements(); };
 
 	m_nvg_vs = make_shared<VertexShader>("nanovg_forward_demoVS", L"D3D11VertexShader", "D3D11VertexShader_Main");
 	m_nvg_ps = make_shared<PixelShader>("nanovg_forward_demoPS", L"D3D11PixelShader", "D3D11PixelShader_Main");
@@ -273,13 +277,12 @@ bool nanovg_forward_demo::Init()
 	m_nvg_vf.Bind(VASemantic::VA_COLOR, DataFormatType::DF_R32G32B32A32_FLOAT, 0);
 	m_nvg_vf.Bind(VASemantic::VA_TEXCOORD, DataFormatType::DF_R32G32_FLOAT, 0);
 
-	constexpr u32 MaxBufferSize = 60000;
-	m_nvg_vb = make_shared<VertexBuffer>("VertexBuffer", m_nvg_vf, MaxBufferSize);
+	m_nvg_vb = make_shared<VertexBuffer>("VertexBuffer", m_nvg_vf, NVG_MaxBufferSize);
 	m_nvg_vb->SetUsage(ResourceUsage::RU_DYNAMIC_UPDATE);
-	m_nvg_ib = make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, MaxBufferSize);
+	m_nvg_ib = make_shared<IndexBuffer>("IndexBuffer", PT_TRIANGLELIST, NVG_MaxBufferSize);
 	m_nvg_ib->SetUsage(ResourceUsage::RU_DYNAMIC_UPDATE);
 
-	m_default_tex = make_shared<Texture2D>("nvg_tex", L"bricks.dds");
+	m_default_tex = make_shared<Texture2D>("nvg_default_tex", DF_R8G8B8A8_UNORM, 2, 2, TBP_Shader);
 
 	m_pso.push_back(new RasterPipelineStateObject);
 	m_pso.back()->m_VSState.m_shader = m_nvg_vs;
@@ -347,34 +350,17 @@ bool nanovg_forward_demo::Init()
 
 void nanovg_forward_demo::SetupRenderPass(RenderPass& thisPass, RenderItem& renderItem) {
 
-	const auto c = static_cast<u32>(renderItem.index_buffer.size());
-	const auto vc = static_cast<u32>(renderItem.vertex_buffer.size());
-	const auto vb_base = m_nvg_vb->GetActiveNumElements();
-	const auto ib_base = m_nvg_ib->GetActiveNumElements();
-
 	const auto pso_idx = static_cast<u32>(renderItem.pso_type);
 	assert(pso_idx >= 0 && pso_idx <= 3);
 	thisPass.SetPSO(m_pso[pso_idx]);
 
-	for (auto i = 0; i < renderItem.vertex_buffer.size(); ++i)
-	{
-		m_nvg_vb->AddVertex(renderItem.vertex_buffer[i]);
-	}
-	thisPass.m_ia_params.m_vertexBuffers[0] = m_nvg_vb;
-
-	if (c > 0) {
-		for (auto i : renderItem.index_buffer)
-			m_nvg_ib->AddIndex(i);
-		thisPass.m_ia_params.m_indexBuffer = m_nvg_ib;
-	}
-	else {
-		thisPass.m_ia_params.m_indexBuffer = nullptr;
-	}
-	thisPass.m_ia_params.m_topologyType = renderItem.topologyType;
-	thisPass.m_ia_params.m_vertex_count = vc;
-	thisPass.m_ia_params.m_vertex_start_idx = vb_base;
-	thisPass.m_ia_params.m_index_count = c;
-	thisPass.m_ia_params.m_index_start_idx = ib_base;
+	thisPass.m_ia_params.m_vertexBuffers[0]		= m_nvg_vb;
+	thisPass.m_ia_params.m_indexBuffer			= renderItem.ib_count == 0 ? nullptr : m_nvg_ib;
+	thisPass.m_ia_params.m_topologyType		= renderItem.topologyType;
+	thisPass.m_ia_params.m_vertex_count			= renderItem.vb_count;
+	thisPass.m_ia_params.m_vertex_start_idx		= renderItem.vb_start_idx;
+	thisPass.m_ia_params.m_index_count			= renderItem.ib_count;
+	thisPass.m_ia_params.m_index_start_idx		= renderItem.ib_start_idx;
 
 	thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
 	if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
