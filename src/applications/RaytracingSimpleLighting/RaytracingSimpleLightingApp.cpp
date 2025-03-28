@@ -16,7 +16,7 @@ struct SceneConstantBuffer
 
 struct CubeConstantBuffer
 {
-	Vector4f albedo;
+	float4 albedo;
 };
 
 class RaytracingSimpleLighting : public Application
@@ -57,11 +57,11 @@ public:
 				pso.m_rtState.m_constantBuffers[1] = m_cb1;
 				pso.m_rtState.m_uavShaderRes[0] = m_uavTex;
 
-				auto& newlyAddedStageVB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+				auto& newlyAddedStageVB = pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 					.m_space = Shader::VertexDataSpace });
 				for (auto& m : m_scene.mMeshData)
 					newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
-				auto& newlyAddedStageIB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+				auto& newlyAddedStageIB = pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 					.m_space = Shader::IndexDataSpace });
 				for (auto& m : m_scene.mMeshData)
 					newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);

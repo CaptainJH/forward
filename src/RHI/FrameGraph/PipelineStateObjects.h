@@ -371,7 +371,7 @@ namespace forward
 		std::array<shared_ptr<Texture>, 8> m_uavShaderRes = { nullptr };
 		std::array<shared_ptr<SamplerState>, FORWARD_RENDERER_COMMONSHADER_SAMPLER_SLOT_COUNT> m_samplers = { nullptr };
 
-		Vector<BindlessShaderStage> m_bindlessShaderStageStates;
+		Vector<BindlessShaderStage> m_bindlessShaderResources;
 
 		shared_ptr<ShaderTable> m_rayGenShaderTable;
 		shared_ptr<ShaderTable> m_hitShaderTable;

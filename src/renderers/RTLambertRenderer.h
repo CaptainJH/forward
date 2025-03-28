@@ -131,19 +131,19 @@ namespace forward
 					// setup shaders
 					pso.m_rtState.m_shader = make_shared<RaytracingShaders>("RTLambert_Shader", L"RTLambertGIShader");
 
-					auto& newlyAddedStageVB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					auto& newlyAddedStageVB = pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 						.m_space = Shader::VertexDataSpace });
 					for (auto& m : m_sceneData.mMeshData)
 						newlyAddedStageVB.m_shaderResources.emplace_back(m.m_VB);
-					auto& newlyAddedStageIB = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					auto& newlyAddedStageIB = pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 						.m_space = Shader::IndexDataSpace });
 					for (auto& m : m_sceneData.mMeshData)
 						newlyAddedStageIB.m_shaderResources.emplace_back(m.m_IB);
-					auto& newlyAddedStageTex = pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					auto& newlyAddedStageTex = pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 						.m_space = Shader::TextureSpace });
 					for (auto& t : m_sceneData.mTextures)
 						newlyAddedStageTex.m_shaderResources.emplace_back(t);
-					pso.m_rtState.m_bindlessShaderStageStates.emplace_back(BindlessShaderStage{
+					pso.m_rtState.m_bindlessShaderResources.emplace_back(BindlessShaderStage{
 						.m_space = Shader::MaterialDataSpace,
 						.m_shaderResources = { m_materials },
 						});

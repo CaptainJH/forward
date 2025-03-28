@@ -745,8 +745,8 @@ void DeviceRTPipelineStateObjectDX12::BuildRootSignature(DeviceDX12* d)
 			};
 
 		GenerateDescriptorRanges(0, m_rtPSO.m_rtState);
-		std::ranges::sort(m_rtPSO.m_rtState.m_bindlessShaderStageStates, {}, [](auto& s) { return s.m_space; });
-		for (auto& stage : m_rtPSO.m_rtState.m_bindlessShaderStageStates)
+		std::ranges::sort(m_rtPSO.m_rtState.m_bindlessShaderResources, {}, [](auto& s) { return s.m_space; });
+		for (auto& stage : m_rtPSO.m_rtState.m_bindlessShaderResources)
 			GenerateDescriptorRanges(stage.m_space, stage);
 
 		if (!descriptorRanges.empty())
@@ -1042,7 +1042,7 @@ void DeviceRTPipelineStateObjectDX12::PrepareDeviceResources(DeviceDX12* d)
 			gp.second->SetDeviceObject(make_shared<DeviceBufferDX12>(cmdList->GetDeviceCmdListPtr().Get(), gp.second.get(), *d));
 	}
 
-	for (auto& bindlessStage : m_rtPSO.m_rtState.m_bindlessShaderStageStates)
+	for (auto& bindlessStage : m_rtPSO.m_rtState.m_bindlessShaderResources)
 	{
 		for (auto& pCB : bindlessStage.m_constantBuffers)
 		{
@@ -1325,9 +1325,9 @@ void DeviceRTPipelineStateObjectDX12::StageDescriptorsToCache(Vector<CD3DX12_DES
 			StageDescriptorsInRange(offsetInSpace, range, m_rtPSO.m_rtState);
 		else
 		{
-			auto stageStateIt = std::ranges::find_if(m_rtPSO.m_rtState.m_bindlessShaderStageStates, [&](auto& s) {
+			auto stageStateIt = std::ranges::find_if(m_rtPSO.m_rtState.m_bindlessShaderResources, [&](auto& s) {
 				return s.m_space == range.RegisterSpace; });
-			assert(stageStateIt != m_rtPSO.m_rtState.m_bindlessShaderStageStates.end());
+			assert(stageStateIt != m_rtPSO.m_rtState.m_bindlessShaderResources.end());
 			StageDescriptorsInRange(offsetInSpace, range, *stageStateIt);
 		}
 		previousSpace = range.RegisterSpace;

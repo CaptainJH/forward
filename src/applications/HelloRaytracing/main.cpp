@@ -96,7 +96,7 @@ public:
 	}
 
 protected:
-	void UpdateScene(f32) override {}
+	void UpdateScene(f32) override { m_cb->SetDirty(); }
 
 	void DrawScene() override
 	{
