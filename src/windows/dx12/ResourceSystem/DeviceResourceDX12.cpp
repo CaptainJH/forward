@@ -79,3 +79,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE DeviceResourceDX12::GetShaderResourceViewHandle()
 	return m_srvHandle;
 }
 
+void DeviceResourceDX12::PostSetDeviceObject(forward::GraphicsObject* obj) {
+	if (obj && m_name.empty()) {
+		m_name = TextHelper::ToUnicode(obj->Name());
+		GetDeviceResource()->SetName(m_name.c_str());
+	}
+}
+

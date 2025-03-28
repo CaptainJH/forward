@@ -3,7 +3,7 @@
 //***************************************************************************************
 #pragma once
 
-#include "pCH.h"
+#include "PCH.h"
 #include "smartPtrs.h"
 
 namespace forward
@@ -16,16 +16,13 @@ namespace forward
 		DeviceObject(forward::GraphicsObject* obj);
 		virtual ~DeviceObject();
 
-		const std::string&		Name() const;
-		void					SetName(const std::string& name);
-
-		u32						GetInnerID();
+		u32	GetInnerID();
 
 		shared_ptr<forward::GraphicsObject>		GraphicsObject();
 		virtual void			PostSetDeviceObject(forward::GraphicsObject*) {}
 
 	protected:
-		std::string									m_name;
+		WString		m_name;
 		weak_ptr<forward::intrusive_ref_counter>	m_frameGraphObjPtr = nullptr; // use type intrusive_ref_counter to avoid cross reference compiling issue.
 
 		static u32						s_usDeviceObjectUID;

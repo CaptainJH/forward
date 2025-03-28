@@ -26,6 +26,7 @@ namespace forward
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() { return m_gpuVirtualAddress; }
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceViewHandle();
+		void PostSetDeviceObject(forward::GraphicsObject*) override;
 
 	protected:
 		DeviceResCom12Ptr		m_deviceResPtr;

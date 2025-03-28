@@ -365,7 +365,9 @@ void nanovg_forward_demo::SetupRenderPass(RenderPass& thisPass, RenderItem& rend
 
 	thisPass.m_vs.m_constantBuffers[0] = m_nvg_vs_cb;
 	if (m_current_ps_cb_index >= m_nvg_ps_cb.size()) {
-		auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>("nvg_ps_cb");
+		std::stringstream ss;
+		ss << "nvg_ps_cb_" << m_current_ps_cb_index;
+		auto nvg_ps_cb = make_shared<ConstantBuffer<D3DNVGfragUniforms>>(ss.str().c_str());
 		m_nvg_ps_cb.push_back(nvg_ps_cb);
 		*nvg_ps_cb = renderItem.constant_buffer;
 		thisPass.m_ps.m_constantBuffers[1] = nvg_ps_cb;

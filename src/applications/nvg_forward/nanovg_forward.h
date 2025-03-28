@@ -357,30 +357,25 @@ static void forwardnvg_renderFill(void* uptr, NVGpaint* paint, NVGcompositeOpera
 
 	auto drawFills = [&](NVGvertex* fills, int fillCount, auto toListFunc, RenderItem& renderItem) {
 		if (fillCount > 0) {
-			if (fillCount >= 3) {
-				for (int i = 0; i < fillCount; ++i) {
-					renderItem.AddVertex({
-						.position		= { fills[i].x, fills[i].y, 0.0f },
-						.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
-						.tex_coord	= { fills[i].u, fills[i].v }
-						});
-					toListFunc(renderItem, i);
-				}
+			assert(fillCount >= 3);
+			for (int i = 0; i < fillCount; ++i) {
+				renderItem.AddVertex({
+					.position		= { fills[i].x, fills[i].y, 0.0f },
+					.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+					.tex_coord	= { fills[i].u, fills[i].v }
+					});
+				toListFunc(renderItem, i);
+			}
 
-				memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
-				// Fill shader
-				D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
-				if (paint->image != 0) {
-					auto texInfo = gl->FindTextureById(paint->image);
-					assert(texInfo);
-					renderItem.tex = texInfo->tex;
-				}
+			memset(&renderItem.constant_buffer, 0, sizeof(renderItem.constant_buffer));
+			// Fill shader
+			D3Dnvg__convertPaint(gl, &renderItem.constant_buffer, paint, scissor, fringe, fringe, -1.0f);
+			if (paint->image != 0) {
+				auto texInfo = gl->FindTextureById(paint->image);
+				assert(texInfo);
+				renderItem.tex = texInfo->tex;
 			}
-			else {
-				assert(false);
-			}
-		}
-		};
+		}};
 
 	if (npaths == 1 && paths[0].convex) {
 		for (int i = 0; i < npaths; ++i) {
@@ -466,21 +461,15 @@ static void forwardnvg_renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOpe
 
 	auto drawFills = [&](NVGvertex* fills, int fillCount, RenderItem& renderItem) {
 		if (fillCount > 0) {
-			if (fillCount >= 3) {
-				for (int i = 0; i < fillCount; ++i) {
-					renderItem.AddVertex({
-						.position		= { fills[i].x, fills[i].y, 0.0f },
-						.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
-						.tex_coord	= { fills[i].u, fills[i].v }
-						});
-				}
+			assert(fillCount >= 3);
+			for (int i = 0; i < fillCount; ++i) {
+				renderItem.AddVertex({
+					.position		= { fills[i].x, fills[i].y, 0.0f },
+					.color			= { paint->innerColor.r, paint->innerColor.g, paint->innerColor.b, paint->innerColor.a },
+					.tex_coord	= { fills[i].u, fills[i].v }
+					});
 			}
-			else {
-				assert(false);
-			}
-		}
-		};
-
+		}};
 
 	for (int i = 0; i < npaths; ++i) {
 		auto& path = paths[i];

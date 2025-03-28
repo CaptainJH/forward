@@ -2,7 +2,7 @@
 // GraphicsObject.cpp by Heqi Ju (C) 2018 All Rights Reserved.
 //***************************************************************************************
 
-#include "pCH.h"
+#include "PCH.h"
 #include "RHI/ResourceSystem/GraphicsObject.h"
 #include "RHI/ResourceSystem/DeviceObject.h"
 #include "utilities/Log.h"
@@ -59,14 +59,8 @@ void GraphicsObject::CheckMemoryLeak()
 	}
 }
 
-void GraphicsObject::SetDeviceObject(forward::DeviceObject* obj)
-{
-	m_deviceObjectPtr = obj;
-	if (obj)obj->PostSetDeviceObject(this);
-}
-
 void GraphicsObject::SetDeviceObject(DeviceObjPtr p)
 {
 	m_deviceObjectPtr = p;
-	p->PostSetDeviceObject(this);
+	if (p) p->PostSetDeviceObject(this);
 }

@@ -59,7 +59,6 @@ namespace forward
 		inline bool IsShader() const;
 		inline bool IsDrawingState() const;
 
-		void SetDeviceObject(forward::DeviceObject* obj);
 		void SetDeviceObject(DeviceObjPtr p);
 		inline DeviceObjPtr DeviceObject();
 
